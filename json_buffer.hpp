@@ -99,20 +99,34 @@ class buffer {
     return write(value.data(), value.size());
   }
 
-  buffer &operator <<(int value) {
-    return write_signed<int, unsigned int>(value);
+  buffer &operator <<(int16_t value) {
+    return (value < 0 ?
+        write_negative(value) :
+        write_positive(static_cast<uint16_t>(value)));
   }
 
-  buffer &operator <<(unsigned int value) {
-    return write_unsigned<unsigned int>(value);
+  buffer &operator <<(int32_t value) {
+    return (value < 0 ?
+        write_negative(value) :
+        write_positive(static_cast<uint32_t>(value)));
   }
 
   buffer &operator <<(int64_t value) {
-    return write_signed<int64_t, uint64_t>(value);
+    return (value < 0 ?
+        write_negative(value) :
+        write_positive(static_cast<uint64_t>(value)));
+  }
+
+  buffer &operator <<(uint16_t value) {
+    return write_positive(value);
+  }
+
+  buffer &operator <<(uint32_t value) {
+    return write_positive(value);
   }
 
   buffer &operator <<(uint64_t value) {
-    return write_unsigned<uint64_t>(value);
+    return write_positive(value);
   }
 
   buffer &operator <<(float value) {
@@ -150,36 +164,174 @@ class buffer {
     }
   }
 
-  template<typename S, typename U>
-  buffer &write_signed(S value) {
-    if (value < 0) {
-      *this << '-';
-      value = -value;
+  buffer &write_negative(int16_t value) {
+    const size_t n(count_digits_negative(value));
+    require_bytes(n + 1);
+    *_ptr++ = '-';
+    switch (n) {
+      #define C(_n) case _n: _ptr[_n - 1] = ('0' - (value % 10)); value /= 10
+      C( 5); C( 4); C( 3); C( 2); C( 1);
+      #undef C
     }
-
-    return write_unsigned(static_cast<U>(value));
+    _ptr += n;
+    return *this;
   }
 
-  template<typename U>
-  buffer &write_unsigned(U value) {
-    char buffer[20];
-    char *buf = buffer;
-
-		do {
-			*buf++ = static_cast<char>(value % 10) + '0';
-			value /= 10;
-		} while (value > 0);
-
-    const int n = buf - buffer;
-    require_bytes(n);
-
-    for (int i = 0; i < n; ++i) {
-      _ptr[i] = buf[-i-1];
+  buffer &write_negative(int32_t value) {
+    const size_t n(count_digits_negative(value));
+    require_bytes(n + 1);
+    *_ptr++ = '-';
+    switch (n) {
+      #define C(_n) case _n: _ptr[_n - 1] = ('0' - (value % 10)); value /= 10
+      C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
+      #undef C
     }
-
     _ptr += n;
-
     return *this;
+  }
+
+  buffer &write_negative(int64_t value) {
+    const size_t n(count_digits_negative(value));
+    require_bytes(n + 1);
+    *_ptr++ = '-';
+    switch (n) {
+      #define C(_n) case _n: _ptr[_n - 1] = ('0' - (value % 10)); value /= 10
+      /*20*/ C(19); C(18); C(17); C(16); C(15); C(14); C(13); C(12); C(11);
+      C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
+      #undef C
+    }
+    _ptr += n;
+    return *this;
+  }
+
+  buffer &write_positive(uint16_t value) {
+    const size_t n(count_digits_positive(value));
+    require_bytes(n);
+    switch (n) {
+      #define C(_n) case _n: _ptr[_n - 1] = ('0' + (value % 10)); value /= 10
+      C( 5); C( 4); C( 2); C( 3); C( 1);
+      #undef C
+    }
+    _ptr += n;
+    return *this;
+  }
+
+  buffer &write_positive(uint32_t value) {
+    const size_t n(count_digits_positive(value));
+    require_bytes(n);
+    switch (n) {
+      #define C(_n) case _n: _ptr[_n - 1] = ('0' + (value % 10)); value /= 10
+      C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
+      #undef C
+    }
+    _ptr += n;
+    return *this;
+  }
+
+  buffer &write_positive(uint64_t value) {
+    const size_t n(count_digits_positive(value));
+    require_bytes(n);
+    switch (n) {
+      #define C(_n) case _n: _ptr[_n - 1] = ('0' + (value % 10)); value /= 10
+      C(20); C(19); C(18); C(17); C(16); C(15); C(14); C(13); C(12); C(11);
+      C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
+      #undef C
+    }
+    _ptr += n;
+    return *this;
+  }
+
+  size_t count_digits_positive(uint64_t value) {
+    return (
+        value < 10ULL ? 1 :
+        value < 100ULL ? 2 :
+        value < 1000ULL ? 3 :
+        value < 10000ULL ? 4 :
+        value < 100000ULL ? 5 :
+        value < 1000000ULL ? 6 :
+        value < 10000000ULL ? 7 :
+        value < 100000000ULL ? 8 :
+        value < 1000000000ULL ? 9 :
+        value < 10000000000ULL ? 10 :
+        value < 100000000000ULL ? 11 :
+        value < 1000000000000ULL ? 12 :
+        value < 10000000000000ULL ? 13 :
+        value < 100000000000000ULL ? 14 :
+        value < 1000000000000000ULL ? 15 :
+        value < 10000000000000000ULL ? 16 :
+        value < 100000000000000000ULL ? 17 :
+        value < 1000000000000000000ULL ? 18 :
+        value < 10000000000000000000ULL ? 19 :
+        20);
+  }
+
+  size_t count_digits_negative(int64_t value) {
+    return (
+        value > -10LL ? 1 :
+        value > -100LL ? 2 :
+        value > -1000LL ? 3 :
+        value > -10000LL ? 4 :
+        value > -100000LL ? 5 :
+        value > -1000000LL ? 6 :
+        value > -10000000LL ? 7 :
+        value > -100000000LL ? 8 :
+        value > -1000000000LL ? 9 :
+        value > -10000000000LL ? 10 :
+        value > -100000000000LL ? 11 :
+        value > -1000000000000LL ? 12 :
+        value > -10000000000000LL ? 13 :
+        value > -100000000000000LL ? 14 :
+        value > -1000000000000000LL ? 15 :
+        value > -10000000000000000LL ? 16 :
+        value > -100000000000000000LL ? 17 :
+        value > -1000000000000000000LL ? 18 :
+        19);
+  }
+
+  size_t count_digits_positive(uint32_t value) {
+    return (
+        value < 10UL ? 1 :
+        value < 100UL ? 2 :
+        value < 1000UL ? 3 :
+        value < 10000UL ? 4 :
+        value < 100000UL ? 5 :
+        value < 1000000UL ? 6 :
+        value < 10000000UL ? 7 :
+        value < 100000000UL ? 8 :
+        value < 1000000000UL ? 9 :
+        10);
+  }
+
+  size_t count_digits_negative(int32_t value) {
+    return (
+        value > -10L ? 1 :
+        value > -100L ? 2 :
+        value > -1000L ? 3 :
+        value > -10000L ? 4 :
+        value > -100000L ? 5 :
+        value > -1000000L ? 6 :
+        value > -10000000L ? 7 :
+        value > -100000000L ? 8 :
+        value > -1000000000L ? 9 :
+        10);
+  }
+
+  size_t count_digits_positive(uint16_t value) {
+    return (
+        value < 10U ? 1 :
+        value < 100U ? 2 :
+        value < 1000U ? 3 :
+        value < 10000U ? 4 :
+        5);
+  }
+
+  size_t count_digits_negative(int16_t value) {
+    return (
+        value > -10 ? 1 :
+        value > -100 ? 2 :
+        value > -1000 ? 3 :
+        value > -10000 ? 4 :
+        5);
   }
 
   template<typename D>
