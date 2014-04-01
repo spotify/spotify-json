@@ -33,10 +33,10 @@ uint64_t benchmark_json(int iterations, const std::string &filename) {
   uint64_t start = GetTickCount64();
 
   {
-    json::writer<stream_type>::scoped_object root(writer);
-    json::writer<stream_type>::scoped_array arr(writer, "arr");
+    typename json::writer<stream_type>::scoped_object root(writer);
+    typename json::writer<stream_type>::scoped_array arr(writer, "arr");
     for (int i = 0; i < iterations; ++i) {
-      json::writer<stream_type>::scoped_object obj(writer);
+      typename json::writer<stream_type>::scoped_object obj(writer);
       writer << json::make_pair("key1", "Omgång");
       writer << json::make_pair("key2", 1337);
       writer << json::make_pair("key3", 3.1415962f);
