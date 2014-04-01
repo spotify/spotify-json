@@ -1,6 +1,10 @@
 // Copyright (c) 2014 Felix Bruns.
 
+#if __APPLE__
+#include <chrono>
+#else
 #include <windows.h>
+#endif
 
 #include <fstream>
 #include <functional>
@@ -13,6 +17,14 @@
 /*#include "rapidjson/include/rapidjson/writer.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
 #include "rapidjson/include/rapidjson/filewritestream.h"*/
+
+#if __APPLE__
+static uint64_t GetTickCount64() {
+  using namespace std::chrono;
+  const auto now(steady_clock::now().time_since_epoch());
+  return duration_cast<milliseconds>(now).count();
+}
+#endif
 
 template<typename stream_type>
 uint64_t benchmark_json(int iterations, const std::string &filename) {
@@ -42,6 +54,7 @@ uint64_t benchmark_json(int iterations, const std::string &filename) {
   return time;
 }
 
+/*
 template<typename stream_type>
 uint64_t benchmark_json_lambda(int iterations, const std::string &filename) {
   stream_type stream;
@@ -70,7 +83,7 @@ uint64_t benchmark_json_lambda(int iterations, const std::string &filename) {
 
   return time;
 }
-
+*/
 /*uint64_t benchmark_rapidjson(int iterations, const std::string &filename) {
   using namespace rapidjson;
 
