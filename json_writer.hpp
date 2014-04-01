@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "json_escape.hpp"
+#include "json_key.hpp"
 #include "json_locale.hpp"
 #include "json_pair.hpp"
 #include "json_buffer.hpp"
@@ -51,6 +52,10 @@ class writer {
 
   writer &operator <<(uint8_t value) {
     return separator().write(static_cast<unsigned>(value)).set_separator(true);
+  }
+
+  writer &operator <<(const key &key) {
+    return separator().write(key.data, key.size).set_separator(true);
   }
 
   writer &operator <<(const char *value) {
