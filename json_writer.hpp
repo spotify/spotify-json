@@ -19,14 +19,15 @@
 
 namespace json {
 
-static const struct null_type {} null;
+struct null_type {};
+static null_type null;
 
 template<typename stream_type>
 class writer {
  public:
   explicit writer(stream_type &stream)
-    : _stream(stream),
-      _separator_needed(false),
+    : _separator_needed(false),
+      _stream(stream),
       _scoped_locale(LC_NUMERIC_MASK, "C") {}
 
   virtual ~writer() {}
@@ -45,11 +46,11 @@ class writer {
   }
 
   writer &operator <<(int8_t value) {
-    return separator().write<signed>(value).set_separator(true);
+    return separator().write(static_cast<signed>(value)).set_separator(true);
   }
 
   writer &operator <<(uint8_t value) {
-    return separator().write<<unsigned>(value).set_separator(true);
+    return separator().write(static_cast<unsigned>(value)).set_separator(true);
   }
 
   writer &operator <<(const char *value) {
@@ -77,7 +78,7 @@ class writer {
   template<typename T>
   writer &operator <<(const std::vector<T> &vector) {
     scoped_array arr(*this);
-    for (std::vector<T>::const_iterator it = vector.begin(); it != vector.end(); ++it) {
+    for (typename std::vector<T>::const_iterator it = vector.begin(); it != vector.end(); ++it) {
       *this << *it;
     }
     return *this;
@@ -86,7 +87,7 @@ class writer {
   template<typename T>
   writer &operator <<(const std::set<T> &set) {
     scoped_array arr(*this);
-    for (std::vector<T>::const_iterator it = set.begin(); it != set.end(); ++it) {
+    for (typename std::vector<T>::const_iterator it = set.begin(); it != set.end(); ++it) {
       *this << *it;
     }
     return *this;
@@ -95,7 +96,7 @@ class writer {
   template<typename K, typename V>
   writer &operator <<(const std::map<K, V> &map) {
     scoped_object obj(*this);
-    for (std::map<K, V>::const_iterator it = map.begin(); it != map.end(); ++it) {
+    for (typename std::map<K, V>::const_iterator it = map.begin(); it != map.end(); ++it) {
       *this << *it;
     }
     return *this;

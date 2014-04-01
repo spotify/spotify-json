@@ -63,7 +63,7 @@ inline locale_t use_locale(locale_t new_locale) {
 
   return old_locale;
 #else
-  return uselocale(loc);
+  return uselocale(new_locale);
 #endif
 }
 
