@@ -1,10 +1,9 @@
-// Copyright (c) 2014 Felix Bruns.
+// Copyright (c) 2014 Felix Bruns and Johan Lindström.
 
 #pragma once
 #ifndef JSON_ESCAPE_HPP_
 #define JSON_ESCAPE_HPP_
 
-#include <iomanip>
 #include <ostream>
 #include <string>
 
@@ -20,6 +19,28 @@ class null_terminated_end_iterator {
   }
 };
 
+template<typename OutputType>
+struct escape_traits {
+  static void write(OutputType &out, const char *data, size_t length) {
+    out.write(data, length);
+  }
+  static void put(OutputType &out, char ch) {
+    out.put(ch);
+  }
+};
+
+template<>
+void escape_traits<std::string>::write(
+    std::string &out, const char *data, size_t length) {
+  out.append(data, length);
+}
+
+template<>
+void escape_traits<std::string>::put(
+    std::string &out, char ch) {
+  out.push_back(ch);
+}
+
 /**
   * \brief Escape a string for use in a JSON string as per RFC 4627.
   *
@@ -28,33 +49,30 @@ class null_terminated_end_iterator {
   *
   * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
   */
-template<typename stream_type, typename iterator, typename end_iterator>
-inline void write_escaped(stream_type &stream, const iterator &begin, const end_iterator &end) {
-  static const char HEX_TABLE[16] = {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-  };
+template<typename OutputType, typename InputIterator, typename InputEndIterator>
+inline OutputType &write_escaped(OutputType &out, const InputIterator &begin, const InputEndIterator &end) {
+  typedef escape_traits<OutputType> traits;
 
-  for (iterator it = begin; end != it; ++it) {
-    const char ch = *it;
+  static const char *HEX = "0123456789ABCDEF";
 
-    // Escape control characters (0x00 through 0x1F)
-    //
-    // Note: A cast to unsigned is needed in order to format
-    //       the character as a hexadecimal string instead of
-    //       just writing it to the stream as is.
-    if (static_cast<unsigned char>(ch) < 0x20) {
-      stream.write("\\u00", 4);
-      stream.put(HEX_TABLE[static_cast<unsigned char>(ch >> 4)]);
-      stream.put(HEX_TABLE[static_cast<unsigned char>(ch & 0x0F)]);
-    // Escape backslashes and quotation marks.
-    } else if (ch == '\\' || ch == '"') {
-      stream.put('\\');
-      stream.put(ch);
-    // Any other character does not need to be escaped.
+  for (InputIterator it = begin; end != it; ++it) {
+    const unsigned char ch = static_cast<unsigned char>(*it);
+    const bool is_control_character(ch < 0x20);
+    const bool is_special_character(ch == '\\' || ch == '"');
+
+    if (is_control_character) {
+      traits::write(out, "\\u00", 4);
+      traits::put(out, HEX[(ch >> 4)]);
+      traits::put(out, HEX[(ch & 0x0F)]);
+    } else if (is_special_character) {
+      traits::put(out, '\\');
+      traits::put(out, ch);
     } else {
-      stream.put(ch);
+      traits::put(out, ch);
     }
   }
+
+  return out;
 }
 
 }  // namespace json
