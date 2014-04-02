@@ -1,4 +1,4 @@
-// Copyright (c) 2014 Felix Bruns.
+// Copyright 2014 Felix Bruns and Johan Lindström.
 
 #pragma once
 #ifndef JSON_BUFFER_HPP_
@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdint.h>
+
+#include "json_macros.hpp"
 
 namespace json {
 
@@ -142,20 +144,24 @@ class buffer {
    *
    * If there is no space left inside the buffer, this will dynamically allocate more memory.
    */
-  void require_bytes(size_t n) {
+  json_force_inline void require_bytes(size_t n) {
     if (_ptr + n >= _end) {
-      const size_t size(_ptr - _data);
-      const size_t new_size(size + n);
-      const size_t new_capacity(std::max(new_size, _capacity * 2));
-
-      if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
-        assert(0);
-      }
-
-      _ptr = _data + size;
-      _end = _data + new_capacity;
-      _capacity = new_capacity;
+      grow_buffer(n);
     }
+  }
+
+  json_never_inline void grow_buffer(size_t n) {
+    const size_t size(_ptr - _data);
+    const size_t new_size(size + n);
+    const size_t new_capacity(std::max(new_size, _capacity * 2));
+
+    if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
+      assert(0);
+    }
+
+    _ptr = _data + size;
+    _end = _data + new_capacity;
+    _capacity = new_capacity;
   }
 
   buffer &write_negative(int16_t value) {
