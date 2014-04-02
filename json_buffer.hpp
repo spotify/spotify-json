@@ -12,6 +12,10 @@
 
 #include "json_macros.hpp"
 
+#ifdef max
+#undef max
+#endif
+
 namespace json {
 
 /**
