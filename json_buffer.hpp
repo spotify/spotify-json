@@ -1,13 +1,16 @@
-// Copyright (c) 2014 Felix Bruns.
+// Copyright 2014 Felix Bruns and Johan Lindström.
 
 #pragma once
 #ifndef JSON_BUFFER_HPP_
 #define JSON_BUFFER_HPP_
 
+#include <algorithm>
 #include <assert.h>
 #include <cstdio>
 #include <cstdlib>
 #include <stdint.h>
+
+#include "json_macros.hpp"
 
 namespace json {
 
@@ -20,13 +23,11 @@ class buffer {
    * \brief Create a buffer with the given initial capacity. Default is 4096.
    */
   explicit buffer(size_t capacity = 4096)
-    : _data(NULL),
-      _ptr(NULL),
+    : _data(static_cast<char *>(::malloc(capacity))),
+      _ptr(_data),
+      _end(_data + capacity),
       _capacity(capacity) {
-    _data = (char *)malloc(_capacity);
-    _ptr = _data;
-
-    if (_data == NULL) {
+    if (!_data) {
       assert(0);
     }
   }
@@ -143,25 +144,24 @@ class buffer {
    *
    * If there is no space left inside the buffer, this will dynamically allocate more memory.
    */
-  void require_bytes(size_t n) {
-		size_t size = _ptr - _data;
-
-		if (size + n >= _capacity) {
-		  size_t new_capacity = _capacity * 2;
-		  size_t new_size = size + n;
-
-		  if (new_capacity < new_size) {
-			  new_capacity = new_size;
-      }
-
-      _data = (char *)realloc(_data, new_capacity);
-      if (_data == NULL) {
-        assert(0);
-      }
-
-      _ptr = _data + size;
-      _capacity = new_capacity;
+  json_force_inline void require_bytes(size_t n) {
+    if (_ptr + n >= _end) {
+      grow_buffer(n);
     }
+  }
+
+  json_never_inline void grow_buffer(size_t n) {
+    const size_t size(_ptr - _data);
+    const size_t new_size(size + n);
+    const size_t new_capacity(std::max(new_size, _capacity * 2));
+
+    if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
+      assert(0);
+    }
+
+    _ptr = _data + size;
+    _end = _data + new_capacity;
+    _capacity = new_capacity;
   }
 
   buffer &write_negative(int16_t value) {
@@ -349,6 +349,7 @@ class buffer {
 
   char *_data;
   char *_ptr;
+  char *_end;
   size_t _capacity;
 };
 

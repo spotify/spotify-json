@@ -32,17 +32,27 @@ uint64_t benchmark_json(int iterations, const std::string &filename) {
   json::writer<stream_type> writer(stream);
   uint64_t start = GetTickCount64();
 
+  // For best performance, create the keys separate from the property pairs and
+  // reuse them. It is also possible to make pairs with regular strings, which
+  // is more flexible and has lower overhead when the key is only used once.
+  const json::key key1("key1");
+  const json::key key2("key2");
+  const json::key key3("key3");
+  const json::key key4("key4");
+  const json::key key5("key5");
+  const json::key key6("key6");
+
   {
     typename json::writer<stream_type>::scoped_object root(writer);
     typename json::writer<stream_type>::scoped_array arr(writer, "arr");
     for (int i = 0; i < iterations; ++i) {
       typename json::writer<stream_type>::scoped_object obj(writer);
-      writer << json::make_pair("key1", "Omgång");
-      writer << json::make_pair("key2", 1337);
-      writer << json::make_pair("key3", 3.1415962f);
-      writer << json::make_pair("key4", 1.0f);
-      writer << json::make_pair("key5", true);
-      writer << json::make_pair("key6", UINT64_MAX);
+      writer << json::make_pair(key1, "Omgång");
+      writer << json::make_pair(key2, 1337);
+      writer << json::make_pair(key3, 3.1415962f);
+      writer << json::make_pair(key4, 1.0f);
+      writer << json::make_pair(key5, true);
+      writer << json::make_pair(key6, UINT64_MAX);
     }
   }
 
