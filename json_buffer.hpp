@@ -1,8 +1,6 @@
 // Copyright 2014 Felix Bruns and Johan Lindström.
 
 #pragma once
-#ifndef JSON_BUFFER_HPP_
-#define JSON_BUFFER_HPP_
 
 #include <algorithm>
 #include <assert.h>
@@ -358,5 +356,3 @@ class buffer {
 };
 
 }  // namespace json
-
-#endif  // JSON_BUFFER_HPP_

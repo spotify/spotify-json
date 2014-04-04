@@ -1,8 +1,6 @@
 // Copyright (c) 2014 Felix Bruns.
 
 #pragma once
-#ifndef JSON_LOCALE_HPP_
-#define JSON_LOCALE_HPP_
 
 #include <locale.h>
 
@@ -97,5 +95,3 @@ class scoped_locale {
 };
 
 }  // namespace json
-
-#endif  // JSON_LOCALE_HPP_
