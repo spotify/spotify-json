@@ -52,10 +52,10 @@ inline locale_t use_locale(locale_t new_locale) {
     _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
 
     for(int i = LC_MIN; i <= LC_MAX; i++) {
-      const locrefcount &lc_category = new_locale->locinfo->lc_category[i];
+      const pthreadlocinfo locinfo = new_locale->locinfo;
 
-      setlocale(i, lc_category.locale);
-      _wsetlocale(i, lc_category.wlocale);
+      setlocale(i, locinfo->lc_category[i].locale);
+      _wsetlocale(i, locinfo->lc_category[i].wlocale);
     }
   }
 
