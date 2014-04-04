@@ -1,8 +1,6 @@
 // Copyright (c) 2014 Felix Bruns.
 
 #pragma once
-#ifndef JSON_WRITER_HPP_
-#define JSON_WRITER_HPP_
 
 #include <functional>
 #include <map>
@@ -259,5 +257,3 @@ class writer {
 };
 
 }  // namespace json
-
-#endif  // JSON_WRITER_HPP_

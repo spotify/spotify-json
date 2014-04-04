@@ -1,8 +1,6 @@
 // Copyright 2014 Felix Bruns and Johan Lindström.
 
 #pragma once
-#ifndef JSON_KEY_HPP_
-#define JSON_KEY_HPP_
 
 #include <string>
 
@@ -35,5 +33,3 @@ class key {
 };
 
 }  // namespace json
-
-#endif  // JSON_KEY_HPP_

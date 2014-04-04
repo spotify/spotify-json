@@ -1,8 +1,6 @@
 // Copyright (c) 2014 Felix Bruns.
 
 #pragma once
-#ifndef JSON_PAIR_HPP_
-#define JSON_PAIR_HPP_
 
 #include <string>
 
@@ -35,5 +33,3 @@ inline pair<K, V> make_pair(const K &key, const V &value) {
 }
 
 }  // namespace json
-
-#endif  // JSON_PAIR_HPP_

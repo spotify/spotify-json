@@ -1,8 +1,6 @@
 // Copyright (c) 2014 Felix Bruns and Johan Lindström.
 
 #pragma once
-#ifndef JSON_ESCAPE_HPP_
-#define JSON_ESCAPE_HPP_
 
 #include <ostream>
 #include <string>
@@ -76,5 +74,3 @@ inline OutputType &write_escaped(OutputType &out, const InputIterator &begin, co
 }
 
 }  // namespace json
-
-#endif  // JSON_ESCAPE_HPP_
