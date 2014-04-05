@@ -3,9 +3,9 @@
 #pragma once
 
 #include <algorithm>
-#include <assert.h>
 #include <cstdio>
 #include <cstdlib>
+#include <new>
 #include <stdint.h>
 
 #include "detail/json_macros.hpp"
@@ -26,7 +26,7 @@ class buffer {
       _end(_data + capacity),
       _capacity(capacity) {
     if (!_data) {
-      assert(0);
+      throw std::bad_alloc();
     }
   }
 
@@ -154,7 +154,7 @@ class buffer {
     const size_t new_capacity(std::max(new_size, _capacity * 2));
 
     if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
-      assert(0);
+      throw std::bad_alloc();
     }
 
     _ptr = _data + size;
