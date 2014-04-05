@@ -6,6 +6,7 @@
 #include <string>
 
 namespace json {
+namespace detail {
 
 /**
  * \brief Simple end iterator for null-terminated strings.
@@ -73,4 +74,5 @@ inline OutputType &write_escaped(OutputType &out, const InputIterator &begin, co
   return out;
 }
 
+}  // namespace detail
 }  // namespace json

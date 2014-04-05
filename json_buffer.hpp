@@ -8,11 +8,7 @@
 #include <cstdlib>
 #include <stdint.h>
 
-#include "json_macros.hpp"
-
-#ifdef max
-#undef max
-#endif
+#include "detail/json_macros.hpp"
 
 namespace json {
 

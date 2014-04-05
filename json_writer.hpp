@@ -10,11 +10,12 @@
 #include <utility>
 #include <vector>
 
-#include "json_escape.hpp"
-#include "json_key.hpp"
-#include "json_locale.hpp"
-#include "json_pair.hpp"
+#include "detail/json_escape.hpp"
+#include "detail/json_locale.hpp"
+
 #include "json_buffer.hpp"
+#include "json_key.hpp"
+#include "json_pair.hpp"
 
 namespace json {
 
@@ -60,13 +61,13 @@ class writer {
 
   writer &operator <<(const char *value) {
     separator_and_set().put('"');
-    write_escaped(_stream, value, null_terminated_end_iterator());
+    detail::write_escaped(_stream, value, detail::null_terminated_end_iterator());
     return put('"');
   }
 
   writer &operator <<(const std::string &value) {
     separator_and_set().put('"');
-    write_escaped(_stream, value.begin(), value.end());
+    detail::write_escaped(_stream, value.begin(), value.end());
     return put('"');
   }
 
@@ -253,7 +254,7 @@ class writer {
   /**
    * \brief Scoped locale change.
    */
-  scoped_locale _scoped_locale;
+  detail::scoped_locale _scoped_locale;
 };
 
 }  // namespace json

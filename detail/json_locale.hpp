@@ -76,17 +76,15 @@ inline void free_locale(locale_t loc) {
 #endif
 }
 
-}  // namespace detail
-
 class scoped_locale {
  public:
   scoped_locale(int category_mask, const char *locale)
-    : _new_locale(detail::new_locale(category_mask, locale)),
-      _old_locale(detail::use_locale(_new_locale)) {}
+    : _new_locale(new_locale(category_mask, locale)),
+      _old_locale(use_locale(_new_locale)) {}
 
   virtual ~scoped_locale() {
-    detail::use_locale(_old_locale);
-    detail::free_locale(_new_locale);
+    use_locale(_old_locale);
+    free_locale(_new_locale);
   }
 
  private:
@@ -94,4 +92,5 @@ class scoped_locale {
   locale_t _old_locale;
 };
 
+}  // namespace detail
 }  // namespace json

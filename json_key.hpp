@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "json_escape.hpp"
+#include "detail/json_escape.hpp"
 
 namespace json {
 
@@ -12,14 +12,14 @@ class key {
  public:
   explicit key(const char *raw)
       : _storage("\""),
-        _ref(write_escaped(_storage, raw, null_terminated_end_iterator())),
+        _ref(detail::write_escaped(_storage, raw, detail::null_terminated_end_iterator())),
         data(_ref.append("\"").data()),
         size(_ref.size()) {}
 
   template<typename Iterable>
   explicit key(const Iterable &iterable)
       : _storage("\""),
-        _ref(write_escaped(_storage, iterable.begin(), iterable.end())),
+        _ref(detail::write_escaped(_storage, iterable.begin(), iterable.end())),
         data(_ref.append("\"").data()),
         size(_ref.size()) {}
 
