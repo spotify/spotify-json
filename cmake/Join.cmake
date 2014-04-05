@@ -1,0 +1,20 @@
+# Joins a cmake list into a string
+# set(MYLIST "a;b;c;d")
+# JOIN(CSVLIST "," FALSE ${MYLIST})
+# CSVLIST contains now a,b,c,d
+
+function(JOIN OUTPUT_STRING_VAR SEP_STR QUOTE_ELEMENTS)
+  set(QUOTE_CHAR)
+  if(QUOTE_ELEMENTS)
+    set(QUOTE_CHAR "\"")
+  endif()
+  set(OUTPUT_STRING "")
+  foreach(STRING_VAL ${ARGN})
+    if(OUTPUT_STRING STREQUAL "")
+      set(OUTPUT_STRING "${QUOTE_CHAR}${STRING_VAL}${QUOTE_CHAR}")
+    else()
+      set(OUTPUT_STRING "${OUTPUT_STRING}${SEP_STR}${QUOTE_CHAR}${STRING_VAL}${QUOTE_CHAR}")
+    endif()
+  endforeach()
+  set(${OUTPUT_STRING_VAR} "${OUTPUT_STRING}" PARENT_SCOPE)
+endfunction()
