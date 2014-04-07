@@ -16,6 +16,7 @@
 
 #pragma once
 
+namespace spotify {
 namespace json {
 
 template<typename StreamType>
@@ -53,3 +54,4 @@ basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const pa
 }
 
 }  // namespace json
+}  // namespace spotify

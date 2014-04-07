@@ -25,6 +25,7 @@
 #include "json_buffer.hpp"
 #include "json_key.hpp"
 
+namespace spotify {
 namespace json {
 
 struct null_type {};
@@ -253,3 +254,4 @@ basic_writer<stream_type> &operator <<(basic_writer<stream_type> &writer, const 
 typedef basic_writer<buffer> writer;
 
 }  // namespace json
+}  // namespace spotify

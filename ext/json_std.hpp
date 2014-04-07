@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+namespace spotify {
 namespace json {
 
 namespace detail {
@@ -72,3 +73,4 @@ basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const st
 }
 
 }  // namespace json
+}  // namespace spotify

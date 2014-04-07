@@ -18,6 +18,7 @@
 
 #include <boost/optional.hpp>
 
+namespace spotify {
 namespace json {
 
 template<typename StreamType, typename T>
@@ -45,3 +46,4 @@ basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const st
 }
 
 }  // namespace json
+}  // namespace spotify

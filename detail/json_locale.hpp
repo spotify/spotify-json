@@ -38,6 +38,7 @@ typedef _locale_t locale_t;
 #define LC_TIME_MASK     LC_TIME
 #endif  // _WIN32
 
+namespace spotify {
 namespace json {
 namespace detail {
 
@@ -108,3 +109,4 @@ class scoped_locale {
 
 }  // namespace detail
 }  // namespace json
+}  // namespace spotify

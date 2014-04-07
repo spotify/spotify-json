@@ -18,6 +18,7 @@
 
 #include <string>
 
+namespace spotify {
 namespace json {
 namespace detail {
 
@@ -89,3 +90,4 @@ inline OutputType &write_escaped(OutputType &out, const InputIterator &begin, co
 
 }  // namespace detail
 }  // namespace json
+}  // namespace spotify

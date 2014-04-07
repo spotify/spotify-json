@@ -20,6 +20,7 @@
 
 #include "json_key.hpp"
 
+BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 
 using namespace std;
@@ -41,3 +42,4 @@ BOOST_AUTO_TEST_CASE(json_key_should_escape_raw_key) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json
+BOOST_AUTO_TEST_SUITE_END()  // spotify

@@ -30,6 +30,9 @@
 #include "ext/json_boost.hpp"
 #include "ext/json_std.hpp"
 
+BOOST_AUTO_TEST_SUITE(spotify)
+BOOST_AUTO_TEST_SUITE(json)
+
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector_with_boost_optional) {
   json::buffer buffer;
   json::writer writer(buffer);
@@ -89,3 +92,6 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_deque) {
 
   BOOST_CHECK_EQUAL("[\"a\",\"b\",\"c\"]", json);
 }
+
+BOOST_AUTO_TEST_SUITE_END()  // json
+BOOST_AUTO_TEST_SUITE_END()  // spotify

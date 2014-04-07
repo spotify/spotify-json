@@ -20,6 +20,7 @@
 
 #include "detail/json_escape.hpp"
 
+namespace spotify {
 namespace json {
 
 class key {
@@ -53,3 +54,4 @@ class key {
 };
 
 }  // namespace json
+}  // namespace spotify

@@ -24,6 +24,7 @@
 
 #include "detail/json_macros.hpp"
 
+namespace spotify {
 namespace json {
 
 /**
@@ -366,3 +367,4 @@ class buffer {
 };
 
 }  // namespace json
+}  // namespace spotify
