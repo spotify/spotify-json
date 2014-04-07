@@ -20,9 +20,17 @@ set(json_public_HEADERS
 
 source_group(json FILES ${json_public_HEADERS})
 
+set(json_extension_HEADERS
+  ext/json_boost.hpp
+  ext/json_std.hpp
+  )
+
+source_group(json\\ext FILES ${json_extension_HEADERS})
+
 set(json_HEADERS
   ${json_detail_HEADERS}
   ${json_public_HEADERS}
+  ${json_extension_HEADERS}
   )
 
 set(json_test_SOURCES
