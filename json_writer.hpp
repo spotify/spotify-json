@@ -2,19 +2,14 @@
 
 #pragma once
 
-#include <map>
 #include <stdint.h>
-#include <set>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "detail/json_escape.hpp"
 #include "detail/json_locale.hpp"
 
 #include "json_buffer.hpp"
 #include "json_key.hpp"
-#include "json_pair.hpp"
 
 namespace json {
 
@@ -70,44 +65,12 @@ class basic_writer {
     return put('"');
   }
 
+  /**
+   * \brief Write a JSON array to the underlying stream.
+   */
   template<typename K, typename V>
-  basic_writer &operator <<(const pair<K, V> &pair) {
-    return (*this << pair.key).clear_separator().put(':') << pair.value;
-  }
-
-  template<typename T, typename U>
-  basic_writer &operator <<(const std::pair<T, U> &pair) {
-    return (*this << pair.first).clear_separator().put(':') << pair.second;
-  }
-
-  template<typename T>
-  basic_writer &operator <<(const std::vector<T> &vector) {
-    const scoped_array array(*this);
-    typedef typename std::vector<T>::const_iterator const_iterator;
-    for (const_iterator it = vector.begin(), end = vector.end(); it != end; ++it) {
-      *this << *it;
-    }
-    return *this;
-  }
-
-  template<typename T>
-  basic_writer &operator <<(const std::set<T> &set) {
-    const scoped_array array(*this);
-    typedef typename std::vector<T>::const_iterator const_iterator;
-    for (const_iterator it = set.begin(), end = set.end(); it != end; ++it) {
-      *this << *it;
-    }
-    return *this;
-  }
-
-  template<typename K, typename V>
-  basic_writer &operator <<(const std::map<K, V> &map) {
-    const scoped_object object(*this);
-    typedef typename std::map<K, V>::const_iterator const_iterator;
-    for (const_iterator it = map.begin(), end = map.end(); it != end; ++it) {
-      *this << *it;
-    }
-    return *this;
+  basic_writer &add_pair(const K &key, const V &value) {
+    return (*this << key).clear_separator().put(':') << value;
   }
 
   /**
