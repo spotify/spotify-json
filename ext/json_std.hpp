@@ -28,8 +28,8 @@ namespace detail {
 
 template<typename WriterType, typename Iterable>
 inline WriterType &write_array(WriterType &writer, const Iterable &iterable) {
-  const WriterType::scoped_array array(writer);
-  for (Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
+  const typename WriterType::scoped_array array(writer);
+  for (typename Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
     writer << *it;
   }
   return writer;
@@ -37,8 +37,8 @@ inline WriterType &write_array(WriterType &writer, const Iterable &iterable) {
 
 template<typename WriterType, typename Iterable>
 inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
-  const WriterType::scoped_object object(writer);
-  for (Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
+  const typename WriterType::scoped_object object(writer);
+  for (typename Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
     writer << *it;
   }
   return writer;

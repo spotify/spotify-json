@@ -40,11 +40,6 @@ class basic_writer {
 
   virtual ~basic_writer() {}
 
-  template<typename T>
-  basic_writer &operator <<(const T &value) {
-    return separator_and_set().write(value);
-  }
-
   basic_writer &operator <<(const null_type &) {
     return separator_and_set().write("null", 4);
   }
@@ -237,7 +232,23 @@ class basic_writer {
    * \brief Scoped locale change.
    */
   detail::scoped_locale _scoped_locale;
+
+  /**
+   * Give the operator overload below access to our internals.
+   */
+  template<typename S, typename T>
+  friend basic_writer<S> &operator <<(basic_writer<S> &, const T &);
 };
+
+/**
+ * Declared out-of-line in order to avoid greedy template matching.
+ * By declaring this template here the compiler will consider other
+ * possibly matching overloads before settling on this one.
+ */
+template<typename stream_type, typename T>
+basic_writer<stream_type> &operator <<(basic_writer<stream_type> &writer, const T &value) {
+  return writer.separator_and_set().write(value);
+}
 
 typedef basic_writer<buffer> writer;
 
