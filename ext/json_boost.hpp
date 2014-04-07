@@ -18,8 +18,6 @@
 
 #include <boost/optional.hpp>
 
-#include "json_pair.hpp"
-
 namespace json {
 
 template<typename StreamType, typename T>
