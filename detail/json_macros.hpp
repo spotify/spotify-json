@@ -11,4 +11,12 @@
 #else
 #define json_force_inline inline
 #define json_never_inline
-#endif
+#endif  // _MSC_VER
+
+#ifdef max
+#undef max
+#endif  // max
+
+#ifdef min
+#undef min
+#endif  // min
