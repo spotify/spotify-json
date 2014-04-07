@@ -24,6 +24,7 @@
 
 #include <boost/optional.hpp>
 
+#include "json_pair.hpp"
 #include "json_writer.hpp"
 
 #include "ext/json_boost.hpp"
