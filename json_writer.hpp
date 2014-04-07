@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <functional>
 #include <map>
 #include <stdint.h>
 #include <set>
@@ -137,7 +136,8 @@ class basic_writer {
   /**
    * \brief Write a JSON array to the underlying stream.
    */
-  void add_array(const std::function<void(writer &)> &func) {
+  template<typename Functor>
+  void add_array(const Functor &func) {
     const scoped_array object(*this);
     func(*this);
   }
@@ -145,7 +145,8 @@ class basic_writer {
   /**
    * \brief Write a keyed JSON array to the underlying stream.
    */
-  void add_array(const char *key, const std::function<void(writer &)> &func) {
+  template<typename Functor>
+  void add_array(const char *key, const Functor &func) {
     const scoped_array array(*this, key);
     func(*this);
   }
@@ -176,7 +177,8 @@ class basic_writer {
   /**
    * \brief Write a JSON object to the underlying stream.
    */
-  void add_object(const std::function<void(writer &)> &func) {
+  template<typename Functor>
+  void add_object(const Functor &func) {
     const scoped_object object(*this);
     func(*this);
   }
@@ -184,7 +186,8 @@ class basic_writer {
   /**
    * \brief Write a keyed JSON object to the underlying stream.
    */
-  void add_object(const char *key, const std::function<void(writer &)> &func) {
+  template<typename Functor>
+  void add_object(const char *key, const Functor &func) {
     const scoped_object object(*this, key);
     func(*this);
   }
