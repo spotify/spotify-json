@@ -120,7 +120,8 @@ class basic_writer {
       _writer.separator_and_clear().put('[');
     }
 
-    scoped_array(basic_writer &writer, const char *key)
+    template<typename KeyType>
+    scoped_array(basic_writer &writer, const KeyType &key)
         : _writer(writer) {
       (_writer.separator_and_clear() << key).clear_separator().put(':').put('[');
     }
@@ -145,8 +146,8 @@ class basic_writer {
   /**
    * \brief Write a keyed JSON array to the underlying stream.
    */
-  template<typename Functor>
-  void add_array(const char *key, const Functor &func) {
+  template<typename KeyType, typename Functor>
+  void add_array(const KeyType &key, const Functor &func) {
     const scoped_array array(*this, key);
     func(*this);
   }
@@ -161,7 +162,8 @@ class basic_writer {
       _writer.separator_and_clear().put('{');
     }
 
-    scoped_object(basic_writer &writer, const char *key)
+    template<typename KeyType>
+    scoped_object(basic_writer &writer, const KeyType &key)
         : _writer(writer) {
       (_writer.separator_and_clear() << key).clear_separator().put(':').put('{');
     }
@@ -186,8 +188,8 @@ class basic_writer {
   /**
    * \brief Write a keyed JSON object to the underlying stream.
    */
-  template<typename Functor>
-  void add_object(const char *key, const Functor &func) {
+  template<typename KeyType, typename Functor>
+  void add_object(const KeyType &key, const Functor &func) {
     const scoped_object object(*this, key);
     func(*this);
   }

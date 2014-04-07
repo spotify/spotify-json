@@ -16,6 +16,12 @@ class key {
         data(_ref.append("\"").data()),
         size(_ref.size()) {}
 
+  key(const char *raw, int length)
+      : _storage("\""),
+        _ref(detail::write_escaped(_storage, raw, raw + length)),
+        data(_ref.append("\"").data()),
+        size(_ref.size()) {}
+
   template<typename Iterable>
   explicit key(const Iterable &iterable)
       : _storage("\""),
