@@ -35,7 +35,7 @@ source_group(json_test FILES ${json_test_SOURCES})
 
 set(json_test_TARGET "json_test")
 
-find_package(Boost REQUIRED unit_test_framework)
+find_package(Boost REQUIRED)
 
 if(Boost_FOUND)
   link_directories(${Boost_LIBRARY_DIRS})
@@ -44,8 +44,12 @@ if(Boost_FOUND)
   target_include_directories(${json_test_TARGET} PUBLIC ${PROJECT_SOURCE_DIR})
   target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
+  if(WIN32)
+    target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+  endif(WIN32)
+
   if(NOT WIN32)
-    target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
+    target_link_libraries(${json_test_TARGET} boost_unit_test_framework)
   endif(NOT WIN32)
 
   enable_testing()
