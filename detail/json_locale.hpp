@@ -24,6 +24,18 @@
 #include <xlocale.h>
 #endif  // __APPLE__
 
+// Locales are not supported on Android: it always uses the C locale.
+#ifdef __ANDROID_API__
+typedef void *locale_t;
+#define LC_GLOBAL_LOCALE 0
+#define LC_ALL_MASK      0
+#define LC_COLLATE_MASK  0
+#define LC_CTYPE_MASK    0
+#define LC_MONETARY_MASK 0
+#define LC_NUMERIC_MASK  0
+#define LC_TIME_MASK     0
+#endif
+
 #ifdef _WIN32
 // Define locale_t and category masks, for
 // cross-platform compatibility on Windows.
@@ -48,6 +60,8 @@ namespace detail {
 inline locale_t new_locale(int category_mask, const char *locale) {
 #ifdef _WIN32
   return _create_locale(category_mask, locale);
+#elif __ANDROID_API__
+  return NULL;
 #else
   return newlocale(category_mask, locale, NULL);
 #endif
@@ -75,6 +89,8 @@ inline locale_t use_locale(locale_t new_locale) {
   }
 
   return old_locale;
+#elif __ANDROID_API__
+  return NULL;
 #else
   return uselocale(new_locale);
 #endif
@@ -86,6 +102,8 @@ inline locale_t use_locale(locale_t new_locale) {
 inline void free_locale(locale_t loc) {
 #ifdef _WIN32
   _free_locale(loc);
+#elif __ANDROID_API__
+  return;   // locale not supported on Android
 #else
   freelocale(loc);
 #endif
