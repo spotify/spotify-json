@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <new>
 #include <stdint.h>
 
@@ -36,7 +37,7 @@ class buffer {
    * \brief Create a buffer with the given initial capacity. Default is 4096.
    */
   explicit buffer(size_t capacity = 4096)
-    : _data(static_cast<char *>(::malloc(capacity))),
+    : _data(static_cast<char *>(std::malloc(capacity))),
       _ptr(_data),
       _end(_data + capacity),
       _capacity(capacity) {
@@ -49,7 +50,7 @@ class buffer {
    * \brief buffer destructor, which frees internally allocated memory.
    */
   virtual ~buffer() {
-    free(_data);
+    std::free(_data);
   }
 
   /**
@@ -80,7 +81,7 @@ class buffer {
    */
   buffer &write(const char *s, size_t n) {
     require_bytes(n);
-    memcpy(_ptr, s, n);
+    std::memcpy(_ptr, s, n);
     _ptr += n;
     return *this;
   }
@@ -159,7 +160,7 @@ class buffer {
     const size_t new_size(size + n);
     const size_t new_capacity(std::max(new_size, _capacity * 2));
 
-    if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
+    if (!(_data = static_cast<char *>(std::realloc(_data, new_capacity)))) {
       throw std::bad_alloc();
     }
 
