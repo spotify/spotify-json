@@ -43,13 +43,13 @@ struct escape_traits {
 };
 
 template<>
-void escape_traits<std::string>::write(
+inline void escape_traits<std::string>::write(
     std::string &out, const char *data, size_t length) {
   out.append(data, length);
 }
 
 template<>
-void escape_traits<std::string>::put(
+inline void escape_traits<std::string>::put(
     std::string &out, char ch) {
   out.push_back(ch);
 }
