@@ -214,7 +214,7 @@ class buffer {
     require_bytes(n);
     switch (n) {
       #define C(_n) case _n: _ptr[_n - 1] = ('0' + (value % 10)); value /= 10
-      C( 5); C( 4); C( 2); C( 3); C( 1);
+      C( 5); C( 4); C( 3); C( 2); C( 1);
       #undef C
     }
     _ptr += n;
