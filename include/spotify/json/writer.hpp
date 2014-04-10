@@ -19,11 +19,10 @@
 #include <stdint.h>
 #include <string>
 
-#include "detail/json_escape.hpp"
-#include "detail/json_locale.hpp"
-
-#include "json_buffer.hpp"
-#include "json_key.hpp"
+#include <spotify/json/buffer.hpp>
+#include <spotify/json/detail/escape.hpp>
+#include <spotify/json/detail/locale.hpp>
+#include <spotify/json/key.hpp>
 
 namespace spotify {
 namespace json {

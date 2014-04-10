@@ -22,7 +22,7 @@
 #include <new>
 #include <stdint.h>
 
-#include "detail/json_macros.hpp"
+#include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
 namespace json {

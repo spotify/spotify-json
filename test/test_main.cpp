@@ -20,15 +20,13 @@
 #include <map>
 #include <utility>
 
+#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/optional.hpp>
-
-#include "json_pair.hpp"
-#include "json_writer.hpp"
-
-#include "ext/json_boost.hpp"
-#include "ext/json_std.hpp"
+#include <spotify/json/extension/boost.hpp>
+#include <spotify/json/extension/std.hpp>
+#include <spotify/json/pair.hpp>
+#include <spotify/json/writer.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

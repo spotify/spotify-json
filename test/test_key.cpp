@@ -14,11 +14,11 @@
  * the License.
  */
 
-#include <boost/test/unit_test.hpp>
-
 #include <string>
 
-#include "json_key.hpp"
+#include <boost/test/unit_test.hpp>
+
+#include <spotify/json/key.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

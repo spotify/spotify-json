@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "detail/json_escape.hpp"
+#include <spotify/json/detail/escape.hpp>
 
 namespace spotify {
 namespace json {
