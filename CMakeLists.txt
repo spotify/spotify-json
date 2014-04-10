@@ -70,6 +70,7 @@ if(Boost_FOUND)
   endif(WIN32)
 
   if(NOT WIN32)
+    target_compile_options(${json_test_TARGET} PRIVATE "-fvisibility=hidden")
     target_link_libraries(${json_test_TARGET} boost_unit_test_framework)
   endif(NOT WIN32)
 
