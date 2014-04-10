@@ -53,15 +53,6 @@ class buffer {
   }
 
   /**
-   * \brief Return a string with the buffer contents.
-   *
-   * This is mainly here for std::stringstream compatibility when testing...
-   */
-  std::string str() {
-    return std::string(data(), size());
-  }
-
-  /**
    * \brief Obtain a pointer to the buffer data.
    */
   const char *data() const {
