@@ -43,9 +43,10 @@ set(json_all_HEADERS
   )
 
 set(json_test_SOURCES
+  test/test_buffer.cpp
   test/test_key.cpp
-  test/test_pair.cpp
   test/test_main.cpp
+  test/test_pair.cpp
   )
 
 set(json_test_TARGET "json_test")
