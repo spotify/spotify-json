@@ -74,6 +74,10 @@ class basic_writer {
     return put('"');
   }
 
+  basic_writer &operator <<(const buffer &buffer) {
+    return separator_and_set().write(buffer.data(), buffer.size());
+  }
+
   /**
    * \brief Write a JSON array to the underlying stream.
    */
