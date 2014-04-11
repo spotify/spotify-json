@@ -22,6 +22,7 @@
 #include <cstring>
 #include <new>
 #include <stdint.h>
+#include <string>
 
 #include <spotify/json/detail/macros.hpp>
 
