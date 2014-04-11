@@ -56,7 +56,11 @@ source_group(spotify\\json\\detail    FILES ${json_detail_HEADERS})
 source_group(spotify\\json\\extension FILES ${json_extension_HEADERS})
 source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
 
-find_package(Boost REQUIRED unit_test_framework)
+if(WIN32)
+  find_package(Boost REQUIRED)
+else()
+  find_package(Boost REQUIRED unit_test_framework)
+endif(WIN32)
 
 if(Boost_FOUND)
   link_directories(${Boost_LIBRARY_DIRS})
