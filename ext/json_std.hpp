@@ -47,28 +47,28 @@ inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
 
 }  // namespace detail
 
-template<typename StreamType, typename T>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const std::vector<T> &vector) {
+template<typename stream_type, typename options_type, typename T>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::vector<T> &vector) {
   return detail::write_array(writer, vector);
 }
 
-template<typename StreamType, typename T>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const std::deque<T> &deque) {
+template<typename stream_type, typename options_type, typename T>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::deque<T> &deque) {
   return detail::write_array(writer, deque);
 }
 
-template<typename StreamType, typename T>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const std::set<T> &set) {
+template<typename stream_type, typename options_type, typename T>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::set<T> &set) {
   return detail::write_array(writer, set);
 }
 
-template<typename StreamType, typename K, typename V>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const std::pair<K, V> &pair) {
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::pair<K, V> &pair) {
   return writer.add_pair(pair.first, pair.second);
 }
 
-template<typename StreamType, typename K, typename V>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const std::map<K, V> &map) {
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::map<K, V> &map) {
   return detail::write_object(writer, map);
 }
 

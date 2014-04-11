@@ -24,24 +24,24 @@
 namespace spotify {
 namespace json {
 
-template<typename StreamType, typename T>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const boost::optional<T> &optional) {
+template<typename stream_type, typename options_type, typename T>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::optional<T> &optional) {
   if (optional) {
     writer << optional.get();
   }
   return writer;
 }
 
-template<typename StreamType, typename K, typename V>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const pair<K, boost::optional<V> > &pair) {
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const pair<K, boost::optional<V> > &pair) {
   if (pair.value) {
     writer.add_pair(pair.key, pair.value.get());
   }
   return writer;
 }
 
-template<typename StreamType, typename K, typename V>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const std::pair<K, boost::optional<V> > &pair) {
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::pair<K, boost::optional<V> > &pair) {
   if (pair.second) {
     writer.add_pair(pair.first, pair.second.get());
   }

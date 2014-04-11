@@ -31,15 +31,31 @@ namespace json {
 struct null_type {};
 static null_type null;
 
-template<typename stream_type>
+namespace detail {
+
+struct null_options_type {};
+
+}  // namespace detail
+
+template<typename stream_type, typename options_type>
 class basic_writer {
  public:
-  explicit basic_writer(stream_type &stream)
+  explicit basic_writer(stream_type &stream, const options_type &options)
     : _stream(stream),
       _separator_needed(false),
-      _scoped_locale(LC_NUMERIC_MASK, "C") {}
+      _scoped_locale(LC_NUMERIC_MASK, "C"),
+      _options(options) {}
 
   virtual ~basic_writer() {}
+
+  basic_writer &operator <<(const options_type &options) {
+    _options = options;
+    return *this;
+  }
+
+  const options_type &options() const {
+    return _options;
+  }
 
   basic_writer &operator <<(const null_type &) {
     return separator_and_set().write("null", 4);
@@ -225,6 +241,12 @@ class basic_writer {
   stream_type &_stream;
 
   /**
+   * \brief Writer options. This is a template parameter and can for instance
+   * be used for excluding certain fields from the output.
+   */
+  options_type _options;
+
+  /**
    * \brief Current separator flag.
    */
   bool _separator_needed;
@@ -237,8 +259,8 @@ class basic_writer {
   /**
    * Give the operator overload below access to our internals.
    */
-  template<typename S, typename T>
-  friend basic_writer<S> &operator <<(basic_writer<S> &, const T &);
+  template<typename S, typename O, typename T>
+  friend basic_writer<S, O> &operator <<(basic_writer<S, O> &, const T &);
 };
 
 /**
@@ -246,12 +268,19 @@ class basic_writer {
  * By declaring this template here the compiler will consider other
  * possibly matching overloads before settling on this one.
  */
-template<typename stream_type, typename T>
-basic_writer<stream_type> &operator <<(basic_writer<stream_type> &writer, const T &value) {
+template<typename stream_type, typename options_type, typename T>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const T &value) {
   return writer.separator_and_set().write(value);
 }
 
-typedef basic_writer<buffer> writer;
+template<typename options_type = detail::null_options_type>
+class writer_with_options : public basic_writer<buffer, options_type> {
+ public:
+  explicit writer_with_options(buffer &stream, const options_type &options = options_type())
+    : basic_writer<buffer, options_type>(stream, options) {}
+};
+
+typedef writer_with_options<> writer;
 
 }  // namespace json
 }  // namespace spotify
