@@ -39,7 +39,7 @@ struct null_options_type {};
 template<typename stream_type, typename options_type>
 class basic_writer {
  public:
-  explicit basic_writer(stream_type &stream, const options_type &options)
+  explicit basic_writer(stream_type &stream, const options_type &options = options_type())
     : _stream(stream),
       _separator_needed(false),
       _scoped_locale(LC_NUMERIC_MASK, "C"),
@@ -276,14 +276,7 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer.separator_and_set().write(value);
 }
 
-template<typename options_type = detail::null_options_type>
-class writer_with_options : public basic_writer<buffer, options_type> {
- public:
-  explicit writer_with_options(buffer &stream, const options_type &options = options_type())
-    : basic_writer<buffer, options_type>(stream, options) {}
-};
-
-typedef writer_with_options<> writer;
+typedef basic_writer<buffer, detail::null_options_type> writer;
 
 }  // namespace json
 }  // namespace spotify
