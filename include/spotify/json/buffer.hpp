@@ -19,10 +19,11 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <new>
 #include <stdint.h>
 
-#include "detail/json_macros.hpp"
+#include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
 namespace json {
@@ -36,7 +37,7 @@ class buffer {
    * \brief Create a buffer with the given initial capacity. Default is 4096.
    */
   explicit buffer(size_t capacity = 4096)
-    : _data(static_cast<char *>(::malloc(capacity))),
+    : _data(static_cast<char *>(std::malloc(capacity))),
       _ptr(_data),
       _end(_data + capacity),
       _capacity(capacity) {
@@ -49,16 +50,7 @@ class buffer {
    * \brief buffer destructor, which frees internally allocated memory.
    */
   virtual ~buffer() {
-    free(_data);
-  }
-
-  /**
-   * \brief Return a string with the buffer contents.
-   *
-   * This is mainly here for std::stringstream compatibility when testing...
-   */
-  std::string str() {
-    return std::string(data(), size());
+    std::free(_data);
   }
 
   /**
@@ -89,7 +81,7 @@ class buffer {
    */
   buffer &write(const char *s, size_t n) {
     require_bytes(n);
-    memcpy(_ptr, s, n);
+    std::memcpy(_ptr, s, n);
     _ptr += n;
     return *this;
   }
@@ -168,7 +160,7 @@ class buffer {
     const size_t new_size(size + n);
     const size_t new_capacity(std::max(new_size, _capacity * 2));
 
-    if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
+    if (!(_data = static_cast<char *>(std::realloc(_data, new_capacity)))) {
       throw std::bad_alloc();
     }
 
@@ -222,7 +214,7 @@ class buffer {
     require_bytes(n);
     switch (n) {
       #define C(_n) case _n: _ptr[_n - 1] = ('0' + (value % 10)); value /= 10
-      C( 5); C( 4); C( 2); C( 3); C( 1);
+      C( 5); C( 4); C( 3); C( 2); C( 1);
       #undef C
     }
     _ptr += n;
