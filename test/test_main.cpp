@@ -91,5 +91,42 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_deque) {
   BOOST_CHECK_EQUAL("[\"a\",\"b\",\"c\"]", json);
 }
 
+struct test_options {
+  enum DefaultValue { DEFAULT_VALUE = 12 };
+
+  test_options()
+    : value(DEFAULT_VALUE) {}
+
+  test_options(int value_)
+    : value(value_) {}
+
+  int value;
+};
+
+BOOST_AUTO_TEST_CASE(json_options_should_be_set_with_constructor) {
+  test_options options(123);
+  json::buffer buffer;
+  json::writer_with_options<test_options> writer(buffer, options);
+
+  BOOST_CHECK_EQUAL(writer.options().value, 123);
+}
+
+BOOST_AUTO_TEST_CASE(json_options_should_be_settable_with_stream_operator) {
+  test_options options(123);
+  json::buffer buffer;
+  json::writer_with_options<test_options> writer(buffer, options);
+
+  writer << test_options(456);
+
+  BOOST_CHECK_EQUAL(writer.options().value, 456);
+}
+
+BOOST_AUTO_TEST_CASE(json_options_should_use_default_constructor) {
+  json::buffer buffer;
+  json::writer_with_options<test_options> writer(buffer);
+
+  BOOST_CHECK_EQUAL(writer.options().value, test_options::DEFAULT_VALUE);
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

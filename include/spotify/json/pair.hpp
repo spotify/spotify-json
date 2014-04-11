@@ -19,7 +19,7 @@
 namespace spotify {
 namespace json {
 
-template<typename StreamType>
+template<typename stream_type, typename options_type>
 class basic_writer;
 
 /**
@@ -48,8 +48,8 @@ inline pair<K, V> make_pair(const K &key, const V &value) {
   return pair<K, V>(key, value);
 }
 
-template<typename StreamType, typename K, typename V>
-basic_writer<StreamType> &operator <<(basic_writer<StreamType> &writer, const pair<K, V> &pair) {
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const pair<K, V> &pair) {
   return writer.add_pair(pair.key, pair.value);
 }
 
