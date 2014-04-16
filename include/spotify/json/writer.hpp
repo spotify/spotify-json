@@ -39,7 +39,12 @@ struct null_options_type {};
 template<typename stream_type, typename options_type>
 class basic_writer {
  public:
-  explicit basic_writer(stream_type &stream, const options_type &options = options_type())
+  explicit basic_writer(stream_type &stream)
+    : _stream(stream),
+      _separator_needed(false),
+      _scoped_locale(LC_NUMERIC_MASK, "C") {}
+
+  explicit basic_writer(stream_type &stream, const options_type &options)
     : _stream(stream),
       _separator_needed(false),
       _scoped_locale(LC_NUMERIC_MASK, "C"),
