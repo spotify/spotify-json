@@ -16,10 +16,11 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cstdio>
-#include <cstdlib>
-#include <new>
+#include <algorithm>  // std::max
+#include <cstdio>     // snprintf, sprintf_s
+#include <cstdlib>    // malloc, realloc, free
+#include <cstring>    // memcpy
+#include <new>        // std::bad_alloc
 #include <stdint.h>
 #include <string>
 
