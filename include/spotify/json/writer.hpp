@@ -44,7 +44,7 @@ class basic_writer {
       _separator_needed(false),
       _scoped_locale(LC_NUMERIC_MASK, "C") {}
 
-  explicit basic_writer(stream_type &stream, const options_type &options)
+  basic_writer(stream_type &stream, const options_type &options)
     : _stream(stream),
       _options(options),
       _separator_needed(false),
