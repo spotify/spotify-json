@@ -46,9 +46,9 @@ class basic_writer {
 
   explicit basic_writer(stream_type &stream, const options_type &options)
     : _stream(stream),
+      _options(options),
       _separator_needed(false),
-      _scoped_locale(LC_NUMERIC_MASK, "C"),
-      _options(options) {}
+      _scoped_locale(LC_NUMERIC_MASK, "C") {}
 
   virtual ~basic_writer() {}
 
