@@ -57,10 +57,12 @@ source_group(spotify\\json\\extension FILES ${json_extension_HEADERS})
 source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
 
 if(WIN32)
-  find_package(Boost REQUIRED)
-else()
-  find_package(Boost REQUIRED unit_test_framework)
-endif(WIN32)
+  set(Boost_USE_STATIC_LIBS ON)
+  set(Boost_USE_MULTITHREADED ON)
+  set(Boost_USE_STATIC_RUNTIME ON)
+endif()
+
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 if(Boost_FOUND)
   link_directories(${Boost_LIBRARY_DIRS})
@@ -71,12 +73,10 @@ if(Boost_FOUND)
 
   if(WIN32)
     target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-  endif(WIN32)
-
-  if(NOT WIN32)
+  else()
     target_compile_options(${json_test_TARGET} PRIVATE "-fvisibility=hidden")
     target_link_libraries(${json_test_TARGET} boost_unit_test_framework)
-  endif(NOT WIN32)
+  endif()
 
   enable_testing()
 

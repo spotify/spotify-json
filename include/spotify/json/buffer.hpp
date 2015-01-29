@@ -42,7 +42,7 @@ class buffer {
       _ptr(_data),
       _end(_data + capacity),
       _capacity(capacity) {
-    if (!_data) {
+    if (!_data && _capacity > 0) {
       throw std::bad_alloc();
     }
   }
