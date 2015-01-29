@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <string>
 
+#include <spotify/json/detail/iterator.hpp>
 #include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
@@ -34,6 +35,9 @@ namespace json {
  */
 class buffer {
  public:
+  typedef detail::iterator<char> iterator;
+  typedef detail::iterator<const char> const_iterator;
+
   /**
    * \brief Create a buffer with the given initial capacity. Default is 4096.
    */
@@ -52,6 +56,30 @@ class buffer {
    */
   virtual ~buffer() {
     free(_data);
+  }
+
+  iterator begin() {
+    return iterator(_data);
+  }
+
+  const_iterator begin() const {
+    return const_iterator(_data);
+  }
+
+  const_iterator cbegin() const {
+    return const_iterator(_data);
+  }
+
+  iterator end() {
+    return iterator(_ptr);
+  }
+
+  const_iterator end() const {
+    return const_iterator(_ptr);
+  }
+
+  const_iterator cend() const {
+    return const_iterator(_ptr);
   }
 
   /**
