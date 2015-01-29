@@ -67,19 +67,29 @@ inline OutputType &write_escaped(OutputType &out, const InputIterator &begin, co
   typedef escape_traits<OutputType> traits;
 
   static const char *HEX = "0123456789ABCDEF";
+  static const char POPULAR_CONTROL_CHARACTERS[] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    'b', 't', 'n', 0, 'f', 'r', 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+  };
 
   for (InputIterator it = begin; end != it; ++it) {
     const unsigned char ch = static_cast<unsigned char>(*it);
     const bool is_control_character(ch < 0x20);
-    const bool is_special_character(ch == '\\' || ch == '"');
+    const bool is_popular_control_character(is_control_character && POPULAR_CONTROL_CHARACTERS[ch]);
+    const bool is_special_character(ch == '\\' || ch == '"' || ch == '/');
 
-    if (is_control_character) {
-      traits::write(out, "\\u00", 4);
-      traits::put(out, HEX[(ch >> 4)]);
-      traits::put(out, HEX[(ch & 0x0F)]);
+    if (is_popular_control_character) {
+      traits::put(out, '\\');
+      traits::put(out, POPULAR_CONTROL_CHARACTERS[ch]);
     } else if (is_special_character) {
       traits::put(out, '\\');
       traits::put(out, ch);
+    } else if (is_control_character) {
+      traits::write(out, "\\u00", 4);
+      traits::put(out, HEX[(ch >> 4)]);
+      traits::put(out, HEX[(ch & 0x0F)]);
     } else {
       traits::put(out, ch);
     }
