@@ -117,7 +117,8 @@ class scoped_locale {
    * the _new_locale member
    */
   scoped_locale(const scoped_locale &locale) = delete;
-  scoped_locale& operator=(const scoped_locale &locale) = delete;
+  scoped_locale &operator=(const scoped_locale &locale) = delete;
+
  public:
   scoped_locale(int category_mask, const char *locale)
     : _new_locale(new_locale(category_mask, locale)),

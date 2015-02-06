@@ -52,10 +52,49 @@ class buffer {
   }
 
   /**
+   * \brief Copy-construct a buffer from another buffer.
+   */
+  buffer(const buffer &other)
+    : _data(static_cast<char *>(::malloc(other.capacity()))),
+      _ptr(_data + other.size()),
+      _end(_data + other.capacity()),
+      _capacity(other.capacity()) {
+    if (!_data && _capacity > 0) {
+      throw std::bad_alloc();
+    }
+
+    ::memcpy(_data, other.data(), other.size());
+  }
+
+  /**
+   * \brief Assign a given buffer to this buffer.
+   */
+  buffer &operator=(const buffer &other) {
+    if (this == &other) {
+      return *this;
+    }
+
+    char *data = static_cast<char *>(::malloc(other.capacity()));
+    if (!data && other.capacity() > 0) {
+      throw std::bad_alloc();
+    }
+
+    ::memcpy(data, other.data(), other.size());
+    ::free(_data);
+
+    _data = data;
+    _ptr = _data + other.size();
+    _end = _data + other.capacity();
+    _capacity = other.capacity();
+
+    return *this;
+  }
+
+  /**
    * \brief buffer destructor, which frees internally allocated memory.
    */
   virtual ~buffer() {
-    free(_data);
+    ::free(_data);
   }
 
   iterator begin() {
@@ -110,7 +149,7 @@ class buffer {
    */
   buffer &write(const char *s, size_t n) {
     require_bytes(n);
-    memcpy(_ptr, s, n);
+    ::memcpy(_ptr, s, n);
     _ptr += n;
     return *this;
   }
@@ -189,7 +228,7 @@ class buffer {
     const size_t new_size(size + n);
     const size_t new_capacity(std::max(new_size, _capacity * 2));
 
-    if (!(_data = static_cast<char *>(realloc(_data, new_capacity)))) {
+    if (!(_data = static_cast<char *>(::realloc(_data, new_capacity)))) {
       throw std::bad_alloc();
     }
 
@@ -373,9 +412,9 @@ class buffer {
     require_bytes(100);
 
 #if _MSC_VER
-    _ptr += sprintf_s(_ptr, 100, "%g", value);
+    _ptr += ::sprintf_s(_ptr, 100, "%g", value);
 #else
-    _ptr += snprintf(_ptr, 100, "%g", value);
+    _ptr += ::snprintf(_ptr, 100, "%g", value);
 #endif
 
     return *this;
