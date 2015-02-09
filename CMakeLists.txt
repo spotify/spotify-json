@@ -27,6 +27,7 @@ set(json_HEADERS
 
 set(json_detail_HEADERS
   include/spotify/json/detail/escape.hpp
+  include/spotify/json/detail/iterator.hpp
   include/spotify/json/detail/locale.hpp
   include/spotify/json/detail/macros.hpp
   )
@@ -76,6 +77,7 @@ if(Boost_FOUND)
     target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
   else()
     target_compile_options(${json_test_TARGET} PRIVATE "-fvisibility=hidden")
+    target_compile_options(${json_test_TARGET} PRIVATE "-std=c++11")
     target_link_libraries(${json_test_TARGET} boost_unit_test_framework)
   endif()
 

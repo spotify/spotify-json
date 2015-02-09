@@ -32,6 +32,11 @@ std::string to_string(const buffer &buffer) {
   return std::string(buffer.data(), buffer.size());
 }
 
+const void *to_void(const char *ptr) {
+  return static_cast<const void *>(ptr);
+}
+
+
 }  // anonymous namespace
 
 BOOST_AUTO_TEST_CASE(buffer_with_zero_capacity_should_grow) {
@@ -51,6 +56,39 @@ BOOST_AUTO_TEST_CASE(buffer_size_should_be_correct) {
   BOOST_CHECK_EQUAL(0u, buffer.size());
   buffer.put(0);
   BOOST_CHECK_EQUAL(1u, buffer.size());
+}
+
+BOOST_AUTO_TEST_CASE(buffer_should_be_copy_constructible) {
+  const char data[] = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+
+  json::buffer buffer1;
+  buffer1.write(data, sizeof(data));
+
+  json::buffer buffer2(buffer1);
+
+  BOOST_CHECK_NE(to_void(buffer1.data()), to_void(buffer2.data()));
+  BOOST_CHECK_EQUAL(buffer1.size(), buffer2.size());
+  BOOST_CHECK_EQUAL(buffer1.capacity(), buffer2.capacity());
+  BOOST_CHECK_EQUAL_COLLECTIONS(
+      buffer1.begin(), buffer1.end(),
+      buffer2.begin(), buffer2.end());
+}
+
+BOOST_AUTO_TEST_CASE(buffer_should_be_assignable) {
+  const char data[] = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+
+  json::buffer buffer1;
+  json::buffer buffer2;
+  buffer1.write(data, sizeof(data));
+
+  buffer2 = buffer1;
+
+  BOOST_CHECK_NE(to_void(buffer1.data()), to_void(buffer2.data()));
+  BOOST_CHECK_EQUAL(buffer1.size(), buffer2.size());
+  BOOST_CHECK_EQUAL(buffer1.capacity(), buffer2.capacity());
+  BOOST_CHECK_EQUAL_COLLECTIONS(
+      buffer1.begin(), buffer1.end(),
+      buffer2.begin(), buffer2.end());
 }
 
 BOOST_AUTO_TEST_CASE(buffer_write_should_write_correct_bytes) {
