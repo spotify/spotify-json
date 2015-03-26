@@ -89,6 +89,10 @@ class basic_writer {
     return put('"');
   }
 
+  basic_writer &operator <<(char *value) {
+    return *this << const_cast<const char *>(value);
+  }
+
   basic_writer &operator <<(const std::string &value) {
     separator_and_set().put('"');
     detail::write_escaped(_stream, value.begin(), value.end());
