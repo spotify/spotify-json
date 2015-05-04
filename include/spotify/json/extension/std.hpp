@@ -19,12 +19,13 @@
 #include <deque>
 #include <map>
 #include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
 namespace spotify {
 namespace json {
-
 namespace detail {
 
 template<typename WriterType, typename Iterable>
@@ -62,6 +63,11 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return detail::write_array(writer, set);
 }
 
+template<typename stream_type, typename options_type, typename T>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::unordered_set<T> &set) {
+  return detail::write_array(writer, set);
+}
+
 template<typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::pair<K, V> &pair) {
   return writer.add_pair(pair.first, pair.second);
@@ -69,6 +75,11 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
 
 template<typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::map<K, V> &map) {
+  return detail::write_object(writer, map);
+}
+
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::unordered_map<K, V> &map) {
   return detail::write_object(writer, map);
 }
 
