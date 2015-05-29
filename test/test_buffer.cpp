@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(buffer_check_float) {
   buffer buffer;
   buffer << 3.14159265359f;
   // Default precision is 6 digits (ANSI C Standard, Section 7.9.6.1).
-  BOOST_CHECK_EQUAL("3.14159", to_string(buffer));
+  BOOST_CHECK_EQUAL("3.1415927410125732", to_string(buffer));
 }
 
 BOOST_AUTO_TEST_CASE(buffer_check_double) {
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(buffer_check_double) {
   buffer buffer;
   buffer << 3.14159265359;
   // Default precision is 6 digits (ANSI C Standard, Section 7.9.6.1).
-  BOOST_CHECK_EQUAL("3.14159", to_string(buffer));
+  BOOST_CHECK_EQUAL("3.14159265359", to_string(buffer));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json

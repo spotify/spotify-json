@@ -24,6 +24,8 @@
 #include <stdint.h>
 #include <string>
 
+#include <double-conversion/double-conversion.h>
+
 #include <spotify/json/detail/iterator.hpp>
 #include <spotify/json/detail/macros.hpp>
 
@@ -409,13 +411,23 @@ class buffer {
 
   template<typename D>
   buffer &write_fp(D value) {
-    require_bytes(100);
+    using dtoa_converter = double_conversion::DoubleToStringConverter;
+    using dtoa_builder = double_conversion::StringBuilder;
 
-#if _MSC_VER
-    _ptr += ::sprintf_s(_ptr, 100, "%g", value);
-#else
-    _ptr += ::snprintf(_ptr, 100, "%g", value);
-#endif
+    require_bytes(dtoa_converter::kBase10MaximalLength);
+
+    // The converter is based on the ECMAScript converter, but will not convert
+    // special values, like Infinity and NaN, since JSON does not support those.
+    const dtoa_converter converter(
+        dtoa_converter::UNIQUE_ZERO | dtoa_converter::EMIT_POSITIVE_EXPONENT_SIGN,
+        nullptr, nullptr, 'e', -6, 21, 6, 0);
+
+    dtoa_builder builder(_ptr, dtoa_converter::kBase10MaximalLength);
+    if (!converter.ToShortest(value, &builder)) {
+      throw std::invalid_argument("Special values like InfinityNaN is not supported in JSON.");
+    }
+
+    _ptr += builder.position();
 
     return *this;
   }
