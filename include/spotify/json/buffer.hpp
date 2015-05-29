@@ -23,6 +23,7 @@
 #include <new>        // std::bad_alloc
 #include <stdint.h>
 #include <string>
+#include <utility>    // std::swap
 
 #include <spotify/json/detail/iterator.hpp>
 #include <spotify/json/detail/macros.hpp>
@@ -64,6 +65,21 @@ class buffer {
     }
 
     ::memcpy(_data, other.data(), other.size());
+  }
+
+  /**
+   * \brief Move-construct a buffer from another buffer.
+   */
+  buffer(buffer &&other) noexcept
+    : _data(nullptr),
+      _ptr(nullptr),
+      _end(nullptr),
+      _capacity(0) {
+    // It would be nice to use std::exchange (C++14) instead.
+    std::swap(_data, other._data);
+    std::swap(_ptr, other._ptr);
+    std::swap(_end, other._end);
+    std::swap(_capacity, other._capacity);
   }
 
   /**
