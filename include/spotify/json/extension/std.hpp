@@ -24,7 +24,7 @@
 #include <utility>
 #include <vector>
 
-#include <spotify/writer.hpp>
+#include <spotify/json/writer.hpp>
 
 namespace spotify {
 namespace json {
