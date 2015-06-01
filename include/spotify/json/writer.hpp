@@ -21,7 +21,6 @@
 
 #include <spotify/json/buffer.hpp>
 #include <spotify/json/detail/escape.hpp>
-#include <spotify/json/detail/locale.hpp>
 #include <spotify/json/key.hpp>
 
 namespace spotify {
@@ -41,14 +40,12 @@ class basic_writer {
  public:
   explicit basic_writer(stream_type &stream)
     : _stream(stream),
-      _separator_needed(false),
-      _scoped_locale(LC_NUMERIC_MASK, "C") {}
+      _separator_needed(false) {}
 
   basic_writer(stream_type &stream, const options_type &options)
     : _stream(stream),
       _options(options),
-      _separator_needed(false),
-      _scoped_locale(LC_NUMERIC_MASK, "C") {}
+      _separator_needed(false) {}
 
   virtual ~basic_writer() {}
 
@@ -262,11 +259,6 @@ class basic_writer {
    * \brief Current separator flag.
    */
   bool _separator_needed;
-
-  /**
-   * \brief Scoped locale change.
-   */
-  detail::scoped_locale _scoped_locale;
 
   /**
    * Give the operator overload below access to our internals.

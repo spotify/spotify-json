@@ -28,7 +28,6 @@ set(json_HEADERS
 set(json_detail_HEADERS
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
-  include/spotify/json/detail/locale.hpp
   include/spotify/json/detail/macros.hpp
   )
 
