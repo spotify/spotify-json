@@ -21,7 +21,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/buffer.hpp>
-#include <spotify/json/detail/locale.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -193,22 +192,6 @@ BOOST_AUTO_TEST_CASE(buffer_check_uint64_t) {
   buffer buffer;
   buffer << std::numeric_limits<uint64_t>::max();
   BOOST_CHECK_EQUAL("18446744073709551615", to_string(buffer));
-}
-
-BOOST_AUTO_TEST_CASE(buffer_check_float) {
-  detail::scoped_locale locale(LC_NUMERIC_MASK, "C");
-  buffer buffer;
-  buffer << 3.14159265359f;
-  // Default precision is 6 digits (ANSI C Standard, Section 7.9.6.1).
-  BOOST_CHECK_EQUAL("3.14159", to_string(buffer));
-}
-
-BOOST_AUTO_TEST_CASE(buffer_check_double) {
-  detail::scoped_locale locale(LC_NUMERIC_MASK, "C");
-  buffer buffer;
-  buffer << 3.14159265359;
-  // Default precision is 6 digits (ANSI C Standard, Section 7.9.6.1).
-  BOOST_CHECK_EQUAL("3.14159", to_string(buffer));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json

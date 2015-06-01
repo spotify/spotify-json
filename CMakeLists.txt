@@ -28,7 +28,6 @@ set(json_HEADERS
 set(json_detail_HEADERS
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
-  include/spotify/json/detail/locale.hpp
   include/spotify/json/detail/macros.hpp
   )
 
@@ -80,6 +79,15 @@ if(Boost_FOUND)
     target_compile_options(${json_test_TARGET} PRIVATE "-std=c++11")
     target_link_libraries(${json_test_TARGET} boost_unit_test_framework)
   endif()
+
+  add_subdirectory(vendor/double-conversion)
+
+  if(WIN32)
+    target_compile_options(double-conversion PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+  endif()
+
+  target_include_directories(${json_test_TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/double-conversion)
+  target_link_libraries(${json_test_TARGET} double-conversion)
 
   enable_testing()
 

@@ -1,0 +1,3 @@
+[submodule "vendor/double-conversion"]
+	path = vendor/double-conversion
+	url = https://ghe.spotify.net/spotify-sdk/double-conversion
