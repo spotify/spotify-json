@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <spotify/json/detail/macros.hpp>
+#include <spotify/json/error.hpp>
+
 namespace spotify {
 namespace json {
 
@@ -25,18 +28,50 @@ namespace json {
  * has failed.
  */
 struct decoding_context final {
-  decoding_context(const char *position, const char *end)
-      : position(position),
+  decoding_context(const char *begin, const char *end)
+      : position(begin),
+        begin(begin),
         end(end) {}
 
   bool has_failed() const {
     return !error.empty();
   }
 
+  template <typename string_type>
+  void require_bytes(const size_t needed, const string_type &error) const {
+    if (position + needed > end) {
+      throw decode_exception(error, offset());
+    }
+  }
+
+  template <typename string_type>
+  void require_bytes(const string_type &error) const {
+    if (position == end) {
+      throw decode_exception(error, offset());
+    }
+  }
+
+  template <typename string_type>
+  void require(const bool condition, const string_type &error) const {
+    if (!condition) {
+      throw decode_exception(error, offset());
+    }
+  }
+
+  template <typename string_type>
+  json_noreturn void fail(const string_type &error, const ssize_t d = 0) const {
+    throw decode_exception(error, offset(d));
+  }
+
+  off_t offset(const ssize_t d = 0) const {
+    return (position - begin) + d;
+  }
+
   /**
    * A non-empty error indicates that the parsing failed.
    */
   std::string error;
+
   /**
    * Pointer to the current position of the decoding process. If error is
    * non-empty, position points to the position of the error.
@@ -44,6 +79,7 @@ struct decoding_context final {
    * position must never point beyond end.
    */
   const char *position;
+  const char * const begin;
   const char * const end;
 };
 

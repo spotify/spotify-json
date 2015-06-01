@@ -21,6 +21,7 @@
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/error.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -39,10 +40,18 @@ std::string string_parse(const char *string) {
 }
 
 void string_parse_fail(const char *string) {
-  auto ctx = decoding_context(string, string + strlen(string));
-  const auto result = standard<std::string>().decode(ctx);
-  BOOST_CHECK(ctx.has_failed());
+  try {
+    auto ctx = decoding_context(string, string + strlen(string));
+    const auto result = standard<std::string>().decode(ctx);
+  } catch (const decode_exception &error) {
+    return;
+  }
+  BOOST_CHECK(false);
 }
+
+/*
+ * Decoding Simple Strings
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_empty) {
   BOOST_CHECK_EQUAL(string_parse("\"\""), "");
@@ -56,10 +65,58 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_letters) {
   BOOST_CHECK_EQUAL(string_parse("\"abc\""), "abc");
 }
 
+/*
+ * Decoding Invalid Strings
+ */
+
 BOOST_AUTO_TEST_CASE(json_codec_string_should_not_decode_invalid) {
   string_parse_fail("");
   string_parse_fail("\"");
 }
+
+/*
+ * Decoding Escaped Strings
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_escaped_characters) {
+  BOOST_CHECK_EQUAL(string_parse("\"\\\"\""), "\"");
+  BOOST_CHECK_EQUAL(string_parse("\"\\/\""), "/");
+  BOOST_CHECK_EQUAL(string_parse("\"\\b\""), "\b");
+  BOOST_CHECK_EQUAL(string_parse("\"\\f\""), "\f");
+  BOOST_CHECK_EQUAL(string_parse("\"\\n\""), "\n");
+  BOOST_CHECK_EQUAL(string_parse("\"\\r\""), "\r");
+  BOOST_CHECK_EQUAL(string_parse("\"\\t\""), "\t");
+  BOOST_CHECK_EQUAL(string_parse("\"\\\\\""), "\\");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_escaped_string_with_unescaped_parts) {
+  BOOST_CHECK_EQUAL(string_parse("\"prefix\\nmiddle\\nsuffix\""), "prefix\nmiddle\nsuffix");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_escaped_unicode) {
+  // Examples from http://en.wikipedia.org/wiki/UTF-8#Examples
+  BOOST_CHECK_EQUAL(string_parse("\"\\u0024\""), "\x24");
+  BOOST_CHECK_EQUAL(string_parse("\"\\u00A2\""), "\xC2\xA2");
+  BOOST_CHECK_EQUAL(string_parse("\"\\u20AC\""), "\xE2\x82\xAC");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_not_decode_invalid_escaped_characters) {
+  string_parse_fail("\"\\q\"");  // \q is not a valid escape sequence
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_not_decode_invalid_unicode_escape_sequences) {
+  string_parse_fail("\"\\u0\"");
+  string_parse_fail("\"\\u01\"");
+  string_parse_fail("\"\\u012\"");
+  string_parse_fail("\"\\u_FFF\"");
+  string_parse_fail("\"\\uF_FF\"");
+  string_parse_fail("\"\\uFF_F\"");
+  string_parse_fail("\"\\uFFF_\"");
+}
+
+/*
+ * Encoding Simple Strings
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_empty) {
   BOOST_CHECK_EQUAL(encode(std::string()), "\"\"");
