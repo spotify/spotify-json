@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Spotify AB
+ * Copyright (c) 2014-2015 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,12 +19,15 @@
 #if _MSC_VER
 #define json_force_inline __forceinline
 #define json_never_inline __declspec(noinline)
+#define json_noreturn __declspec(noreturn)
 #elif __GNUC__
 #define json_force_inline __attribute__((always_inline)) inline
 #define json_never_inline __attribute__((noinline))
+#define json_noreturn __attribute__((noreturn))
 #else
 #define json_force_inline inline
 #define json_never_inline
+#define json_noreturn
 #endif  // _MSC_VER
 
 #ifdef max
