@@ -16,16 +16,18 @@
 
 #pragma once
 
-#include <exception>
 #include <stdexcept>
 #include <string>
+
+#include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
 namespace json {
 
 class decode_exception : public std::runtime_error {
  public:
-  decode_exception(const std::string &what, const off_t offset)
+  template <typename string_type>
+  json_never_inline decode_exception(const string_type &what, const size_t offset)
       : runtime_error(what),
         _what(what),
         _offset(offset) {}
@@ -34,7 +36,7 @@ class decode_exception : public std::runtime_error {
     return _what.c_str();
   }
 
-  off_t offset() const {
+  size_t offset() const {
     return _offset;
   }
 

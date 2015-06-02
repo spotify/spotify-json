@@ -21,7 +21,6 @@ set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(json_HEADERS
   include/spotify/json/buffer.hpp
   include/spotify/json/codec.hpp
-  include/spotify/json/error.hpp
   include/spotify/json/decoding_context.hpp
   include/spotify/json/encode_decode.hpp
   include/spotify/json/error.hpp
