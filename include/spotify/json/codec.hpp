@@ -20,6 +20,7 @@
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/cast.hpp>
+#include <spotify/json/codec/equals.hpp>
 #include <spotify/json/codec/integer.hpp>
 #include <spotify/json/codec/lenient.hpp>
 #include <spotify/json/codec/map.hpp>
