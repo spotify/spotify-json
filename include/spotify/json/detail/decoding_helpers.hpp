@@ -42,7 +42,7 @@ json_force_inline void require(
     const bool condition,
     const string_type &error,
     const ssize_t d = 0) {
-  if (!condition) {
+  if (json_unlikely(!condition)) {
     fail(context, error, d);
   }
 }
