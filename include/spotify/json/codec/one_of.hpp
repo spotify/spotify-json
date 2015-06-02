@@ -19,8 +19,8 @@
 #include <tuple>
 #include <type_traits>
 
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -91,8 +91,8 @@ class one_of_t final {
   one_of_t(Args&& ...args)
       : _codecs(std::forward<Args>(args)...) {}
 
-  void encode(const object_type &value, writer &writer) const {
-    std::get<0>(_codecs).encode(value, writer);
+  void encode(const object_type &value, writer &w) const {
+    std::get<0>(_codecs).encode(value, w);
   }
 
   object_type decode(decoding_context &context) const {

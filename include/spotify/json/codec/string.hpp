@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/standard.hpp>
 
 namespace spotify {
 namespace json {
@@ -49,13 +49,14 @@ inline string_t string() {
   return string_t();
 }
 
+}  // namespace codec
+
 template<>
 struct standard_t<std::string> {
-  static string_t codec() {
-    return string_t();
+  static codec::string_t codec() {
+    return codec::string_t();
   }
 };
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

@@ -21,13 +21,12 @@
 
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/object.hpp>
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/standard.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
-BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
@@ -57,8 +56,8 @@ struct example_t {
   std::string value;
 };
 
-object<example_t> example_codec() {
-  object<example_t> codec;
+codec::object<example_t> example_codec() {
+  codec::object<example_t> codec;
   codec.optional("simple", &example_t::simple);
   codec.required("value", &example_t::value);
   return codec;
@@ -68,12 +67,14 @@ object<example_t> example_codec() {
 
 template<>
 struct standard_t<simple_t> {
-  static object<simple_t> codec() {
-    object<simple_t> codec;
+  static codec::object<simple_t> codec() {
+    codec::object<simple_t> codec;
     codec.optional("value", &simple_t::value);
     return codec;
   }
 };
+
+BOOST_AUTO_TEST_SUITE(codec)
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_construct) {
   object<simple_t> codec;

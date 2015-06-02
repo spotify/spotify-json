@@ -20,8 +20,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/real.hpp>
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/standard.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

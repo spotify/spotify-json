@@ -20,9 +20,9 @@
 
 #include <double-conversion/double-conversion.h>
 
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/standard.hpp>
 
 namespace spotify {
 namespace json {
@@ -86,20 +86,21 @@ real_t<T> real() {
   return real_t<T>();
 }
 
+}  // namespace codec
+
 template<>
 struct standard_t<float> {
-  static real_t<float> codec() {
-    return real_t<float>();
+  static codec::real_t<float> codec() {
+    return codec::real_t<float>();
   }
 };
 
 template<>
 struct standard_t<double> {
-  static real_t<double> codec() {
-    return real_t<double>();
+  static codec::real_t<double> codec() {
+    return codec::real_t<double>();
   }
 };
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

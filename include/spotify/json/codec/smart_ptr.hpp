@@ -18,8 +18,8 @@
 
 #include <utility>
 
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/standard.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -86,6 +86,8 @@ shared_ptr_t<InnerCodec> shared_ptr(InnerCodec &&inner_codec) {
   return shared_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
 }
 
+}  // namespace codec
+
 template<typename T>
 struct standard_t<std::unique_ptr<T>> {
   static decltype(unique_ptr(standard<T>())) codec() {
@@ -100,6 +102,5 @@ struct standard_t<std::shared_ptr<T>> {
   }
 };
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

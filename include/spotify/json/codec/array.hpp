@@ -23,9 +23,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/standard.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -71,41 +71,42 @@ array_t<T, InnerCodec> array(InnerCodec &&inner_codec) {
   return array_t<T, InnerCodec>(std::forward<InnerCodec>(inner_codec));
 }
 
+}  // namespace codec
+
 template<typename T>
 struct standard_t<std::vector<T>> {
-  static decltype(array<std::vector<T>>(standard<T>())) codec() {
-    return array<std::vector<T>>(standard<T>());
+  static decltype(codec::array<std::vector<T>>(standard<T>())) codec() {
+    return codec::array<std::vector<T>>(standard<T>());
   }
 };
 
 template<typename T>
 struct standard_t<std::deque<T>> {
-  static decltype(array<std::deque<T>>(standard<T>())) codec() {
-    return array<std::deque<T>>(standard<T>());
+  static decltype(codec::array<std::deque<T>>(standard<T>())) codec() {
+    return codec::array<std::deque<T>>(standard<T>());
   }
 };
 
 template<typename T>
 struct standard_t<std::list<T>> {
-  static decltype(array<std::list<T>>(standard<T>())) codec() {
-    return array<std::list<T>>(standard<T>());
+  static decltype(codec::array<std::list<T>>(standard<T>())) codec() {
+    return codec::array<std::list<T>>(standard<T>());
   }
 };
 
 template<typename T>
 struct standard_t<std::set<T>> {
-  static decltype(array<std::set<T>>(standard<T>())) codec() {
-    return array<std::set<T>>(standard<T>());
+  static decltype(codec::array<std::set<T>>(standard<T>())) codec() {
+    return codec::array<std::set<T>>(standard<T>());
   }
 };
 
 template<typename T>
 struct standard_t<std::unordered_set<T>> {
-  static decltype(array<std::unordered_set<T>>(standard<T>())) codec() {
-    return array<std::unordered_set<T>>(standard<T>());
+  static decltype(codec::array<std::unordered_set<T>>(standard<T>())) codec() {
+    return codec::array<std::unordered_set<T>>(standard<T>());
   }
 };
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

@@ -29,6 +29,6 @@
 #include <spotify/json/codec/one_of.hpp>
 #include <spotify/json/codec/real.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/standard.hpp>

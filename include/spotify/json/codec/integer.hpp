@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include <spotify/json/codec/standard.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/standard.hpp>
 
 namespace spotify {
 namespace json {
@@ -37,15 +37,16 @@ integer_t<T> integer() {
   return integer_t<T>();
 }
 
+}  // namespace codec
+
 template<typename T>
 struct standard_t {
   static_assert(std::is_integral<T>::value, "No standard_t specialization for type T");
 
-  static integer_t<T> codec() {
-    return integer_t<T>();
+  static codec::integer_t<T> codec() {
+    return codec::integer_t<T>();
   }
 };
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

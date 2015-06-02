@@ -22,7 +22,6 @@
 
 namespace spotify {
 namespace json {
-namespace codec {
 
 /**
  * Overload this template for types that standard<T>() should support.
@@ -38,6 +37,5 @@ decltype(standard_t<T>::codec()) standard() {
   return standard_t<T>::codec();
 }
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify
