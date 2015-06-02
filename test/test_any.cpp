@@ -29,12 +29,9 @@ namespace {
 bool any_parse(const char *str) {
   any_t<bool> codec = any_t<bool>(boolean());
   auto ctx = decoding_context(str, str + strlen(str));
-
   const auto result = codec.decode(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
-
   return result;
 }
 

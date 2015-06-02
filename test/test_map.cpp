@@ -31,24 +31,15 @@ namespace {
 std::map<std::string, bool> map_parse(const char *not_map) {
   const auto codec = standard<std::map<std::string, bool>>();
   auto ctx = decoding_context(not_map, not_map + strlen(not_map));
-
   const auto result = codec.decode(ctx);
-
-  BOOST_CHECK_EQUAL(ctx.position, ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
-
+  BOOST_CHECK_EQUAL(ctx.position, ctx.end);;
   return result;
 }
 
 void map_parse_should_fail(const char *not_map) {
   const auto codec = standard<std::map<std::string, bool>>();
   auto ctx = decoding_context(not_map, not_map + strlen(not_map));
-  const auto original_ctx = ctx;
-
-  codec.decode(ctx);
-
-  BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(ctx.has_failed());
+  BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
 }  // namespace

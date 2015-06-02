@@ -46,12 +46,8 @@ class equals_t final {
   }
 
   object_type decode(decoding_context &context) const {
-    const char *original_position = context.position;
     object_type result = _inner_codec.decode(context);
-    if (result != _value) {
-      context.error = "Encountered unexpected value";
-      context.position = original_position;
-    }
+    context.require(result == _value, "Encountered unexpected value");
     return result;
   }
 

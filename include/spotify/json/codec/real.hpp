@@ -71,12 +71,12 @@ class real_t final : public detail::primitive_encoder<T> {
 
     int bytes_read = 0;
     const auto result = detail::decode_real<T>(
-        converter, context.position, context.end - context.position, &bytes_read);
-    if (std::isnan(result)) {
-      context.error = "Invalid floating point number";
-    } else {
-      context.position += bytes_read;
-    }
+        converter,
+        context.position,
+        context.end - context.position,
+        &bytes_read);
+    context.require(!std::isnan(result), "Invalid floating point number");
+    context.position += bytes_read;
     return result;
   }
 };

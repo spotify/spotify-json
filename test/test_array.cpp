@@ -32,24 +32,16 @@ namespace {
 std::vector<bool> array_parse(const char *not_array) {
   const auto codec = standard<std::vector<bool>>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));
-
   const auto result = codec.decode(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
-
   return result;
 }
 
 void array_parse_should_fail(const char *not_array) {
   const auto codec = standard<std::vector<bool>>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));
-  const auto original_ctx = ctx;
-
-  codec.decode(ctx);
-
-  BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(ctx.has_failed());
+  BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
 }  // namespace

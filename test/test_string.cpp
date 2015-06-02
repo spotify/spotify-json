@@ -30,23 +30,14 @@ BOOST_AUTO_TEST_SUITE(codec)
 std::string string_parse(const char *string) {
   const auto codec = standard<std::string>();
   auto ctx = decoding_context(string, string + strlen(string));
-
   const auto result = codec.decode(ctx);
-
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
-
   return result;
 }
 
 void string_parse_fail(const char *string) {
-  try {
-    auto ctx = decoding_context(string, string + strlen(string));
-    const auto result = standard<std::string>().decode(ctx);
-  } catch (const decode_exception &error) {
-    return;
-  }
-  BOOST_CHECK(false);
+  auto ctx = decoding_context(string, string + strlen(string));
+  BOOST_CHECK_THROW(standard<std::string>().decode(ctx), decode_exception);
 }
 
 /*

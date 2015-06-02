@@ -29,7 +29,7 @@ namespace codec {
 class string_t final : public detail::primitive_encoder<std::string> {
  public:
   object_type decode(decoding_context &context) const {
-    context.require(detail::advance_past(context, '"'), "Expected \"");
+    detail::advance_past(context, '"');
     return decode_string(context);
   }
 

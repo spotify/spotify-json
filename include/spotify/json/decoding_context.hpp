@@ -33,10 +33,6 @@ struct decoding_context final {
         begin(begin),
         end(end) {}
 
-  bool has_failed() const {
-    return !error.empty();
-  }
-
   template <typename string_type>
   void require_bytes(const size_t needed, const string_type &error) const {
     if (position + needed > end) {
@@ -67,20 +63,9 @@ struct decoding_context final {
     return (position - begin) + d;
   }
 
-  /**
-   * A non-empty error indicates that the parsing failed.
-   */
-  std::string error;
-
-  /**
-   * Pointer to the current position of the decoding process. If error is
-   * non-empty, position points to the position of the error.
-   *
-   * position must never point beyond end.
-   */
   const char *position;
-  const char * const begin;
-  const char * const end;
+  const char *const begin;
+  const char *const end;
 };
 
 }  // namespace json

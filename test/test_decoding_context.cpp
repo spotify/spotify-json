@@ -32,18 +32,6 @@ BOOST_AUTO_TEST_CASE(json_decoding_context_should_construct) {
 
   BOOST_CHECK_EQUAL(ctx.position, string);
   BOOST_CHECK_EQUAL(ctx.end, end);
-  BOOST_CHECK(ctx.error.empty());
-}
-
-BOOST_AUTO_TEST_CASE(json_decoding_context_should_not_be_failed_when_error_is_missing) {
-  const decoding_context ctx(nullptr, nullptr);
-  BOOST_CHECK(!ctx.has_failed());
-}
-
-BOOST_AUTO_TEST_CASE(json_decoding_context_should_be_failed_when_error_is_present) {
-  decoding_context ctx(nullptr, nullptr);
-  ctx.error = "hey!";
-  BOOST_CHECK(ctx.has_failed());
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail

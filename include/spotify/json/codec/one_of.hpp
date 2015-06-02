@@ -47,14 +47,12 @@ struct try_each_codec {
       std::tuple_size<Tuple>::value - N, Tuple>::type::object_type;
 
   static object_type decode(const Tuple &tuple, decoding_context &context) {
-    const char *original_position = context.position;
-    object_type result = std::get<std::tuple_size<Tuple>::value - N>(tuple).decode(context);
-    if (context.has_failed()) {
+    const auto original_position = context.position;
+    try {
+      return std::get<std::tuple_size<Tuple>::value - N>(tuple).decode(context);
+    } catch (const decode_exception &error) {
       context.position = original_position;
-      context.error.clear();
-      return try_each_codec<Tuple, N-1>::decode (tuple, context);
-    } else {
-      return result;
+      return try_each_codec<Tuple, N-1>::decode(tuple, context);
     }
   }
 };
