@@ -414,8 +414,17 @@ class buffer {
     using dtoa_converter = double_conversion::DoubleToStringConverter;
     using dtoa_builder = double_conversion::StringBuilder;
 
-    static const size_t kBufferSize = 96;  // Do what WebKit does, don't know why they picked 96
-    require_bytes(kBufferSize);
+    // The maximum buffer size required to emit a double in base 10, for decimal
+    // and exponential representations is 25 bytes. This is based on the settings
+    // used for DoubleToStringConverter below.
+    //
+    // The decimal representation uses at most 17 digits, 6 characters of 0-padding,
+    // a sign and a decimal point.
+    //
+    // The exponential representation uses at most 17 digits, a sign, a decimal point,
+    // an exponent character, an exponent sign and 4 digits for the exponent.
+    static const int kMaxRequiredBufferSize = 25;
+    require_bytes(kMaxRequiredBufferSize);
 
     // The converter is based on the ECMAScript converter, but will not convert
     // special values, like Infinity and NaN, since JSON does not support those.
@@ -423,9 +432,11 @@ class buffer {
         dtoa_converter::UNIQUE_ZERO | dtoa_converter::EMIT_POSITIVE_EXPONENT_SIGN,
         nullptr, nullptr, 'e', -6, 21, 6, 0);
 
-    dtoa_builder builder(_ptr, kBufferSize);
+    // StringBuilder requires space for the null-terminator, but we never finalize it.
+    // This means the actual buffer space allocated above can be 1 byte smaller.
+    dtoa_builder builder(_ptr, kMaxRequiredBufferSize + 1);
     if (!converter.ToShortest(value, &builder)) {
-      throw std::invalid_argument("Special values like InfinityNaN is not supported in JSON.");
+      throw std::invalid_argument("Special values like 'Infinity' or 'NaN' are supported in JSON.");
     }
 
     _ptr += builder.position();
