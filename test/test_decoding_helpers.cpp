@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_nonmatching_in
 
 namespace {
 
-void fail() {
+void dont_call() {
   BOOST_CHECK(!"Should not call this function");
 }
 
@@ -213,18 +213,18 @@ void parse(const char *string) {
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_empty_input) {
   auto ctx = make_context("");
-  BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &fail), decode_exception);
+  BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &dont_call), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_wrong_first_character) {
   auto ctx = make_context(">");
-  BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &fail), decode_exception);
+  BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &dont_call), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_immediate_end) {
   auto ctx = make_context("<>");
   const auto original_ctx = ctx;
-  advance_past_comma_separated(ctx, '<', '>', &fail);
+  advance_past_comma_separated(ctx, '<', '>', &dont_call);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.end);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
@@ -232,13 +232,13 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_immediate_end) {
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_before_first) {
   auto ctx = make_context(" <>");
-  BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &fail), decode_exception);
+  BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &dont_call), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after_first) {
   auto ctx = make_context("< >");
   const auto original_ctx = ctx;
-  advance_past_comma_separated(ctx, '<', '>', &fail);
+  advance_past_comma_separated(ctx, '<', '>', &dont_call);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.end);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after_last) {
   auto ctx = make_context("<> ");
   const auto original_ctx = ctx;
-  advance_past_comma_separated(ctx, '<', '>', &fail);
+  advance_past_comma_separated(ctx, '<', '>', &dont_call);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position + 2);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);

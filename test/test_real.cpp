@@ -40,9 +40,8 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
 template<typename Codec>
 void test_decode_partial(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
-  auto obj = codec.decode(c);
+  codec.decode(c);
   BOOST_CHECK_NE(c.position, c.end);
-  return obj;
 }
 
 template<typename Codec>

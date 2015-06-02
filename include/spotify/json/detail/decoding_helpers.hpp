@@ -21,11 +21,43 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/char_traits.hpp>
+#include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
 namespace json {
 namespace detail {
+
+template <typename string_type>
+json_never_inline json_noreturn void fail(
+    const decoding_context &context,
+    const string_type &error,
+    const ssize_t d = 0) {
+  throw decode_exception(error, context.offset(d));
+}
+
+template <typename string_type>
+json_force_inline void require(
+    const decoding_context &context,
+    const bool condition,
+    const string_type &error,
+    const ssize_t d = 0) {
+  if (!condition) {
+    fail(context, error, d);
+  }
+}
+
+template <size_t num_required_bytes, typename string_type>
+json_force_inline void require_bytes(
+    const decoding_context &context,
+    const string_type &error = "Unexpected end of input") {
+  require(context, context.remaining() >= num_required_bytes, error);
+}
+
+template <size_t num_required_bytes>
+json_force_inline void require_bytes(const decoding_context &context) {
+  require_bytes<num_required_bytes>(context, "Unexpected end of input");
+}
 
 /**
  * Peek at the current character that a decoding_context refers to. If the
@@ -34,14 +66,22 @@ namespace detail {
  * specific one, for example '['.
  */
 json_force_inline char peek(const decoding_context &context) {
-  return context.position == context.end ? '\0' : *context.position;
+  return (context.remaining() ? *context.position : 0);
+}
+
+template <typename string_type>
+json_force_inline char next(decoding_context &context, const string_type &error) {
+  require_bytes<1>(context, error);
+  return *(context.position++);
+}
+
+json_force_inline char next(decoding_context &context) {
+  return next(context, "Unexpected end of input");
 }
 
 /**
  * If position points to whitespace, move it forward until it reaches end or
  * non-whitespace.
- *
- * context.has_failed() must be false when this function is called.
  */
 inline void advance_past_whitespace(decoding_context &context) {
   while (
@@ -56,8 +96,7 @@ inline void advance_past_whitespace(decoding_context &context) {
  * a matching character, a decode_exception is thrown.
  */
 inline void advance_past(decoding_context &context, char character) {
-  context.require_bytes("Unexpected end of input");
-  context.require(*(context.position++) == character, "Unexpected input");
+  require(context, next(context) == character, "Unexpected input", -1);
 }
 
 /**
@@ -66,16 +105,19 @@ inline void advance_past(decoding_context &context, char character) {
  * string of at least length 4. Only the first four characters will be read.
  */
 inline void advance_past_four(decoding_context &context, const char *characters) {
-  context.require_bytes(4, "Unexpected end of input");
+  require_bytes<4>(context);
   const char c0 = *(context.position++);
   const char c1 = *(context.position++);
   const char c2 = *(context.position++);
   const char c3 = *(context.position++);
-  context.require(
+  require(
+      context,
       c0 == characters[0] &&
       c1 == characters[1] &&
       c2 == characters[2] &&
-      c3 == characters[3], "Unexpected input");
+      c3 == characters[3],
+      "Unexpected input",
+      -4);
 }
 
 /**
@@ -144,8 +186,7 @@ inline void advance_past_null(decoding_context &context) {
 }
 
 inline void advance_past_string_escape_after_slash(decoding_context &context) {
-  context.require_bytes("Unterminated string");
-  switch (*(context.position++)) {
+  switch (detail::next(context, "Unterminated string")) {
     case '"':
     case '\\':
     case '/':
@@ -156,16 +197,16 @@ inline void advance_past_string_escape_after_slash(decoding_context &context) {
     case 't':
       break;
    case 'u': {
-      context.require_bytes(4, "\\u must be followed by 4 hex digits");
+      require_bytes<4>(context, "\\u must be followed by 4 hex digits");
       const bool h0 = char_traits<char>::is_hex_digit(*(context.position++));
       const bool h1 = char_traits<char>::is_hex_digit(*(context.position++));
       const bool h2 = char_traits<char>::is_hex_digit(*(context.position++));
       const bool h3 = char_traits<char>::is_hex_digit(*(context.position++));
-      context.require(h0 && h1 && h2 && h3, "\\u must be followed by 4 hex digits");
+      require(context, h0 && h1 && h2 && h3, "\\u must be followed by 4 hex digits");
       break;
     }
    default:
-    context.fail("Invalid escape character", -1);
+    fail(context, "Invalid escape character", -1);
   }
 }
 
@@ -177,9 +218,8 @@ inline void advance_past_string_escape(decoding_context &context) {
 inline void advance_past_string(decoding_context &context) {
   advance_past(context, '"');
   for (;;) {
-    context.require_bytes("Unterminated string");
-    const char c = *(context.position++);
-    context.require(c >= 0x20, "Encountered invalid string character");
+    const char c = next(context, "Unterminated string");
+    require(context, c >= 0x20, "Encountered invalid string character");
     switch (c) {
       case '"': return;
       case '\\': advance_past_string_escape_after_slash(context); break;
@@ -188,7 +228,7 @@ inline void advance_past_string(decoding_context &context) {
 }
 
 inline void advance_past_number(decoding_context &context) {
-  context.require_bytes("Unexpected end of input");
+  require_bytes<1>(context);
 
   // Parse negative sign
   if (peek(context) == '-') {
@@ -203,14 +243,14 @@ inline void advance_past_number(decoding_context &context) {
       ++context.position;
     } while (char_traits<char>::is_digit(peek(context)));
   } else {
-    context.fail("Expected digit");
+    fail(context, "Expected digit");
   }
 
   // Parse fractional part
   if (peek(context) == '.') {
     ++context.position;
     if (!char_traits<char>::is_digit(peek(context))) {
-      context.fail("Expected digit after decimal point");
+      fail(context, "Expected digit after decimal point");
     }
     do {
       ++context.position;
@@ -228,7 +268,7 @@ inline void advance_past_number(decoding_context &context) {
 
     const char first_digit = peek(context);
     if (!char_traits<char>::is_digit(first_digit)) {
-      context.fail("Expected digit after exponent sign");
+      fail(context, "Expected digit after exponent sign");
     }
     do {
       ++context.position;
@@ -244,7 +284,7 @@ inline void advance_past_number(decoding_context &context) {
  * context.has_failed() must be false when this function is called.
  */
 inline void advance_past_value(decoding_context &context) {
-  context.require_bytes("Unexpected end of input");
+  require_bytes<1>(context);
   const char c = *context.position;
   if (c == '[') {
     advance_past_comma_separated(context, '[', ']', [&]{
@@ -269,7 +309,7 @@ inline void advance_past_value(decoding_context &context) {
   } else if (c == '-' || char_traits<char>::char_traits<char>::is_digit(c)) {
     advance_past_number(context);
   } else {
-    context.fail(std::string("Encountered unexpected character '") + c + "'");
+    fail(context, std::string("Encountered unexpected character '") + c + "'");
   }
 }
 

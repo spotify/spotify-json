@@ -36,7 +36,7 @@ class boolean_t final : public detail::primitive_encoder<bool> {
       detail::advance_past_true(context);
       return true;
     } else {
-      context.fail("Unexpected input, expected boolean");
+      detail::fail(context, "Unexpected input, expected boolean");
       return false;
     }
   }

@@ -33,34 +33,16 @@ struct decoding_context final {
         begin(begin),
         end(end) {}
 
-  template <typename string_type>
-  void require_bytes(const size_t needed, const string_type &error) const {
-    if (position + needed > end) {
-      throw decode_exception(error, offset());
-    }
+  json_force_inline size_t offset() const {
+    return (position - begin);
   }
 
-  template <typename string_type>
-  void require_bytes(const string_type &error) const {
-    if (position == end) {
-      throw decode_exception(error, offset());
-    }
+  json_force_inline size_t offset(const ssize_t d) const {
+    return offset() + d;
   }
 
-  template <typename string_type>
-  void require(const bool condition, const string_type &error) const {
-    if (!condition) {
-      throw decode_exception(error, offset());
-    }
-  }
-
-  template <typename string_type>
-  json_noreturn void fail(const string_type &error, const ssize_t d = 0) const {
-    throw decode_exception(error, offset(d));
-  }
-
-  off_t offset(const ssize_t d = 0) const {
-    return (position - begin) + d;
+  json_force_inline size_t remaining() const {
+    return (end - position);
   }
 
   const char *position;

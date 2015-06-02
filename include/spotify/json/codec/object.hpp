@@ -79,7 +79,8 @@ class object final {
 
     const auto num_encountered_required_fields =
         std::count(encountered_required_fields.begin(), encountered_required_fields.end(), true);
-    context.require(num_encountered_required_fields == _num_required_fields, "Missing required field(s)");
+    const auto has_required_fields = (num_encountered_required_fields == _num_required_fields);
+    detail::require(context, has_required_fields, "Missing required field(s)");
     return output;
   }
 

@@ -45,7 +45,7 @@ class string_t final : public detail::primitive_encoder<std::string> {
       }
     }
 
-    context.fail("Unterminated string");
+    detail::fail(context, "Unterminated string");
   }
 
   static object_type decode_escaped_string(decoding_context &context, const char *begin) {
@@ -60,12 +60,11 @@ class string_t final : public detail::primitive_encoder<std::string> {
       }
     }
 
-    context.fail("Unterminated string");
+    detail::fail(context, "Unterminated string");
   }
 
   static void decode_escape(decoding_context &context, std::string &out) {
-    context.require_bytes("Unterminated string");
-    const auto escape_character = *(context.position++);
+    const auto escape_character = detail::next(context, "Unterminated string");
     switch (escape_character) {
       case '"':  out.push_back('"');  break;
       case '/':  out.push_back('/');  break;
@@ -76,7 +75,7 @@ class string_t final : public detail::primitive_encoder<std::string> {
       case 't':  out.push_back('\t'); break;
       case '\\': out.push_back('\\'); break;
       case 'u': decode_unicode_escape(context, out); break;
-      default: context.fail("Invalid escape character", -1);
+      default: detail::fail(context, "Invalid escape character", -1);
     }
   }
 
@@ -84,11 +83,11 @@ class string_t final : public detail::primitive_encoder<std::string> {
     if (c >= '0' && c <= '9') { return c - '0'; }
     if (c >= 'a' && c <= 'f') { return c - 'a' + 0xA; }
     if (c >= 'A' && c <= 'F') { return c - 'A' + 0xA; }
-    context.fail("\\u must be followed by 4 hex digits");
+    detail::fail(context, "\\u must be followed by 4 hex digits");
   }
 
   static void decode_unicode_escape(decoding_context &context, std::string &out) {
-    context.require_bytes(4, "\\u must be followed by 4 hex digits");
+    detail::require_bytes<4>(context, "\\u must be followed by 4 hex digits");
     const auto a = decode_hex_nibble(context, *(context.position++));
     const auto b = decode_hex_nibble(context, *(context.position++));
     const auto c = decode_hex_nibble(context, *(context.position++));

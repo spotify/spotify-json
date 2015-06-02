@@ -47,7 +47,7 @@ class equals_t final {
 
   object_type decode(decoding_context &context) const {
     object_type result = _inner_codec.decode(context);
-    context.require(result == _value, "Encountered unexpected value");
+    detail::require(context, result == _value, "Encountered unexpected value");
     return result;
   }
 
