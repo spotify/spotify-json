@@ -101,11 +101,23 @@ class basic_writer {
   }
 
   /**
-   * \brief Write a JSON array to the underlying stream.
+   * \brief Write a JSON key to the underlying stream. This prints the key and
+   * then a colon, so it must be followed by a call to print the value that the
+   * key should refer to. It must be called while printing the keys of an
+   * object.
+   */
+  template<typename K>
+  basic_writer &add_key(const K &key) {
+    return (*this << key).clear_separator().put(':');
+  }
+
+  /**
+   * \brief Write a JSON key and value to the underlying stream. It must be
+   * called while printing the keys of an object.
    */
   template<typename K, typename V>
   basic_writer &add_pair(const K &key, const V &value) {
-    return (*this << key).clear_separator().put(':') << value;
+    return add_key(key) << value;
   }
 
   /**

@@ -414,7 +414,8 @@ class buffer {
     using dtoa_converter = double_conversion::DoubleToStringConverter;
     using dtoa_builder = double_conversion::StringBuilder;
 
-    require_bytes(dtoa_converter::kBase10MaximalLength);
+    static const size_t kBufferSize = 96;  // Do what WebKit does, don't know why they picked 96
+    require_bytes(kBufferSize);
 
     // The converter is based on the ECMAScript converter, but will not convert
     // special values, like Infinity and NaN, since JSON does not support those.
@@ -422,7 +423,7 @@ class buffer {
         dtoa_converter::UNIQUE_ZERO | dtoa_converter::EMIT_POSITIVE_EXPONENT_SIGN,
         nullptr, nullptr, 'e', -6, 21, 6, 0);
 
-    dtoa_builder builder(_ptr, dtoa_converter::kBase10MaximalLength);
+    dtoa_builder builder(_ptr, kBufferSize);
     if (!converter.ToShortest(value, &builder)) {
       throw std::invalid_argument("Special values like InfinityNaN is not supported in JSON.");
     }

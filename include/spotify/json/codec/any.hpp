@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2015 Spotify AB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+#pragma once
+
+#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/writer.hpp>
+
+namespace spotify {
+namespace json {
+namespace codec {
+
+template<typename T>
+class any_t final {
+ public:
+  using object_type = T;
+
+  template<typename Codec>
+  any_t(Codec codec)
+      : _codec(std::make_shared<erased_codec_impl<Codec>>(std::move(codec))) {}
+
+  object_type decode(decoding_context &context) const {
+    return _codec->decode(context);
+  }
+
+  void encode(const object_type &value, writer &writer) const {
+    _codec->encode(value, writer);
+  }
+
+ private:
+  class erased_codec {
+   public:
+    virtual ~erased_codec() = default;
+
+    virtual T decode(decoding_context &context) const = 0;
+    virtual void encode(const T &value, writer &writer) const = 0;
+  };
+
+  template<typename Codec>
+  class erased_codec_impl final : public erased_codec {
+   public:
+    erased_codec_impl(Codec codec)
+      : _codec(std::move(codec)) {}
+
+    T decode(decoding_context &context) const override {
+      return _codec.decode(context);
+    }
+
+    void encode(const T &value, writer &writer) const override {
+      return _codec.encode(value, writer);
+    }
+
+   private:
+    const Codec _codec;
+  };
+
+  std::shared_ptr<const erased_codec> _codec;
+};
+
+template<typename Codec>
+any_t<typename Codec::object_type> any(Codec &&codec) {
+  return any_t<typename Codec::object_type>(std::forward<Codec>(codec));
+}
+
+}  // namespace codec
+}  // namespace json
+}  // namespace spotify

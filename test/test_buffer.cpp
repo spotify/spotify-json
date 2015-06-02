@@ -122,6 +122,14 @@ BOOST_AUTO_TEST_CASE(buffer_stream_operator_should_write_correct_string) {
       buffer.data(), buffer.data() + buffer.size());
 }
 
+BOOST_AUTO_TEST_CASE(buffer_check_float_with_imprecise_representation) {
+  buffer buffer;
+  buffer << 1.1f;
+  const auto str = to_string(buffer);
+  BOOST_REQUIRE(str.size() >= 3);
+  BOOST_CHECK_EQUAL("1.1", str.substr(0, 3));
+}
+
 BOOST_AUTO_TEST_CASE(buffer_check_negative_int8_t) {
   buffer buffer;
   buffer << std::numeric_limits<int8_t>::min();
