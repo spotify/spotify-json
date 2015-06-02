@@ -16,18 +16,69 @@
 
 #pragma once
 
+#include <cmath>
+
+#include <double-conversion/double-conversion.h>
+
 #include <spotify/json/codec/standard.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
 
 namespace spotify {
 namespace json {
+namespace detail {
+
+template<typename T>
+T decode_real(
+    const double_conversion::StringToDoubleConverter &converter,
+    const char* buffer,
+    int length,
+    int* processed_characters_count);
+
+template<>
+float decode_real(
+    const double_conversion::StringToDoubleConverter &converter,
+    const char* buffer,
+    int length,
+    int* processed_characters_count) {
+  return converter.StringToFloat(buffer, length, processed_characters_count);
+}
+
+template<>
+double decode_real(
+    const double_conversion::StringToDoubleConverter &converter,
+    const char* buffer,
+    int length,
+    int* processed_characters_count) {
+  return converter.StringToDouble(buffer, length, processed_characters_count);
+}
+
+}  // namespace detail
+
 namespace codec {
 
 template<typename T>
 class real_t final : public detail::primitive_encoder<T> {
  public:
-  object_type decode(decoding_context &context) const;
+  T decode(decoding_context &context) const {
+    using atod_converter = double_conversion::StringToDoubleConverter;
+    static const atod_converter converter(
+        atod_converter::ALLOW_TRAILING_JUNK,
+        std::numeric_limits<T>::quiet_NaN(),
+        std::numeric_limits<T>::quiet_NaN(),
+        nullptr,
+        nullptr);
+
+    int bytes_read = 0;
+    const auto result = detail::decode_real<T>(
+        converter, context.position, context.end - context.position, &bytes_read);
+    if (std::isnan(result)) {
+      context.error = "Invalid floating point number";
+    } else {
+      context.position += bytes_read;
+    }
+    return result;
+  }
 };
 
 template<typename T>
