@@ -24,6 +24,15 @@ namespace spotify {
 namespace json {
 namespace codec {
 
+/**
+ * Codec that requires a specific value in order to parse, or it fails. It
+ * always encodes into that specified value.
+ *
+ * This is useful mainly in "dummy" fields of object codecs that are never
+ * saved anywhere, for example to enforce a certain version. It works well
+ * together with one_of, which makes it possible to specify different codecs
+ * for different versions.
+ */
 template<typename InnerCodec>
 class equals_t final {
  public:

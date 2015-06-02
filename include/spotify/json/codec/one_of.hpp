@@ -72,6 +72,12 @@ struct try_each_codec<Tuple, 0> {
 
 namespace codec {
 
+/**
+ * Takes an ordered list of codecs and applies them one by one. The first
+ * one that succeeds will be used.
+ *
+ * When encoding, the first codec is always used.
+ */
 template<typename Codec, typename... Codecs>
 class one_of_t final {
  public:
