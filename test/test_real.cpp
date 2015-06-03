@@ -33,16 +33,21 @@ template<typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
-  BOOST_CHECK_EQUAL(c.error, "");
   BOOST_CHECK_EQUAL(c.position, c.end);
   return obj;
 }
 
 template<typename Codec>
-void test_decode_fail(const Codec &codec, const std::string &json) {
+void test_decode_partial(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   codec.decode(c);
-  BOOST_CHECK(c.has_failed() || c.position != c.end);
+  BOOST_CHECK_NE(c.position, c.end);
+}
+
+template<typename Codec>
+void test_decode_fail(const Codec &codec, const std::string &json) {
+  decoding_context c(json.c_str(), json.c_str() + json.size());
+  BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
 struct example_t {
@@ -86,7 +91,7 @@ BOOST_AUTO_TEST_CASE(json_codec_real_should_not_decode_invalid_numbers) {
   test_decode_fail(real<double>(), "a");
   test_decode_fail(real<float>(), "NaN");
   test_decode_fail(real<float>(), "- 1.1");
-  test_decode_fail(real<float>(), "1..1");
+  test_decode_partial(real<float>(), "1..1");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

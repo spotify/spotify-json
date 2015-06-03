@@ -21,6 +21,7 @@
 #include <double-conversion/double-conversion.h>
 
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
 #include <spotify/json/standard.hpp>
 
@@ -71,12 +72,12 @@ class real_t final : public detail::primitive_encoder<T> {
 
     int bytes_read = 0;
     const auto result = detail::decode_real<T>(
-        converter, context.position, context.end - context.position, &bytes_read);
-    if (std::isnan(result)) {
-      context.error = "Invalid floating point number";
-    } else {
-      context.position += bytes_read;
-    }
+        converter,
+        context.position,
+        context.end - context.position,
+        &bytes_read);
+    detail::require(context, !std::isnan(result), "Invalid floating point number");
+    context.position += bytes_read;
     return result;
   }
 };

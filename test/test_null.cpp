@@ -40,25 +40,17 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_null) {
   const char *null = "null ";
   auto ctx = decoding_context(null, null + 5);
   const auto original_ctx = ctx;
-
   codec.decode(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position + 4);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_null_should_not_decode_otherwise) {
   const auto codec = null_t();
   const char *not_null = "nul";
   auto ctx = decoding_context(not_null, not_null + 3);
-  const auto original_ctx = ctx;
-
-  codec.decode(ctx);
-
-  BOOST_CHECK_EQUAL(ctx.position, original_ctx.position);
-  BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(ctx.has_failed());
+  BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_helper) {

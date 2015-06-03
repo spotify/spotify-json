@@ -23,6 +23,7 @@ set(json_HEADERS
   include/spotify/json/codec.hpp
   include/spotify/json/decoding_context.hpp
   include/spotify/json/encode_decode.hpp
+  include/spotify/json/error.hpp
   include/spotify/json/key.hpp
   include/spotify/json/pair.hpp
   include/spotify/json/standard.hpp

@@ -31,13 +31,7 @@ namespace {
 void boolean_parse_should_fail(const char *not_boolean) {
   const auto codec = boolean_t();
   auto ctx = decoding_context(not_boolean, not_boolean + strlen(not_boolean));
-  const auto original_ctx = ctx;
-
-  codec.decode(ctx);
-
-  BOOST_CHECK_EQUAL(ctx.position, original_ctx.position);
-  BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(ctx.has_failed());
+  BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
 }  // namespace
@@ -55,12 +49,10 @@ BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_true) {
   const char *boolean = "true ";
   auto ctx = decoding_context(boolean, boolean + 5);
   const auto original_ctx = ctx;
-
   BOOST_CHECK_EQUAL(codec.decode(ctx), true);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position + 4);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_false) {
@@ -68,12 +60,10 @@ BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_false) {
   const char *boolean = "false ";
   auto ctx = decoding_context(boolean, boolean + 6);
   const auto original_ctx = ctx;
-
   BOOST_CHECK_EQUAL(codec.decode(ctx), false);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position + 5);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
-  BOOST_CHECK(!ctx.has_failed());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_not_decode_otherwise) {

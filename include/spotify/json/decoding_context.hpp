@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <spotify/json/detail/macros.hpp>
+#include <spotify/json/error.hpp>
+
 namespace spotify {
 namespace json {
 
@@ -25,26 +28,26 @@ namespace json {
  * has failed.
  */
 struct decoding_context final {
-  decoding_context(const char *position, const char *end)
-      : position(position),
+  decoding_context(const char *begin, const char *end)
+      : position(begin),
+        begin(begin),
         end(end) {}
 
-  bool has_failed() const {
-    return !error.empty();
+  json_force_inline size_t offset() const {
+    return (position - begin);
   }
 
-  /**
-   * A non-empty error indicates that the parsing failed.
-   */
-  std::string error;
-  /**
-   * Pointer to the current position of the decoding process. If error is
-   * non-empty, position points to the position of the error.
-   *
-   * position must never point beyond end.
-   */
+  json_force_inline size_t offset(const ssize_t d) const {
+    return offset() + d;
+  }
+
+  json_force_inline size_t remaining() const {
+    return (end - position);
+  }
+
   const char *position;
-  const char * const end;
+  const char *const begin;
+  const char *const end;
 };
 
 }  // namespace json

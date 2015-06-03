@@ -14,26 +14,36 @@
  * the License.
  */
 
+#pragma once
+
+#include <stdexcept>
 #include <string>
-#include <vector>
 
-#include <boost/test/unit_test.hpp>
+#include <spotify/json/detail/macros.hpp>
 
-#include <spotify/json/decoding_context.hpp>
+namespace spotify {
+namespace json {
 
-BOOST_AUTO_TEST_SUITE(spotify)
-BOOST_AUTO_TEST_SUITE(json)
-BOOST_AUTO_TEST_SUITE(detail)
+class decode_exception : public std::runtime_error {
+ public:
+  template <typename string_type>
+  json_never_inline decode_exception(const string_type &what, const size_t offset)
+      : runtime_error(what),
+        _what(what),
+        _offset(offset) {}
 
-BOOST_AUTO_TEST_CASE(json_decoding_context_should_construct) {
-  static const char string[] = "abc";
-  const char * const end = string + sizeof(string);
-  const decoding_context ctx(string, end);
+  virtual const char *what() const throw() {
+    return _what.c_str();
+  }
 
-  BOOST_CHECK_EQUAL(ctx.position, string);
-  BOOST_CHECK_EQUAL(ctx.end, end);
-}
+  size_t offset() const {
+    return _offset;
+  }
 
-BOOST_AUTO_TEST_SUITE_END()  // detail
-BOOST_AUTO_TEST_SUITE_END()  // json
-BOOST_AUTO_TEST_SUITE_END()  // spotify
+ private:
+  const std::string _what;
+  const off_t _offset;
+};
+
+}  // namespace json
+}  // namespace spotify

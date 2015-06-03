@@ -37,14 +37,14 @@ class lenient_t final {
   }
 
   object_type decode(decoding_context &context) const {
-    const char * const original_position = context.position;
-    object_type result = _inner_codec.decode(context);
-    if (context.has_failed()) {
+    const auto original_position = context.position;
+    try {
+      return _inner_codec.decode(context);
+    } catch (const decode_exception &error) {
       context.position = original_position;
-      context.error.clear();
       detail::advance_past_value(context);
+      return object_type();
     }
-    return result;
   }
 
  private:
