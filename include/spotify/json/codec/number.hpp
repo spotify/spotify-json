@@ -16,10 +16,6 @@
 
 #pragma once
 
-#include <cmath>
-
-#include <double-conversion/double-conversion.h>
-
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
@@ -37,7 +33,7 @@ T decode_real(
     int* processed_characters_count);
 
 template<>
-float decode_real(
+inline float decode_real(
     const double_conversion::StringToDoubleConverter &converter,
     const char* buffer,
     int length,
@@ -46,7 +42,7 @@ float decode_real(
 }
 
 template<>
-double decode_real(
+inline double decode_real(
     const double_conversion::StringToDoubleConverter &converter,
     const char* buffer,
     int length,
@@ -54,12 +50,8 @@ double decode_real(
   return converter.StringToDouble(buffer, length, processed_characters_count);
 }
 
-}  // namespace detail
-
-namespace codec {
-
 template<typename T>
-class real_t final : public detail::primitive_encoder<T> {
+class floating_point_t : public detail::primitive_encoder<T> {
  public:
   T decode(decoding_context &context) const {
     using atod_converter = double_conversion::StringToDoubleConverter;
@@ -82,24 +74,41 @@ class real_t final : public detail::primitive_encoder<T> {
   }
 };
 
+}  // namespace detail
+
+namespace codec {
+
 template<typename T>
-real_t<T> real() {
-  return real_t<T>();
-}
-
-}  // namespace codec
-
-template<>
-struct standard_t<float> {
-  static codec::real_t<float> codec() {
-    return codec::real_t<float>();
+class number_t final : public detail::primitive_encoder<T> {
+ public:
+  T decode(decoding_context &context) const {
+    return T();
   }
 };
 
 template<>
-struct standard_t<double> {
-  static codec::real_t<double> codec() {
-    return codec::real_t<double>();
+class number_t<float> final : public detail::floating_point_t<float> {
+};
+
+template<>
+class number_t<double> final : public detail::floating_point_t<double> {
+};
+
+template<typename T>
+number_t<T> number() {
+  return number_t<T>();
+}
+
+}  // namespace codec
+
+template<typename T>
+struct standard_t {
+  static_assert(
+      std::is_integral<T>::value || std::is_floating_point<T>::value,
+      "No standard_t specialization for type T");
+
+  static codec::number_t<T> codec() {
+    return codec::number_t<T>();
   }
 };
 

@@ -19,7 +19,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/codec/real.hpp>
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/encode_decode.hpp>
 #include <spotify/json/standard.hpp>
 
@@ -56,42 +56,42 @@ struct example_t {
 
 }  // namespace
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_construct) {
-  real_t<double>();
-  real_t<float>();
+BOOST_AUTO_TEST_CASE(json_codec_number_should_construct) {
+  number_t<double>();
+  number_t<float>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_construct_with_helper) {
-  real<double>();
-  real<float>();
+BOOST_AUTO_TEST_CASE(json_codec_number_should_construct_with_helper) {
+  number<double>();
+  number<float>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_construct_with_standard) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_construct_with_standard) {
   standard<double>();
   standard<float>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_encode_exactly) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_exactly) {
   BOOST_CHECK_EQUAL(encode(0.5), "0.5");
   BOOST_CHECK_EQUAL(encode(0.5f), "0.5");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_decode_exactly) {
-  BOOST_CHECK_EQUAL(test_decode(real<double>(), "0.5"), 0.5);
-  BOOST_CHECK_EQUAL(test_decode(real<float>(), "0.5"), 0.5);
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_exactly) {
+  BOOST_CHECK_EQUAL(test_decode(number<double>(), "0.5"), 0.5);
+  BOOST_CHECK_EQUAL(test_decode(number<float>(), "0.5"), 0.5);
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_decode_with_rounding_errors) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_with_rounding_errors) {
   // 1.1 is mean because it can't be encoded precisely using binary floats
-  BOOST_CHECK_EQUAL(test_decode(real<double>(), "1.1"), 1.1);
-  BOOST_CHECK_EQUAL(test_decode(real<float>(), "1.1"), 1.1f);
+  BOOST_CHECK_EQUAL(test_decode(number<double>(), "1.1"), 1.1);
+  BOOST_CHECK_EQUAL(test_decode(number<float>(), "1.1"), 1.1f);
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_real_should_not_decode_invalid_numbers) {
-  test_decode_fail(real<double>(), "a");
-  test_decode_fail(real<float>(), "NaN");
-  test_decode_fail(real<float>(), "- 1.1");
-  test_decode_partial(real<float>(), "1..1");
+BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_numbers) {
+  test_decode_fail(number<double>(), "a");
+  test_decode_fail(number<float>(), "NaN");
+  test_decode_fail(number<float>(), "- 1.1");
+  test_decode_partial(number<float>(), "1..1");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

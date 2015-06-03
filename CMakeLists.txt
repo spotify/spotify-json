@@ -37,13 +37,12 @@ set(json_codec_HEADERS
   include/spotify/json/codec/cast.hpp
   include/spotify/json/codec/codec_interface.hpp
   include/spotify/json/codec/equals.hpp
-  include/spotify/json/codec/integer.hpp
   include/spotify/json/codec/lenient.hpp
   include/spotify/json/codec/map.hpp
   include/spotify/json/codec/null.hpp
+  include/spotify/json/codec/number.hpp
   include/spotify/json/codec/object.hpp
   include/spotify/json/codec/one_of.hpp
-  include/spotify/json/codec/real.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
   )
@@ -86,11 +85,11 @@ set(json_test_SOURCES
   test/test_main.cpp
   test/test_map.cpp
   test/test_null.cpp
+  test/test_number.cpp
   test/test_object.cpp
   test/test_one_of.cpp
   test/test_pair.cpp
   test/test_primitive_encoder.cpp
-  test/test_real.cpp
   test/test_smart_ptr.cpp
   test/test_string.cpp
   test/test_writer.cpp
