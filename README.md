@@ -1,8 +1,16 @@
 spotify-json
 ============
 
-Fast and nice to use C++ JSON writer and parser library. `spotify-json` itself
-is a header-only library, but it depends on
+A C++ JSON writer and parser library. It
+
+* requires very little boilerplate code when using it,
+* is fast,
+* comes with a good suite of tests,
+* is deployed and in active use on well over 50 million devices.
+* has documentation: See (the `codec` API)[doc/codec.md] and
+  (the `writer` API)[doc/writer.md].
+
+`spotify-json` itself is a header-only library, but it depends on
 [Google's double-conversion library](https://github.com/google/double-conversion),
 which must be linked in to the code that uses `spotify-json`.
 
@@ -17,6 +25,9 @@ Since the `codec` API adds parsing support and is more convenient to use, it is
 the recommended way to use the API. The `writer` API is only useful in certain
 special situations, like when the JSON being written isn't already fully
 represented in memory in a C++ object.
+
+* [Documentation for the `codec` API](doc/codec.md)
+* [Documentation for the `writer` API](doc/writer.md)
 
 ### Example
 
