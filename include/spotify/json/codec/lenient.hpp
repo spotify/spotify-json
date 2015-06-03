@@ -29,7 +29,7 @@ class lenient_t final {
  public:
   using object_type = typename InnerCodec::object_type;
 
-  lenient_t(InnerCodec inner_codec)
+  explicit lenient_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
   void encode(const object_type &value, writer &writer) const {
@@ -40,7 +40,7 @@ class lenient_t final {
     const auto original_position = context.position;
     try {
       return _inner_codec.decode(context);
-    } catch (const decode_exception &error) {
+    } catch (const decode_exception &) {
       context.position = original_position;
       detail::advance_past_value(context);
       return object_type();

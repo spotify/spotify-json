@@ -43,7 +43,7 @@ class array_t final {
           typename InnerCodec::object_type>::value,
       "Array container type must match inner codec type");
 
-  array_t(InnerCodec inner_codec)
+  explicit array_t(InnerCodec inner_codec)
       : _inner_codec(inner_codec) {}
 
   void encode(const object_type &array, writer &w) const {

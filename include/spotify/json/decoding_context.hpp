@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/error.hpp>
 
@@ -37,7 +39,7 @@ struct decoding_context final {
     return (position - begin);
   }
 
-  json_force_inline size_t offset(const ssize_t d) const {
+  json_force_inline size_t offset(const ptrdiff_t d) const {
     return offset() + d;
   }
 

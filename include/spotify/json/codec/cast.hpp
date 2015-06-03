@@ -38,7 +38,7 @@ class cast_t {
  public:
   using object_type = PointerType;
 
-  cast_t(InnerCodec inner_codec)
+  explicit cast_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
   void encode(object_type value, writer &writer) const {

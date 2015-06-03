@@ -26,14 +26,14 @@ namespace json {
 namespace detail {
 
 template<typename T>
-T decode_real(
+T decode_floating_point(
     const double_conversion::StringToDoubleConverter &converter,
     const char* buffer,
     int length,
     int* processed_characters_count);
 
 template<>
-inline float decode_real(
+inline float decode_floating_point(
     const double_conversion::StringToDoubleConverter &converter,
     const char* buffer,
     int length,
@@ -42,7 +42,7 @@ inline float decode_real(
 }
 
 template<>
-inline double decode_real(
+inline double decode_floating_point(
     const double_conversion::StringToDoubleConverter &converter,
     const char* buffer,
     int length,
@@ -63,7 +63,7 @@ class floating_point_t : public detail::primitive_encoder<T> {
         nullptr);
 
     int bytes_read = 0;
-    const auto result = detail::decode_real<T>(
+    const auto result = detail::decode_floating_point<T>(
         converter,
         context.position,
         context.end - context.position,

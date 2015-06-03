@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <unordered_set>
 
@@ -32,7 +33,7 @@ template <typename string_type>
 json_never_inline json_noreturn void fail(
     const decoding_context &context,
     const string_type &error,
-    const ssize_t d = 0) {
+    const ptrdiff_t d = 0) {
   throw decode_exception(error, context.offset(d));
 }
 
@@ -41,7 +42,7 @@ json_force_inline void require(
     const decoding_context &context,
     const bool condition,
     const string_type &error,
-    const ssize_t d = 0) {
+    const ptrdiff_t d = 0) {
   if (json_unlikely(!condition)) {
     fail(context, error, d);
   }
@@ -306,7 +307,7 @@ inline void advance_past_value(decoding_context &context) {
     advance_past_null(context);
   } else if (c == '"') {
     advance_past_string(context);
-  } else if (c == '-' || char_traits<char>::char_traits<char>::is_digit(c)) {
+  } else if (c == '-' || char_traits<char>::is_digit(c)) {
     advance_past_number(context);
   } else {
     fail(context, std::string("Encountered unexpected character '") + c + "'");

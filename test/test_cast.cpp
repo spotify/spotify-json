@@ -71,7 +71,7 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_construct) {
-  cast_t<base_class *, dummy_t<sub_class *>>(dummy_t<sub_class *>());
+  cast_t<base_class *, dummy_t<sub_class *>>{dummy_t<sub_class *>()};
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_construct_with_helper) {
