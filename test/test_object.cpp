@@ -105,6 +105,27 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {
   BOOST_CHECK_EQUAL(json, "{\"value\":\"hey\"}");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {
+  simple_t simple;
+  simple.value = "";
+
+  codec::object<simple_t> codec;
+  codec.required("0", &simple_t::value);
+  codec.optional("1", &simple_t::value);
+  codec.optional("2", &simple_t::value);
+  codec.optional("3", &simple_t::value);
+  codec.optional("4", &simple_t::value);
+  codec.optional("5", &simple_t::value);
+  codec.optional("6", &simple_t::value);
+  codec.optional("7", &simple_t::value);
+  codec.optional("8", &simple_t::value);
+  codec.optional("9", &simple_t::value);
+
+  BOOST_CHECK_EQUAL(encode(codec, simple), "{"
+      "\"0\":\"\",\"1\":\"\",\"2\":\"\",\"3\":\"\",\"4\":\"\","
+      "\"5\":\"\",\"6\":\"\",\"7\":\"\",\"8\":\"\",\"9\":\"\"}");
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_use_provided_codec) {
   object<simple_t> other_simple_codec;
   other_simple_codec.optional("other", &simple_t::value);

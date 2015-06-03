@@ -44,7 +44,7 @@ class object final {
 
   void encode(const object_type &value, writer &w) const {
     w.add_object([&](writer &w) {
-      for (const auto &field : _fields) {
+      for (const auto &field : _field_list) {
         if (field.second->should_encode) {
           w.add_key(field.first);
           field.second->encode(value, w);
@@ -154,14 +154,19 @@ class object final {
             required, _fields.size(), std::forward<Codec>(codec)));
   }
 
-  void save_field(const std::string &name, bool required, std::shared_ptr<field> &&f) {
-    const auto result = _fields.insert(typename field_map::value_type(name, std::move(f)));
-    if (required && result.second) {
-      _num_required_fields++;
+  void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
+    const auto was_saved = _fields.insert(typename field_map::value_type(name, f)).second;
+    if (was_saved) {
+      _field_list.push_back(std::make_pair(name, f));
+      if (required) {
+        _num_required_fields++;
+      }
     }
   }
 
+  using field_list = std::vector<std::pair<std::string, std::shared_ptr<const field>>>;
   using field_map = std::unordered_map<std::string, std::shared_ptr<const field>>;
+  field_list _field_list;
   field_map _fields;
   size_t _num_required_fields = 0;
 };

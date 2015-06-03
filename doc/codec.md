@@ -434,8 +434,9 @@ For the `required` and `optional` methods, the following overloads exist:
   encoding, use a default constructed value of the given type. This is mainly
   useful for verification purposes, for example `required("version", equals(5))`
 
-In terms of performance hit, each field that `object` encodes and decodes uses
-one virtual method call.
+Each field that `object` encodes and decodes uses one virtual method call.
+
+When encoding, `object` writes fields in the order that they were registered.
 
 ### `one_of_t`
 
