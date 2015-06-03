@@ -39,13 +39,6 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
 }
 
 template<typename Codec>
-void test_decode_partial(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
-  codec.decode(c);
-  BOOST_CHECK_NE(c.position, c.end);
-}
-
-template<typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
@@ -125,7 +118,6 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_float_numbers) 
   test_decode_fail(number<double>(), "a");
   test_decode_fail(number<float>(), "NaN");
   test_decode_fail(number<float>(), "- 1.1");
-  test_decode_partial(number<float>(), "1..1");
 }
 
 /*
@@ -144,6 +136,34 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer) {
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "-32768"), -32768);
   BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-2147483648"), -2147483648);
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-9223372036854775808"), INT64_MIN);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_with_negative_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "1277e-1"), 127);
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "327677E-1"), 32767);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "214748364700e-2"), 2147483647);
+  BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "922337203685477580700E-2"), INT64_MAX);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_with_positive_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "12e1"), 120);
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "3276e+1"), 32760);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "21474836E2"), 2147483600);
+  BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "92233720368547758E+2"), INT64_C(9223372036854775800));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer_with_negative_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "-1288e-1"), -128);
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "-327688E-1"), -32768);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-214748364800e-2"), -2147483648);
+  BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-922337203685477580800E-2"), INT64_MIN);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer_with_positive_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "-12e1"), -120);
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "-3276e+1"), -32760);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-21474836E2"), -2147483600);
+  BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-92233720368547758E+2"), INT64_C(-9223372036854775800));
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_overflowing_signed_positive_integer) {
@@ -166,7 +186,9 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_signed_integers
   test_decode_fail(number<int>(), "a");
   test_decode_fail(number<int>(), "NaN");
   test_decode_fail(number<int>(), "- 1.1");
-  test_decode_partial(number<int>(), "1..1");
+  test_decode_fail(number<int>(), "-1..1");
+  test_decode_fail(number<int>(), "-1.e1");
+  test_decode_fail(number<int>(), "-1e");
 }
 
 /*
@@ -180,11 +202,32 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer) 
   BOOST_CHECK_EQUAL(test_decode(number<uint64_t>(), "18446744073709551615"), UINT64_MAX);
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer_with_negative_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<uint8_t>(), "2555e-1"), 255);
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "655355E-1"), 65535);
+  BOOST_CHECK_EQUAL(test_decode(number<uint32_t>(), "429496729500e-2"), 4294967295);
+  BOOST_CHECK_EQUAL(test_decode(number<uint64_t>(), "1844674407370955161500E-2"), UINT64_MAX);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer_with_positive_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<uint8_t>(), "25e1"), 250);
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "6553e+1"), 65530);
+  BOOST_CHECK_EQUAL(test_decode(number<uint32_t>(), "42949672E2"), 4294967200);
+  BOOST_CHECK_EQUAL(test_decode(number<uint64_t>(), "184467440737095516E+2"), UINT64_C(18446744073709551600));
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_overflowing_unsigned_positive_integer) {
   test_decode_fail(number<uint8_t>(), "256");
   test_decode_fail(number<uint16_t>(), "65536");
   test_decode_fail(number<uint32_t>(), "4294967296");
   test_decode_fail(number<uint64_t>(), "18446744073709551616");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_overflowing_unsigned_positive_integer_with_exponent) {
+  test_decode_fail(number<uint8_t>(), "25e2");
+  test_decode_fail(number<uint16_t>(), "6553e2");
+  test_decode_fail(number<uint32_t>(), "429496729e2");
+  test_decode_fail(number<uint64_t>(), "1844674407370955161e2");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_unsigned_integers) {
@@ -194,7 +237,9 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_unsigned_intege
   test_decode_fail(number<unsigned>(), "a");
   test_decode_fail(number<unsigned>(), "NaN");
   test_decode_fail(number<unsigned>(), "- 1.1");
-  test_decode_partial(number<unsigned>(), "1..1");
+  test_decode_fail(number<unsigned>(), "1..1");
+  test_decode_fail(number<unsigned>(), "1.e1");
+  test_decode_fail(number<unsigned>(), "1e");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
