@@ -70,14 +70,26 @@ json_force_inline char peek(const decoding_context &context) {
   return (context.remaining() ? *context.position : 0);
 }
 
+json_force_inline char next_unchecked(decoding_context &context) {
+  return *(context.position++);
+}
+
 template <typename string_type>
 json_force_inline char next(decoding_context &context, const string_type &error) {
   require_bytes<1>(context, error);
-  return *(context.position++);
+  return next_unchecked(context);
 }
 
 json_force_inline char next(decoding_context &context) {
   return next(context, "Unexpected end of input");
+}
+
+json_force_inline void skip(decoding_context &context, const size_t num_bytes) {
+  context.position += num_bytes;
+}
+
+json_force_inline void skip(decoding_context &context) {
+  context.position++;
 }
 
 /**
