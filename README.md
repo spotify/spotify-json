@@ -47,10 +47,10 @@ struct Track {
 namespace spotify {
 namespace json {
 
-// Specialize spotify::json::standard_t to specify default behavior when
+// Specialize spotify::json::default_codec_t to specify default behavior when
 // encoding and decoding objects of certain types.
 template<>
-struct standard_t<Track> {
+struct default_codec_t<Track> {
   static object<Track> codec() {
     object<Track> codec;
     codec.required("uri", &Track::uri);

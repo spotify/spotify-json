@@ -24,8 +24,8 @@
 #include <vector>
 
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/standard.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -74,37 +74,37 @@ array_t<T, InnerCodec> array(InnerCodec &&inner_codec) {
 }  // namespace codec
 
 template<typename T>
-struct standard_t<std::vector<T>> {
-  static decltype(codec::array<std::vector<T>>(standard<T>())) codec() {
-    return codec::array<std::vector<T>>(standard<T>());
+struct default_codec_t<std::vector<T>> {
+  static decltype(codec::array<std::vector<T>>(default_codec<T>())) codec() {
+    return codec::array<std::vector<T>>(default_codec<T>());
   }
 };
 
 template<typename T>
-struct standard_t<std::deque<T>> {
-  static decltype(codec::array<std::deque<T>>(standard<T>())) codec() {
-    return codec::array<std::deque<T>>(standard<T>());
+struct default_codec_t<std::deque<T>> {
+  static decltype(codec::array<std::deque<T>>(default_codec<T>())) codec() {
+    return codec::array<std::deque<T>>(default_codec<T>());
   }
 };
 
 template<typename T>
-struct standard_t<std::list<T>> {
-  static decltype(codec::array<std::list<T>>(standard<T>())) codec() {
-    return codec::array<std::list<T>>(standard<T>());
+struct default_codec_t<std::list<T>> {
+  static decltype(codec::array<std::list<T>>(default_codec<T>())) codec() {
+    return codec::array<std::list<T>>(default_codec<T>());
   }
 };
 
 template<typename T>
-struct standard_t<std::set<T>> {
-  static decltype(codec::array<std::set<T>>(standard<T>())) codec() {
-    return codec::array<std::set<T>>(standard<T>());
+struct default_codec_t<std::set<T>> {
+  static decltype(codec::array<std::set<T>>(default_codec<T>())) codec() {
+    return codec::array<std::set<T>>(default_codec<T>());
   }
 };
 
 template<typename T>
-struct standard_t<std::unordered_set<T>> {
-  static decltype(codec::array<std::unordered_set<T>>(standard<T>())) codec() {
-    return codec::array<std::unordered_set<T>>(standard<T>());
+struct default_codec_t<std::unordered_set<T>> {
+  static decltype(codec::array<std::unordered_set<T>>(default_codec<T>())) codec() {
+    return codec::array<std::unordered_set<T>>(default_codec<T>());
   }
 };
 

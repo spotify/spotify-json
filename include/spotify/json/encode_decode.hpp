@@ -19,7 +19,7 @@
 #include <string>
 
 #include <spotify/json/buffer.hpp>
-#include <spotify/json/standard.hpp>
+#include <spotify/json/default_codec.hpp>
 
 namespace spotify {
 namespace json {
@@ -43,7 +43,7 @@ template<typename Value>
 std::string encode(const Value &value) {
   buffer buffer;
   writer writer(buffer);
-  standard<Value>().encode(value, writer);
+  default_codec<Value>().encode(value, writer);
   return std::string(buffer.data(), buffer.size());
 }
 
@@ -67,7 +67,7 @@ typename Codec::object_type decode(const Codec &codec, const buffer &buffer) {
 
 template<typename Value>
 Value decode(const std::string &string) {
-  return decode(standard<Value>(), string);
+  return decode(default_codec<Value>(), string);
 }
 
 }  // namespace json

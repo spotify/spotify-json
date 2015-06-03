@@ -20,7 +20,7 @@
 
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/standard.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -135,7 +135,7 @@ class object final {
 
   template<typename Member>
   void add_field(const std::string &name, bool required, Member T::*member) {
-    add_field(name, required, member, standard<Member>());
+    add_field(name, required, member, default_codec<Member>());
   }
 
   template<typename Member, typename Codec>

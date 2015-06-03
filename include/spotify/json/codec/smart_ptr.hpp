@@ -19,7 +19,7 @@
 #include <utility>
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/standard.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -86,16 +86,16 @@ shared_ptr_t<InnerCodec> shared_ptr(InnerCodec &&inner_codec) {
 }  // namespace codec
 
 template<typename T>
-struct standard_t<std::unique_ptr<T>> {
-  static decltype(unique_ptr(standard<T>())) codec() {
-    return unique_ptr(standard<T>());
+struct default_codec_t<std::unique_ptr<T>> {
+  static decltype(unique_ptr(default_codec<T>())) codec() {
+    return unique_ptr(default_codec<T>());
   }
 };
 
 template<typename T>
-struct standard_t<std::shared_ptr<T>> {
-  static decltype(shared_ptr(standard<T>())) codec() {
-    return shared_ptr(standard<T>());
+struct default_codec_t<std::shared_ptr<T>> {
+  static decltype(shared_ptr(default_codec<T>())) codec() {
+    return shared_ptr(default_codec<T>());
   }
 };
 

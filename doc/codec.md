@@ -80,8 +80,8 @@ const auto my_codec = map<my_type>(unique_ptr(lenient(string())));
 const my_type value = decode(my_codec, "{\"a\":null,\"b\":\"hey\"}");
 ```
 
-`standard_t`
-===========
+`default_codec_t`
+=================
 
 In some cases, it is important to specify exactly how to work with the JSON, but
 in many cases there aren't many options: An `std::map<std::string, std::string>`
@@ -91,25 +91,25 @@ As a convenience, `spotify-json` provies an easy way to get a "reasonable
 default" `codec` for a given type. It is used as follows:
 
 ```cpp
-const auto string_codec = standard<std::string>();
+const auto string_codec = default_codec<std::string>();
 
-const auto array_of_bools_codec = standard<std::vector<bool>>();
+const auto array_of_bools_codec = default_codec<std::vector<bool>>();
 
 // The types can be arbitrarily deeply nested:
-const auto array_of_map_of_array_of_bools_codec = standard<
+const auto array_of_map_of_array_of_bools_codec = default_codec<
     std::vector<std::map<std::string, std::deque<bool>>>>();
 ```
 
-It is possible to add support for application specific types to `standard`. This
-is a common pattern and is the recommended way to use `spotify-json` for the
-types that don't require customized behavior depending on the usage. For
+It is possible to add support for application specific types to `default_codec`.
+This is a common pattern and is the recommended way to use `spotify-json` for
+the types that don't require customized behavior depending on the usage. For
 example, in the Spotify client, basic types such as `ContextTrack` and `Context`
-can be encoded using `standard`, while `ContextPlayerState`, which in certain
+can be encoded using `default_codec`, while `ContextPlayerState`, which in certain
 use cases has to be truncated, has a custom means of getting a `codec` for it.
 
-In order to add support for custom types to `standard`, the template
-`spotify::json::standard_t` should be specialized. Here is an example of what it
-usually looks like:
+In order to add support for custom types to `default_codec`, the template
+`spotify::json::default_codec_t` should be specialized. Here is an example of
+what it usually looks like:
 
 ```cpp
 struct Point {
@@ -121,7 +121,7 @@ namespace spotify {
 namespace json {
 
 template<>
-struct standard_t<Point> {
+struct default_codec_t<Point> {
   static object<Point> codec() {
     object<Point> codec;
     codec.required("x", &Point::x);
@@ -154,10 +154,10 @@ Codecs
   parsing into set types, duplicate values are dropped.)
 * **Convenience builder**: For example
   `spotify::json::codec::array<std::vector<int>>(integer())`. If no custom inner
-  codec is required, `standard` is even more convenient.
-* **`standard` support**: `standard<std::vector<T>>()`,
-  `standard<std::list<T>>()`, `standard<std::deque<T>>()`,
-  `standard<std::set<T>>()`, `standard<std::unordered_set<T>>()`
+  codec is required, `default_codec` is even more convenient.
+* **`default_codec` support**: `default_codec<std::vector<T>>()`,
+  `default_codec<std::list<T>>()`, `default_codec<std::deque<T>>()`,
+  `default_codec<std::set<T>>()`, `default_codec<std::unordered_set<T>>()`
 
 ### `boolean_t`
 
@@ -166,7 +166,7 @@ Codecs
 * **Complete class name**: `spotify::json::codec::bool_t`
 * **Supported types**: Only `bool`
 * **Convenience builder**: `spotify::json::codec::boolean()`
-* **`standard` support**: `standard<bool>()`
+* **`default_codec` support**: `default_codec<bool>()`
 
 
 ### `cast_t`
@@ -189,7 +189,7 @@ null.
 * **Complete class name**: `spotify::json::codec::null_t`
 * **Supported types**: Only `spotify::json::null_type`
 * **Convenience builder**: `spotify::json::codec::null()`
-* **`standard` support**: `standard<null_type>()`
+* **`default_codec` support**: `default_codec<null_type>()`
 
 
 ### `number_t`
@@ -205,8 +205,9 @@ serialized and then parsed.
 * **Supported types**: `float`, `double` and integral types such as `int` and
   `size_t`.
 * **Convenience builder**: `spotify::json::codec::number<T>()`
-* **`standard` support**: `standard<float>()`, `standard<double>()`,
-  `standard<int>()`, `standard<size_t>()` etc.
+* **`default_codec` support**: `default_codec<float>()`,
+  `default_codec<double>()`, `default_codec<int>()`,
+  `default_codec<size_t>()` etc.
 
 
 ### `object`
@@ -225,4 +226,4 @@ serialized and then parsed.
 * **Complete class name**: `spotify::json::codec::string_t`
 * **Supported types**: Only `std::string`
 * **Convenience builder**: `spotify::json::codec::string()`
-* **`standard` support**: `standard<std::string>()`
+* **`default_codec` support**: `default_codec<std::string>()`

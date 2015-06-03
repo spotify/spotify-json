@@ -17,7 +17,7 @@
 #pragma once
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/standard.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -62,8 +62,8 @@ equals_t<InnerCodec> equals(InnerCodec &&inner_codec, typename InnerCodec::objec
 }
 
 template<typename Value>
-auto equals(Value &&value) -> decltype(equals(standard<Value>(), std::forward<Value>(value))) {
-  return equals(standard<Value>(), std::forward<Value>(value));
+auto equals(Value &&value) -> decltype(equals(default_codec<Value>(), std::forward<Value>(value))) {
+  return equals(default_codec<Value>(), std::forward<Value>(value));
 }
 
 }  // namespace codec

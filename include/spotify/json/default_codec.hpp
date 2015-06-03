@@ -24,17 +24,17 @@ namespace spotify {
 namespace json {
 
 /**
- * Overload this template for types that standard<T>() should support.
+ * Overload this template for types that default_codec<T>() should support.
  *
  * The overloaded class should have one static method codec() that returns
  * a codec by value for that type.
  */
 template<typename T>
-struct standard_t;
+struct default_codec_t;
 
 template<typename T>
-decltype(standard_t<T>::codec()) standard() {
-  return standard_t<T>::codec();
+decltype(default_codec_t<T>::codec()) default_codec() {
+  return default_codec_t<T>::codec();
 }
 
 }  // namespace json

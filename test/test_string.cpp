@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
 std::string string_parse(const char *string) {
-  const auto codec = standard<std::string>();
+  const auto codec = default_codec<std::string>();
   auto ctx = decoding_context(string, string + strlen(string));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
@@ -37,7 +37,7 @@ std::string string_parse(const char *string) {
 
 void string_parse_fail(const char *string) {
   auto ctx = decoding_context(string, string + strlen(string));
-  BOOST_CHECK_THROW(standard<std::string>().decode(ctx), decode_exception);
+  BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
 }
 
 /*
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_helper) {
   string();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_standard) {
-  standard<std::string>();
+BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_default_codec) {
+  default_codec<std::string>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
