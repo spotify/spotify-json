@@ -31,14 +31,14 @@ struct make_smart_ptr_t;
 
 template<typename T>
 struct make_smart_ptr_t<std::unique_ptr<T>> {
-  static std::unique_ptr<T> make(typename T &&obj) {
+  static std::unique_ptr<T> make(T &&obj) {
     return std::unique_ptr<T>(new T(std::forward<T>(obj)));
   }
 };
 
 template<typename T>
 struct make_smart_ptr_t<std::shared_ptr<T>> {
-  static std::shared_ptr<T> make(typename T &&obj) {
+  static std::shared_ptr<T> make(T &&obj) {
     return std::make_shared<T>(std::forward<T>(obj));
   }
 };
