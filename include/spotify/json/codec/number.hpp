@@ -68,7 +68,7 @@ class floating_point_t : public detail::primitive_encoder<T> {
         context.position,
         context.end - context.position,
         &bytes_read);
-    detail::require(context, !std::isnan(result), "Invalid floating point number");
+    detail::fail_if(context, std::isnan(result), "Invalid floating point number");
     context.position += bytes_read;
     return result;
   }

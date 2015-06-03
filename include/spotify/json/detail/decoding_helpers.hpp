@@ -38,12 +38,12 @@ json_never_inline json_noreturn void fail(
 }
 
 template <typename string_type>
-json_force_inline void require(
+json_force_inline void fail_if(
     const decoding_context &context,
     const bool condition,
     const string_type &error,
     const ptrdiff_t d = 0) {
-  if (json_unlikely(!condition)) {
+  if (json_unlikely(condition)) {
     fail(context, error, d);
   }
 }
@@ -52,7 +52,7 @@ template <size_t num_required_bytes, typename string_type>
 json_force_inline void require_bytes(
     const decoding_context &context,
     const string_type &error = "Unexpected end of input") {
-  require(context, context.remaining() >= num_required_bytes, error);
+  fail_if(context, context.remaining() < num_required_bytes, error);
 }
 
 template <size_t num_required_bytes>
@@ -97,7 +97,7 @@ inline void advance_past_whitespace(decoding_context &context) {
  * a matching character, a decode_exception is thrown.
  */
 inline void advance_past(decoding_context &context, char character) {
-  require(context, next(context) == character, "Unexpected input", -1);
+  fail_if(context, next(context) != character, "Unexpected input", -1);
 }
 
 /**
@@ -111,12 +111,12 @@ inline void advance_past_four(decoding_context &context, const char *characters)
   const char c1 = *(context.position++);
   const char c2 = *(context.position++);
   const char c3 = *(context.position++);
-  require(
+  fail_if(
       context,
-      c0 == characters[0] &&
-      c1 == characters[1] &&
-      c2 == characters[2] &&
-      c3 == characters[3],
+      c0 != characters[0] ||
+      c1 != characters[1] ||
+      c2 != characters[2] ||
+      c3 != characters[3],
       "Unexpected input",
       -4);
 }
@@ -203,7 +203,7 @@ inline void advance_past_string_escape_after_slash(decoding_context &context) {
       const bool h1 = char_traits<char>::is_hex_digit(*(context.position++));
       const bool h2 = char_traits<char>::is_hex_digit(*(context.position++));
       const bool h3 = char_traits<char>::is_hex_digit(*(context.position++));
-      require(context, h0 && h1 && h2 && h3, "\\u must be followed by 4 hex digits");
+      fail_if(context, !(h0 && h1 && h2 && h3), "\\u must be followed by 4 hex digits");
       break;
     }
    default:
@@ -220,7 +220,7 @@ inline void advance_past_string(decoding_context &context) {
   advance_past(context, '"');
   for (;;) {
     const char c = next(context, "Unterminated string");
-    require(context, c >= 0x20, "Encountered invalid string character");
+    fail_if(context, c < 0x20, "Encountered invalid string character");
     switch (c) {
       case '"': return;
       case '\\': advance_past_string_escape_after_slash(context); break;
