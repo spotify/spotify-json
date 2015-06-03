@@ -33,7 +33,7 @@ class null_t final : public detail::primitive_encoder<null_type> {
   }
 };
 
-null_t null() {
+inline null_t null() {
   return null_t();
 }
 
