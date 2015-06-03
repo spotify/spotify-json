@@ -50,7 +50,7 @@ struct try_each_codec {
     const auto original_position = context.position;
     try {
       return std::get<std::tuple_size<Tuple>::value - N>(tuple).decode(context);
-    } catch (const decode_exception &error) {
+    } catch (const decode_exception &) {
       context.position = original_position;
       return try_each_codec<Tuple, N-1>::decode(tuple, context);
     }
@@ -86,7 +86,7 @@ class one_of_t final {
   using object_type = typename Codec::object_type;
 
   template<typename... Args>
-  one_of_t(Args&& ...args)
+  explicit one_of_t(Args&& ...args)
       : _codecs(std::forward<Args>(args)...) {}
 
   void encode(const object_type &value, writer &w) const {

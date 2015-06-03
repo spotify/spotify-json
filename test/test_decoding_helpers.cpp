@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_two_values) 
   advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
     const auto value = decode_boolean(ctx);
     BOOST_CHECK_EQUAL(key, !times_called);
-    BOOST_CHECK_EQUAL(value, times_called);
+    BOOST_CHECK_EQUAL(value, !!times_called);
     times_called++;
   });
   BOOST_CHECK_EQUAL(times_called, 2);

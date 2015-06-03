@@ -29,7 +29,7 @@ class any_t final {
   using object_type = T;
 
   template<typename Codec>
-  any_t(Codec codec)
+  explicit any_t(Codec codec)
       : _codec(std::make_shared<erased_codec_impl<Codec>>(std::move(codec))) {}
 
   object_type decode(decoding_context &context) const {
@@ -52,7 +52,7 @@ class any_t final {
   template<typename Codec>
   class erased_codec_impl final : public erased_codec {
    public:
-    erased_codec_impl(Codec codec)
+    explicit erased_codec_impl(Codec codec)
       : _codec(std::move(codec)) {}
 
     T decode(decoding_context &context) const override {

@@ -24,20 +24,31 @@
 
 namespace spotify {
 namespace json {
-namespace codec {
-
 namespace detail {
 
-template<
-    typename InnerCodec,
-    template<class> class SmartPointer,
-    SmartPointer<typename InnerCodec::object_type> MakePointer(
-        typename InnerCodec::object_type &&)>
+template<typename SmartPointer>
+struct make_smart_ptr_t;
+
+template<typename T>
+struct make_smart_ptr_t<std::unique_ptr<T>> {
+  static std::unique_ptr<T> make(typename T &&obj) {
+    return std::unique_ptr<T>(new T(std::forward<T>(obj)));
+  }
+};
+
+template<typename T>
+struct make_smart_ptr_t<std::shared_ptr<T>> {
+  static std::shared_ptr<T> make(typename T &&obj) {
+    return std::make_shared<T>(std::forward<T>(obj));
+  }
+};
+
+template<typename InnerCodec, typename SmartPointer>
 class smart_ptr_t {
  public:
-  using object_type = SmartPointer<typename InnerCodec::object_type>;
+  using object_type = SmartPointer;
 
-  smart_ptr_t(InnerCodec inner_codec)
+  explicit smart_ptr_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
   void encode(const object_type &value, writer &writer) const {
@@ -45,36 +56,22 @@ class smart_ptr_t {
   }
 
   object_type decode(decoding_context &context) const {
-    return MakePointer(_inner_codec.decode(context));
+    return make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
   }
 
  protected:
   InnerCodec _inner_codec;
 };
 
-// This template is here so that there is a unique_ptr type that, like std::shared_ptr, takes only
-// one template parameter. Otherwise it can't be passed in as the SmartPointer template parameter
-// to smart_ptr_t.
-template<typename T>
-using unique_ptr = std::unique_ptr<T>;
-
-template<typename T>
-std::unique_ptr<T> make_unique(T &&obj) {
-  return std::unique_ptr<T>(new T(std::forward<T>(obj)));
-}
-
-template<typename T>
-std::shared_ptr<T> make_shared(T &&obj) {
-  return std::make_shared<T>(std::forward<T>(obj));
-}
-
 }  // namespace detail
 
-template<typename InnerCodec>
-using unique_ptr_t = detail::smart_ptr_t<InnerCodec, detail::unique_ptr, detail::make_unique>;
+namespace codec {
 
 template<typename InnerCodec>
-using shared_ptr_t = detail::smart_ptr_t<InnerCodec, std::shared_ptr, detail::make_shared>;
+using unique_ptr_t = detail::smart_ptr_t<InnerCodec, std::unique_ptr<typename InnerCodec::object_type>>;
+
+template<typename InnerCodec>
+using shared_ptr_t = detail::smart_ptr_t<InnerCodec, std::shared_ptr<typename InnerCodec::object_type>>;
 
 template<typename InnerCodec>
 unique_ptr_t<InnerCodec> unique_ptr(InnerCodec &&inner_codec) {

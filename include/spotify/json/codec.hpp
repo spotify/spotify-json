@@ -21,13 +21,12 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/equals.hpp>
-#include <spotify/json/codec/integer.hpp>
 #include <spotify/json/codec/lenient.hpp>
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/null.hpp>
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/one_of.hpp>
-#include <spotify/json/codec/real.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/encode_decode.hpp>
