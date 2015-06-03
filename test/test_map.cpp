@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 namespace {
 
 std::map<std::string, bool> map_parse(const char *not_map) {
-  const auto codec = standard<std::map<std::string, bool>>();
+  const auto codec = default_codec<std::map<std::string, bool>>();
   auto ctx = decoding_context(not_map, not_map + strlen(not_map));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);;
@@ -37,7 +37,7 @@ std::map<std::string, bool> map_parse(const char *not_map) {
 }
 
 void map_parse_should_fail(const char *not_map) {
-  const auto codec = standard<std::map<std::string, bool>>();
+  const auto codec = default_codec<std::map<std::string, bool>>();
   auto ctx = decoding_context(not_map, not_map + strlen(not_map));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
@@ -92,12 +92,12 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_with_helper) {
   map<std::map<std::string, bool>>(boolean());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_map_with_standard) {
-  standard<std::map<std::string, bool>>();
+BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_map_with_default_codec) {
+  default_codec<std::map<std::string, bool>>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_unordered_map_with_standard) {
-  standard<std::unordered_map<std::string, bool>>();
+BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_unordered_map_with_default_codec) {
+  default_codec<std::unordered_map<std::string, bool>>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

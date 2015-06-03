@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_construct_with_helper) {
   unique_ptr(string());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_construct_with_standard) {
-  standard_t<std::unique_ptr<std::string>>();
+BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_construct_with_default_codec) {
+  default_codec_t<std::unique_ptr<std::string>>();
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_encode) {
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct_with_helper) {
   unique_ptr(string());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct_with_standard) {
-  standard_t<std::shared_ptr<std::string>>();
+BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct_with_default_codec) {
+  default_codec_t<std::shared_ptr<std::string>>();
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_encode) {

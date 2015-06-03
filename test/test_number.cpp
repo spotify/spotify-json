@@ -20,8 +20,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/number.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/encode_decode.hpp>
-#include <spotify/json/standard.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_construct_with_helper) {
   number<float>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_number_should_construct_with_standard) {
-  standard<double>();
-  standard<float>();
+BOOST_AUTO_TEST_CASE(json_codec_number_should_construct_with_default_codec) {
+  default_codec<double>();
+  default_codec<float>();
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_exactly) {

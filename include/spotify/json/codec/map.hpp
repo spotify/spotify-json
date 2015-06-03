@@ -22,8 +22,8 @@
 
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/standard.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -83,16 +83,16 @@ map_t<T, InnerCodec> map(InnerCodec &&inner_codec) {
 }  // namespace codec
 
 template<typename T>
-struct standard_t<std::map<std::string, T>> {
-  static decltype(codec::map<std::map<std::string, T>>(standard<T>())) codec() {
-    return codec::map<std::map<std::string, T>>(standard<T>());
+struct default_codec_t<std::map<std::string, T>> {
+  static decltype(codec::map<std::map<std::string, T>>(default_codec<T>())) codec() {
+    return codec::map<std::map<std::string, T>>(default_codec<T>());
   }
 };
 
 template<typename T>
-struct standard_t<std::unordered_map<std::string, T>> {
-  static decltype(codec::map<std::unordered_map<std::string, T>>(standard<T>())) codec() {
-    return codec::map<std::unordered_map<std::string, T>>(standard<T>());
+struct default_codec_t<std::unordered_map<std::string, T>> {
+  static decltype(codec::map<std::unordered_map<std::string, T>>(default_codec<T>())) codec() {
+    return codec::map<std::unordered_map<std::string, T>>(default_codec<T>());
   }
 };
 

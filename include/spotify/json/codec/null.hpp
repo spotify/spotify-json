@@ -17,9 +17,9 @@
 #pragma once
 
 #include <spotify/json/decoding_context.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
-#include <spotify/json/standard.hpp>
 
 namespace spotify {
 namespace json {
@@ -33,14 +33,14 @@ class null_t final : public detail::primitive_encoder<null_type> {
   }
 };
 
-null_t null() {
+inline null_t null() {
   return null_t();
 }
 
 }  // namespace codec
 
 template<>
-struct standard_t<null_type> {
+struct default_codec_t<null_type> {
   static codec::null_t codec() {
     return codec::null_t();
   }

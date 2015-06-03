@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_helper) {
   null();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_standard) {
-  standard<null_type>();
+BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_default_codec) {
+  default_codec<null_type>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

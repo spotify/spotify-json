@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 namespace {
 
 std::vector<bool> array_parse(const char *not_array) {
-  const auto codec = standard<std::vector<bool>>();
+  const auto codec = default_codec<std::vector<bool>>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));
   const auto result = codec.decode(ctx);
 
@@ -39,7 +39,7 @@ std::vector<bool> array_parse(const char *not_array) {
 }
 
 void array_parse_should_fail(const char *not_array) {
-  const auto codec = standard<std::vector<bool>>();
+  const auto codec = default_codec<std::vector<bool>>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
@@ -87,20 +87,20 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_with_helper) {
   array<std::vector<bool>>(boolean());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_vector_with_standard) {
-  standard<std::vector<bool>>();
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_vector_with_default_codec) {
+  default_codec<std::vector<bool>>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_deque_with_standard) {
-  standard<std::deque<bool>>();
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_deque_with_default_codec) {
+  default_codec<std::deque<bool>>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_set_with_standard) {
-  standard<std::set<bool>>();
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_set_with_default_codec) {
+  default_codec<std::set<bool>>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_standard) {
-  standard<std::unordered_set<bool>>();
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_default_codec) {
+  default_codec<std::unordered_set<bool>>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

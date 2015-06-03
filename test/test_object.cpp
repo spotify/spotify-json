@@ -22,8 +22,8 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/string.hpp>
+#include <spotify/json/default_codec.hpp>
 #include <spotify/json/encode_decode.hpp>
-#include <spotify/json/standard.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -63,7 +63,7 @@ codec::object<example_t> example_codec() {
 }  // namespace
 
 template<>
-struct standard_t<simple_t> {
+struct default_codec_t<simple_t> {
   static codec::object<simple_t> codec() {
     codec::object<simple_t> codec;
     codec.optional("value", &simple_t::value);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_construct) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_fields) {
-  const auto simple = test_decode(standard<simple_t>(), "{\"value\":\"hey\"}");
+  const auto simple = test_decode(default_codec<simple_t>(), "{\"value\":\"hey\"}");
   BOOST_CHECK_EQUAL(simple.value, "hey");
 }
 

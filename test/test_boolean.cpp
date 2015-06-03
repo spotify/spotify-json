@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE(json_codec_boolean_should_construct_with_helper) {
   boolean();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_boolean_should_construct_with_standard) {
-  standard<bool>();
+BOOST_AUTO_TEST_CASE(json_codec_boolean_should_construct_with_default_codec) {
+  default_codec<bool>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
