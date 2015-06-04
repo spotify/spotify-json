@@ -18,7 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/key.hpp>
+#include <spotify/json/detail/key.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

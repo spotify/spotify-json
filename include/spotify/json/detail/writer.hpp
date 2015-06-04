@@ -21,7 +21,7 @@
 
 #include <spotify/json/buffer.hpp>
 #include <spotify/json/detail/escape.hpp>
-#include <spotify/json/key.hpp>
+#include <spotify/json/detail/key.hpp>
 
 namespace spotify {
 namespace json {

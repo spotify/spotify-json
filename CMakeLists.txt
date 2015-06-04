@@ -25,7 +25,6 @@ set(json_HEADERS
   include/spotify/json/decoding_context.hpp
   include/spotify/json/encode_decode.hpp
   include/spotify/json/error.hpp
-  include/spotify/json/key.hpp
   include/spotify/json/pair.hpp
   )
 
@@ -51,6 +50,7 @@ set(json_detail_HEADERS
   include/spotify/json/detail/decoding_helpers.hpp
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
+  include/spotify/json/detail/key.hpp
   include/spotify/json/detail/macros.hpp
   include/spotify/json/detail/primitive_encoder.hpp
   include/spotify/json/detail/writer.hpp
