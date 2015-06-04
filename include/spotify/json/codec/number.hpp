@@ -274,7 +274,8 @@ json_never_inline T decode_integer_tricky(decoding_context &context, const char 
   decltype(context.position) dec_beg = nullptr;
   decltype(context.position) dec_end = nullptr;
   if (peek(context) == '.') {
-    dec_beg = context.position + 1;
+    skip(context);
+    dec_beg = context.position;
     dec_end = std::find_if_not(dec_beg, context.end, char_traits<char>::is_digit);
     fail_if(context, dec_beg == dec_end, "Invalid digits after decimal point");
     context.position = dec_end;
@@ -286,10 +287,13 @@ json_never_inline T decode_integer_tricky(decoding_context &context, const char 
   decltype(context.position) exp_end = nullptr;
   const auto e = peek(context);
   if (e == 'e' || e == 'E') {
-    if (context.position[1] == '-' || context.position[1] == '+') {
-      exp_is_positive = *(++context.position) == '+';
+    skip(context);
+    const auto sign = peek(context);
+    if (sign == '-' || sign == '+') {
+      exp_is_positive = (sign == '+');
+      skip(context);
     }
-    exp_beg = context.position + 1;
+    exp_beg = context.position;
     exp_end = std::find_if_not(exp_beg, context.end, char_traits<char>::is_digit);
     fail_if(context, exp_beg == exp_end, "Exponent symbols should be followed by an optional '+' or '-' and then by at least one number");
     context.position = exp_end;

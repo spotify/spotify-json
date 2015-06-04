@@ -226,6 +226,8 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_signed_integers
   test_decode_fail(number<int>(), "-1..1");
   test_decode_fail(number<int>(), "-1.e1");
   test_decode_fail(number<int>(), "-1e");
+  test_decode_fail(number<int>(), "1e-");
+  test_decode_fail(number<int>(), "1e+");
 }
 
 /*
@@ -300,6 +302,8 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_unsigned_intege
   test_decode_fail(number<unsigned>(), "1..1");
   test_decode_fail(number<unsigned>(), "1.e1");
   test_decode_fail(number<unsigned>(), "1e");
+  test_decode_fail(number<unsigned>(), "1e-");
+  test_decode_fail(number<unsigned>(), "1e+");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
