@@ -59,26 +59,14 @@ class key {
         data(_storage.data()),
         size(_storage.size()) {}
 
-  key &operator=(const key &other) {
-    _storage = other._storage;
-    data = _storage.data();
-    size = _storage.size();
-    return *this;
-  }
-
-  key &operator=(key &&other) {
-    _storage = std::move(other._storage);
-    data = _storage.data();
-    size = _storage.size();
-    return *this;
-  }
+  key &operator=(const key &other) = delete;
 
  private:
   std::string _storage;
 
  public:
-  const char *data;
-  size_t size;
+  const char * const data;
+  const size_t size;
 };
 
 }  // namespace json

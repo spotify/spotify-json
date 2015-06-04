@@ -71,21 +71,5 @@ BOOST_AUTO_TEST_CASE(json_key_should_move_construct_correctly) {
   BOOST_CHECK_EQUAL("\"abcdef\"", to_string(k));
 }
 
-BOOST_AUTO_TEST_CASE(json_key_should_assign_correctly) {
-  key a("abcdef");
-  const key b(a);
-  a = json::key("123456");
-
-  BOOST_CHECK_EQUAL("\"abcdef\"", to_string(b));
-}
-
-BOOST_AUTO_TEST_CASE(json_key_should_move_assign_correctly) {
-  key a("abcdef");
-  key b("123456");
-  a = std::move(b);
-
-  BOOST_CHECK_EQUAL("\"123456\"", to_string(a));
-}
-
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
