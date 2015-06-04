@@ -21,19 +21,13 @@
 
 #include <spotify/json/buffer.hpp>
 #include <spotify/json/detail/escape.hpp>
-#include <spotify/json/key.hpp>
+#include <spotify/json/detail/key.hpp>
 
 namespace spotify {
 namespace json {
-
-struct null_type {};
-static null_type null;
-
 namespace detail {
 
 struct null_options_type {};
-
-}  // namespace detail
 
 template<typename stream_type, typename options_type>
 class basic_writer {
@@ -58,10 +52,6 @@ class basic_writer {
     return _options;
   }
 
-  basic_writer &operator <<(const null_type &) {
-    return separator_and_set().write("null", 4);
-  }
-
   basic_writer &operator <<(bool value) {
     return (value ?
         separator_and_set().write("true", 4) :
@@ -82,7 +72,7 @@ class basic_writer {
 
   basic_writer &operator <<(const char *value) {
     separator_and_set().put('"');
-    detail::write_escaped(_stream, value, detail::null_terminated_end_iterator());
+    write_escaped(_stream, value, null_terminated_end_iterator());
     return put('"');
   }
 
@@ -92,12 +82,16 @@ class basic_writer {
 
   basic_writer &operator <<(const std::string &value) {
     separator_and_set().put('"');
-    detail::write_escaped(_stream, value.begin(), value.end());
+    write_escaped(_stream, value.begin(), value.end());
     return put('"');
   }
 
   basic_writer &operator <<(const buffer &buffer) {
     return separator_and_set().write(buffer.data(), buffer.size());
+  }
+
+  basic_writer &add_null() {
+    return separator_and_set().write("null", 4);
   }
 
   /**
@@ -289,7 +283,8 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer.separator_and_set().write(value);
 }
 
-typedef basic_writer<buffer, detail::null_options_type> writer;
+typedef basic_writer<buffer, null_options_type> writer;
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

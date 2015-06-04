@@ -17,7 +17,7 @@
 #pragma once
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/writer.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -41,7 +41,7 @@ class cast_t {
   explicit cast_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  void encode(object_type value, writer &writer) const {
+  void encode(object_type value, detail::writer &writer) const {
     _inner_codec.encode(
         codec_cast<typename InnerCodec::object_type, PointerType>::cast(value), writer);
   }

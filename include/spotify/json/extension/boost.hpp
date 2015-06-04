@@ -18,11 +18,12 @@
 
 #include <boost/optional.hpp>
 
-#include <spotify/json/pair.hpp>
-#include <spotify/json/writer.hpp>
+#include <spotify/json/detail/pair.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
+namespace detail {
 
 template<typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::optional<T> &optional) {
@@ -48,5 +49,6 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer;
 }
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

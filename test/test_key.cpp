@@ -18,16 +18,17 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/key.hpp>
+#include <spotify/json/detail/key.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
+BOOST_AUTO_TEST_SUITE(detail)
 
 using namespace std;
 
 namespace {
 
-string to_string(const json::key &key) {
+string to_string(const key &key) {
   return string(key.data, key.size);
 }
 
@@ -46,19 +47,19 @@ key make_move_constructed_key(const char *str) {
 }  // anonymous namespace
 
 BOOST_AUTO_TEST_CASE(json_key_should_quote_raw_key) {
-  BOOST_CHECK_EQUAL("\"i_am_a_key\"", to_string(json::key("i_am_a_key")));
+  BOOST_CHECK_EQUAL("\"i_am_a_key\"", to_string(key("i_am_a_key")));
 }
 
 BOOST_AUTO_TEST_CASE(json_key_should_quote_string_key) {
-  BOOST_CHECK_EQUAL(std::string("\"i_am_a_key\""), to_string(json::key("i_am_a_key")));
+  BOOST_CHECK_EQUAL(std::string("\"i_am_a_key\""), to_string(key("i_am_a_key")));
 }
 
 BOOST_AUTO_TEST_CASE(json_key_should_quote_raw_key_with_size) {
-  BOOST_CHECK_EQUAL("\"i_a\"", to_string(json::key("i_am_a_key", 3)));
+  BOOST_CHECK_EQUAL("\"i_a\"", to_string(key("i_am_a_key", 3)));
 }
 
 BOOST_AUTO_TEST_CASE(json_key_should_escape_raw_key) {
-  BOOST_CHECK_EQUAL("\"\\u0000\\\"\"", to_string(json::key(string("\0\"", 2))));
+  BOOST_CHECK_EQUAL("\"\\u0000\\\"\"", to_string(key(string("\0\"", 2))));
 }
 
 BOOST_AUTO_TEST_CASE(json_key_should_copy_correctly) {
@@ -71,5 +72,6 @@ BOOST_AUTO_TEST_CASE(json_key_should_move_construct_correctly) {
   BOOST_CHECK_EQUAL("\"abcdef\"", to_string(k));
 }
 
+BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

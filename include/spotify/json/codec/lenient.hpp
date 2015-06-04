@@ -18,7 +18,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/writer.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -32,7 +32,7 @@ class lenient_t final {
   explicit lenient_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  void encode(const object_type &value, writer &writer) const {
+  void encode(const object_type &value, detail::writer &writer) const {
     _inner_codec.encode(value, writer);
   }
 

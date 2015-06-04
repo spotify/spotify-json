@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_encode) {
   const auto codec = null_t();
 
   buffer buffer;
-  writer writer(buffer);
+  detail::writer writer(buffer);
   codec.encode(null_type(), writer);
   const std::string result(buffer.data(), buffer.size());
   BOOST_CHECK_EQUAL(result, "null");

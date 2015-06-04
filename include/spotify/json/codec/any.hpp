@@ -17,7 +17,7 @@
 #pragma once
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/writer.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -36,7 +36,7 @@ class any_t final {
     return _codec->decode(context);
   }
 
-  void encode(const object_type &value, writer &writer) const {
+  void encode(const object_type &value, detail::writer &writer) const {
     _codec->encode(value, writer);
   }
 
@@ -46,7 +46,7 @@ class any_t final {
     virtual ~erased_codec() = default;
 
     virtual T decode(decoding_context &context) const = 0;
-    virtual void encode(const T &value, writer &writer) const = 0;
+    virtual void encode(const T &value, detail::writer &writer) const = 0;
   };
 
   template<typename Codec>
@@ -59,7 +59,7 @@ class any_t final {
       return _codec.decode(context);
     }
 
-    void encode(const T &value, writer &writer) const override {
+    void encode(const T &value, detail::writer &writer) const override {
       return _codec.encode(value, writer);
     }
 

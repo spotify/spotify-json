@@ -22,8 +22,8 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/key.hpp>
-#include <spotify/json/writer.hpp>
+#include <spotify/json/detail/key.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -60,8 +60,8 @@ class object final {
     add_field(name, true, std::forward<Args>(args)...);
   }
 
-  void encode(const object_type &value, writer &w) const {
-    w.add_object([&](writer &w) {
+  void encode(const object_type &value, detail::writer &w) const {
+    w.add_object([&](detail::writer &w) {
       for (const auto &field : _field_list) {
         if (field.second->should_encode) {
           w.add_key(field.first);
@@ -124,7 +124,7 @@ class object final {
         field_id(field_id) {}
     virtual ~field() = default;
 
-    virtual void encode(const object_type &object, writer &writer) const = 0;
+    virtual void encode(const object_type &object, detail::writer &writer) const = 0;
     virtual void decode(object_type &object, decoding_context &context) const = 0;
 
     const bool should_encode;
@@ -138,7 +138,7 @@ class object final {
         : field(false, required, field_id),
           codec(std::move(codec)) {}
 
-    void encode(const object_type &object, writer &writer) const override {
+    void encode(const object_type &object, detail::writer &writer) const override {
     }
 
     void decode(object_type &object, decoding_context &context) const override {
@@ -155,7 +155,7 @@ class object final {
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
-    void encode(const object_type &object, writer &writer) const override {
+    void encode(const object_type &object, detail::writer &writer) const override {
       codec.encode(object.*member_pointer, writer);
     }
 
@@ -191,14 +191,14 @@ class object final {
   void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
     const auto was_saved = _fields.insert(typename field_map::value_type(name, f)).second;
     if (was_saved) {
-      _field_list.push_back(std::make_pair(key(name), f));
+      _field_list.push_back(std::make_pair(detail::key(name), f));
       if (required) {
         _num_required_fields++;
       }
     }
   }
 
-  using field_list = std::vector<std::pair<key, std::shared_ptr<const field>>>;
+  using field_list = std::vector<std::pair<detail::key, std::shared_ptr<const field>>>;
   using field_map = std::unordered_map<std::string, std::shared_ptr<const field>>;
   /**
    * _construct may be unset, but only if T is default constructible. This is
