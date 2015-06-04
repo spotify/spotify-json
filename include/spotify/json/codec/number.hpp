@@ -152,7 +152,7 @@ json_never_inline T decode_integer_range_with_overflow(
     const auto i = char_traits<char>::to_integer(c);
     const auto old_value = value;
     value = intops::accumulate(value * 10, i);
-    if (intops::is_overflow(old_value, value)) {
+    if (json_unlikely(intops::is_overflow(old_value, value))) {
       did_overflow = true;
       return old_value;
     }
@@ -199,7 +199,7 @@ json_never_inline T decode_with_negative_exponent(
     const char *int_end) {
   const auto num_int_digits = (int_end - int_beg);
   const auto lshift_int_end = (int_end - exponent);
-  return (num_int_digits > exponent ?
+  return (json_likely(num_int_digits > exponent) ?
       decode_integer_range<T, is_positive>(context, int_beg, lshift_int_end) :
       0);  // the negative exponent is larger than the number of digits, nothing left
 }
@@ -341,7 +341,7 @@ json_never_inline T decode_integer(decoding_context &context) {
 
     const auto old_value = value;
     value = intops::accumulate(value * 10, i);
-    if (intops::is_overflow(old_value, value)) {
+    if (json_unlikely(intops::is_overflow(old_value, value))) {
       return decode_integer_tricky<T, is_positive>(context, b);
     }
   }
