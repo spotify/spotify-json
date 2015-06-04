@@ -191,14 +191,14 @@ class object final {
   void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
     const auto was_saved = _fields.insert(typename field_map::value_type(name, f)).second;
     if (was_saved) {
-      _field_list.push_back(std::make_pair(key(name), f));
+      _field_list.push_back(std::make_pair(detail::key(name), f));
       if (required) {
         _num_required_fields++;
       }
     }
   }
 
-  using field_list = std::vector<std::pair<key, std::shared_ptr<const field>>>;
+  using field_list = std::vector<std::pair<detail::key, std::shared_ptr<const field>>>;
   using field_map = std::unordered_map<std::string, std::shared_ptr<const field>>;
   /**
    * _construct may be unset, but only if T is default constructible. This is
