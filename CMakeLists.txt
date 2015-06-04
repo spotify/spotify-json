@@ -92,6 +92,7 @@ set(json_test_SOURCES
   test/test_primitive_encoder.cpp
   test/test_smart_ptr.cpp
   test/test_string.cpp
+  test/test_umbrella.cpp
   test/test_writer.cpp
   )
 

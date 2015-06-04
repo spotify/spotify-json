@@ -29,7 +29,7 @@ or a DOM style API.
 #include <map>
 #include <string>
 
-#include <spotify/json/codec.hpp>
+#include <spotify/json.hpp>
 
 struct Track {
   std::string uri;
