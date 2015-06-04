@@ -77,17 +77,21 @@ class object final {
         });
 
 
-    const auto num_encountered_required_fields =
-        std::count(encountered_required_fields.begin(), encountered_required_fields.end(), true);
-    const auto has_required_fields = (num_encountered_required_fields == _num_required_fields);
-    detail::require(context, has_required_fields, "Missing required field(s)");
+    const auto num_encountered_required_fields = std::count(
+        encountered_required_fields.begin(),
+        encountered_required_fields.end(),
+        true);
+    const auto is_missing_required_fields = (num_encountered_required_fields != _num_required_fields);
+    detail::fail_if(context, is_missing_required_fields, "Missing required field(s)");
     return output;
   }
 
  private:
   struct field {
     field(bool should_encode, bool required, size_t field_id) :
-        should_encode(should_encode), required(required), field_id(field_id) {}
+        should_encode(should_encode),
+        required(required),
+        field_id(field_id) {}
     virtual ~field() = default;
 
     virtual void encode(const object_type &object, writer &writer) const = 0;

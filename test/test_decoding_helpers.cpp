@@ -74,6 +74,63 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_peek) {
 }
 
 /*
+ * Next
+ */
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_with_empty_input_should_fail) {
+  auto ctx = make_context("");
+  BOOST_CHECK_THROW(next(ctx), decode_exception);
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_at_last_character) {
+  auto ctx = make_context("a");
+  BOOST_CHECK_EQUAL(next(ctx), 'a');
+  BOOST_CHECK(!ctx.remaining());
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_next) {
+  auto ctx = make_context("ab");
+  BOOST_CHECK_EQUAL(next(ctx), 'a');
+  BOOST_CHECK_EQUAL(next(ctx), 'b');
+  BOOST_CHECK(!ctx.remaining());
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_unchecked_at_last_character) {
+  auto ctx = make_context("a");
+  BOOST_CHECK_EQUAL(next_unchecked(ctx), 'a');
+  BOOST_CHECK(!ctx.remaining());
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_unchecked) {
+  auto ctx = make_context("ab");
+  BOOST_CHECK_EQUAL(next_unchecked(ctx), 'a');
+  BOOST_CHECK_EQUAL(next_unchecked(ctx), 'b');
+  BOOST_CHECK(!ctx.remaining());
+}
+
+/*
+ * Skip
+ */
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_with_empty_input_should_fail) {
+  auto ctx = make_context("");
+  BOOST_CHECK_THROW(skip(ctx), decode_exception);
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_at_last_character) {
+  auto ctx = make_context("a");
+  skip(ctx);
+  BOOST_CHECK(!ctx.remaining());
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip) {
+  auto ctx = make_context("ab");
+  skip(ctx);
+  skip(ctx);
+  BOOST_CHECK(!ctx.remaining());
+}
+
+/*
  * Advance past whitespace
  */
 
