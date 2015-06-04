@@ -24,32 +24,48 @@ namespace spotify {
 namespace json {
 
 class key {
+  template<typename InputIterator, typename InputEndIterator>
+  static std::string escape_for_storage(const InputIterator &begin, const InputEndIterator &end) {
+    std::string storage("\"");
+    detail::write_escaped(storage, begin, end);
+    storage.append("\"");
+    return storage;
+  }
+
  public:
   explicit key(const char *raw)
-      : _storage("\""),
-        _ref(detail::write_escaped(_storage, raw, detail::null_terminated_end_iterator())),
-        data(_ref.append("\"").data()),
-        size(_ref.size()) {}
+      : _storage(escape_for_storage(raw, detail::null_terminated_end_iterator())),
+        data(_storage.data()),
+        size(_storage.size()) {}
 
   key(const char *raw, int length)
-      : _storage("\""),
-        _ref(detail::write_escaped(_storage, raw, raw + length)),
-        data(_ref.append("\"").data()),
-        size(_ref.size()) {}
+      : _storage(escape_for_storage(raw, raw + length)),
+        data(_storage.data()),
+        size(_storage.size()) {}
 
   template<typename Iterable>
   explicit key(const Iterable &iterable)
-      : _storage("\""),
-        _ref(detail::write_escaped(_storage, iterable.begin(), iterable.end())),
-        data(_ref.append("\"").data()),
-        size(_ref.size()) {}
+      : _storage(escape_for_storage(iterable.begin(), iterable.end())),
+        data(_storage.data()),
+        size(_storage.size()) {}
+
+  key(const key &other)
+      : _storage(other._storage),
+        data(_storage.data()),
+        size(_storage.size()) {}
+
+  key(key &&other)
+      : _storage(std::move(other._storage)),
+        data(_storage.data()),
+        size(_storage.size()) {}
+
+  key &operator=(const key &other) = delete;
 
  private:
   std::string _storage;
-  std::string &_ref;
 
  public:
-  const char *data;
+  const char * const data;
   const size_t size;
 };
 

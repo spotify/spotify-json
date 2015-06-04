@@ -77,6 +77,12 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_construct) {
   object<simple_t> codec;
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_object_should_construct_with_custom_creator) {
+  object<example_t> codec([]{
+    return example_t();
+  });
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_fields) {
   const auto simple = test_decode(default_codec<simple_t>(), "{\"value\":\"hey\"}");
   BOOST_CHECK_EQUAL(simple.value, "hey");
@@ -98,11 +104,42 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_overwrite_duplicate_fields) {
   BOOST_CHECK_EQUAL(example.value, "hey2");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding) {
+  object<example_t> codec([]{
+    example_t value;
+    value.value = "hello";
+    return value;
+  });
+  const auto example = test_decode(codec, "{}");
+  BOOST_CHECK_EQUAL(example.value, "hello");
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {
   simple_t simple;
   simple.value = "hey";
   const auto json = encode(simple);
   BOOST_CHECK_EQUAL(json, "{\"value\":\"hey\"}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {
+  simple_t simple;
+  simple.value = "";
+
+  codec::object<simple_t> codec;
+  codec.required("0", &simple_t::value);
+  codec.optional("1", &simple_t::value);
+  codec.optional("2", &simple_t::value);
+  codec.optional("3", &simple_t::value);
+  codec.optional("4", &simple_t::value);
+  codec.optional("5", &simple_t::value);
+  codec.optional("6", &simple_t::value);
+  codec.optional("7", &simple_t::value);
+  codec.optional("8", &simple_t::value);
+  codec.optional("9", &simple_t::value);
+
+  BOOST_CHECK_EQUAL(encode(codec, simple), "{"
+      "\"0\":\"\",\"1\":\"\",\"2\":\"\",\"3\":\"\",\"4\":\"\","
+      "\"5\":\"\",\"6\":\"\",\"7\":\"\",\"8\":\"\",\"9\":\"\"}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_use_provided_codec) {
