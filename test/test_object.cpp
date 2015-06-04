@@ -77,6 +77,12 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_construct) {
   object<simple_t> codec;
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_object_should_construct_with_custom_creator) {
+  object<example_t> codec([]{
+    return example_t();
+  });
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_fields) {
   const auto simple = test_decode(default_codec<simple_t>(), "{\"value\":\"hey\"}");
   BOOST_CHECK_EQUAL(simple.value, "hey");
@@ -96,6 +102,16 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_overwrite_duplicate_fields) {
   // something that makes sense somehow.
   const auto example = test_decode(example_codec(), "{\"value\":\"hey1\",\"value\":\"hey2\"}");
   BOOST_CHECK_EQUAL(example.value, "hey2");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding) {
+  object<example_t> codec([]{
+    example_t value;
+    value.value = "hello";
+    return value;
+  });
+  const auto example = test_decode(codec, "{}");
+  BOOST_CHECK_EQUAL(example.value, "hello");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {

@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <type_traits>
 #include <unordered_map>
 
 #include <spotify/json/codec/string.hpp>
@@ -32,6 +33,22 @@ template<typename T>
 class object final {
  public:
   using object_type = T;
+
+  template<
+      typename U = T,
+      typename = typename std::enable_if<std::is_default_constructible<U>::value>::type>
+  object() {}
+
+  object(const object<T> &object) = default;
+  object(object<T> &&object) = default;
+
+  template<
+      typename Create,
+      typename = typename std::enable_if<!std::is_same<
+          typename std::decay<Create>::type,
+          object>::value>::type>
+  explicit object(Create &&create)
+      : _construct(std::forward<Create>(create)) {}
 
   template<typename... Args>
   void optional(const std::string &name, Args &&...args) {
@@ -56,7 +73,7 @@ class object final {
 
   object_type decode(decoding_context &context) const {
     std::vector<bool> encountered_required_fields(_fields.size());
-    object_type output;
+    object_type output = construct(std::is_default_constructible<T>());
     const auto string_c = string();
     detail::advance_past_object(
         context,
@@ -86,6 +103,18 @@ class object final {
   }
 
  private:
+  T construct(std::true_type is_default_constructible) const {
+    // Avoid the cost of an std::function invocation if no construct function
+    // is provided.
+    return _construct ? _construct() : object_type();
+  }
+
+  T construct(std::false_type is_default_constructible) const {
+    // T is not default constructible. Because _construct must be set if T is
+    // default constructible, there is no reason to test it in this case.
+    return _construct();
+  }
+
   struct field {
     field(bool should_encode, bool required, size_t field_id) :
         should_encode(should_encode), required(required), field_id(field_id) {}
@@ -167,6 +196,12 @@ class object final {
 
   using field_list = std::vector<std::pair<key, std::shared_ptr<const field>>>;
   using field_map = std::unordered_map<std::string, std::shared_ptr<const field>>;
+  /**
+   * _construct may be unset, but only if T is default constructible. This is
+   * enforced compile time by enabling the constructor that doesn't set it only
+   * if T is default constructible.
+   */
+  const std::function<T ()> _construct;
   field_list _field_list;
   field_map _fields;
   size_t _num_required_fields = 0;
