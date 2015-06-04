@@ -1,2 +1,2 @@
 // Ensure the umbrella header at least compiles
-#include <spotify/json/json.hpp>
+#include <spotify/json.hpp>
