@@ -27,9 +27,6 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-struct null_type {};
-static null_type null;
-
 struct null_options_type {};
 
 template<typename stream_type, typename options_type>
@@ -53,10 +50,6 @@ class basic_writer {
 
   const options_type &options() const {
     return _options;
-  }
-
-  basic_writer &operator <<(const null_type &) {
-    return separator_and_set().write("null", 4);
   }
 
   basic_writer &operator <<(bool value) {
@@ -95,6 +88,10 @@ class basic_writer {
 
   basic_writer &operator <<(const buffer &buffer) {
     return separator_and_set().write(buffer.data(), buffer.size());
+  }
+
+  basic_writer &add_null() {
+    return separator_and_set().write("null", 4);
   }
 
   /**
