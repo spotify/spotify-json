@@ -30,11 +30,7 @@ namespace detail {
 struct null_type {};
 static null_type null;
 
-namespace detail {
-
 struct null_options_type {};
-
-}  // namespace detail
 
 template<typename stream_type, typename options_type>
 class basic_writer {
@@ -290,7 +286,7 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer.separator_and_set().write(value);
 }
 
-typedef basic_writer<buffer, detail::null_options_type> writer;
+typedef basic_writer<buffer, null_options_type> writer;
 
 }  // namespace detail
 }  // namespace json
