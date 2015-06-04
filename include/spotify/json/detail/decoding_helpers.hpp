@@ -85,10 +85,12 @@ json_force_inline char next(decoding_context &context) {
 }
 
 json_force_inline void skip(decoding_context &context, const size_t num_bytes) {
+  fail_if(context, context.remaining() < num_bytes, "Unexpected end of input");
   context.position += num_bytes;
 }
 
 json_force_inline void skip(decoding_context &context) {
+  require_bytes<1>(context, "Unexpected end of input");
   context.position++;
 }
 
