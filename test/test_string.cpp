@@ -20,8 +20,8 @@
 
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/boolean.hpp>
+#include <spotify/json/decode_exception.hpp>
 #include <spotify/json/encode_decode.hpp>
-#include <spotify/json/error.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

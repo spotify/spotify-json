@@ -16,11 +16,11 @@
 
 #pragma once
 
+#include <spotify/json/decode_exception.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
-#include <spotify/json/error.hpp>
 
 namespace spotify {
 namespace json {

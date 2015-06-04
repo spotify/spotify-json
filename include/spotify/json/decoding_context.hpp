@@ -18,8 +18,8 @@
 
 #include <cstddef>
 
+#include <spotify/json/decode_exception.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/error.hpp>
 
 namespace spotify {
 namespace json {
