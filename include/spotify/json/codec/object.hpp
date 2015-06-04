@@ -21,6 +21,7 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
+#include <spotify/json/key.hpp>
 #include <spotify/json/writer.hpp>
 
 namespace spotify {
@@ -157,14 +158,14 @@ class object final {
   void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
     const auto was_saved = _fields.insert(typename field_map::value_type(name, f)).second;
     if (was_saved) {
-      _field_list.push_back(std::make_pair(name, f));
+      _field_list.push_back(std::make_pair(key(name), f));
       if (required) {
         _num_required_fields++;
       }
     }
   }
 
-  using field_list = std::vector<std::pair<std::string, std::shared_ptr<const field>>>;
+  using field_list = std::vector<std::pair<key, std::shared_ptr<const field>>>;
   using field_map = std::unordered_map<std::string, std::shared_ptr<const field>>;
   field_list _field_list;
   field_map _fields;
