@@ -18,6 +18,7 @@
 
 namespace spotify {
 namespace json {
+namespace detail {
 
 template<typename stream_type, typename options_type>
 class basic_writer;
@@ -53,5 +54,6 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer.add_pair(pair.key, pair.value);
 }
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify
