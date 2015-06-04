@@ -39,8 +39,9 @@ a number of codecs that are available to the user of the library:
   integers)
 * [`object`](#object): For custom C++ objects
 * [`one_of_t`](#one_of_t): For trying more than one codec
-* [`smart_ptr_t`](#smart_ptr_t): For `shared_ptr`s and `unique_ptr`s
+* [`shared_ptr_t`](#shared_ptr_t): For `shared_ptr`s
 * [`string_t`](#string_t): For strings
+* [`unique_ptr_t`](#unique_ptr_t): For `unique_ptr`s
 
 For example, `boolean_t` is a codec that is capable only of parsing booleans:
 
@@ -112,7 +113,7 @@ In order to add support for custom types to `default_codec`, the template
 what it usually looks like:
 
 ```cpp
-struct Point {
+struct point {
   int x;
   int y;
 }
@@ -124,8 +125,8 @@ template<>
 struct default_codec_t<Point> {
   static object<Point> codec() {
     object<Point> codec;
-    codec.required("x", &Point::x);
-    codec.optional("y", &Point::y);
+    codec.required("x", &point::x);
+    codec.required("y", &point::y);
     return codec;
   }
 };
@@ -139,6 +140,53 @@ Codecs
 
 ### `any_t`
 
+`any_t` is a special codec. Its purpose is to *erase* the type of an underlying
+codec. This is useful in places where you need to have a codec that encodes and
+decodes a specific type of objects, but you cannot know exactly what codec will
+be used.
+
+```cpp
+// A primitive example of the use of any_t:
+const lenient_t<string_t> lenient_codec = lenient(string());
+const equals_t<string_t> strict_codec = value("x");
+
+// lenient_codec and strict_codec have separate types, so it's not possible
+// to just assign one or the other to another variable. However, both
+// lenient_codec and strict_codec can be turned into any_t<std::string>
+// objects, which can then be assigned to a variable of that type.
+const any_t<std::string> one_or_the_other = strict ?
+    any(strict_codec) : any(lenient_codec);
+```
+
+The example above is a bit contrived. A more realistic case where use of `any_t`
+is required is in pure virtual classes:
+
+```cpp
+class my_interface {
+  virtual ~my_interface() = default;
+
+  /**
+   * Use this codec to encode and decode the my_interface object.
+   */
+  virtual any_t<std::shared_ptr<my_interface>> codec() = 0;
+}
+```
+
+In the example above, it is impossible to assign a concrete codec type to the
+return type of `my_interface::codec`, since the codec for each implementation
+of `my_interface` will have a different type.
+
+Usually in `spotify-json`, there are no virtual method calls. However, `any_t`
+introduces one virtual method for each `encode` and `decode` call.
+
+* **Complete class name**: `spotify::json::codec::any_t<ObjectType>`,
+  where `ObjectType` is the type of the objects that the codec encodes and
+  decodes.
+* **Supported types**: `ObjectType`
+* **Convenience builder**: `spotify::json::codec::any(InnerCodec)`
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly. Unless you know that you need to use this codec, there probably is
+  no need to do it.
 
 ### `array_t`
 
@@ -171,14 +219,148 @@ Codecs
 
 ### `cast_t`
 
+`cast_t` is a codec that does `std::dynamic_pointer_cast` on its values. It is
+a rather specialized codec that is useful mainly together with `any_t`.
+
+**The use of `cast_t` is not type safe!** It is an error to ask a
+`cast_t<T, InnerCodec>` codec to encode an object of any other type than
+`InnerCodec::object_type`, even if the object is a `T`. When RTTI is enabled,
+doing so will throw an `std::bad_cast`. Otherwise, the behavior is undefined.
+
+Continuing the example given in the documentation for `any_t`, where there is
+an interface `my_interface` like this:
+
+```cpp
+class my_interface {
+ public:
+  virtual ~my_interface() = default;
+
+  /**
+   * Use this codec to encode and decode the my_interface object.
+   */
+  virtual any_t<std::shared_ptr<my_interface>> codec() = 0;
+}
+```
+
+An implementation of this interface might look like:
+
+```cpp
+class my_interface_impl : public my_interface {
+ public:
+  virtual any_t<std::shared_ptr<my_interface>> codec() override {
+    object<my_interface_impl> codec;
+    codec.required("value", &my_interface_impl::_value);
+
+    return any(cast<my_interface>(shared_ptr(codec)));
+  }
+
+ private:
+  int _value;
+};
+```
+
+In the code above, the use of `cast_t` is required because when the user of
+`my_interface` asks `my_interface_impl`'s codec to encode an
+`std::shared_ptr<my_interface>` that pointer has to be cast down to a
+`std::shared_ptr<my_interface_impl>`
+
+* **Complete class name**: `spotify::json::codec::cast_t<T, InnerCodec>`,
+  where `T` is the type that the `cast_t` codec exposes, and `InnerCodec`
+  is the codec that is used for the actual object. When encoding, the `T`
+  is `std::dynamic_pointer_cast` to `InnerCodec::object_type`.
+* **Supported types**: `std::shared_ptr<T>`
+* **Convenience builder**: `spotify::json::codec::cast<T>(InnerCodec)`
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly. Unless you know that you need to use this codec, there probably is
+  no need to do it.
+
 
 ### `equals_t`
+
+`equals_t` is a codec that only supports encoding and decoding one specific
+value. For example, `equals("Hello!")` is a codec that will fail unless the
+input is exactly `"Hello!"`.
+
+The most common use case for the `equals_t` codec is to enforce that a version
+field in the JSON object has a specific value. It can be combined with
+`one_of_t` to construct a codec that supports parsing more than one version of
+the object.
+
+```cpp
+struct metadata_response {
+  std::string name;
+}
+
+namespace spotify {
+namespace json {
+
+template<>
+struct default_codec_t<metadata_response> {
+  static one_of_t<object<metadata_response>, object<metadata_response>> codec() {
+    object<metadata_response> codec_v1;
+    codec.required("n", &metadata_response::x);
+
+    object<metadata_response> codec_v2;
+    codec.required("version", equals(2));
+    codec.required("name", &metadata_response::x);
+
+    return one_of(codec_v2, codec_v1);
+  }
+};
+
+}  // namespace json
+}  // namespace spotify
+```
+
+* **Complete class name**: `spotify::json::codec::equals_t<InnerCodec>`,
+  where `InnerCodec` is the type of the codec that actually codes the value.
+* **Supported types**: Any type that the underlying codec supports.
+* **Convenience builder**: `spotify::json::codec::equals(InnerCodec, Value)`,
+  which uses the provided inner codec object, and
+  `spotify::json::codec::equals(Value)`, which uses
+  `default_codec<Value>()` as the inner codec.
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
 
 
 ### `lenient_t`
 
+By default, `spotify-json` is strict about the types of the JSON values that it
+parses: If it is instructed to read a string but it encounters "null", it will
+reject the input. `lenient_t` is a codec that attempts to parse a value using an
+inner codec, but if that fails, it skips over the value. It fails only if the
+input is malformed JSON.
+
+* **Complete class name**: `spotify::json::codec::lenient_t<InnerCodec>`,
+  where `InnerCodec` is the type of the codec that actually codes the value.
+* **Supported types**: Any type that the underlying codec supports.
+* **Convenience builder**: `spotify::json::codec::lenient(InnerCodec)`
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
+
 
 ### `map_t`
+
+`map_t` is a codec for maps from string to other values. It only supports
+`std::string` keys because that's how JSON is specified. The `map_t` codec is
+suitable to use when the maps can contain arbitrary keys. When there is a
+pre-defined set of keys that are interesting and any other keys can be
+discarded, `object` is more suitable, since it parses the keys directly into a
+C++ object in a type-safe way.
+
+* **Complete class name**: `spotify::json::codec::map_t<MapType, InnerCodec>`,
+  where `MapType` is the type of the array, for example
+  `std::map<std::string, int>` or `std::unordered_map<std::string, bool>`, and
+  `InnerCodec` is the type of the codec that's used for the values inside of the
+  object, for example `integer_t` or `boolean_t`. The key type of MapType must
+  be `std::string`.
+* **Supported types**: The map containers in the STL: `std::map<T>` and
+  `std::unordered_map<T>`.
+* **Convenience builder**: For example
+  `spotify::json::codec::map<std::map<std::string, int>>(integer())`. If no
+  custom inner codec is required, `default_codec` is even more convenient.
+* **`default_codec` support**: `default_codec<std::map<std::string, T>>()`,
+  `default_codec<std::unordered_map<std::string, T>>()`.
 
 
 ### `null_t`
@@ -212,11 +394,82 @@ serialized and then parsed.
 
 ### `object`
 
+`object` is arguably the most important codec in `spotify-json`. It is the codec
+that parses and writes JSON to and from specific C++ classes and structs. Unlike
+the other codecs, `object` codecs aren't created by simply calling a factory
+function such as `string()` or `number<float>()`. Instead, an `object<T>` is
+created, and then the object is configured for the different fields that exist
+in `T`.
+
+For example:
+
+```cpp
+struct point {
+  int x;
+  int y;
+}
+
+...
+
+object<point> codec;
+codec.required("x", &point::x);
+codec.required("y", &point::y);
+```
+
+`object<T>` objects have two methods: `required` and `optional`. They have the
+exact same method signature. The difference is that fields that were registered
+with `required` are required: When an object is being decoded and a required
+field is missing from the input, the decoding fails.
+
+For the `required` and `optional` methods, the following overloads exist:
+
+* `optional/required("field_name", &Type::member_pointer, codec)`: Use the
+  given codec for encoding and decoding, and the provided member pointer to get
+  and assign the value.
+* `optional/required("field_name", &Type::member_pointer)`: Use the
+  `default_codec<T>()` codec for the type of the member pointer for encoding and
+  decoding, and the provided member pointer to get and assign the value.
+* `optional/required("field_name", codec)`: When decoding, don't save the
+  results anywhere, just make sure that the codec accepts the input. When
+  encoding, use a default constructed value of the given type. This is mainly
+  useful for verification purposes, for example `required("version", equals(5))`
+
+In terms of performance hit, each field that `object` encodes and decodes uses
+one virtual method call.
 
 ### `one_of_t`
 
+`one_of_t` is a codec that takes one or more inner codecs. When decoding, it
+tries the inner codecs one by one until one succeeds to decode. For encoding, it
+always uses the first inner codec.
 
-### `smart_ptr_t`
+`one_of_t` is useful when there are different versions of the JSON format and
+each version has its own codec. A nice pattern is to use [`equals_t`](#equals_t)
+in the version-specific codecs to enforce that they only parse JSON it
+understands.
+
+* **Complete class name**: `spotify::json::codec::one_of_t<Codec...>`,
+  where `Codec...` is a list of the codec types that will be used for encoding
+  attempting to decode. All provided codec types must have the same
+  `object_type`. (It is for example illegal to create a
+  `one_of_t<string_t, boolean_t>`).
+* **Supported types**: Any type that the underlying codecs support.
+* **Convenience builder**: `spotify::json::codec::one_of(Codec...)`
+* **`default_codec` support**: No; the convenience builder must be used explicitly.
+
+
+### `shared_ptr_t`
+
+`shared_ptr_t` is a codec that wraps and unwraps values in a `std::shared_ptr`.
+Like the other "container" codecs, it doesn't know how to code what it contains;
+that is done by a codec inside it.
+
+* **Complete class name**: `spotify::json::codec::shared_ptr_t<InnerCodec>`,
+  where `InnerCodec` is the type of the codec that actually codes the value.
+* **Supported types**: `std::shared_ptr<T>`, where `T` is move or copy
+  constructible.
+* **Convenience builder**: `spotify::json::codec::shared_ptr(InnerCodec)`
+* **`default_codec` support**: `default_codec<shared_ptr<T>>()`
 
 
 ### `string_t`
@@ -227,3 +480,17 @@ serialized and then parsed.
 * **Supported types**: Only `std::string`
 * **Convenience builder**: `spotify::json::codec::string()`
 * **`default_codec` support**: `default_codec<std::string>()`
+
+
+### `unique_ptr_t`
+
+`unique_ptr_t` is a codec that wraps and unwraps values in a `std::unique_ptr`.
+Like the other "container" codecs, it doesn't know how to code what it contains;
+that is done by a codec inside it.
+
+* **Complete class name**: `spotify::json::codec::unique_ptr_t<InnerCodec>`,
+  where `InnerCodec` is the type of the codec that actually codes the value.
+* **Supported types**: `std::unique_ptr<T>`, where `T` is move or copy
+  constructible.
+* **Convenience builder**: `spotify::json::codec::unique_ptr(InnerCodec)`
+* **`default_codec` support**: `default_codec<unique_ptr<T>>()`
