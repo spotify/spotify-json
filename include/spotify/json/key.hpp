@@ -31,6 +31,9 @@ class key {
         data(_ref.append("\"").data()),
         size(_ref.size()) {}
 
+  explicit key(const std::string &raw)
+      : key(raw.c_str()) {}
+
   key(const char *raw, int length)
       : _storage("\""),
         _ref(detail::write_escaped(_storage, raw, raw + length)),

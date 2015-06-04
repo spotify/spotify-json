@@ -37,6 +37,10 @@ BOOST_AUTO_TEST_CASE(json_key_should_quote_raw_key) {
   BOOST_CHECK_EQUAL("\"i_am_a_key\"", to_string(json::key("i_am_a_key")));
 }
 
+BOOST_AUTO_TEST_CASE(json_key_should_quote_string_key) {
+  BOOST_CHECK_EQUAL(std::string("\"i_am_a_key\""), to_string(json::key("i_am_a_key")));
+}
+
 BOOST_AUTO_TEST_CASE(json_key_should_escape_raw_key) {
   BOOST_CHECK_EQUAL("\"\\u0000\\\"\"", to_string(json::key(string("\0\"", 2))));
 }
