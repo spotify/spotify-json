@@ -25,11 +25,11 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-class null_t final : public detail::primitive_encoder<null_type> {
+class null_t final : public detail::primitive_encoder<detail::null_type> {
  public:
   object_type decode(decoding_context &context) const {
     detail::advance_past_null(context);
-    return null_type();
+    return detail::null_type();
   }
 };
 
@@ -40,7 +40,7 @@ inline null_t null() {
 }  // namespace codec
 
 template<>
-struct default_codec_t<null_type> {
+struct default_codec_t<detail::null_type> {
   static codec::null_t codec() {
     return codec::null_t();
   }

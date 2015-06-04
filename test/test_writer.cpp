@@ -26,9 +26,9 @@ BOOST_AUTO_TEST_SUITE(json)
 
 BOOST_AUTO_TEST_CASE(json_writer_add_pair) {
   json::buffer buffer;
-  json::writer writer(buffer);
+  detail::writer writer(buffer);
 
-  writer.add_object([](json::writer &writer) {
+  writer.add_object([](detail::writer &writer) {
     writer.add_pair("a", 0);
   });
 
@@ -39,9 +39,9 @@ BOOST_AUTO_TEST_CASE(json_writer_add_pair) {
 
 BOOST_AUTO_TEST_CASE(json_writer_add_key) {
   json::buffer buffer;
-  json::writer writer(buffer);
+  detail::writer writer(buffer);
 
-  writer.add_object([](json::writer &writer) {
+  writer.add_object([](detail::writer &writer) {
     writer.add_key("a");
     writer << 0;
   });

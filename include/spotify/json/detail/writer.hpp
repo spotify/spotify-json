@@ -25,6 +25,7 @@
 
 namespace spotify {
 namespace json {
+namespace detail {
 
 struct null_type {};
 static null_type null;
@@ -82,7 +83,7 @@ class basic_writer {
 
   basic_writer &operator <<(const char *value) {
     separator_and_set().put('"');
-    detail::write_escaped(_stream, value, detail::null_terminated_end_iterator());
+    write_escaped(_stream, value, null_terminated_end_iterator());
     return put('"');
   }
 
@@ -92,7 +93,7 @@ class basic_writer {
 
   basic_writer &operator <<(const std::string &value) {
     separator_and_set().put('"');
-    detail::write_escaped(_stream, value.begin(), value.end());
+    write_escaped(_stream, value.begin(), value.end());
     return put('"');
   }
 
@@ -291,5 +292,6 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
 
 typedef basic_writer<buffer, detail::null_options_type> writer;
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

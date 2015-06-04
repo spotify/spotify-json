@@ -48,26 +48,24 @@ inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
   return writer;
 }
 
-}  // namespace detail
-
 template<typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::vector<T> &vector) {
-  return detail::write_array(writer, vector);
+  return write_array(writer, vector);
 }
 
 template<typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::deque<T> &deque) {
-  return detail::write_array(writer, deque);
+  return write_array(writer, deque);
 }
 
 template<typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::set<T> &set) {
-  return detail::write_array(writer, set);
+  return write_array(writer, set);
 }
 
 template<typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::unordered_set<T> &set) {
-  return detail::write_array(writer, set);
+  return write_array(writer, set);
 }
 
 template<typename stream_type, typename options_type, typename K, typename V>
@@ -77,13 +75,14 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
 
 template<typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::map<K, V> &map) {
-  return detail::write_object(writer, map);
+  return write_object(writer, map);
 }
 
 template<typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::unordered_map<K, V> &map) {
-  return detail::write_object(writer, map);
+  return write_object(writer, map);
 }
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

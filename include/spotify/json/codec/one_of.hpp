@@ -89,7 +89,7 @@ class one_of_t final {
   explicit one_of_t(Args&& ...args)
       : _codecs(std::forward<Args>(args)...) {}
 
-  void encode(const object_type &value, writer &w) const {
+  void encode(const object_type &value, detail::writer &w) const {
     std::get<0>(_codecs).encode(value, w);
   }
 

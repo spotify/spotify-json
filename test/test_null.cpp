@@ -29,8 +29,8 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_encode) {
   const auto codec = null_t();
 
   buffer buffer;
-  writer writer(buffer);
-  codec.encode(null_type(), writer);
+  detail::writer writer(buffer);
+  codec.encode(detail::null_type(), writer);
   const std::string result(buffer.data(), buffer.size());
   BOOST_CHECK_EQUAL(result, "null");
 }
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_helper) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_default_codec) {
-  default_codec<null_type>();
+  default_codec<detail::null_type>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

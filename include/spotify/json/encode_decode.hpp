@@ -26,14 +26,14 @@ namespace json {
 
 template<typename Codec>
 void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
-  writer w(buffer);
+  detail::writer w(buffer);
   codec.encode(object, w);
 }
 
 template<typename Codec>
 std::string encode(const Codec &codec, const typename Codec::object_type &object) {
   buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
   codec.encode(object, w);
   return std::string(buffer.data(), buffer.size());
 }
@@ -42,7 +42,7 @@ std::string encode(const Codec &codec, const typename Codec::object_type &object
 template<typename Value>
 std::string encode(const Value &value) {
   buffer buffer;
-  writer writer(buffer);
+  detail::writer writer(buffer);
   default_codec<Value>().encode(value, writer);
   return std::string(buffer.data(), buffer.size());
 }

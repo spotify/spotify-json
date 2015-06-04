@@ -193,7 +193,7 @@ inline void advance_past_true(decoding_context &context) {
 
 inline void advance_past_false(decoding_context &context) {
   context.position++;  // skip past the 'f' in 'false', we know it is there
-  detail::advance_past_four(context, "alse");
+  advance_past_four(context, "alse");
 }
 
 inline void advance_past_null(decoding_context &context) {
@@ -201,7 +201,7 @@ inline void advance_past_null(decoding_context &context) {
 }
 
 inline void advance_past_string_escape_after_slash(decoding_context &context) {
-  switch (detail::next(context, "Unterminated string")) {
+  switch (next(context, "Unterminated string")) {
     case '"':
     case '\\':
     case '/':
