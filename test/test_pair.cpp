@@ -18,10 +18,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/pair.hpp>
+#include <spotify/json/detail/pair.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
+BOOST_AUTO_TEST_SUITE(detail)
 
 using namespace std;
 
@@ -54,5 +55,6 @@ BOOST_AUTO_TEST_CASE(json_pair_should_reference_key_and_value_cstr) {
   BOOST_CHECK_EQUAL(value, pair.value);
 }
 
+BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
