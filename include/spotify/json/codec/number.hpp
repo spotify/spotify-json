@@ -17,6 +17,7 @@
 #pragma once
 
 #include <algorithm>
+#include <limits>
 #include <type_traits>
 
 #include <spotify/json/decoding_context.hpp>
@@ -133,6 +134,36 @@ json_force_inline T exp_10(
 /**
  * Decode an integer specified in a byte range. The range must be known to only
  * contain digits characters ('0' through '9'). If it contains anything else,
+ * the result is undefined. The output variable 'did_overflow' will be set when
+ * the parsed value overflows the integer type.
+ */
+template <typename T, bool is_positive>
+json_never_inline T decode_integer_range_with_overflow(
+    decoding_context &context,
+    const char *begin,
+    const char *end,
+    const T initial_value,
+    bool &did_overflow) {
+  T value = initial_value;
+
+  using intops = integer_ops<T, is_positive>;
+  for (auto it = begin; it != end; ++it) {
+    const auto c = (*it);
+    const auto i = char_traits<char>::to_integer(c);
+    const auto old_value = value;
+    value = intops::accumulate(value * 10, i);
+    if (intops::is_overflow(old_value, value)) {
+      did_overflow = true;
+      return old_value;
+    }
+  }
+
+  return value;
+}
+
+/**
+ * Decode an integer specified in a byte range. The range must be known to only
+ * contain digits characters ('0' through '9'). If it contains anything else,
  * the result is undefined. A decode_exception is thrown if the value overflows
  * the integer type.
  */
@@ -142,17 +173,14 @@ json_never_inline T decode_integer_range(
     const char *begin,
     const char *end,
     const T initial_value = 0) {
-  T value = initial_value;
-
-  using intops = integer_ops<T, is_positive>;
-  for (auto it = begin; it != end; ++it) {
-    const auto c = (*it);
-    const auto i = char_traits<char>::to_integer(c);
-    const auto old_value = value;
-    value = intops::accumulate(value * 10, i);
-    fail_if(context, intops::is_overflow(old_value, value), "Integer overflow");
-  }
-
+  bool did_overflow = false;
+  const T value = decode_integer_range_with_overflow<T, is_positive>(
+      context,
+      begin,
+      end,
+      initial_value,
+      did_overflow);
+  fail_if(context, did_overflow, "Integer overflow");
   return value;
 }
 
@@ -206,6 +234,28 @@ json_never_inline T decode_with_positive_exponent(
 }
 
 /**
+ * It is possible that the exponent overflows, but this does not necessary mean
+ * that the parsed integer would overflow as well, e.g., a zero integer with a
+ * very large exponent is still a zero integer; so when we catch an overflow
+ * error for the exponent, we do some special case handling to figure out which
+ * integer value to return.
+ */
+template <typename T>
+json_never_inline T handle_overflowing_exponent(
+    decoding_context &context,
+    const bool exp_is_positive,
+    const char *int_beg,
+    const char *int_end,
+    const char *dec_beg,
+    const char *dec_end) {
+  bool ignore;
+  const auto i = decode_integer_range_with_overflow<unsigned, true>(context, int_beg, int_end, 0, ignore);
+  const auto d = decode_integer_range_with_overflow<unsigned, true>(context, dec_beg, dec_end, 0, ignore);
+  fail_if(context, exp_is_positive && (i || d), "Integer overflow");
+  return 0;
+}
+
+/**
  * Decode the "tricky" integer at the given context position. By tricky we mean
  * an integer that has decimal digits or an exponent or both. This function is
  * carefully constructed to not overflow unless the parsed integer (taking the
@@ -218,35 +268,40 @@ template <typename T, bool is_positive>
 json_never_inline T decode_integer_tricky(decoding_context &context, const char *int_beg) {
   // Find [xxxx].yyyyE±zzzz
   auto int_end = std::find_if_not(int_beg, context.end, char_traits<char>::is_digit);
-  auto it = int_end;
+  context.position = int_end;
 
   // Find xxxx.[yyyy]E±zzzz
-  decltype(it) dec_beg = nullptr;
-  decltype(it) dec_end = nullptr;
-  if (it != context.end && (*it) == '.') {
-    dec_beg = it + 1;
+  decltype(context.position) dec_beg = nullptr;
+  decltype(context.position) dec_end = nullptr;
+  if (peek(context) == '.') {
+    dec_beg = context.position + 1;
     dec_end = std::find_if_not(dec_beg, context.end, char_traits<char>::is_digit);
     fail_if(context, dec_beg == dec_end, "Invalid digits after decimal point");
-    it = dec_end;
+    context.position = dec_end;
   }
 
   // Find xxxx.yyyyE[±zzzz]
   auto exp_is_positive = true;
-  decltype(it) exp_beg = nullptr;
-  decltype(it) exp_end = nullptr;
-  if (it != context.end && ((*it) == 'e' || (*it) == 'E')) {
-    if (it[1] == '-' || it[1] == '+') {
-      exp_is_positive = *(++it) == '+';
+  decltype(context.position) exp_beg = nullptr;
+  decltype(context.position) exp_end = nullptr;
+  const auto e = peek(context);
+  if (e == 'e' || e == 'E') {
+    if (context.position[1] == '-' || context.position[1] == '+') {
+      exp_is_positive = *(++context.position) == '+';
     }
-    exp_beg = it + 1;
+    exp_beg = context.position + 1;
     exp_end = std::find_if_not(exp_beg, context.end, char_traits<char>::is_digit);
     fail_if(context, exp_beg == exp_end, "Exponent symbols should be followed by an optional '+' or '-' and then by at least one number");
-    it = exp_end;
+    context.position = exp_end;
   }
 
-  context.position = it;
-  const auto exp = decode_integer_range<unsigned, true>(context, exp_beg, exp_end);
-  return (exp_is_positive ?
+  bool did_overflow = false;
+  const auto exp = decode_integer_range_with_overflow<unsigned, true>(context, exp_beg, exp_end, 0, did_overflow);
+  if (json_unlikely(did_overflow)) {
+    return handle_overflowing_exponent<T>(context, exp_is_positive, int_beg, int_end, dec_beg, dec_end);
+  }
+
+  return (json_likely(exp_is_positive) ?
       decode_with_positive_exponent<T, is_positive>(context, exp, int_beg, int_end, dec_beg, dec_end) :
       decode_with_negative_exponent<T, is_positive>(context, exp, int_beg, int_end));
 }

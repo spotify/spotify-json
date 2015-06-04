@@ -138,6 +138,15 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer) {
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-9223372036854775808"), INT64_MIN);
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_zero_integer_with_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "0e-1"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "0E-1"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "0E+1000000"), 0);  // large exponent
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "0E-1000000"), 0);  // large exponent
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "0E+184467440737095516150"), 0);  // crazy large exponent
+  BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "0E-184467440737095516150"), 0);  // crazy large exponent
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_with_negative_exponent) {
   BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "1277e-1"), 127);
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "327677E-1"), 32767);
@@ -164,6 +173,34 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer_wit
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "-3276e+1"), -32760);
   BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-21474836E2"), -2147483600);
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-92233720368547758E+2"), INT64_C(-9223372036854775800));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer_with_large_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "-1e-1000000"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-0.1E-1000000"), 0);
+  test_decode_fail(number<int16_t>(), "-1E1000000");
+  test_decode_fail(number<int64_t>(), "-0.1e+1000000");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer_with_overflowing_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "-1e-184467440737095516150"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-0.1E-184467440737095516150"), 0);
+  test_decode_fail(number<int16_t>(), "-1E184467440737095516150");
+  test_decode_fail(number<int64_t>(), "-0.1e+184467440737095516150");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_with_large_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "1e-1000000"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "0.1E-1000000"), 0);
+  test_decode_fail(number<int16_t>(), "1E1000000");
+  test_decode_fail(number<int64_t>(), "0.1e+1000000");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_with_overflowing_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "1e-184467440737095516150"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "0.1E-184467440737095516150"), 0);
+  test_decode_fail(number<int16_t>(), "1E184467440737095516150");
+  test_decode_fail(number<int64_t>(), "0.1e+184467440737095516150");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_overflowing_signed_positive_integer) {
@@ -202,6 +239,15 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer) 
   BOOST_CHECK_EQUAL(test_decode(number<uint64_t>(), "18446744073709551615"), UINT64_MAX);
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_zero_integer_with_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<uint8_t>(), "0e-1"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "0E-1"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "0E+1000000"), 0);  // large exponent
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "0E-1000000"), 0);  // large exponent
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "0E+184467440737095516150"), 0);  // crazy large exponent
+  BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "0E-184467440737095516150"), 0);  // crazy large exponent
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer_with_negative_exponent) {
   BOOST_CHECK_EQUAL(test_decode(number<uint8_t>(), "2555e-1"), 255);
   BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "655355E-1"), 65535);
@@ -214,6 +260,20 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer_w
   BOOST_CHECK_EQUAL(test_decode(number<uint16_t>(), "6553e+1"), 65530);
   BOOST_CHECK_EQUAL(test_decode(number<uint32_t>(), "42949672E2"), 4294967200);
   BOOST_CHECK_EQUAL(test_decode(number<uint64_t>(), "184467440737095516E+2"), UINT64_C(18446744073709551600));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer_with_large_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<uint8_t>(), "1e-1000000"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<uint32_t>(), "0.1E-1000000"), 0);
+  test_decode_fail(number<uint16_t>(), "1E1000000");
+  test_decode_fail(number<uint64_t>(), "0.1e+1000000");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer_with_overflowing_exponent) {
+  BOOST_CHECK_EQUAL(test_decode(number<uint8_t>(), "1e-184467440737095516150"), 0);
+  BOOST_CHECK_EQUAL(test_decode(number<uint32_t>(), "0.1E-184467440737095516150"), 0);
+  test_decode_fail(number<uint16_t>(), "1E184467440737095516150");
+  test_decode_fail(number<uint64_t>(), "0.1e+184467440737095516150");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_overflowing_unsigned_positive_integer) {
