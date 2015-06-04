@@ -438,6 +438,25 @@ Each field that `object` encodes and decodes uses one virtual method call.
 
 When encoding, `object` writes fields in the order that they were registered.
 
+It is possible to use `object` for types that are not default constructible, or
+when the default constructor does not do the right thing for the use case at
+hand. For that, pass in a functor that constructs an object for use in
+decoding.
+
+```cpp
+struct point {
+  point(int x, int y) : x(x), y(y) {}
+  int x;
+  int y;
+}
+
+...
+
+object<point> codec([]{ return point(0, 0); });
+codec.required("x", &point::x);
+codec.required("y", &point::y);
+```
+
 ### `one_of_t`
 
 `one_of_t` is a codec that takes one or more inner codecs. When decoding, it
