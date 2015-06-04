@@ -19,7 +19,7 @@
 #include <boost/optional.hpp>
 
 #include <spotify/json/pair.hpp>
-#include <spotify/json/writer.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {

@@ -22,8 +22,8 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
+#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/key.hpp>
-#include <spotify/json/writer.hpp>
 
 namespace spotify {
 namespace json {
