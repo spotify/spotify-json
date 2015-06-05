@@ -20,43 +20,85 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/primitive_encoder.hpp>
 
 namespace spotify {
 namespace json {
 namespace codec {
 
+#define json_unaligned_x(ignore) true
+#define JSON_STRING_SKIP_N(n, n_plus_one, type, control, goto_label) \
+  control ((end - position) >= n && json_unaligned_ ## n_plus_one(position)) { \
+    const auto cc = *reinterpret_cast<const type *>(position); \
+    const auto has_rquote = json_haschar_ ## n(cc, '"'); \
+    const auto has_escape = json_haschar_ ## n(cc, '\\'); \
+    const auto is_complex = (has_rquote || has_escape); \
+    if (is_complex) { goto goto_label; } \
+    position += n; \
+  }
+
 class string_t final : public detail::primitive_encoder<std::string> {
  public:
-  object_type decode(decoding_context &context) const {
+  json_never_inline object_type decode(decoding_context &context) const {
     detail::advance_past(context, '"');
     return decode_string(context);
   }
 
  private:
-  static object_type decode_string(decoding_context &context) {
-    const char *begin = context.position;
+  /**
+   * Skip past the bytes of the string until either a " or a \ character is
+   * found. This method attempts to skip as large chunks of memory as possible
+   * at each step, by making sure that the context position is aligned to the
+   * appropriate address and then reading and comparing several bytes in a
+   * single read operation. Upon returning, the context position will have been
+   * updated to point "nearby" the stopping characters (" or \). The caller can
+   * then switch to a slower algorithm to figure out what to do next.
+   */
+  static void skip_past_simple_characters(decoding_context &context) {
+    const auto end = context.end;
+    auto position = context.position;
+    JSON_STRING_SKIP_N(1,  2, uint8_t,  if, done_x)
+    JSON_STRING_SKIP_N(2,  4, uint16_t, if, done_x)
+    JSON_STRING_SKIP_N(4,  8, uint32_t, if, done_x)
+    JSON_STRING_SKIP_N(8, 16, uint64_t, if, done_8)
+    JSON_STRING_SKIP_N(16, x, json_uint128_t, while, done_F)
+    done_F: JSON_STRING_SKIP_N(8, x, uint64_t, if, done_8)
+    done_8: JSON_STRING_SKIP_N(4, x, uint32_t, if, done_x)
+    done_x: context.position = position;
+  }
 
-    while (context.position != context.end) {
-      switch (*context.position) {
-        case '"': return std::string(begin, context.position++);
-        case '\\': return decode_escaped_string(context, begin);
-        default: context.position++; break;
+  json_force_inline static object_type decode_string(decoding_context &context) {
+    const auto begin_simple = context.position;
+    skip_past_simple_characters(context);
+
+    while (json_likely(context.remaining())) {
+      switch (detail::next_unchecked(context)) {
+        case '"': return std::string(begin_simple, context.position - 1);
+        case '\\': return decode_escaped_string(context, begin_simple);
       }
     }
 
     detail::fail(context, "Unterminated string");
   }
 
-  static object_type decode_escaped_string(decoding_context &context, const char *begin) {
-    std::string unescaped(begin, context.position);
+  json_never_inline static object_type decode_escaped_string(decoding_context &context, const char *begin) {
+    std::string unescaped(begin, context.position - 1);
+    decode_escape(context, unescaped);
 
-    while (context.position != context.end) {
-      const auto character = *(context.position++);
-      switch (character) {
-        case '"': return unescaped;
-        case '\\': decode_escape(context, unescaped); break;
-        default: unescaped.push_back(character); break;
+    while (json_likely(context.remaining())) {
+    decode_simple:
+      const auto begin_simple = context.position;
+      skip_past_simple_characters(context);
+      unescaped.append(begin_simple, context.position);
+
+      while (json_likely(context.remaining())) {
+        const auto character = detail::next_unchecked(context);
+        switch (character) {
+          case '"': return unescaped;
+          case '\\': decode_escape(context, unescaped); goto decode_simple;
+          default: unescaped.push_back(character); break;
+        }
       }
     }
 

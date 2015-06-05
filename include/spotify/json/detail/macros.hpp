@@ -43,3 +43,22 @@
 #ifdef min
   #undef min
 #endif  // min
+
+struct json_uint128_t { uint64_t _a, _b; };
+
+// http://graphics.stanford.edu/~seander/bithacks.html
+#define json_haszero_1(v) (v)
+#define json_haszero_2(v) uint16_t(((v) - 0x0101U) & ~(v) & 0x8080U)
+#define json_haszero_4(v) uint32_t(((v) - 0x01010101UL) & ~(v) & 0x80808080UL)
+#define json_haszero_8(v) uint64_t(((v) - 0x0101010101010101ULL) & ~(v) & 0x8080808080808080ULL)
+#define json_haszero_16(v) (json_haszero_8((v)._a) | json_haszero_8((v)._b))
+#define json_haschar_1(v, c) (v == c)
+#define json_haschar_2(v, c) uint16_t(json_haszero_2((v) ^ (~0U/255 * (c))))
+#define json_haschar_4(v, c) uint32_t(json_haszero_4((v) ^ (~0UL/255 * (c))))
+#define json_haschar_8(v, c) uint64_t(json_haszero_8((v) ^ (~0ULL/255 * (c))))
+#define json_haschar_16(v, c) (json_haschar_8((v)._a, c) | json_haschar_8((v)._b, c))
+#define json_unaligned_1(p) false
+#define json_unaligned_2(p) (reinterpret_cast<intptr_t>(p) & 0x1)
+#define json_unaligned_4(p) (reinterpret_cast<intptr_t>(p) & 0x3)
+#define json_unaligned_8(p) (reinterpret_cast<intptr_t>(p) & 0x7)
+#define json_unaligned_16(p) (reinterpret_cast<intptr_t>(p) & 0xF)
