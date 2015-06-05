@@ -84,9 +84,17 @@ json_force_inline char next(decoding_context &context) {
   return next(context, "Unexpected end of input");
 }
 
+json_force_inline void skip_unchecked(decoding_context &context, const size_t num_bytes) {
+  context.position += num_bytes;
+}
+
+json_force_inline void skip_unchecked(decoding_context &context) {
+  context.position++;
+}
+
 json_force_inline void skip(decoding_context &context, const size_t num_bytes) {
   fail_if(context, context.remaining() < num_bytes, "Unexpected end of input");
-  context.position += num_bytes;
+  skip_unchecked(context, num_bytes);
 }
 
 json_force_inline void skip(decoding_context &context) {
