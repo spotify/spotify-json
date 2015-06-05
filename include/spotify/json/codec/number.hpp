@@ -331,11 +331,11 @@ json_never_inline T decode_integer(decoding_context &context) {
   fail_if(context, is_invalid_digit(i), "Invalid integer");
   T value = intops::accumulate(0, i);
 
-  while (context.remaining()) {
+  while (json_likely(context.remaining())) {
     const auto c = next_unchecked(context);
     const auto i = static_cast<T>(char_traits<char>::to_integer(c));
     if (is_invalid_digit(i)) {
-      const auto is_tricky = (c == '.' || c == 'e' || c == 'E');
+      const auto is_tricky = (c == '.' | c == 'e' | c == 'E');
       return (json_unlikely(is_tricky) ? decode_integer_tricky<T, is_positive>(context, b) : value);
     }
 
