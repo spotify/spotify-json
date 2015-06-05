@@ -40,6 +40,21 @@ void string_parse_fail(const char *string) {
   BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
 }
 
+std::string generate_simple_string(size_t size) {
+  std::string string("\"");
+  for (size_t i = 0; i < size; i++) {
+    char c;
+    switch (i % 3) {
+      case 0: c = '0' + (i % 10); break;
+      case 1: c = 'a' + (i % ('z' - 'a')); break;
+      case 2: c = 'A' + (i % ('Z' - 'A')); break;
+    }
+    string.append(&c, 1);
+  }
+  string.append("\"");
+  return string;
+}
+
 /*
  * Decoding Simple Strings
  */
@@ -54,6 +69,12 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_single_letter) {
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_letters) {
   BOOST_CHECK_EQUAL(string_parse("\"abc\""), "abc");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_long_string) {
+  const auto string = generate_simple_string(10027);
+  const auto answer = string.substr(1, string.size() - 2);
+  BOOST_CHECK_EQUAL(string_parse(string.c_str()), answer);
 }
 
 /*
