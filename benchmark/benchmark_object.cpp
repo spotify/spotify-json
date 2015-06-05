@@ -16,9 +16,11 @@
 
 #include <string>
 
+#include <sstream>
+
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/codec/string.hpp>
+#include <spotify/json/codec/object.hpp>
 #include <spotify/json/decode_exception.hpp>
 #include <spotify/json/encode_decode.hpp>
 
@@ -28,40 +30,27 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
-std::string generate_simple_string(size_t size) {
-  std::string string("\"");
-  for (size_t i = 0; i < size; i++) {
-    char c;
-    switch (i % 3) {
-      case 0: c = '0' + (i % 10); break;
-      case 1: c = 'a' + (i % ('z' - 'a')); break;
-      case 2: c = 'A' + (i % ('Z' - 'A')); break;
-    }
-    string.append(&c, 1);
-  }
-  string.append("\"");
-  return string;
-}
+struct struct_t {
+  int integer;
+};
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_long_string) {
-  const auto codec = default_codec<std::string>();
-  const auto json = generate_simple_string(10000);
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_object_with_required_fields) {
+  codec::object<struct_t> codec;
+  std::stringstream json_ss;
+  json_ss << "{";
+
+  for (char c = 'a'; c <= 'z'; c++) {
+    const auto key = std::string(&c, 1);
+    codec.required(key, &struct_t::integer);
+    json_ss << '"' << c << '"' << ":0,";
+  }
+
+  json_ss << '"' << '.' << '"' << ":0}";
+  const auto json = json_ss.str();
+
   JSON_BENCHMARK(1e5, [=]{
     auto context = decoding_context(json.data(), json.data() + json.size());
     codec.decode(context);
-  });
-}
-
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_tiny_string) {
-  const auto codec = default_codec<std::string>();
-  const auto json = std::string("\"spotify:track:05341EWu6uHUg2BojF3Cyw\"");
-  const auto json_begin = json.data();
-  const auto json_end = json.data() + json.size();
-  JSON_BENCHMARK(1e5, [=]{
-    for (size_t i = 0; i < 10; i++) {
-      auto context = decoding_context(json_begin, json_end);
-      codec.decode(context);
-    }
   });
 }
 

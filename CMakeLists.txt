@@ -97,7 +97,9 @@ set(json_test_SOURCES
   )
 
 set(json_benchmark_SOURCES
+  benchmark/benchmark.hpp
   benchmark/benchmark_main.cpp
+  benchmark/benchmark_object.cpp
   benchmark/benchmark_string.cpp
   )
 
