@@ -23,7 +23,7 @@ template <typename test_fn>
 void benchmark(const char *name, const size_t count, const test_fn &test) {
   using namespace std::chrono;
   const auto before = high_resolution_clock::now();
-  for (unsigned i = 0; i < 100000; i++) {
+  for (unsigned i = 0; i < count; i++) {
     test();
   }
   const auto after = high_resolution_clock::now();
