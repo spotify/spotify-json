@@ -29,24 +29,21 @@ BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
 template <typename test_fn>
-void benchmark(const char *name, const test_fn &test) {
+void benchmark(const char *name, const size_t count, const test_fn &test) {
   using namespace std::chrono;
-  unsigned count = 0;
-
   const auto before = high_resolution_clock::now();
   for (unsigned i = 0; i < 100000; i++) {
-    count++;
     test();
   }
   const auto after = high_resolution_clock::now();
 
   const auto duration = (after - before);
-  const auto duration_ms = duration_cast<milliseconds>(duration).count();
-  const auto duration_ms_avg = (duration_ms / static_cast<double>(count));
-  std::cerr << name << ": " << duration_ms_avg << " ms avg (" << count << " runs)" << std::endl;
+  const auto duration_us = duration_cast<microseconds>(duration).count();
+  const auto duration_us_avg = (duration_us / static_cast<double>(count));
+  std::cerr << name << ": " << duration_us_avg << " us avg (" << count << " runs)" << std::endl;
 }
 
-#define JSON_BENCHMARK(test) benchmark(typeid(*this).name(), (test))
+#define JSON_BENCHMARK(n, test) benchmark(typeid(*this).name(), (n), (test))
 
 std::string string_parse(const char *string) {
   const auto codec = default_codec<std::string>();
@@ -71,12 +68,25 @@ std::string generate_simple_string(size_t size) {
   return string;
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_nonescaped) {
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_long_string) {
   const auto codec = default_codec<std::string>();
   const auto json = generate_simple_string(10000);
-  JSON_BENCHMARK([=]{
+  JSON_BENCHMARK(1e5, [=]{
     auto context = decoding_context(json.data(), json.data() + json.size());
     codec.decode(context);
+  });
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_tiny_string) {
+  const auto codec = default_codec<std::string>();
+  const auto json = std::string("\"spotify:track:05341EWu6uHUg2BojF3Cyw\"");
+  const auto json_begin = json.data();
+  const auto json_end = json.data() + json.size();
+  JSON_BENCHMARK(1e5, [=]{
+    for (size_t i = 0; i < 10; i++) {
+      auto context = decoding_context(json_begin, json_end);
+      codec.decode(context);
+    }
   });
 }
 
