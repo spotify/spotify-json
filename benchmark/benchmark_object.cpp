@@ -34,21 +34,40 @@ struct struct_t {
   int integer;
 };
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_object_with_required_fields) {
+codec::object<struct_t> required_codec(size_t n) {
   codec::object<struct_t> codec;
+  const size_t num_letters = 'z' - 'a';
+  for (size_t i = 0; i < n; i++) {
+    const auto c = static_cast<char>('a' + (i % num_letters));
+    const auto m = (i / num_letters);
+    std::stringstream key_ss;
+    key_ss << c << m;
+    codec.required(key_ss.str(), &struct_t::integer);
+  }
+  return codec;
+}
+
+std::string make_json(size_t n) {
   std::stringstream json_ss;
   json_ss << "{";
 
-  for (char c = 'a'; c <= 'z'; c++) {
-    const auto key = std::string(&c, 1);
-    codec.required(key, &struct_t::integer);
-    json_ss << '"' << c << '"' << ":0,";
+  const size_t num_letters = 'z' - 'a';
+  for (size_t i = 0; i < n; i++) {
+    const auto c = static_cast<char>('a' + (i % num_letters));
+    const auto m = (i / num_letters);
+    std::stringstream key_ss;
+    json_ss << '"' << c << m << '"' << ":0,";
   }
 
   json_ss << '"' << '.' << '"' << ":0}";
-  const auto json = json_ss.str();
+  return json_ss.str();
+}
 
-  JSON_BENCHMARK(1e5, [=]{
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_object_with_required_fields) {
+  const auto codec = required_codec(1000);
+  const auto json = make_json(1000);
+
+  JSON_BENCHMARK(1e4, [=]{
     auto context = decoding_context(json.data(), json.data() + json.size());
     codec.decode(context);
   });
