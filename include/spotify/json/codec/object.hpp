@@ -72,35 +72,32 @@ class object final {
   }
 
   object_type decode(decoding_context &context) const {
-    std::vector<bool> encountered_required_fields(_fields.size());
+    uint_fast32_t num_seen_req_fields = 0;
+    std::vector<bool> seen_req_fields(_fields.size());
+
     object_type output = construct(std::is_default_constructible<T>());
-    const auto string_c = string();
     detail::advance_past_object(
         context,
-        [string_c](decoding_context &context) {
-          return string_c.decode(context);
+        [](decoding_context &context) {
+          static string_t string_decoder;
+          return string_decoder.decode(context);
         },
         [&](std::string &&key) {
           const auto field_it = _fields.find(key);
-          if (field_it == _fields.end()) {
-            // Ignore unknown key
-            detail::advance_past_value(context);
-          } else {
-            const auto &field = *field_it->second;
-            field.decode(output, context);
-            if (field.required) {
-              encountered_required_fields[field_it->second->field_id] = true;
-            }
+          if (json_unlikely(field_it == _fields.end())) {
+            return detail::advance_past_value(context);
+          }
+
+          const auto &field = *(*field_it).second;
+          field.decode(output, context);
+          if (field.required && !seen_req_fields[field.field_id]) {
+            seen_req_fields[field.field_id] = true;
+            num_seen_req_fields++;
           }
         });
 
-
-    const auto num_encountered_required_fields = std::count(
-        encountered_required_fields.begin(),
-        encountered_required_fields.end(),
-        true);
-    const auto is_missing_required_fields = (num_encountered_required_fields != _num_required_fields);
-    detail::fail_if(context, is_missing_required_fields, "Missing required field(s)");
+    const auto is_missing_req_fields = (num_seen_req_fields != _num_required_fields);
+    detail::fail_if(context, is_missing_req_fields, "Missing required field(s)");
     return output;
   }
 
