@@ -60,6 +60,10 @@ json_force_inline void require_bytes(const decoding_context &context) {
   require_bytes<num_required_bytes>(context, "Unexpected end of input");
 }
 
+json_force_inline char peek_unchecked(const decoding_context &context) {
+  return *context.position;
+}
+
 /**
  * Peek at the current character that a decoding_context refers to. If the
  * decoding_context has ended, '\0' is returned. This is a useful helper when
@@ -67,7 +71,7 @@ json_force_inline void require_bytes(const decoding_context &context) {
  * specific one, for example '['.
  */
 json_force_inline char peek(const decoding_context &context) {
-  return (context.remaining() ? *context.position : 0);
+  return (context.remaining() ? peek_unchecked(context) : 0);
 }
 
 json_force_inline char next_unchecked(decoding_context &context) {
