@@ -14,7 +14,9 @@
  * the License.
  */
 
+#include <chrono>
 #include <string>
+#include <iostream>
 
 #include <boost/test/unit_test.hpp>
 
@@ -26,6 +28,26 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
+template <typename test_fn>
+void benchmark(const char *name, const test_fn &test) {
+  using namespace std::chrono;
+  unsigned count = 0;
+
+  const auto before = high_resolution_clock::now();
+  for (unsigned i = 0; i < 100000; i++) {
+    count++;
+    test();
+  }
+  const auto after = high_resolution_clock::now();
+
+  const auto duration = (after - before);
+  const auto duration_ms = duration_cast<milliseconds>(duration).count();
+  const auto duration_ms_avg = (duration_ms / static_cast<double>(count));
+  std::cerr << name << ": " << duration_ms_avg << " ms avg (" << count << " runs)" << std::endl;
+}
+
+#define JSON_BENCHMARK(test) benchmark(typeid(*this).name(), (test))
+
 std::string string_parse(const char *string) {
   const auto codec = default_codec<std::string>();
   auto ctx = decoding_context(string, string + strlen(string));
@@ -34,8 +56,28 @@ std::string string_parse(const char *string) {
   return result;
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_empty) {
-  BOOST_CHECK_EQUAL(string_parse("\"\""), "");
+std::string generate_simple_string(size_t size) {
+  std::string string("\"");
+  for (size_t i = 0; i < size; i++) {
+    char c;
+    switch (i % 3) {
+      case 0: c = '0' + (i % 10); break;
+      case 1: c = 'a' + (i % ('z' - 'a')); break;
+      case 2: c = 'A' + (i % ('Z' - 'A')); break;
+    }
+    string.append(&c, 1);
+  }
+  string.append("\"");
+  return string;
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_nonescaped) {
+  const auto codec = default_codec<std::string>();
+  const auto json = generate_simple_string(10000);
+  JSON_BENCHMARK([=]{
+    auto context = decoding_context(json.data(), json.data() + json.size());
+    codec.decode(context);
+  });
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
