@@ -111,10 +111,8 @@ json_force_inline void skip(decoding_context &context) {
  * non-whitespace.
  */
 inline void advance_past_whitespace(decoding_context &context) {
-  while (
-      context.position != context.end &&
-      char_traits<char>::is_space(*context.position)) {
-    ++context.position;
+  while (char_traits<char>::is_space(peek(context))) {
+    skip(context);
   }
 }
 
