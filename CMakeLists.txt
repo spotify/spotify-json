@@ -29,7 +29,6 @@ set(json_HEADERS
   )
 
 set(json_SOURCES
-  src/dummy.cpp
   )
 
 set(json_codec_HEADERS
@@ -59,12 +58,18 @@ set(json_codec_HEADERS
 set(json_detail_HEADERS
   include/spotify/json/detail/bitset.hpp
   include/spotify/json/detail/char_traits.hpp
+  include/spotify/json/detail/cpuid.hpp
   include/spotify/json/detail/decoding_helpers.hpp
   include/spotify/json/detail/encoding_helpers.hpp
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
   include/spotify/json/detail/macros.hpp
+  include/spotify/json/detail/skip.hpp
   include/spotify/json/detail/stack.hpp
+  )
+
+set(json_detail_skip_SOURCES
+  src/detail/skip.cpp
   )
 
 set(json_all_HEADERS
@@ -75,13 +80,14 @@ set(json_all_HEADERS
 
 set(json_all_SOURCES
   ${json_SOURCES}
+  ${json_detail_skip_SOURCES}
   )
 
 set(json_library_TARGET "json")
 
-source_group(spotify\\json            FILES ${json_HEADERS})
-source_group(spotify\\json\\codec     FILES ${json_codec_HEADERS})
-source_group(spotify\\json\\detail    FILES ${json_detail_HEADERS})
+source_group(spotify\\json         FILES ${json_HEADERS})
+source_group(spotify\\json\\codec  FILES ${json_codec_HEADERS})
+source_group(spotify\\json\\detail FILES ${json_detail_HEADERS})
 
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
 
@@ -91,6 +97,8 @@ if(WIN32)
   target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 else()
   target_compile_options(${json_library_TARGET} PUBLIC "-std=c++11")
+
+  set_source_files_properties(${json_detail_skip_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
 endif()
 
 add_subdirectory(vendor/double-conversion)

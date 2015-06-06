@@ -16,13 +16,13 @@
 
 #pragma once
 
-#if _MSC_VER
+#if defined(_MSC_VER)
   #define json_force_inline __forceinline
   #define json_never_inline __declspec(noinline)
   #define json_noreturn __declspec(noreturn)
   #define json_likely(expr) (expr)
   #define json_unlikely(expr) (expr)
-#elif __GNUC__
+#elif defined(__GNUC__)
   #define json_force_inline __attribute__((always_inline)) inline
   #define json_never_inline __attribute__((noinline))
   #define json_noreturn __attribute__((noreturn))
@@ -56,6 +56,25 @@
 #define json_haschar_4(v, c) uint32_t(json_haszero_4((v) ^ (~0UL/255 * (c))))
 #define json_haschar_8(v, c) uint64_t(json_haszero_8((v) ^ (~0ULL/255 * (c))))
 #define json_unaligned_1(p) false
-#define json_unaligned_2(p) (reinterpret_cast<intptr_t>(p) & 0x1)
-#define json_unaligned_4(p) (reinterpret_cast<intptr_t>(p) & 0x3)
-#define json_unaligned_8(p) (reinterpret_cast<intptr_t>(p) & 0x7)
+#define json_unaligned_2(p)  (reinterpret_cast<intptr_t>(p) & 0x1)
+#define json_unaligned_4(p)  (reinterpret_cast<intptr_t>(p) & 0x3)
+#define json_unaligned_8(p)  (reinterpret_cast<intptr_t>(p) & 0x7)
+#define json_unaligned_16(p) (reinterpret_cast<intptr_t>(p) & 0xF)
+
+// http://sourceforge.net/p/predef/wiki/Architectures/
+// http://nadeausoftware.com/articles/2012/02/c_c_tip_how_detect_processor_type_using_compiler_predefined_macros
+
+#if defined(__i386__) || defined(__i386) || \
+    defined(_M_IX86) || defined(_X86_)
+  #define json_arch_x86_32
+#endif
+
+#if defined(__x86_64__) || defined(__x86_64) || \
+    defined(__amd64__) || defined(__amd64) || \
+    defined(_M_X64) || defined(_M_AMD64)
+  #define json_arch_x86_64
+#endif
+
+#if defined(json_arch_x86_32) || defined(json_arch_x86_64)
+  #define json_arch_x86
+#endif
