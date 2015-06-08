@@ -31,6 +31,17 @@ BOOST_AUTO_TEST_SUITE(codec)
 namespace {
 
 template<typename Codec>
+typename Codec::object_type test_decode_dont_gobble(
+    const Codec &codec,
+    const std::string &json,
+    const size_t expected_length) {
+  decoding_context c(json.c_str(), json.c_str() + json.size());
+  auto obj = codec.decode(c);
+  BOOST_CHECK_EQUAL(c.position, c.begin + expected_length);
+  return obj;
+}
+
+template<typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
@@ -230,6 +241,17 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_signed_integers
   test_decode_fail(number<int>(), "1e+");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_number_should_not_gobble_characters_after_signed_integer) {
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "-15]", 3), -15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "-15}", 3), -15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "-15,", 3), -15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "-15#", 3), -15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "15.0,", 4), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "15.0]", 4), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "15.0}", 4), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<int8_t>(), "15.0#", 4), 15);
+}
+
 /*
  * Unsigned Integers
  */
@@ -304,6 +326,17 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_unsigned_intege
   test_decode_fail(number<unsigned>(), "1e");
   test_decode_fail(number<unsigned>(), "1e-");
   test_decode_fail(number<unsigned>(), "1e+");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_not_gobble_characters_after_unsigned_integer) {
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15]", 2), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15}", 2), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15,", 2), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15#", 2), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0,", 4), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0]", 4), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0}", 4), 15);
+  BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0#", 4), 15);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

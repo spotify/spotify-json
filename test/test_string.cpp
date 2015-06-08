@@ -40,6 +40,72 @@ void string_parse_fail(const char *string) {
   BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
 }
 
+std::string random_simple_character(size_t i) {
+  char c;
+  switch (i % 3) {
+    case 0: c = '0' + (i % 10); break;
+    case 1: c = 'a' + (i % ('z' - 'a')); break;
+    case 2: c = 'A' + (i % ('Z' - 'A')); break;
+  }
+  return std::string(&c, 1);
+}
+
+std::string random_simple_character_or_escape_sequence(size_t i) {
+  switch (i % 37) {
+    case 28: return "\\\"";
+    case 29: return "\\/";
+    case 30: return "\\b";
+    case 31: return "\\f";
+    case 32: return "\\n";
+    case 33: return "\\r";
+    case 34: return "\\t";
+    case 35: return "\\\\";
+    case 36: return "\\u20AC";
+    default: return random_simple_character(i);
+  }
+}
+
+std::string random_simple_character_or_unescaped_character(size_t i) {
+  switch (i % 37) {
+    case 28: return "\"";
+    case 29: return "/";
+    case 30: return "\b";
+    case 31: return "\f";
+    case 32: return "\n";
+    case 33: return "\r";
+    case 34: return "\t";
+    case 35: return "\\";
+    case 36: return "\xE2\x82\xAC";
+    default: return random_simple_character(i);
+  }
+}
+
+std::string generate_simple_string(size_t size) {
+  std::string string("\"");
+  for (size_t i = 0; i < size; i++) {
+    string.append(random_simple_character(i));
+  }
+  string.append("\"");
+  return string;
+}
+
+std::string generate_escaped_string(size_t approximate_size) {
+  std::string string("\"");
+  for (size_t i = 0; i < approximate_size; i++) {
+    string.append(random_simple_character_or_escape_sequence(i));
+  }
+  string.append("\"");
+  return string;
+}
+
+std::string generate_escaped_string_answer(size_t approximate_size) {
+  std::string string;
+  for (size_t i = 0; i < approximate_size; i++) {
+    string.append(random_simple_character_or_unescaped_character(i));
+  }
+  return string;
+}
+
 /*
  * Decoding Simple Strings
  */
@@ -54,6 +120,12 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_single_letter) {
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_letters) {
   BOOST_CHECK_EQUAL(string_parse("\"abc\""), "abc");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_long_string) {
+  const auto string = generate_simple_string(10027);
+  const auto answer = string.substr(1, string.size() - 2);
+  BOOST_CHECK_EQUAL(string_parse(string.c_str()), answer);
 }
 
 /*
@@ -103,6 +175,12 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_not_decode_invalid_unicode_escape_
   string_parse_fail("\"\\uF_FF\"");
   string_parse_fail("\"\\uFF_F\"");
   string_parse_fail("\"\\uFFF_\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_long_escaped_string) {
+  const auto string = generate_escaped_string(10027);
+  const auto answer = generate_escaped_string_answer(10027);
+  BOOST_CHECK_EQUAL(string_parse(string.c_str()), answer);
 }
 
 /*
