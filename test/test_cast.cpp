@@ -34,8 +34,8 @@ class dummy_t final {
  public:
   using object_type = T;
 
-  void encode(object_type value, detail::writer &writer) const {
-    writer << false;
+  void encode(object_type value, writer &w) const {
+    w << false;
   }
 
   object_type decode(decoding_context &context) const {

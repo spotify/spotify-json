@@ -22,7 +22,6 @@
 
 namespace spotify {
 namespace json {
-namespace detail {
 
 class key {
   template<typename InputIterator, typename InputEndIterator>
@@ -70,6 +69,5 @@ class key {
   const size_t size;
 };
 
-}  // namespace detail
 }  // namespace json
 }  // namespace spotify

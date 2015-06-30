@@ -22,7 +22,6 @@
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
-BOOST_AUTO_TEST_SUITE(detail)
 
 using namespace std;
 
@@ -31,16 +30,16 @@ BOOST_AUTO_TEST_CASE(json_pair_should_reference_key_and_value_string) {
 
   string key("key");
   string value("value");
-  string_pair pair(detail::make_pair(key, value));
+  string_pair p(spotify::json::make_pair(key, value));
 
-  BOOST_CHECK_EQUAL("key", pair.key);
-  BOOST_CHECK_EQUAL("value", pair.value);
+  BOOST_CHECK_EQUAL("key", p.key);
+  BOOST_CHECK_EQUAL("value", p.value);
 
   key = "foo";
   value = "bar";
 
-  BOOST_CHECK_EQUAL("foo", pair.key);
-  BOOST_CHECK_EQUAL("bar", pair.value);
+  BOOST_CHECK_EQUAL("foo", p.key);
+  BOOST_CHECK_EQUAL("bar", p.value);
 }
 
 BOOST_AUTO_TEST_CASE(json_pair_should_reference_key_and_value_cstr) {
@@ -55,6 +54,5 @@ BOOST_AUTO_TEST_CASE(json_pair_should_reference_key_and_value_cstr) {
   BOOST_CHECK_EQUAL(value, pair.value);
 }
 
-BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

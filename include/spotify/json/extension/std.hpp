@@ -28,7 +28,6 @@
 
 namespace spotify {
 namespace json {
-namespace detail {
 
 template<typename WriterType, typename Iterable>
 inline WriterType &write_array(WriterType &writer, const Iterable &iterable) {
@@ -83,6 +82,5 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return write_object(writer, map);
 }
 
-}  // namespace detail
 }  // namespace json
 }  // namespace spotify

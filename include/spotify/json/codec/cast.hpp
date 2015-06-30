@@ -41,9 +41,9 @@ class cast_t {
   explicit cast_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  void encode(object_type value, detail::writer &writer) const {
+  void encode(object_type value, writer &w) const {
     _inner_codec.encode(
-        codec_cast<typename InnerCodec::object_type, PointerType>::cast(value), writer);
+        codec_cast<typename InnerCodec::object_type, PointerType>::cast(value), w);
   }
 
   object_type decode(decoding_context &context) const {

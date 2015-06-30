@@ -33,8 +33,8 @@ class null_t final {
  public:
   using object_type = null_type;
 
-  void encode(const object_type &value, detail::writer &writer) const {
-    writer.add_null();
+  void encode(const object_type &value, writer &w) const {
+    w.add_null();
   }
 
   object_type decode(decoding_context &context) const {
