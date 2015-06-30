@@ -41,8 +41,8 @@ class equals_t final {
   equals_t(InnerCodec inner_codec, object_type value)
       : _inner_codec(std::move(inner_codec)), _value(value) {}
 
-  void encode(const object_type &value, detail::writer &writer) const {
-    _inner_codec.encode(_value, writer);
+  void encode(const object_type &value, writer &w) const {
+    _inner_codec.encode(_value, w);
   }
 
   object_type decode(decoding_context &context) const {

@@ -36,8 +36,8 @@ class any_t final {
     return _codec->decode(context);
   }
 
-  void encode(const object_type &value, detail::writer &writer) const {
-    _codec->encode(value, writer);
+  void encode(const object_type &value, writer &w) const {
+    _codec->encode(value, w);
   }
 
  private:
@@ -46,7 +46,7 @@ class any_t final {
     virtual ~erased_codec() = default;
 
     virtual T decode(decoding_context &context) const = 0;
-    virtual void encode(const T &value, detail::writer &writer) const = 0;
+    virtual void encode(const T &value, writer &w) const = 0;
   };
 
   template<typename Codec>
@@ -59,8 +59,8 @@ class any_t final {
       return _codec.decode(context);
     }
 
-    void encode(const T &value, detail::writer &writer) const override {
-      return _codec.encode(value, writer);
+    void encode(const T &value, writer &w) const override {
+      return _codec.encode(value, w);
     }
 
    private:

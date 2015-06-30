@@ -32,8 +32,8 @@ class lenient_t final {
   explicit lenient_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  void encode(const object_type &value, detail::writer &writer) const {
-    _inner_codec.encode(value, writer);
+  void encode(const object_type &value, writer &w) const {
+    _inner_codec.encode(value, w);
   }
 
   object_type decode(decoding_context &context) const {

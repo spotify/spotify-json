@@ -26,10 +26,10 @@ BOOST_AUTO_TEST_SUITE(json)
 
 BOOST_AUTO_TEST_CASE(json_writer_add_pair) {
   json::buffer buffer;
-  detail::writer writer(buffer);
+  writer w(buffer);
 
-  writer.add_object([](detail::writer &writer) {
-    writer.add_pair("a", 0);
+  w.add_object([](writer &w) {
+    w.add_pair("a", 0);
   });
 
   std::string json(buffer.data(), buffer.size());
@@ -39,11 +39,11 @@ BOOST_AUTO_TEST_CASE(json_writer_add_pair) {
 
 BOOST_AUTO_TEST_CASE(json_writer_add_key) {
   json::buffer buffer;
-  detail::writer writer(buffer);
+  writer w(buffer);
 
-  writer.add_object([](detail::writer &writer) {
-    writer.add_key("a");
-    writer << 0;
+  w.add_object([](writer &w) {
+    w.add_key("a");
+    w << 0;
   });
 
   std::string json(buffer.data(), buffer.size());
