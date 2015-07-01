@@ -78,6 +78,7 @@ set(json_test_SOURCES
   test/test_codec_interface.cpp
   test/test_decoding_context.cpp
   test/test_decoding_helpers.cpp
+  test/test_encode_decode.cpp
   test/test_escape.cpp
   test/test_equals.cpp
   test/test_key.cpp

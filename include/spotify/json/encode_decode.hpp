@@ -50,9 +50,7 @@ std::string encode(const Value &value) {
 template<typename Codec>
 typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
   decoding_context c(data, data + size);
-  auto obj = codec.decode(c);
-  // FIXME(peck) Handle errors and when the parse didn't consume everything
-  return obj;  // FIXME(peck) move??
+  return codec.decode(c);
 }
 
 template<typename Codec>
@@ -68,6 +66,42 @@ typename Codec::object_type decode(const Codec &codec, const buffer &buffer) {
 template<typename Value>
 Value decode(const std::string &string) {
   return decode(default_codec<Value>(), string);
+}
+
+template<typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const char *data,
+    size_t size) {
+  decoding_context c(data, data + size);
+  try {
+    object = codec.decode(c);
+    return true;
+  } catch (decode_exception &) {
+    return false;
+  }
+}
+
+template<typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const std::string &string) {
+  return try_decode(object, codec, string.data(), string.size());
+}
+
+template<typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const buffer &buffer) {
+  return try_decode(object, codec, buffer.data(), buffer.size());
+}
+
+template<typename Value>
+bool try_decode(Value &object, const std::string &string) {
+  return try_decode(object, default_codec<Value>(), string);
 }
 
 }  // namespace json
