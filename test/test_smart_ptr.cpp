@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct_with_helper) {
-  unique_ptr(string());
+  shared_ptr(string());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct_with_default_codec) {
