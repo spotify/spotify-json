@@ -51,7 +51,7 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer;
 }
 
-namespace detail {
+namespace codec {
 
 template<typename T>
 struct make_smart_ptr_t<boost::shared_ptr<T>> {
@@ -59,10 +59,6 @@ struct make_smart_ptr_t<boost::shared_ptr<T>> {
     return boost::make_shared<T>(std::forward<T>(obj));
   }
 };
-
-}  // namespace detail
-
-namespace codec {
 
 template<typename InnerCodec>
 using boost_shared_ptr_t = detail::smart_ptr_t<InnerCodec, boost::shared_ptr<typename InnerCodec::object_type>>;
