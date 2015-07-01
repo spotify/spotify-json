@@ -16,8 +16,12 @@
 
 #pragma once
 
+#include <boost/make_shared.hpp>
 #include <boost/optional.hpp>
+#include <boost/shared_ptr.hpp>
 
+#include <spotify/json/codec/cast.hpp>
+#include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/pair.hpp>
 #include <spotify/json/detail/writer.hpp>
 
@@ -47,6 +51,39 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   }
   return writer;
 }
+
+namespace codec {
+
+template<typename T>
+struct make_smart_ptr_t<boost::shared_ptr<T>> {
+  static boost::shared_ptr<T> make(T &&obj) {
+    return boost::make_shared<T>(std::forward<T>(obj));
+  }
+};
+
+template<typename InnerCodec>
+using boost_shared_ptr_t = detail::smart_ptr_t<InnerCodec, boost::shared_ptr<typename InnerCodec::object_type>>;
+
+template<typename InnerCodec>
+boost_shared_ptr_t<InnerCodec> boost_shared_ptr(InnerCodec &&inner_codec) {
+  return boost_shared_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+}
+
+template<typename ToType, typename FromType>
+struct codec_cast<boost::shared_ptr<ToType>, boost::shared_ptr<FromType>> {
+  static boost::shared_ptr<ToType> cast(const boost::shared_ptr<FromType> &ptr) {
+    return boost::dynamic_pointer_cast<ToType>(ptr);
+  }
+};
+
+}  // namespace codec
+
+template<typename T>
+struct default_codec_t<boost::shared_ptr<T>> {
+  static decltype(boost_shared_ptr(default_codec<T>())) codec() {
+    return boost_shared_ptr(default_codec<T>());
+  }
+};
 
 }  // namespace json
 }  // namespace spotify

@@ -24,7 +24,7 @@
 
 namespace spotify {
 namespace json {
-namespace detail {
+namespace codec {
 
 template<typename SmartPointer>
 struct make_smart_ptr_t;
@@ -43,6 +43,10 @@ struct make_smart_ptr_t<std::shared_ptr<T>> {
   }
 };
 
+}  // namespace codec
+
+namespace detail {
+
 template<typename InnerCodec, typename SmartPointer>
 class smart_ptr_t {
  public:
@@ -56,7 +60,7 @@ class smart_ptr_t {
   }
 
   object_type decode(decoding_context &context) const {
-    return make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
+    return codec::make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
   }
 
  protected:

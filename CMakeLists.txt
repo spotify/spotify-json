@@ -72,6 +72,7 @@ set(json_test_SOURCES
   test/test_any.cpp
   test/test_array.cpp
   test/test_boolean.cpp
+  test/test_boost.cpp
   test/test_buffer.cpp
   test/test_cast.cpp
   test/test_char_traits.cpp
