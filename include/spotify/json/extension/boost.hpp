@@ -20,6 +20,7 @@
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/pair.hpp>
 #include <spotify/json/detail/writer.hpp>
@@ -67,6 +68,13 @@ template<typename InnerCodec>
 boost_shared_ptr_t<InnerCodec> boost_shared_ptr(InnerCodec &&inner_codec) {
   return boost_shared_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
 }
+
+template<typename ToType, typename FromType>
+struct codec_cast<boost::shared_ptr<ToType>, boost::shared_ptr<FromType>> {
+  static boost::shared_ptr<ToType> cast(const boost::shared_ptr<FromType> &ptr) {
+    return boost::dynamic_pointer_cast<ToType>(ptr);
+  }
+};
 
 }  // namespace codec
 
