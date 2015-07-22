@@ -21,6 +21,8 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 
+#include "only_true.hpp"
+
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(detail)
@@ -668,6 +670,15 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_nested_object) {
   verify_advance(&advance_past_value, "{\"a\":{}}");
   verify_advance(&advance_past_value, "{\"a\":[]}");
   verify_advance(&advance_past_value, "{\"a\":[{},[]]}");
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_should_encode_by_default) {
+  BOOST_CHECK(should_encode(codec::boolean(), true));
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_should_encode_should_respect_should_encode) {
+  BOOST_CHECK(should_encode(codec::only_true_t(), true));
+  BOOST_CHECK(!should_encode(codec::only_true_t(), false));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail

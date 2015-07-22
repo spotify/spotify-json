@@ -338,6 +338,32 @@ inline void advance_past_value(decoding_context &context) {
   }
 }
 
+template<typename T>
+struct has_should_encode_method {
+  template<typename U>
+  static auto test(int) -> decltype(
+      std::declval<U>().should_encode(std::declval<typename U::object_type>()),
+      std::true_type());
+
+  template<typename>
+  static std::false_type test(...);
+
+ public:
+  static constexpr bool value = std::is_same<decltype(test<T>(0)),std::true_type>::value;
+};
+
+template<typename Codec>
+typename std::enable_if<!has_should_encode_method<Codec>::value, bool>::type
+should_encode(const Codec &codec, const typename Codec::object_type &value) {
+  return true;
+}
+
+template<typename Codec>
+typename std::enable_if<has_should_encode_method<Codec>::value, bool>::type
+should_encode(const Codec &codec, const typename Codec::object_type &value) {
+  return codec.should_encode(value);
+}
+
 }  // namespace detail
 }  // namespace json
 }  // namespace spotify

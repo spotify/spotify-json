@@ -20,6 +20,8 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/encode_decode.hpp>
 
+#include "only_true.hpp"
+
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
@@ -50,6 +52,12 @@ BOOST_AUTO_TEST_CASE(json_any_should_decode) {
 
 BOOST_AUTO_TEST_CASE(json_any_should_construct_with_helper) {
   any(boolean());
+}
+
+BOOST_AUTO_TEST_CASE(json_any_should_respect_should_encode) {
+  auto codec = any(only_true_t());
+  BOOST_CHECK(codec.should_encode(true));
+  BOOST_CHECK(!codec.should_encode(false));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

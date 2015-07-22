@@ -22,6 +22,8 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/encode_decode.hpp>
 
+#include "only_true.hpp"
+
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
@@ -86,6 +88,14 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_two_elements) {
   map["a"] = true;
   map["b"] = false;
   BOOST_CHECK_EQUAL(encode(map), "{\"a\":true,\"b\":false}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_map_should_respect_should_encode) {
+  std::map<std::string, bool> map;
+  map["a"] = true;
+  map["b"] = false;
+  const auto codec = codec::map<std::map<std::string, bool>>(only_true_t());
+  BOOST_CHECK_EQUAL(encode(codec, map), "{\"a\":true}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_with_helper) {
