@@ -23,6 +23,8 @@
 #include <spotify/json/encode_decode.hpp>
 #include <spotify/json/extension/boost.hpp>
 
+#include "only_true.hpp"
+
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 
@@ -43,6 +45,9 @@ codec::object<sub_class> sub_codec() {
 
 }  // namespace
 
+
+/// boost::shared_ptr
+
 BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_decode) {
   const auto obj = decode<boost::shared_ptr<std::string>>("\"hello\"");
   BOOST_REQUIRE(obj);
@@ -53,6 +58,49 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_cast_pointer_should_construct_with_helper)
   const boost::shared_ptr<base_class> ptr = boost::make_shared<sub_class>();
   const auto codec = codec::cast<boost::shared_ptr<base_class>>(boost_shared_ptr(sub_codec()));
   BOOST_CHECK_EQUAL(encode(codec, ptr), "{}");
+}
+
+
+/// boost::optional
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct) {
+  const auto c = codec::optional_t<codec::string_t>(codec::string());
+  static_cast<void>(c);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_helper) {
+  const auto c = codec::optional((codec::string()));
+  static_cast<void>(c);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_default_codec) {
+  default_codec<boost::optional<std::string>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode) {
+  const auto codec = default_codec<boost::optional<std::string>>();
+  BOOST_CHECK_EQUAL(encode(codec, boost::make_optional(std::string("hi"))), "\"hi\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode_none) {
+  const auto codec = default_codec<boost::optional<std::string>>();
+  BOOST_CHECK_EQUAL(encode(codec, boost::none), "");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_decode) {
+  const auto codec = default_codec<boost::optional<std::string>>();
+  BOOST_CHECK(decode(codec, "\"hi\"") == boost::make_optional(std::string("hi")));
+
+  boost::optional<std::string> value;
+  BOOST_CHECK(!try_decode(value, codec, "\"hi"));
+  BOOST_CHECK(!try_decode(value, codec, ""));
+  BOOST_CHECK(!try_decode(value, codec, "5"));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_implement_should_encode) {
+  const auto codec = default_codec<boost::optional<std::string>>();
+  BOOST_CHECK(codec.should_encode(boost::make_optional(std::string(""))));
+  BOOST_CHECK(!codec.should_encode(boost::none));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json
