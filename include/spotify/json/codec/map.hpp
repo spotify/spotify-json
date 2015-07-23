@@ -50,8 +50,10 @@ class map_t final {
   void encode(const object_type &array, writer &w) const {
     w.add_object([&](writer &w) {
       for (const auto &element : array) {
-        w.add_key(element.first);
-        _inner_codec.encode(element.second, w);
+        if (detail::should_encode(_inner_codec, element.second)) {
+          w.add_key(element.first);
+          _inner_codec.encode(element.second, w);
+        }
       }
     });
   }

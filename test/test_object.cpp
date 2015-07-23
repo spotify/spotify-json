@@ -25,6 +25,8 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/encode_decode.hpp>
 
+#include "only_true.hpp"
+
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 
@@ -119,6 +121,17 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {
   simple.value = "hey";
   const auto json = encode(simple);
   BOOST_CHECK_EQUAL(json, "{\"value\":\"hey\"}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_respect_should_encode) {
+  using data_t = std::pair<bool, bool>;
+  const auto data = data_t(true, false);
+
+  codec::object<data_t> codec;
+  codec.optional("first", &data_t::first, only_true_t());
+  codec.required("second", &data_t::second, only_true_t());
+
+  BOOST_CHECK_EQUAL(encode(codec, data), "{\"first\":true}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {

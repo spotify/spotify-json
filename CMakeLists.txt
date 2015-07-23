@@ -68,6 +68,10 @@ set(json_all_HEADERS
   ${json_extension_HEADERS}
   )
 
+set(json_test_HEADERS
+  test/only_true.hpp
+  )
+
 set(json_test_SOURCES
   test/test_any.cpp
   test/test_array.cpp
@@ -113,6 +117,7 @@ source_group(spotify\\json\\codec     FILES ${json_codec_HEADERS})
 source_group(spotify\\json\\detail    FILES ${json_detail_HEADERS})
 source_group(spotify\\json\\extension FILES ${json_extension_HEADERS})
 source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
+source_group(spotify\\json\\test      FILES ${json_test_HEADERS})
 source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES})
 
 if(WIN32)
@@ -126,7 +131,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 if(Boost_FOUND)
   link_directories(${Boost_LIBRARY_DIRS})
 
-  add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_all_HEADERS})
+  add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS} ${json_all_HEADERS})
   add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_all_HEADERS})
   target_include_directories(${json_test_TARGET} PUBLIC ${json_INCLUDE_DIR})
   target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})

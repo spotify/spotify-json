@@ -61,6 +61,20 @@ class codec_interface final {
    * decode will never be called with a contest that has_failed().
    */
   object_type decode(decoding_context &context) const;
+
+  /**
+   * This method is optional.
+   *
+   * If it is present and it returns false for a specific value, writers of JSON
+   * objects will skip that value. This is necessary for codecs of types such as
+   * boost::optional, where not even the key name or a comma should be printed if
+   * the value is boost::none.
+   *
+   * There is no guarantee that encode will not be called for a given value if
+   * this method returns false. Encode should simply write nothing if it is called
+   * with a value that should not be encoded.
+   */
+  bool should_encode(const object_type &value) const;
 };
 
 }  // namespace codec

@@ -52,6 +52,8 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   return writer;
 }
 
+/// boost::shared_ptr
+
 namespace codec {
 
 template<typename T>
@@ -82,6 +84,50 @@ template<typename T>
 struct default_codec_t<boost::shared_ptr<T>> {
   static decltype(boost_shared_ptr(default_codec<T>())) codec() {
     return boost_shared_ptr(default_codec<T>());
+  }
+};
+
+/// boost::optional
+
+namespace codec {
+
+template<typename InnerCodec>
+class optional_t final {
+ public:
+  using object_type = boost::optional<typename InnerCodec::object_type>;
+
+  explicit optional_t(InnerCodec inner_codec)
+      : _inner_codec(inner_codec) {}
+
+  void encode(const object_type &value, writer &w) const {
+    if (value) {
+      _inner_codec.encode(*value, w);
+    }
+  }
+
+  object_type decode(decoding_context &context) const {
+    return _inner_codec.decode(context);
+  }
+
+  bool should_encode(const object_type &value) const {
+    return value != boost::none;
+  }
+
+ private:
+  InnerCodec _inner_codec;
+};
+
+template<typename InnerCodec>
+optional_t<InnerCodec> optional(InnerCodec &&inner_codec) {
+  return optional_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+}
+
+}  // namespace codec
+
+template<typename T>
+struct default_codec_t<boost::optional<T>> {
+  static decltype(codec::optional(default_codec<T>())) codec() {
+    return codec::optional(default_codec<T>());
   }
 };
 

@@ -63,10 +63,7 @@ class object final {
   void encode(const object_type &value, writer &w) const {
     w.add_object([&](writer &w) {
       for (const auto &field : _field_list) {
-        if (field.second->should_encode) {
-          w.add_key(field.first);
-          field.second->encode(value, w);
-        }
+        field.second->encode(field.first, value, w);
       }
     });
   }
@@ -115,16 +112,14 @@ class object final {
   }
 
   struct field {
-    field(bool should_encode, bool required, size_t field_id) :
-        should_encode(should_encode),
+    field(bool required, size_t field_id) :
         required(required),
         field_id(field_id) {}
     virtual ~field() = default;
 
-    virtual void encode(const object_type &object, writer &w) const = 0;
+    virtual void encode(const key &key, const object_type &object, writer &w) const = 0;
     virtual void decode(object_type &object, decoding_context &context) const = 0;
 
-    const bool should_encode;
     const bool required;
     const size_t field_id;
   };
@@ -132,10 +127,10 @@ class object final {
   template<typename Codec>
   struct dummy_field final : public field {
     dummy_field(bool required, size_t field_id, Codec codec)
-        : field(false, required, field_id),
+        : field(required, field_id),
           codec(std::move(codec)) {}
 
-    void encode(const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, writer &w) const override {
     }
 
     void decode(object_type &object, decoding_context &context) const override {
@@ -148,12 +143,16 @@ class object final {
   template<typename Member, typename Codec>
   struct member_field final : public field {
     member_field(bool required, size_t field_id, Codec codec, Member T::*member_pointer)
-        : field(true, required, field_id),
+        : field(required, field_id),
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
-    void encode(const object_type &object, writer &w) const override {
-      codec.encode(object.*member_pointer, w);
+    void encode(const key &key, const object_type &object, writer &w) const override {
+      const auto &value = object.*member_pointer;
+      if (detail::should_encode(codec, value)) {
+        w.add_key(key);
+        codec.encode(value, w);
+      }
     }
 
     void decode(object_type &object, decoding_context &context) const override {
