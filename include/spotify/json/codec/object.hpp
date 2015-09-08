@@ -16,8 +16,12 @@
 
 #pragma once
 
+#include <functional>
+#include <memory>
 #include <type_traits>
+#include <string>
 #include <unordered_map>
+#include <utility>
 
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
