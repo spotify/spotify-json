@@ -91,15 +91,15 @@ shared_ptr_t<InnerCodec> shared_ptr(InnerCodec &&inner_codec) {
 
 template<typename T>
 struct default_codec_t<std::unique_ptr<T>> {
-  static decltype(unique_ptr(default_codec<T>())) codec() {
-    return unique_ptr(default_codec<T>());
+  static decltype(codec::unique_ptr(default_codec<T>())) codec() {
+    return codec::unique_ptr(default_codec<T>());
   }
 };
 
 template<typename T>
 struct default_codec_t<std::shared_ptr<T>> {
-  static decltype(shared_ptr(default_codec<T>())) codec() {
-    return shared_ptr(default_codec<T>());
+  static decltype(codec::shared_ptr(default_codec<T>())) codec() {
+    return codec::shared_ptr(default_codec<T>());
   }
 };
 
