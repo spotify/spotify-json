@@ -34,4 +34,5 @@ void benchmark(const char *name, const size_t count, const test_fn &test) {
   std::cerr << name << ": " << duration_us_avg << " us avg (" << count << " runs)" << std::endl;
 }
 
-#define JSON_BENCHMARK(n, test) benchmark(typeid(*this).name(), (n), (test))
+#define JSON_BENCHMARK(n, test) \
+  benchmark(typeid(*this).name(), static_cast<size_t>(n), (test))
