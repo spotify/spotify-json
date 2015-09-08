@@ -100,7 +100,8 @@ struct integer_ops<T, false> {
   }
 };
 
-json_force_inline bool is_invalid_digit(int digit) {
+template <typename T>
+json_force_inline bool is_invalid_digit(T digit) {
   const auto forced_positive = static_cast<unsigned>(digit);
   return (forced_positive > 9);  // negative number -> very large positive number
 }
@@ -197,7 +198,7 @@ json_never_inline T decode_with_negative_exponent(
     const unsigned exponent,
     const char *int_beg,
     const char *int_end) {
-  const auto num_int_digits = (int_end - int_beg);
+  const auto num_int_digits = static_cast<unsigned>(int_end - int_beg);
   const auto lshift_int_end = (int_end - exponent);
   return (json_likely(num_int_digits > exponent) ?
       decode_integer_range<T, is_positive>(context, int_beg, lshift_int_end) :
@@ -221,7 +222,7 @@ json_never_inline T decode_with_positive_exponent(
     const char *dec_beg,
     const char *dec_end) {
   T value;
-  const auto num_dec_digits = (dec_end - dec_beg);
+  const auto num_dec_digits = static_cast<unsigned>(dec_end - dec_beg);
   if (num_dec_digits >= exponent) {
     value = decode_integer_range<T, is_positive>(context, int_beg, int_end);
     value = decode_integer_range<T, is_positive>(context, dec_beg, dec_beg + exponent, value);
