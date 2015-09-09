@@ -138,14 +138,14 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_float_numbers) 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer) {
   BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "127"), 127);
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "32767"), 32767);
-  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "2147483647"), 2147483647);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "2147483647"), INT32_MAX);
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "9223372036854775807"), INT64_MAX);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer) {
   BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "-128"), -128);
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "-32768"), -32768);
-  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-2147483648"), -2147483648);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-2147483648"), INT32_MIN);
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-9223372036854775808"), INT64_MIN);
 }
 
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_zero_integer_with_ex
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_with_negative_exponent) {
   BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "1277e-1"), 127);
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "327677E-1"), 32767);
-  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "214748364700e-2"), 2147483647);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "214748364700e-2"), INT32_MAX);
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "922337203685477580700E-2"), INT64_MAX);
 }
 
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer_wit
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_negative_integer_with_negative_exponent) {
   BOOST_CHECK_EQUAL(test_decode(number<int8_t>(), "-1288e-1"), -128);
   BOOST_CHECK_EQUAL(test_decode(number<int16_t>(), "-327688E-1"), -32768);
-  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-214748364800e-2"), -2147483648);
+  BOOST_CHECK_EQUAL(test_decode(number<int32_t>(), "-214748364800e-2"), INT32_MIN);
   BOOST_CHECK_EQUAL(test_decode(number<int64_t>(), "-922337203685477580800E-2"), INT64_MIN);
 }
 

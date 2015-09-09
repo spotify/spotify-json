@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <memory>
+#include <utility>
+
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/writer.hpp>
 
