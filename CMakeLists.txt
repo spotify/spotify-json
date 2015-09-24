@@ -32,6 +32,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/array.hpp
   include/spotify/json/codec/boolean.hpp
   include/spotify/json/codec/cast.hpp
+  include/spotify/json/codec/chrono.hpp
   include/spotify/json/codec/codec_interface.hpp
   include/spotify/json/codec/equals.hpp
   include/spotify/json/codec/lenient.hpp
@@ -81,6 +82,7 @@ set(json_test_SOURCES
   test/test_buffer.cpp
   test/test_cast.cpp
   test/test_char_traits.cpp
+  test/test_chrono.cpp
   test/test_codec_interface.cpp
   test/test_decoding_context.cpp
   test/test_decoding_helpers.cpp
