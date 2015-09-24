@@ -103,5 +103,53 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_implement_should_encode) {
   BOOST_CHECK(!codec.should_encode(boost::none));
 }
 
+/// boost::chrono
+
+BOOST_AUTO_TEST_CASE(json_codec_duration_should_construct) {
+  codec::duration<boost::chrono::system_clock::duration>();
+  codec::duration<boost::chrono::steady_clock::duration>();
+  codec::duration<boost::chrono::high_resolution_clock::duration>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_duration_should_construct_with_default_codec) {
+  default_codec<boost::chrono::system_clock::duration>();
+  default_codec<boost::chrono::steady_clock::duration>();
+  default_codec<boost::chrono::high_resolution_clock::duration>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_duration_should_encode) {
+  BOOST_CHECK_EQUAL(encode(boost::chrono::system_clock::duration(5)), "5");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_duration_should_decode) {
+  BOOST_CHECK(
+      decode<boost::chrono::system_clock::duration>("5") ==
+      boost::chrono::system_clock::duration(5));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_time_point_should_construct) {
+  codec::time_point<boost::chrono::system_clock::time_point>();
+  codec::time_point<boost::chrono::steady_clock::time_point>();
+  codec::time_point<boost::chrono::high_resolution_clock::time_point>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_time_point_should_construct_with_default_codec) {
+  default_codec<boost::chrono::system_clock::time_point>();
+  default_codec<boost::chrono::steady_clock::time_point>();
+  default_codec<boost::chrono::high_resolution_clock::time_point>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_time_point_should_encode) {
+  using boost::chrono::system_clock;
+  BOOST_CHECK_EQUAL(encode(system_clock::time_point(system_clock::duration(5))), "5");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_time_point_should_decode) {
+  using boost::chrono::system_clock;
+  BOOST_CHECK(
+      decode<system_clock::time_point>("5") ==
+      system_clock::time_point(system_clock::duration(5)));
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

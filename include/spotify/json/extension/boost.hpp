@@ -16,11 +16,13 @@
 
 #pragma once
 
+#include <boost/chrono.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <spotify/json/codec/cast.hpp>
+#include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/pair.hpp>
 #include <spotify/json/detail/writer.hpp>
@@ -128,6 +130,22 @@ template<typename T>
 struct default_codec_t<boost::optional<T>> {
   static decltype(codec::optional(default_codec<T>())) codec() {
     return codec::optional(default_codec<T>());
+  }
+};
+
+/// boost::chrono types
+
+template<typename Rep, typename Period>
+struct default_codec_t<boost::chrono::duration<Rep, Period>> {
+  static decltype(codec::duration<boost::chrono::duration<Rep, Period>>()) codec() {
+    return codec::duration<boost::chrono::duration<Rep, Period>>();
+  }
+};
+
+template<typename Clock, typename Duration>
+struct default_codec_t<boost::chrono::time_point<Clock, Duration>> {
+  static decltype(codec::time_point<boost::chrono::time_point<Clock, Duration>>()) codec() {
+    return codec::time_point<boost::chrono::time_point<Clock, Duration>>();
   }
 };
 
