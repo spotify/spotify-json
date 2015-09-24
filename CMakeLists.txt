@@ -32,6 +32,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/array.hpp
   include/spotify/json/codec/boolean.hpp
   include/spotify/json/codec/cast.hpp
+  include/spotify/json/codec/chrono.hpp
   include/spotify/json/codec/codec_interface.hpp
   include/spotify/json/codec/equals.hpp
   include/spotify/json/codec/lenient.hpp
@@ -42,6 +43,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/one_of.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
+  include/spotify/json/codec/transform.hpp
   )
 
 set(json_detail_HEADERS
@@ -80,6 +82,7 @@ set(json_test_SOURCES
   test/test_buffer.cpp
   test/test_cast.cpp
   test/test_char_traits.cpp
+  test/test_chrono.cpp
   test/test_codec_interface.cpp
   test/test_decoding_context.cpp
   test/test_decoding_helpers.cpp
@@ -98,6 +101,7 @@ set(json_test_SOURCES
   test/test_primitive_encoder.cpp
   test/test_smart_ptr.cpp
   test/test_string.cpp
+  test/test_transform.cpp
   test/test_umbrella.cpp
   test/test_writer.cpp
   )
@@ -144,10 +148,10 @@ if(Boost_FOUND)
   else()
     target_compile_options(${json_test_TARGET} PRIVATE "-fvisibility=hidden")
     target_compile_options(${json_test_TARGET} PRIVATE "-std=c++11")
-    target_link_libraries(${json_test_TARGET} boost_unit_test_framework)
+    target_link_libraries(${json_test_TARGET} boost_unit_test_framework boost_system)
     target_compile_options(${json_benchmark_TARGET} PRIVATE "-fvisibility=hidden")
     target_compile_options(${json_benchmark_TARGET} PRIVATE "-std=c++11")
-    target_link_libraries(${json_benchmark_TARGET} boost_unit_test_framework)
+    target_link_libraries(${json_benchmark_TARGET} boost_unit_test_framework boost_system)
   endif()
 
   add_subdirectory(vendor/double-conversion)

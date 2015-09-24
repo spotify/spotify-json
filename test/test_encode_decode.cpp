@@ -92,9 +92,27 @@ BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_string) {
   BOOST_CHECK_EQUAL(obj.val, "h");
 }
 
+BOOST_AUTO_TEST_CASE(json_decode_should_accept_trailing_space) {
+  const auto obj = decode<custom_obj>("{\"x\":\"h\"}  ");
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_accept_leading_space) {
+  const auto obj = decode<custom_obj>("  {\"x\":\"h\"}");
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
 BOOST_AUTO_TEST_CASE(json_decode_should_throw_on_failure) {
   try {
     decode<custom_obj>("{}");  // Missing field
+    BOOST_ASSERT(!"Should not reach this point");
+  } catch (decode_exception &) {
+  }
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_throw_on_unexpected_trailing_input) {
+  try {
+    decode<custom_obj>("{\"x\":\"h\"} invalid");
     BOOST_ASSERT(!"Should not reach this point");
   } catch (decode_exception &) {
   }
@@ -131,6 +149,21 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_string) {
 BOOST_AUTO_TEST_CASE(json_try_decode_should_report_failure) {
   custom_obj obj;
   BOOST_CHECK(!try_decode(obj, "{}"));  // Missing field
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_fail_on_unexpected_trailing_input) {
+  custom_obj obj;
+  BOOST_CHECK(!try_decode(obj, "{\"x\":\"h\"} invalid"));
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_accept_trailing_space) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, "{\"x\":\"h\"}  "));
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_accept_leading_space) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, "  {\"x\":\"h\"}"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json
