@@ -23,6 +23,15 @@
 
 namespace spotify {
 namespace json {
+namespace detail {
+
+inline void requireAtEnd(const decoding_context &context) {
+  if (context.position != context.end) {
+    throw decode_exception("Unexpected trailing input", context.offset());
+  }
+}
+
+}
 
 template<typename Codec>
 void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
@@ -50,7 +59,9 @@ std::string encode(const Value &value) {
 template<typename Codec>
 typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
   decoding_context c(data, data + size);
-  return codec.decode(c);
+  const auto result = codec.decode(c);
+  detail::requireAtEnd(c);
+  return result;
 }
 
 template<typename Codec>
@@ -77,6 +88,7 @@ bool try_decode(
   decoding_context c(data, data + size);
   try {
     object = codec.decode(c);
+    detail::requireAtEnd(c);
     return true;
   } catch (decode_exception &) {
     return false;
