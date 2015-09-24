@@ -42,6 +42,8 @@ a number of codecs that are available to the user of the library:
 * [`shared_ptr_t`](#shared_ptr_t): For `shared_ptr`s
 * [`string_t`](#string_t): For strings
 * [`unique_ptr_t`](#unique_ptr_t): For `unique_ptr`s
+* [`transform_t`](#transform_t): For types that the library doesn't have built
+  in support for.
 
 For example, `boolean_t` is a codec that is capable only of parsing booleans:
 
@@ -514,3 +516,55 @@ that is done by a codec inside it.
   constructible.
 * **Convenience builder**: `spotify::json::codec::unique_ptr(InnerCodec)`
 * **`default_codec` support**: `default_codec<unique_ptr<T>>()`
+
+
+### transform_t
+
+There are types that spotify-json doesn't have built-in support for that aren't
+objects that should be encoded as JSON objects (this case is handled by
+object_t). For these types, transform_t can be used. transform_t codecs are
+created with a pair of conversion functions: One that transforms an object that
+is about to be encoded into a type that another encoder can handle, and another
+that transforms an object that has just been decoded back to the outwards facing
+type.
+
+This can be used for example when encoding a SHA1 hash which is encoded in
+JSON as a string.
+
+For example:
+
+```cpp
+struct my_type {
+  std::string value;
+};
+
+...
+// Codec is for my_type C++ objects and encodes/decodes them as JSON strings.
+const auto codec = transform(
+    [](const my_type &object) {
+      return object.value;
+    },
+    [](const std::string &value, size_t where) {
+      // where points to where in the input the value was parsed. It can be
+      // passed to decode_exception if a value was received that cannot be
+      // expressed with the external type, for example if external type is a
+      // byte array, the JSON type is a base64 encoded string and the input is
+      // not valid base64.
+      return my_type{ value };
+    });
+```
+
+* **Complete class name**: `spotify::json::codec::transform_t<
+  InnerCodec, EncodeTransform, DecodeTransform>`, where `InnerCodec` is the type
+  of the codec that actually codes the value, `EncodeTransform` is the type of
+  a function or functor that takes an object of a type (call it `T`) and
+  returns an `InnerCodec::object_type`, and `DecodeTransform` is the type of a
+  function or functor that takes an `InnerCodec::object_type` and a `size_t`
+  with where in the input the input was parsed and returns a `T`.
+* **Supported types**: Any type that is move or copy constructible.
+* **Convenience builder**: `spotify::json::codec::transform(InnerCodec,
+  EncodeTransform, DecodeTransform)`, and
+  `spotify::json::codec::transform(EncodeTransform, DecodeTransform)`, which
+  uses the default codec for the inner type.
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
