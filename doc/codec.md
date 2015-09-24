@@ -44,6 +44,8 @@ a number of codecs that are available to the user of the library:
 * [`unique_ptr_t`](#unique_ptr_t): For `unique_ptr`s
 * [`transform_t`](#transform_t): For types that the library doesn't have built
   in support for.
+* [Chrono codecs](#chrono): spotify-json provides support for `std::chrono` and
+  `boost::chrono` types.
 
 For example, `boolean_t` is a codec that is capable only of parsing booleans:
 
@@ -568,3 +570,23 @@ const auto codec = transform(
   uses the default codec for the inner type.
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
+
+
+### chrono
+
+spotify-json provides support for `duration` and `time_point` types of
+`std::chrono` and `boost::chrono`. They are implemented using `transform_t`, so
+they don't have `*_t` classes like many of the other codecs.
+
+* **Complete class name**: N/A. See above.
+* **Supported types**: All `std::chrono::duration`, `std::chrono::time_point`,
+  `boost::chrono::duration` and `boost::chrono::time_point` types, including
+  `std::chrono::system_clock::duration`, `std::chrono::system_clock::time_point`
+  etc.
+* **Convenience builder**: `spotify::json::codec::duration<Duration>()` and
+  `spotify::json::codec::time_point<TimePoint>()`
+* **`default_codec` support**:
+  `default_codec<std::chrono::duration<Rep, Period>>()`,
+  `default_codec<boost::chrono::duration<Rep, Period>>()`,
+  `default_codec<std::chrono::time_point<Clock, Duration>>()`,
+  `default_codec<boost::chrono::time_point<Clock, Duration>>()`
