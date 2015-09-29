@@ -135,6 +135,8 @@ class object final {
           codec(std::move(codec)) {}
 
     void encode(const key &key, const object_type &object, writer &w) const override {
+      w.add_key(key);
+      codec.encode(typename Codec::object_type(), w);
     }
 
     void decode(object_type &object, decoding_context &context) const override {

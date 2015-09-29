@@ -173,11 +173,11 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_dummy_fields) {
   test_decode_fail(codec, "{\"dummy\":null}");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_object_should_not_encode_dummy_fields) {
+BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_dummy_fields) {
   object<example_t> codec;
   codec.required("dummy", string());
 
-  BOOST_CHECK_EQUAL(encode(codec, example_t()), "{}");
+  BOOST_CHECK_EQUAL(encode(codec, example_t()), "{\"dummy\":\"\"}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
