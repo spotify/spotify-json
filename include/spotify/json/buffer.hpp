@@ -21,6 +21,7 @@
 #include <cstdlib>    // malloc, realloc, free
 #include <cstring>    // memcpy
 #include <new>        // std::bad_alloc
+#include <stdexcept>  // std::invalid_argument
 #include <stdint.h>
 #include <string>
 
