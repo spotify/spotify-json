@@ -30,6 +30,24 @@
 
 namespace spotify {
 namespace json {
+namespace detail {
+
+template<typename Container>
+auto pushBackOrInsert(
+    Container &container, typename Container::value_type &&value) ->
+        decltype(container.push_back(value), void()) {
+  container.push_back(std::forward<typename Container::value_type>(value));
+}
+
+template<typename Container>
+auto pushBackOrInsert(
+    Container &container, typename Container::value_type &&value) ->
+        decltype(container.insert(value), void()) {
+  container.insert(std::forward<typename Container::value_type>(value));
+}
+
+}  // namespace detail
+
 namespace codec {
 
 template<typename T, typename InnerCodec>
@@ -57,7 +75,7 @@ class array_t final {
   object_type decode(decoding_context &context) const {
     object_type output;
     detail::advance_past_comma_separated(context, '[', ']', [&]{
-      output.push_back(_inner_codec.decode(context));
+      detail::pushBackOrInsert(output, _inner_codec.decode(context));
     });
     return output;
   }
