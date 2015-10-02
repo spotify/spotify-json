@@ -29,8 +29,9 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-std::vector<bool> array_parse(const char *not_array) {
-  const auto codec = default_codec<std::vector<bool>>();
+template<typename Parsed = std::vector<bool>>
+Parsed array_parse(const char *not_array) {
+  const auto codec = default_codec<Parsed>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));
   const auto result = codec.decode(ctx);
 
@@ -99,8 +100,16 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_set_with_default_codec) {
   default_codec<std::set<bool>>();
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_set) {
+  BOOST_CHECK(array_parse<std::set<bool>>("[]").empty());
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_default_codec) {
   default_codec<std::unordered_set<bool>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_unordered_set) {
+  BOOST_CHECK(array_parse<std::unordered_set<bool>>("[]").empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
