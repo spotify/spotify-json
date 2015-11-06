@@ -31,6 +31,7 @@ a number of codecs that are available to the user of the library:
 * [`array_t`](#array_t): For arrays (`std::vector`, `std::deque` etc)
 * [`boolean_t`](#boolean_t): For `bool`s
 * [`cast_t`](#cast_t): For dynamic casting `shared_ptr`s
+* [`enumeration_t`](#enumeration_t): For enums and other enumerations of values
 * [`equals_t`](#equals_t): For requiring a specific value
 * [`lenient_t`](#lenient_t): For allowing values to be of the wrong type
 * [`map_t`](#map_t): For `std::map` and other maps
@@ -277,6 +278,46 @@ In the code above, the use of `cast_t` is required because when the user of
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly. Unless you know that you need to use this codec, there probably is
   no need to do it.
+
+
+### `enumeration_t`
+
+`enumeration_t` is a codec that is capable of encoding and decoding a specific
+pre-defined set of values. It is useful for enums.
+
+```cpp
+enum class Test {
+  A,
+  B
+};
+
+void useEnumeration() {
+  using namespace spotify::json;
+  using namespace spotify::json::codec;
+
+  const auto codec = enumeration<Test, std::string>({
+      { Test::A, "A" },
+      { Test::B, "B" } });
+  assert(encode(codec, Test::A) == "\"A\"");
+  assert(decode(codec, "\"B\"") == Test::B);
+}
+
+```
+
+* **Complete class name**:
+  `spotify::json::codec::enumeration_t<OuterObject, InnerCodec>`,
+  where `InnerCodec` is the type of the codec that actually codes the value
+  and `OuterObject` is the type of objects that the codec exposes, often an
+  enum type.
+* **Supported types**: Any type.
+* **Convenience builder**:
+  `spotify::json::codec::enumeration<OuterType>(InnerCodec, ListOfValues)`,
+  which uses the provided inner codec object with a mapping specified by
+  `ListOfValues`. For an example please refer to the example above.
+  `spotify::json::codec::enumeration<OuterType, InnerType>(ListOfValues)`,
+  like above but uses `default_codec` to create the inner codec.
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
 
 
 ### `equals_t`
