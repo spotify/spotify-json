@@ -33,24 +33,26 @@ namespace json {
 namespace detail {
 
 template<typename Container>
-auto pushBackOrInsert(
-    Container &container, typename Container::value_type &&value) ->
-        decltype(container.push_back(value), void()) {
-  container.push_back(std::forward<typename Container::value_type>(value));
-}
+struct SequenceInserter {
+  static void apply(
+      Container &container, typename Container::value_type &&value) {
+    container.push_back(std::forward<typename Container::value_type>(value));
+  }
+};
 
 template<typename Container>
-auto pushBackOrInsert(
-    Container &container, typename Container::value_type &&value) ->
-        decltype(container.insert(value), void()) {
-  container.insert(std::forward<typename Container::value_type>(value));
-}
+struct AssociativeInserter {
+  static void apply(
+      Container &container, typename Container::value_type &&value) {
+    container.insert(std::forward<typename Container::value_type>(value));
+  }
+};
 
 }  // namespace detail
 
 namespace codec {
 
-template<typename T, typename InnerCodec>
+template<typename T, typename InnerCodec, typename Inserter>
 class array_t final {
  public:
   using object_type = T;
@@ -58,7 +60,7 @@ class array_t final {
   static_assert(
       std::is_same<
           typename T::value_type,
-          typename InnerCodec::object_type>::value,
+          typename std::decay<InnerCodec>::type::object_type>::value,
       "Array container type must match inner codec type");
 
   explicit array_t(InnerCodec inner_codec)
@@ -75,7 +77,7 @@ class array_t final {
   object_type decode(decoding_context &context) const {
     object_type output;
     detail::advance_past_comma_separated(context, '[', ']', [&]{
-      detail::pushBackOrInsert(output, _inner_codec.decode(context));
+      Inserter::apply(output, _inner_codec.decode(context));
     });
     return output;
   }
@@ -85,8 +87,15 @@ class array_t final {
 };
 
 template<typename T, typename InnerCodec>
-array_t<T, InnerCodec> array(InnerCodec &&inner_codec) {
-  return array_t<T, InnerCodec>(std::forward<InnerCodec>(inner_codec));
+array_t<T, InnerCodec, detail::SequenceInserter<T>> array(InnerCodec &&inner_codec) {
+  return array_t<T, InnerCodec, detail::SequenceInserter<T>>(
+      std::forward<InnerCodec>(inner_codec));
+}
+
+template<typename T, typename InnerCodec>
+array_t<T, InnerCodec, detail::AssociativeInserter<T>> set(InnerCodec &&inner_codec) {
+  return array_t<T, InnerCodec, detail::AssociativeInserter<T>>(
+      std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec
@@ -114,15 +123,15 @@ struct default_codec_t<std::list<T>> {
 
 template<typename T>
 struct default_codec_t<std::set<T>> {
-  static decltype(codec::array<std::set<T>>(default_codec<T>())) codec() {
-    return codec::array<std::set<T>>(default_codec<T>());
+  static decltype(codec::set<std::set<T>>(default_codec<T>())) codec() {
+    return codec::set<std::set<T>>(default_codec<T>());
   }
 };
 
 template<typename T>
 struct default_codec_t<std::unordered_set<T>> {
-  static decltype(codec::array<std::unordered_set<T>>(default_codec<T>())) codec() {
-    return codec::array<std::unordered_set<T>>(default_codec<T>());
+  static decltype(codec::set<std::unordered_set<T>>(default_codec<T>())) codec() {
+    return codec::set<std::unordered_set<T>>(default_codec<T>());
   }
 };
 
