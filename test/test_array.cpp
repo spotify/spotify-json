@@ -68,7 +68,6 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise) {
   array_parse_should_fail("[false,true,");
 }
 
-
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty) {
   std::vector<bool> vec;
   BOOST_CHECK_EQUAL(encode(vec), "[]");
@@ -110,6 +109,12 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_defaul
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_unordered_set) {
   BOOST_CHECK(array_parse<std::unordered_set<bool>>("[]").empty());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec) {
+  const auto inner_codec(boolean());
+  const auto array_codec(array<std::vector<bool>>(inner_codec));
+  BOOST_CHECK(decode(array_codec, "[]").empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

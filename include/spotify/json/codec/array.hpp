@@ -60,7 +60,7 @@ class array_t final {
   static_assert(
       std::is_same<
           typename T::value_type,
-          typename InnerCodec::object_type>::value,
+          typename std::decay<InnerCodec>::type::object_type>::value,
       "Array container type must match inner codec type");
 
   explicit array_t(InnerCodec inner_codec)
