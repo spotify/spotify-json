@@ -383,6 +383,9 @@ class integer_t<T, true, true> : public primitive_encoder<T> {
   }
 };
 
+template <typename T>
+using is_bool = std::is_same<typename std::remove_cv<T>::type, bool>;
+
 }  // namespace detail
 
 namespace codec {
@@ -391,6 +394,9 @@ template <typename T>
 class number_t final : public detail::integer_t<T,
     std::is_integral<T>::value,
     std::is_signed<T>::value> {
+  static_assert(
+      std::is_integral<T>::value && !detail::is_bool<T>::value,
+      "Trying to use number_t codec for boolean");
 };
 
 template <>
@@ -411,7 +417,8 @@ number_t<T> number() {
 template <typename T>
 struct default_codec_t {
   static_assert(
-      std::is_integral<T>::value || std::is_floating_point<T>::value,
+      (std::is_integral<T>::value || std::is_floating_point<T>::value) &&
+          !detail::is_bool<T>::value,
       "No default_codec_t specialization for type T");
 
   static codec::number_t<T> codec() {

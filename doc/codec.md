@@ -206,8 +206,9 @@ introduces one virtual method for each `encode` and `decode` call.
   `std::list<T>`, `std::deque<T>`, `std::set<T>`, `std::unordered_set<T>`. (When
   parsing into set types, duplicate values are dropped.)
 * **Convenience builder**: For example
-  `spotify::json::codec::array<std::vector<int>>(integer())`. If no custom inner
-  codec is required, `default_codec` is even more convenient.
+  `spotify::json::codec::array<std::vector<int>>(integer())` for sequence containers
+  or `spotify::json::codec::set<std::set<int>>(integer())` for associative containers.
+  If no custom inner codec is required, `default_codec` is even more convenient.
 * **`default_codec` support**: `default_codec<std::vector<T>>()`,
   `default_codec<std::list<T>>()`, `default_codec<std::deque<T>>()`,
   `default_codec<std::set<T>>()`, `default_codec<std::unordered_set<T>>()`
@@ -220,7 +221,6 @@ introduces one virtual method for each `encode` and `decode` call.
 * **Supported types**: Only `bool`
 * **Convenience builder**: `spotify::json::codec::boolean()`
 * **`default_codec` support**: `default_codec<bool>()`
-
 
 ### `cast_t`
 

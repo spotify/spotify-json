@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
