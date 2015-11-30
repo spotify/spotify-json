@@ -18,6 +18,7 @@
 
 #include <chrono>
 
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/transform.hpp>
 
 namespace spotify {

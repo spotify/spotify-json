@@ -16,10 +16,6 @@
 
 #pragma once
 
-#include <type_traits>
-
-#include <spotify/json/codec/number.hpp>
-
 namespace spotify {
 namespace json {
 
