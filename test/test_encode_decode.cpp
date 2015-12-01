@@ -166,5 +166,11 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_accept_leading_space) {
   BOOST_CHECK(try_decode(obj, "  {\"x\":\"h\"}"));
 }
 
+BOOST_AUTO_TEST_CASE(json_try_decode_should_accept_utf8) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, u8"{\"x\":\"\u9E21\"}"));
+  BOOST_CHECK_EQUAL(u8"\u9E21", obj.val);
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

@@ -533,6 +533,10 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_invalid_escape) {
   verify_advance_fail(&advance_past_string, "\"\\a\"");
 }
 
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_utf8) {
+  verify_advance(&advance_past_string, u8"\"\u9E21\"");
+}
+
 /*
  * Advance past number
  */
