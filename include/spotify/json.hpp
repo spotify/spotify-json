@@ -29,6 +29,7 @@
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/one_of.hpp>
+#include <spotify/json/codec/raw.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/transform.hpp>

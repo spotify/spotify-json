@@ -51,5 +51,16 @@ BOOST_AUTO_TEST_CASE(json_writer_add_key) {
   BOOST_CHECK_EQUAL("{\"a\":0}", json);
 }
 
+BOOST_AUTO_TEST_CASE(json_writer_write_raw) {
+  json::buffer buffer;
+  writer w(buffer);
+
+  w.write_raw("foobar", 6);
+
+  std::string json(buffer.data(), buffer.size());
+
+  BOOST_CHECK_EQUAL("foobar", json);
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

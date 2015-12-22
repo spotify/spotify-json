@@ -53,8 +53,8 @@ class basic_writer {
 
   basic_writer &operator <<(bool value) {
     return (value ?
-        separator_and_set().write("true", 4) :
-        separator_and_set().write("false", 5));
+        separator_and_set().write_raw("true", 4) :
+        separator_and_set().write_raw("false", 5));
   }
 
   basic_writer &operator <<(int8_t value) {
@@ -66,7 +66,7 @@ class basic_writer {
   }
 
   basic_writer &operator <<(const key &key) {
-    return separator_and_set().write(key.data, key.size);
+    return separator_and_set().write_raw(key.data, key.size);
   }
 
   basic_writer &operator <<(const char *value) {
@@ -90,7 +90,7 @@ class basic_writer {
   }
 
   basic_writer &add_null() {
-    return separator_and_set().write("null", 4);
+    return separator_and_set().write_raw("null", 4);
   }
 
   /**
@@ -197,6 +197,14 @@ class basic_writer {
     func(*this);
   }
 
+  /**
+   * \brief Write raw data to the underlying stream.
+   */
+  basic_writer &write_raw(const char *s, size_t n) {
+    _stream.write(s, n);
+    return *this;
+  }
+
  private:
   basic_writer &separator_and_clear() {
     if (_separator_needed) {
@@ -230,14 +238,6 @@ class basic_writer {
   template<typename T>
   basic_writer &write(const T &value) {
     _stream << value;
-    return *this;
-  }
-
-  /**
-   * \brief Write raw data to the underlying stream.
-   */
-  basic_writer &write(const char *s, size_t n) {
-    _stream.write(s, n);
     return *this;
   }
 
