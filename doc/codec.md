@@ -476,6 +476,13 @@ For the `required` and `optional` methods, the following overloads exist:
   Use the given codec for encoding and decoding and the provided member getter
   and setter pointers to get/set the value. `codec` may be omitted in which
   case `default_codec<T>()` is used where `T` is deduced from the getter.
+* `optional/required("field_name", getter, setter, codec)`:
+  Uses a pair of callables that act as a custom getter and setter,
+  respectively. The getter will be called with the object as a single argument
+  and should return the value. The setter will be called with the object as an
+  lvalue for the first argument and the value to set as the second (rvalue)
+  argument. `codec` may be omitted in which
+  case `default_codec<T>()` is used where `T` is deduced from the getter.
 * `optional/required("field_name", codec)`: When decoding, don't save the
   results anywhere, just make sure that the codec accepts the input. When
   encoding, use a default constructed value of the given type. This is mainly

@@ -77,6 +77,14 @@ codec::object<getset_t> getset_codec() {
   return codec;
 }
 
+codec::object<getset_t> getset_lambda_codec() {
+  codec::object<getset_t> codec;
+  codec.required("value",
+                 [](const getset_t &x) { return x.get_value(); },
+                 [](getset_t &x, const std::string &value) { x.set_value(value); });
+  return codec;
+}
+
 }  // namespace
 
 template<>
@@ -204,6 +212,21 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_setter_field) {
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_getter_field) {
   const auto codec = getset_codec();
+  getset_t getset;
+  getset.set_value("foobar");
+
+  BOOST_CHECK_EQUAL(encode(codec, getset), "{\"value\":\"foobar\"}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_lambda_setter_field) {
+  const auto codec = getset_lambda_codec();
+  const auto getset = test_decode(codec, "{\"value\":\"foobar\"}");
+
+  BOOST_CHECK_EQUAL("foobar", getset.get_value());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_lambda_getter_field) {
+  const auto codec = getset_lambda_codec();
   getset_t getset;
   getset.set_value("foobar");
 

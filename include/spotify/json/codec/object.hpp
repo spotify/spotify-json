@@ -196,7 +196,34 @@ class object final {
     SetterPtr setter_ptr;
   };
 
-  template<typename ValueType>
+  template <typename Getter, typename Setter, typename Codec>
+  struct custom_field final : public field {
+    template <typename GetterArg, typename SetterArg>
+    custom_field(
+        bool required, size_t field_id, Codec codec, GetterArg &&get, SetterArg &&set)
+        : field(required, field_id),
+          codec(std::move(codec)),
+          get(std::forward<GetterArg>(get)),
+          set(std::forward<SetterArg>(set)) {}
+
+    void encode(const key &key, const object_type &object, writer &w) const override {
+      const auto &value = get(object);
+      if (detail::should_encode(codec, value)) {
+        w.add_key(key);
+        codec.encode(value, w);
+      }
+    }
+
+    void decode(object_type &object, decoding_context &context) const override {
+      set(object, codec.decode(context));
+    }
+
+    Getter get;
+    Setter set;
+    Codec codec;
+  };
+
+  template <typename ValueType>
   void add_field(const std::string &name, bool required, ValueType T::*member_ptr) {
     add_field(name, required, member_ptr, default_codec<ValueType>());
   }
@@ -234,7 +261,31 @@ class object final {
                    required, _fields.size(), std::forward<Codec>(codec), getter, setter));
   }
 
-  template<typename Codec>
+  template <typename Getter, typename Setter>
+  void add_field(const std::string &name,
+                 bool required,
+                 Getter &&getter,
+                 Setter &&setter) {
+    using ValueType = typename std::decay<decltype(getter(std::declval<T &>()))>::type;
+    add_field(name, required, getter, setter, default_codec<ValueType>());
+  }
+
+  template <typename Getter, typename Setter, typename Codec>
+  void add_field(
+      const std::string &name, bool required, Getter &&getter, Setter &&setter, Codec &&codec) {
+    using Field = custom_field<typename std::decay<Getter>::type,
+                               typename std::decay<Setter>::type,
+                               typename std::decay<Codec>::type>;
+    save_field(name,
+               required,
+               std::make_shared<Field>(required,
+                                       _fields.size(),
+                                       std::forward<Codec>(codec),
+                                       std::forward<Getter>(getter),
+                                       std::forward<Setter>(setter)));
+  }
+
+  template <typename Codec>
   void add_field(const std::string &name, bool required, Codec &&codec) {
     using Field = dummy_field<typename std::decay<Codec>::type>;
     save_field(name,
