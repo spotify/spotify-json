@@ -86,7 +86,7 @@ class basic_writer {
   }
 
   basic_writer &operator <<(const buffer &buffer) {
-    return separator_and_set().write(buffer.data(), buffer.size());
+    return separator_and_set().write_raw(buffer.data(), buffer.size());
   }
 
   basic_writer &add_null() {
