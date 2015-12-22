@@ -204,10 +204,11 @@ class object final {
   template<typename ValueType, typename Codec>
   void add_field(const std::string &name, bool required, ValueType T::*member, Codec &&codec) {
     using MemberPtr = ValueType (T::*);
+    using Field = member_var_field<MemberPtr, typename std::decay<Codec>::type>;
     save_field(
         name,
-        required, std::make_shared<member_var_field<MemberPtr, typename std::decay<Codec>::type>>(
-            required, _fields.size(), std::forward<Codec>(codec), member));
+        required,
+        std::make_shared<Field>(required, _fields.size(), std::forward<Codec>(codec), member));
   }
 
   template <typename GetType, typename SetType>
@@ -226,19 +227,19 @@ class object final {
                  Codec &&codec) {
     using GetterPtr = GetType (T::*)() const;
     using SetterPtr = void (T::*)(SetType);
-    save_field(
-        name,
-        required,
-        std::make_shared<member_fn_field<GetterPtr, SetterPtr, typename std::decay<Codec>::type>>(
-            required, _fields.size(), std::forward<Codec>(codec), getter, setter));
+    using Field = member_fn_field<GetterPtr, SetterPtr, typename std::decay<Codec>::type>;
+    save_field(name,
+               required,
+               std::make_shared<Field>(
+                   required, _fields.size(), std::forward<Codec>(codec), getter, setter));
   }
 
   template<typename Codec>
   void add_field(const std::string &name, bool required, Codec &&codec) {
-    save_field(
-        name,
-        required, std::make_shared<dummy_field<typename std::decay<Codec>::type>>(
-            required, _fields.size(), std::forward<Codec>(codec)));
+    using Field = dummy_field<typename std::decay<Codec>::type>;
+    save_field(name,
+               required,
+               std::make_shared<Field>(required, _fields.size(), std::forward<Codec>(codec)));
   }
 
   void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
