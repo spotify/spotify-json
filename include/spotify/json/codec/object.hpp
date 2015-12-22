@@ -170,6 +170,32 @@ class object final {
     MemberPtr member_pointer;
   };
 
+  template <typename GetterPtr, typename SetterPtr, typename Codec>
+  struct member_fn_field final : public field {
+    member_fn_field(
+        bool required, size_t field_id, Codec codec, GetterPtr getter_ptr, SetterPtr setter_ptr)
+        : field(required, field_id),
+          codec(std::move(codec)),
+          getter_ptr(getter_ptr),
+          setter_ptr(setter_ptr) {}
+
+    void encode(const key &key, const object_type &object, writer &w) const override {
+      const auto &value = (object.*getter_ptr)();
+      if (detail::should_encode(codec, value)) {
+        w.add_key(key);
+        codec.encode(value, w);
+      }
+    }
+
+    void decode(object_type &object, decoding_context &context) const override {
+      (object.*setter_ptr)(codec.decode(context));
+    }
+
+    Codec codec;
+    GetterPtr getter_ptr;
+    SetterPtr setter_ptr;
+  };
+
   template<typename ValueType>
   void add_field(const std::string &name, bool required, ValueType T::*member_ptr) {
     add_field(name, required, member_ptr, default_codec<ValueType>());
@@ -182,6 +208,29 @@ class object final {
         name,
         required, std::make_shared<member_var_field<MemberPtr, typename std::decay<Codec>::type>>(
             required, _fields.size(), std::forward<Codec>(codec), member));
+  }
+
+  template <typename GetType, typename SetType>
+  void add_field(const std::string &name,
+                 bool required,
+                 GetType (T::*getter)() const,
+                 void (T::*setter)(SetType)) {
+    add_field(name, required, getter, setter, default_codec<typename std::decay<GetType>::type>());
+  }
+
+  template <typename GetType, typename SetType, typename Codec>
+  void add_field(const std::string &name,
+                 bool required,
+                 GetType (T::*getter)() const,
+                 void (T::*setter)(SetType),
+                 Codec &&codec) {
+    using GetterPtr = GetType (T::*)() const;
+    using SetterPtr = void (T::*)(SetType);
+    save_field(
+        name,
+        required,
+        std::make_shared<member_fn_field<GetterPtr, SetterPtr, typename std::decay<Codec>::type>>(
+            required, _fields.size(), std::forward<Codec>(codec), getter, setter));
   }
 
   template<typename Codec>

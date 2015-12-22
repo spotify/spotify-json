@@ -62,6 +62,21 @@ codec::object<example_t> example_codec() {
   return codec;
 }
 
+class getset_t {
+ public:
+  const std::string &get_value() const { return value; }
+  void set_value(const std::string &v) { value = v; }
+
+ private:
+  std::string value;
+};
+
+codec::object<getset_t> getset_codec() {
+  codec::object<getset_t> codec;
+  codec.required("value", &getset_t::get_value, &getset_t::set_value);
+  return codec;
+}
+
 }  // namespace
 
 template<>
@@ -178,6 +193,21 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_dummy_fields) {
   codec.required("dummy", string());
 
   BOOST_CHECK_EQUAL(encode(codec, example_t()), "{\"dummy\":\"\"}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_setter_field) {
+  const auto codec = getset_codec();
+  const auto getset = test_decode(codec, "{\"value\":\"foobar\"}");
+
+  BOOST_CHECK_EQUAL("foobar", getset.get_value());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_getter_field) {
+  const auto codec = getset_codec();
+  getset_t getset;
+  getset.set_value("foobar");
+
+  BOOST_CHECK_EQUAL(encode(codec, getset), "{\"value\":\"foobar\"}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
