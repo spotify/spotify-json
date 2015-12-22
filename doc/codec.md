@@ -522,6 +522,24 @@ understands.
 * **Convenience builder**: `spotify::json::codec::one_of(Codec...)`
 * **`default_codec` support**: No; the convenience builder must be used explicitly.
 
+### `raw` ###
+
+`raw` is a codec that doesn't actually decode or encode but instead deals with
+the raw data of the JSON value.
+
+When decoding, this codec yields a `spotify::json::codec::raw::ref` whose
+`data` member points to the first character of the value (i.e. `{` for a JSON
+object or `t` for the value `true`) and whose `size` member is the size of the
+entire raw value up to and including the last character (i.e. `}` for a JSON
+object or `e` for the value `true`). The `data` member points into the original
+data passed to the code so only use this codec to decode if you can be sure
+that the data will outlive the `ref`.
+
+When encoding, this codec writes the data referenced by the `ref` as is to the
+writer. The data will no be modified or reformatted in any way.
+
+This codec is useful as it allows you to defer the decoding of certain parts of
+your data when decoding.
 
 ### `shared_ptr_t`
 
