@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(json_writer_write_raw) {
   json::buffer buffer;
   writer w(buffer);
 
-  w.write("foobar", 6);
+  w.write_raw("foobar", 6);
 
   std::string json(buffer.data(), buffer.size());
 
