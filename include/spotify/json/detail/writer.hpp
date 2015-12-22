@@ -197,6 +197,14 @@ class basic_writer {
     func(*this);
   }
 
+  /**
+   * \brief Write raw data to the underlying stream.
+   */
+  basic_writer &write(const char *s, size_t n) {
+    _stream.write(s, n);
+    return *this;
+  }
+
  private:
   basic_writer &separator_and_clear() {
     if (_separator_needed) {
@@ -230,14 +238,6 @@ class basic_writer {
   template<typename T>
   basic_writer &write(const T &value) {
     _stream << value;
-    return *this;
-  }
-
-  /**
-   * \brief Write raw data to the underlying stream.
-   */
-  basic_writer &write(const char *s, size_t n) {
-    _stream.write(s, n);
     return *this;
   }
 
