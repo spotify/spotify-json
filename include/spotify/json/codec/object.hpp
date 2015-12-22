@@ -147,9 +147,9 @@ class object final {
     Codec codec;
   };
 
-  template<typename Member, typename Codec>
-  struct member_field final : public field {
-    member_field(bool required, size_t field_id, Codec codec, Member T::*member_pointer)
+  template<typename MemberPtr, typename Codec>
+  struct member_var_field final : public field {
+    member_var_field(bool required, size_t field_id, Codec codec, MemberPtr member_pointer)
         : field(required, field_id),
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
@@ -167,19 +167,20 @@ class object final {
     }
 
     Codec codec;
-    Member T::*member_pointer;
+    MemberPtr member_pointer;
   };
 
-  template<typename Member>
-  void add_field(const std::string &name, bool required, Member T::*member) {
-    add_field(name, required, member, default_codec<Member>());
+  template<typename ValueType>
+  void add_field(const std::string &name, bool required, ValueType T::*member_ptr) {
+    add_field(name, required, member_ptr, default_codec<ValueType>());
   }
 
-  template<typename Member, typename Codec>
-  void add_field(const std::string &name, bool required, Member T::*member, Codec &&codec) {
+  template<typename ValueType, typename Codec>
+  void add_field(const std::string &name, bool required, ValueType T::*member, Codec &&codec) {
+    using MemberPtr = ValueType (T::*);
     save_field(
         name,
-        required, std::make_shared<member_field<Member, typename std::decay<Codec>::type>>(
+        required, std::make_shared<member_var_field<MemberPtr, typename std::decay<Codec>::type>>(
             required, _fields.size(), std::forward<Codec>(codec), member));
   }
 
