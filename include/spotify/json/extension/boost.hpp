@@ -17,6 +17,7 @@
 #pragma once
 
 #include <boost/chrono.hpp>
+#include <boost/container/flat_map.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
@@ -148,6 +149,24 @@ struct default_codec_t<boost::chrono::time_point<Clock, Duration>> {
     return codec::time_point<boost::chrono::time_point<Clock, Duration>>();
   }
 };
+
+namespace boost_detail {
+
+template<typename WriterType, typename Iterable>
+inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
+  const typename WriterType::scoped_object object(writer);
+  for (typename Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
+    writer << *it;
+  }
+  return writer;
+}
+
+}  // namespace boost_detail
+
+template<typename stream_type, typename options_type, typename K, typename V>
+basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::container::flat_map<K, V> &map) {
+  return boost_detail::write_object(writer, map);
+}
 
 }  // namespace json
 }  // namespace spotify
