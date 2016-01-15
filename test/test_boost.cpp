@@ -64,12 +64,17 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_cast_pointer_should_construct_with_helper)
 /// boost::optional
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct) {
-  const auto c = codec::optional_t<codec::string_t>(codec::string());
+  const auto c = codec::optional_t<codec::string_t>(codec::string(), false);
   static_cast<void>(c);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_helper) {
   const auto c = codec::optional((codec::string()));
+  static_cast<void>(c);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_helper_with_none_as_null) {
+  const auto c = codec::optional(codec::string(), true);
   static_cast<void>(c);
 }
 
@@ -80,11 +85,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_default_cod
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode) {
   const auto codec = default_codec<boost::optional<std::string>>();
   BOOST_CHECK_EQUAL(encode(codec, boost::make_optional(std::string("hi"))), "\"hi\"");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode_none) {
-  const auto codec = default_codec<boost::optional<std::string>>();
-  BOOST_CHECK_EQUAL(encode(codec, boost::none), "");
+  BOOST_CHECK_EQUAL(encode(codec, boost::none), "null");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_decode) {
@@ -95,12 +96,28 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_decode) {
   BOOST_CHECK(!try_decode(value, codec, "\"hi"));
   BOOST_CHECK(!try_decode(value, codec, ""));
   BOOST_CHECK(!try_decode(value, codec, "5"));
+  // This should only work if none_as_null = true
+  BOOST_CHECK(!try_decode(value, codec, "null"));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_decode_null_as_none) {
+  const auto codec = codec::optional(codec::string(), true);
+  BOOST_CHECK(decode(codec, "null") == boost::optional<std::string>());
+
+  boost::optional<std::string> value;
+  BOOST_CHECK(!try_decode(value, codec, "nul"));
+  BOOST_CHECK(!try_decode(value, codec, "nuff"));
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_implement_should_encode) {
   const auto codec = default_codec<boost::optional<std::string>>();
   BOOST_CHECK(codec.should_encode(boost::make_optional(std::string(""))));
   BOOST_CHECK(!codec.should_encode(boost::none));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode_returns_true_if_none_as_null) {
+  const auto codec = codec::optional(codec::string(), true);
+  BOOST_CHECK(codec.should_encode(boost::none));
 }
 
 /// boost::chrono

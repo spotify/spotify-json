@@ -25,6 +25,7 @@
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
+#include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/pair.hpp>
 #include <spotify/json/detail/writer.hpp>
 
@@ -99,30 +100,41 @@ class optional_t final {
  public:
   using object_type = boost::optional<typename InnerCodec::object_type>;
 
-  explicit optional_t(InnerCodec inner_codec)
-      : _inner_codec(inner_codec) {}
+  explicit optional_t(InnerCodec inner_codec, bool none_as_null = false)
+      : _inner_codec(inner_codec), _none_as_null(none_as_null) {}
 
   void encode(const object_type &value, writer &w) const {
     if (value) {
       _inner_codec.encode(*value, w);
+    } else {
+      w.add_null();
     }
   }
 
   object_type decode(decoding_context &context) const {
+    if (_none_as_null) {
+      detail::require_bytes<1>(context);
+      if (detail::peek_unchecked(context) == 'n') {
+        detail::advance_past_null(context);
+        return boost::none;
+      }
+    }
+
     return _inner_codec.decode(context);
   }
 
   bool should_encode(const object_type &value) const {
-    return value != boost::none;
+    return _none_as_null || (value != boost::none);
   }
 
  private:
   InnerCodec _inner_codec;
+  bool _none_as_null;
 };
 
 template<typename InnerCodec>
-optional_t<InnerCodec> optional(InnerCodec &&inner_codec) {
-  return optional_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+optional_t<InnerCodec> optional(InnerCodec &&inner_codec, bool none_as_null = false) {
+  return optional_t<InnerCodec>(std::forward<InnerCodec>(inner_codec), none_as_null);
 }
 
 }  // namespace codec
