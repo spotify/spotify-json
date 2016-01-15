@@ -95,13 +95,19 @@ struct default_codec_t<boost::shared_ptr<T>> {
 
 namespace codec {
 
+struct none_as_null_t {};
+
+static const none_as_null_t none_as_null = none_as_null_t();
+
 template<typename InnerCodec>
 class optional_t final {
  public:
   using object_type = boost::optional<typename InnerCodec::object_type>;
 
-  explicit optional_t(InnerCodec inner_codec, bool none_as_null = false)
-      : _inner_codec(inner_codec), _none_as_null(none_as_null) {}
+  explicit optional_t(InnerCodec inner_codec) : _inner_codec(inner_codec), _none_as_null(false) {}
+
+  optional_t(InnerCodec inner_codec, none_as_null_t)
+      : _inner_codec(inner_codec), _none_as_null(true) {}
 
   void encode(const object_type &value, writer &w) const {
     if (value) {
@@ -132,9 +138,9 @@ class optional_t final {
   bool _none_as_null;
 };
 
-template<typename InnerCodec>
-optional_t<InnerCodec> optional(InnerCodec &&inner_codec, bool none_as_null = false) {
-  return optional_t<InnerCodec>(std::forward<InnerCodec>(inner_codec), none_as_null);
+template <typename InnerCodec, typename... Options>
+optional_t<InnerCodec> optional(InnerCodec &&inner_codec, Options... options) {
+  return optional_t<InnerCodec>(std::forward<InnerCodec>(inner_codec), options...);
 }
 
 }  // namespace codec

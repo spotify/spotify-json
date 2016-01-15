@@ -645,13 +645,13 @@ const auto codec = transform(
 
 `optional_t` is a codec for strings for `boost::optional<T>`. By default,
 values of `boost::none` are not encoded at all (`should_encode()` returns
-false) but if the `none_as_null` argument is set to `true` (i.e.
-`spotify::json::codec::optional(some_codec, true)`), `boost::none` is encoded
-as `null`.
+false) but if the `none_as_null` option is used (i.e.
+`spotify::json::codec::optional(some_codec, spotify::json::codec::none_as_null)`),
+`boost::none` is encoded as `null`.
 
 * **Complete class name**: `spotify::json::codec::optional_t`
 * **Supported types**: `std::optional<T>`
-* **Convenience builder**: `spotify::json::codec::optional(InnerCodec, bool none_as_null)`
+* **Convenience builder**: `spotify::json::codec::optional`
 * **`default_codec` support**: `default_codec<boost::optional<T>>()`
 
 ### chrono
