@@ -24,6 +24,7 @@
 
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/chrono.hpp>
+#include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/pair.hpp>
@@ -165,6 +166,16 @@ template<typename Clock, typename Duration>
 struct default_codec_t<boost::chrono::time_point<Clock, Duration>> {
   static decltype(codec::time_point<boost::chrono::time_point<Clock, Duration>>()) codec() {
     return codec::time_point<boost::chrono::time_point<Clock, Duration>>();
+  }
+};
+
+
+/// boost::container::flat_map
+
+template<typename T>
+struct default_codec_t<boost::container::flat_map<std::string, T>> {
+  static decltype(codec::map<boost::container::flat_map<std::string, T>>(default_codec<T>())) codec() {
+    return codec::map<boost::container::flat_map<std::string, T>>(default_codec<T>());
   }
 };
 
