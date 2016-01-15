@@ -173,5 +173,17 @@ BOOST_AUTO_TEST_CASE(json_codec_time_point_should_decode) {
       system_clock::time_point(system_clock::duration(5)));
 }
 
+/// boost::container::flat_map
+
+BOOST_AUTO_TEST_CASE(json_codec_flat_map_should_decode) {
+  BOOST_CHECK((decode<boost::container::flat_map<std::string, int>>("{\"foo\":1234}")) ==
+              (boost::container::flat_map<std::string, int>{{"foo", 1234}}));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_flat_map_should_encode) {
+  BOOST_CHECK_EQUAL((encode(boost::container::flat_map<std::string, int>{{"foo", 1234}})),
+                    "{\"foo\":1234}");
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

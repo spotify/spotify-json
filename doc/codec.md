@@ -400,8 +400,9 @@ C++ object in a type-safe way.
   `InnerCodec` is the type of the codec that's used for the values inside of the
   object, for example `integer_t` or `boolean_t`. The key type of MapType must
   be `std::string`.
-* **Supported types**: The map containers in the STL: `std::map<T>` and
-  `std::unordered_map<T>`.
+* **Supported types**: The map containers in the STL: `std::map<std::string, T>` and
+  `std::unordered_map<std::string, T>`. If boost extensions are included, also
+  `boost::container::flat_map<std::string, T>`
 * **Convenience builder**: For example
   `spotify::json::codec::map<std::map<std::string, int>>(integer())`. If no
   custom inner codec is required, `default_codec` is even more convenient.
