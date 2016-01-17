@@ -37,6 +37,10 @@ namespace json {
  * \brief Buffer which supports formatting operators and dynamically resizes when needed.
  */
 class buffer {
+ private:
+  template <std::size_t N>
+  struct byte_size {};
+
  public:
   typedef detail::iterator<char> iterator;
   typedef detail::iterator<const char> const_iterator;
@@ -176,34 +180,44 @@ class buffer {
     return write(value.data(), value.size());
   }
 
-  buffer &operator <<(int16_t value) {
-    return (value < 0 ?
-        write_negative(value) :
-        write_positive(static_cast<uint16_t>(value)));
+  buffer &operator<<(short value) {
+    return (value < 0 ? write_negative(value, byte_size<sizeof(short)>())
+                      : write_positive(static_cast<unsigned short>(value),
+                                       byte_size<sizeof(unsigned short)>()));
   }
 
-  buffer &operator <<(int32_t value) {
-    return (value < 0 ?
-        write_negative(value) :
-        write_positive(static_cast<uint32_t>(value)));
+  buffer &operator<<(int value) {
+    return (value < 0 ? write_negative(value, byte_size<sizeof(int)>())
+                      : write_positive(static_cast<unsigned int>(value),
+                                       byte_size<sizeof(unsigned int)>()));
   }
 
-  buffer &operator <<(int64_t value) {
-    return (value < 0 ?
-        write_negative(value) :
-        write_positive(static_cast<uint64_t>(value)));
+  buffer &operator<<(long value) {
+    return (value < 0 ? write_negative(value, byte_size<sizeof(long)>())
+                      : write_positive(static_cast<unsigned long>(value),
+                                       byte_size<sizeof(unsigned long)>()));
   }
 
-  buffer &operator <<(uint16_t value) {
-    return write_positive(value);
+  buffer &operator<<(long long value) {
+    return (value < 0 ? write_negative(value, byte_size<sizeof(long long)>())
+                      : write_positive(static_cast<unsigned long long>(value),
+                                       byte_size<sizeof(unsigned long long)>()));
   }
 
-  buffer &operator <<(uint32_t value) {
-    return write_positive(value);
+  buffer &operator<<(unsigned short value) {
+    return write_positive(value, byte_size<sizeof(unsigned short)>());
   }
 
-  buffer &operator <<(uint64_t value) {
-    return write_positive(value);
+  buffer &operator<<(unsigned int value) {
+    return write_positive(value, byte_size<sizeof(unsigned int)>());
+  }
+
+  buffer &operator<<(unsigned long value) {
+    return write_positive(value, byte_size<sizeof(unsigned long)>());
+  }
+
+  buffer &operator<<(unsigned long long value) {
+    return write_positive(value, byte_size<sizeof(unsigned long long)>());
   }
 
   buffer &operator <<(float value) {
@@ -240,7 +254,11 @@ class buffer {
     _capacity = new_capacity;
   }
 
-  buffer &write_negative(int16_t value) {
+  buffer &write_negative(int8_t value, byte_size<1>) {
+    return write_negative(value, byte_size<2>());
+  }
+
+  buffer &write_negative(int16_t value, byte_size<2>) {
     const size_t n(count_digits_negative(value));
     require_bytes(n + 1);
     *_ptr++ = '-';
@@ -253,7 +271,7 @@ class buffer {
     return *this;
   }
 
-  buffer &write_negative(int32_t value) {
+  buffer &write_negative(int32_t value, byte_size<4>) {
     const size_t n(count_digits_negative(value));
     require_bytes(n + 1);
     *_ptr++ = '-';
@@ -266,7 +284,7 @@ class buffer {
     return *this;
   }
 
-  buffer &write_negative(int64_t value) {
+  buffer &write_negative(int64_t value, byte_size<8>) {
     const size_t n(count_digits_negative(value));
     require_bytes(n + 1);
     *_ptr++ = '-';
@@ -280,7 +298,11 @@ class buffer {
     return *this;
   }
 
-  buffer &write_positive(uint16_t value) {
+  buffer &write_positive(uint8_t value, byte_size<1>) {
+    return write_positive(value, byte_size<2>());
+  }
+
+  buffer &write_positive(uint16_t value, byte_size<2>) {
     const size_t n(count_digits_positive(value));
     require_bytes(n);
     switch (n) {
@@ -292,7 +314,7 @@ class buffer {
     return *this;
   }
 
-  buffer &write_positive(uint32_t value) {
+  buffer &write_positive(uint32_t value, byte_size<4>) {
     const size_t n(count_digits_positive(value));
     require_bytes(n);
     switch (n) {
@@ -304,7 +326,7 @@ class buffer {
     return *this;
   }
 
-  buffer &write_positive(uint64_t value) {
+  buffer &write_positive(uint64_t value, byte_size<8>) {
     const size_t n(count_digits_positive(value));
     require_bytes(n);
     switch (n) {
