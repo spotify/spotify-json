@@ -18,10 +18,11 @@
 
 #include <functional>
 #include <memory>
-#include <type_traits>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/string.hpp>
@@ -223,14 +224,17 @@ class object final {
     Codec codec;
   };
 
-  template <typename ValueType>
-  void add_field(const std::string &name, bool required, ValueType T::*member_ptr) {
+  template <typename ValueType, typename ObjectType>
+  void add_field(const std::string &name, bool required, ValueType ObjectType::*member_ptr) {
     add_field(name, required, member_ptr, default_codec<ValueType>());
   }
 
-  template<typename ValueType, typename Codec>
-  void add_field(const std::string &name, bool required, ValueType T::*member, Codec &&codec) {
-    using MemberPtr = ValueType (T::*);
+  template <typename ValueType, typename ObjectType, typename Codec>
+  void add_field(const std::string &name,
+                 bool required,
+                 ValueType ObjectType::*member,
+                 Codec &&codec) {
+    using MemberPtr = ValueType (ObjectType::*);
     using Field = member_var_field<MemberPtr, typename std::decay<Codec>::type>;
     save_field(
         name,
@@ -238,22 +242,26 @@ class object final {
         std::make_shared<Field>(required, _fields.size(), std::forward<Codec>(codec), member));
   }
 
-  template <typename GetType, typename SetType>
+  template <typename GetType, typename SetType, typename GetObjectType, typename SetObjectType>
   void add_field(const std::string &name,
                  bool required,
-                 GetType (T::*getter)() const,
-                 void (T::*setter)(SetType)) {
+                 GetType (GetObjectType::*getter)() const,
+                 void (SetObjectType::*setter)(SetType)) {
     add_field(name, required, getter, setter, default_codec<typename std::decay<GetType>::type>());
   }
 
-  template <typename GetType, typename SetType, typename Codec>
+  template <typename GetType,
+            typename SetType,
+            typename GetObjectType,
+            typename SetObjectType,
+            typename Codec>
   void add_field(const std::string &name,
                  bool required,
-                 GetType (T::*getter)() const,
-                 void (T::*setter)(SetType),
+                 GetType (GetObjectType::*getter)() const,
+                 void (SetObjectType::*setter)(SetType),
                  Codec &&codec) {
-    using GetterPtr = GetType (T::*)() const;
-    using SetterPtr = void (T::*)(SetType);
+    using GetterPtr = GetType (GetObjectType::*)() const;
+    using SetterPtr = void (SetObjectType::*)(SetType);
     using Field = member_fn_field<GetterPtr, SetterPtr, typename std::decay<Codec>::type>;
     save_field(name,
                required,
@@ -285,7 +293,8 @@ class object final {
                                        std::forward<Setter>(setter)));
   }
 
-  template <typename Codec>
+  template <typename Codec,
+            typename = typename std::enable_if<!std::is_member_pointer<Codec>::value>::type>
   void add_field(const std::string &name, bool required, Codec &&codec) {
     using Field = dummy_field<typename std::decay<Codec>::type>;
     save_field(name,

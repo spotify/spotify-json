@@ -85,6 +85,14 @@ codec::object<getset_t> getset_lambda_codec() {
   return codec;
 }
 
+struct subclass_t : simple_t {};
+
+codec::object<subclass_t> subclass_codec() {
+  codec::object<subclass_t> codec;
+  codec.optional("value", &subclass_t::value);
+  return codec;
+}
+
 }  // namespace
 
 template<>
@@ -231,6 +239,14 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_lambda_getter_field) {
   getset.set_value("foobar");
 
   BOOST_CHECK_EQUAL(encode(codec, getset), "{\"value\":\"foobar\"}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_work_with_base_class_member_ptr) {
+  const auto codec = subclass_codec();
+  subclass_t subclass;
+  subclass.value = "foobar";
+
+  BOOST_CHECK_EQUAL(decode(codec, encode(codec, subclass)).value, subclass.value);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
