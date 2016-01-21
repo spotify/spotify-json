@@ -28,20 +28,13 @@ class decode_exception : public std::runtime_error {
  public:
   template <typename string_type>
   json_never_inline decode_exception(const string_type &what, const size_t offset)
-      : runtime_error(what),
-        _what(what),
-        _offset(offset) {}
-
-  virtual const char *what() const throw() {
-    return _what.c_str();
-  }
+      : runtime_error(what), _offset(offset) {}
 
   size_t offset() const {
     return _offset;
   }
 
  private:
-  const std::string _what;
   const off_t _offset;
 };
 
