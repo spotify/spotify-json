@@ -124,6 +124,38 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
   BOOST_CHECK_EQUAL(json::encode(refs), "[{},{},{}]");
 }
 
+//
+// Raw ref
+//
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
+  std::string raw = "true";
+  json::codec::raw::ref ref(raw.data(), raw.size());
+
+  BOOST_CHECK_EQUAL(ref.data, raw.data());
+  BOOST_CHECK_EQUAL(ref.size, raw.size());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
+  std::string raw = "true";
+  json::codec::raw::ref ref(raw.data(), raw.data() + raw.size());
+
+  BOOST_CHECK_EQUAL(ref.data, raw.data());
+  BOOST_CHECK_EQUAL(ref.size, raw.size());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decoding_context) {
+  std::string raw = "true";
+  json::codec::raw::ref ref(raw.data(), raw.size());
+  json::decoding_context context(ref);
+
+  const auto begin = raw.data();
+  const auto end = begin + raw.size();
+  BOOST_CHECK_EQUAL(context.begin, begin);
+  BOOST_CHECK_EQUAL(context.position, begin);
+  BOOST_CHECK_EQUAL(context.end, end);
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // codec
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

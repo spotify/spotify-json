@@ -30,6 +30,9 @@ class raw final {
   struct ref {
     ref() : data(nullptr), size(0) {}
     ref(const char *d, size_t s) : data(d), size(s) {}
+    ref(const char *begin, const char *end) : data(begin), size(end - begin) {}
+
+    explicit operator decoding_context() const { return decoding_context(data, size); }
 
     const char *data;
     size_t size;
