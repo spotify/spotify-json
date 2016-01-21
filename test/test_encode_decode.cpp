@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(json_decode_should_throw_on_failure) {
   try {
     decode<custom_obj>("{}");  // Missing field
     BOOST_ASSERT(!"Should not reach this point");
-  } catch (decode_exception &) {
+  } catch (const decode_exception &) {
   }
 }
 
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(json_decode_should_throw_on_unexpected_trailing_input) {
   try {
     decode<custom_obj>("{\"x\":\"h\"} invalid");
     BOOST_ASSERT(!"Should not reach this point");
-  } catch (decode_exception &) {
+  } catch (const decode_exception &) {
   }
 }
 

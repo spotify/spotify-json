@@ -97,7 +97,7 @@ bool try_decode(
     detail::advance_past_whitespace(c);
     detail::requireAtEnd(c);
     return true;
-  } catch (decode_exception &) {
+  } catch (const decode_exception &) {
     return false;
   }
 }
