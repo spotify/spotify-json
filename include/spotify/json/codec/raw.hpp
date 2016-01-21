@@ -38,7 +38,7 @@ class raw final {
   using object_type = ref;
 
   void encode(const object_type &r, writer &w) const {
-    w.write_raw(r.data, r.size);
+    w.write_raw_value(r.data, r.size);
   }
 
   object_type decode(decoding_context &context) const {

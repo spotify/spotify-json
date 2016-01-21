@@ -64,15 +64,19 @@ BOOST_AUTO_TEST_CASE(json_writer_write_buffer) {
   BOOST_CHECK_EQUAL("foobar", json);
 }
 
-BOOST_AUTO_TEST_CASE(json_writer_write_raw) {
+BOOST_AUTO_TEST_CASE(json_writer_write_raw_value_should_add_separator) {
   json::buffer buffer;
   writer w(buffer);
 
-  w.write_raw("foobar", 6);
+  w.add_array([](json::writer &w) {
+    w.write_raw_value("{}", 2);
+    w.write_raw_value("{}", 2);
+    w.write_raw_value("{}", 2);
+  });
 
   std::string json(buffer.data(), buffer.size());
 
-  BOOST_CHECK_EQUAL("foobar", json);
+  BOOST_CHECK_EQUAL("[{},{},{}]", json);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json

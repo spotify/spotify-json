@@ -16,10 +16,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/codec/raw.hpp>
+#include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/object.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/codec/raw.hpp>
 #include <spotify/json/default_codec.hpp>
+#include <spotify/json/encode_decode.hpp>
 
 namespace {
 
@@ -113,6 +114,14 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
   spotify::json::codec::raw().encode(ref, writer);
 
   BOOST_CHECK_EQUAL(data, std::string(buffer.data(), buffer.size()));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
+  std::string raw = "{}";
+  json::codec::raw::ref ref(raw.data(), raw.size());
+  std::vector<json::codec::raw::ref> refs{ref, ref, ref};
+
+  BOOST_CHECK_EQUAL(json::encode(refs), "[{},{},{}]");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
