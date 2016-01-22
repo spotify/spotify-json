@@ -35,6 +35,8 @@ struct decoding_context final {
         begin(begin),
         end(end) {}
 
+  decoding_context(const char *data, size_t size) : position(data), begin(data), end(data + size) {}
+
   json_force_inline size_t offset() const {
     return (position - begin);
   }

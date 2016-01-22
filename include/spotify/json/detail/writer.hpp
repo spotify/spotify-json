@@ -198,6 +198,15 @@ class basic_writer {
   }
 
   /**
+   * \brief Writes a raw value to the underlying stream.
+   */
+  void write_raw_value(const char *s, size_t n) {
+    separator_and_set().write_raw(s, n);
+  }
+
+ private:
+
+  /**
    * \brief Write raw data to the underlying stream.
    */
   basic_writer &write_raw(const char *s, size_t n) {
@@ -205,7 +214,6 @@ class basic_writer {
     return *this;
   }
 
- private:
   basic_writer &separator_and_clear() {
     if (_separator_needed) {
       _stream << ',';

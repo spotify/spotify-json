@@ -30,6 +30,9 @@ class raw final {
   struct ref {
     ref() : data(nullptr), size(0) {}
     ref(const char *d, size_t s) : data(d), size(s) {}
+    ref(const char *begin, const char *end) : data(begin), size(end - begin) {}
+
+    explicit operator decoding_context() const { return decoding_context(data, size); }
 
     const char *data;
     size_t size;
@@ -38,7 +41,7 @@ class raw final {
   using object_type = ref;
 
   void encode(const object_type &r, writer &w) const {
-    w.write_raw(r.data, r.size);
+    w.write_raw_value(r.data, r.size);
   }
 
   object_type decode(decoding_context &context) const {

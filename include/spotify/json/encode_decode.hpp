@@ -28,7 +28,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-inline void requireAtEnd(const decoding_context &context) {
+inline void require_at_end(const decoding_context &context) {
   if (context.position != context.end) {
     detail::fail(context, "Unexpected trailing input");
   }
@@ -65,7 +65,7 @@ typename Codec::object_type decode(const Codec &codec, const char *data, size_t 
   detail::advance_past_whitespace(c);
   const auto result = codec.decode(c);
   detail::advance_past_whitespace(c);
-  detail::requireAtEnd(c);
+  detail::require_at_end(c);
   return result;
 }
 
@@ -95,9 +95,9 @@ bool try_decode(
     detail::advance_past_whitespace(c);
     object = codec.decode(c);
     detail::advance_past_whitespace(c);
-    detail::requireAtEnd(c);
+    detail::require_at_end(c);
     return true;
-  } catch (decode_exception &) {
+  } catch (const decode_exception &) {
     return false;
   }
 }
@@ -121,6 +121,20 @@ bool try_decode(
 template<typename Value>
 bool try_decode(Value &object, const std::string &string) {
   return try_decode(object, default_codec<Value>(), string);
+}
+
+template <typename Codec>
+bool try_decode_partial(typename Codec::object_type &object,
+                        const Codec &codec,
+                        const decoding_context &context) {
+  decoding_context c(context);
+  try {
+    detail::advance_past_whitespace(c);
+    object = codec.decode(c);
+    return true;
+  } catch (const decode_exception &) {
+    return false;
+  }
 }
 
 }  // namespace json
