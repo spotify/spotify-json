@@ -127,34 +127,32 @@ source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
 source_group(spotify\\json\\test      FILES ${json_test_HEADERS})
 source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES})
 
-if(WIN32)
-  set(Boost_USE_STATIC_LIBS ON)
-  set(Boost_USE_MULTITHREADED ON)
-  set(Boost_USE_STATIC_RUNTIME ON)
-endif()
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_RUNTIME ON)
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework system)
 
 if(Boost_FOUND)
-  link_directories(${Boost_LIBRARY_DIRS})
-
   add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS} ${json_all_HEADERS})
   add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_all_HEADERS})
+
   target_include_directories(${json_test_TARGET} PUBLIC ${json_INCLUDE_DIR})
   target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
   target_include_directories(${json_benchmark_TARGET} PUBLIC ${json_INCLUDE_DIR})
   target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
   if(WIN32)
+    link_directories(${Boost_LIBRARY_DIRS})
+
     target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
     target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
   else()
-    target_compile_options(${json_test_TARGET} PRIVATE "-fvisibility=hidden")
+    target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
+    target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
+
     target_compile_options(${json_test_TARGET} PRIVATE "-std=c++11")
-    target_link_libraries(${json_test_TARGET} boost_unit_test_framework boost_system)
-    target_compile_options(${json_benchmark_TARGET} PRIVATE "-fvisibility=hidden")
     target_compile_options(${json_benchmark_TARGET} PRIVATE "-std=c++11")
-    target_link_libraries(${json_benchmark_TARGET} boost_unit_test_framework boost_system)
   endif()
 
   add_subdirectory(vendor/double-conversion)
