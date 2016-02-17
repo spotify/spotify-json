@@ -63,8 +63,10 @@ namespace codec {
 
 template<typename T>
 struct make_smart_ptr_t<boost::shared_ptr<T>> {
-  static boost::shared_ptr<T> make(T &&obj) {
-    return boost::make_shared<T>(std::forward<T>(obj));
+  template <typename Obj>
+  static boost::shared_ptr<T> make(Obj &&obj) {
+    using ObjectType = typename std::decay<Obj>::type;
+    return boost::make_shared<ObjectType>(std::forward<Obj>(obj));
   }
 };
 
