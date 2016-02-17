@@ -81,14 +81,14 @@ using unique_ptr_t = detail::smart_ptr_t<InnerCodec, std::unique_ptr<typename In
 template<typename InnerCodec>
 using shared_ptr_t = detail::smart_ptr_t<InnerCodec, std::shared_ptr<typename InnerCodec::object_type>>;
 
-template<typename InnerCodec>
-unique_ptr_t<InnerCodec> unique_ptr(InnerCodec &&inner_codec) {
-  return unique_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename InnerCodec>
+unique_ptr_t<typename std::decay<InnerCodec>::type> unique_ptr(InnerCodec &&inner_codec) {
+  return unique_ptr_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
-template<typename InnerCodec>
-shared_ptr_t<InnerCodec> shared_ptr(InnerCodec &&inner_codec) {
-  return shared_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename InnerCodec>
+shared_ptr_t<typename std::decay<InnerCodec>::type> shared_ptr(InnerCodec &&inner_codec) {
+  return shared_ptr_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec

@@ -56,9 +56,11 @@ class equals_t final {
   object_type _value;
 };
 
-template<typename InnerCodec>
-equals_t<InnerCodec> equals(InnerCodec &&inner_codec, typename InnerCodec::object_type value) {
-  return equals_t<InnerCodec>(std::forward<InnerCodec>(inner_codec), std::move(value));
+template <typename InnerCodec>
+equals_t<typename std::decay<InnerCodec>::type> equals(InnerCodec &&inner_codec,
+                                                       typename InnerCodec::object_type value) {
+  return equals_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec),
+                                                         std::move(value));
 }
 
 template<typename Value>

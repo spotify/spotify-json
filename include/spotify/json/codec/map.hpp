@@ -78,8 +78,8 @@ class map_t final {
 };
 
 template<typename T, typename InnerCodec>
-map_t<T, InnerCodec> map(InnerCodec &&inner_codec) {
-  return map_t<T, InnerCodec>(std::forward<InnerCodec>(inner_codec));
+map_t<T, typename std::decay<InnerCodec>::type> map(InnerCodec &&inner_codec) {
+  return map_t<T, typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec

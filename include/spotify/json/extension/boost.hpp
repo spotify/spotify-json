@@ -73,9 +73,11 @@ struct make_smart_ptr_t<boost::shared_ptr<T>> {
 template<typename InnerCodec>
 using boost_shared_ptr_t = detail::smart_ptr_t<InnerCodec, boost::shared_ptr<typename InnerCodec::object_type>>;
 
-template<typename InnerCodec>
-boost_shared_ptr_t<InnerCodec> boost_shared_ptr(InnerCodec &&inner_codec) {
-  return boost_shared_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename InnerCodec>
+boost_shared_ptr_t<typename std::decay<InnerCodec>::type> boost_shared_ptr(
+    InnerCodec &&inner_codec) {
+  return boost_shared_ptr_t<typename std::decay<InnerCodec>::type>(
+      std::forward<InnerCodec>(inner_codec));
 }
 
 template<typename ToType, typename FromType>
@@ -142,8 +144,10 @@ class optional_t final {
 };
 
 template <typename InnerCodec, typename... Options>
-optional_t<InnerCodec> optional(InnerCodec &&inner_codec, Options... options) {
-  return optional_t<InnerCodec>(std::forward<InnerCodec>(inner_codec), options...);
+optional_t<typename std::decay<InnerCodec>::type> optional(InnerCodec &&inner_codec,
+                                                           Options... options) {
+  return optional_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec),
+                                                           options...);
 }
 
 }  // namespace codec

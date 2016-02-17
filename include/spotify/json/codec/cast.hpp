@@ -57,9 +57,10 @@ class cast_t {
   InnerCodec _inner_codec;
 };
 
-template<typename OuterType, typename InnerCodec>
-cast_t<OuterType, InnerCodec> cast(InnerCodec &&inner_codec) {
-  return cast_t<OuterType, InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename OuterType, typename InnerCodec>
+cast_t<OuterType, typename std::decay<InnerCodec>::type> cast(InnerCodec &&inner_codec) {
+  return cast_t<OuterType, typename std::decay<InnerCodec>::type>(
+      std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec

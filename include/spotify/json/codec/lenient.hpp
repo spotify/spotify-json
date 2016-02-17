@@ -51,9 +51,9 @@ class lenient_t final {
   InnerCodec _inner_codec;
 };
 
-template<typename InnerCodec>
-lenient_t<InnerCodec> lenient(InnerCodec &&inner_codec) {
-  return lenient_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename InnerCodec>
+lenient_t<typename std::decay<InnerCodec>::type> lenient(InnerCodec &&inner_codec) {
+  return lenient_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec

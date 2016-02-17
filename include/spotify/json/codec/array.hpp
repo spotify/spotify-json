@@ -85,13 +85,17 @@ class array_t final {
 };
 
 template <typename T, typename InnerCodec>
-array_t<T, InnerCodec, detail::SequenceInserter> array(InnerCodec &&inner_codec) {
-  return array_t<T, InnerCodec, detail::SequenceInserter>(std::forward<InnerCodec>(inner_codec));
+array_t<T, typename std::decay<InnerCodec>::type, detail::SequenceInserter> array(
+    InnerCodec &&inner_codec) {
+  return array_t<T, typename std::decay<InnerCodec>::type, detail::SequenceInserter>(
+      std::forward<InnerCodec>(inner_codec));
 }
 
 template <typename T, typename InnerCodec>
-array_t<T, InnerCodec, detail::AssociativeInserter> set(InnerCodec &&inner_codec) {
-  return array_t<T, InnerCodec, detail::AssociativeInserter>(std::forward<InnerCodec>(inner_codec));
+array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter> set(
+    InnerCodec &&inner_codec) {
+  return array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter>(
+      std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec
