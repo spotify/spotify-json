@@ -31,15 +31,19 @@ struct make_smart_ptr_t;
 
 template<typename T>
 struct make_smart_ptr_t<std::unique_ptr<T>> {
-  static std::unique_ptr<T> make(T &&obj) {
-    return std::unique_ptr<T>(new T(std::forward<T>(obj)));
+  template <typename Obj>
+  static std::unique_ptr<T> make(Obj &&obj) {
+    using ObjectType = typename std::decay<Obj>::type;
+    return std::unique_ptr<T>(new ObjectType(std::forward<Obj>(obj)));
   }
 };
 
 template<typename T>
 struct make_smart_ptr_t<std::shared_ptr<T>> {
-  static std::shared_ptr<T> make(T &&obj) {
-    return std::make_shared<T>(std::forward<T>(obj));
+  template <typename Obj>
+  static std::shared_ptr<T> make(Obj &&obj) {
+    using ObjectType = typename std::decay<Obj>::type;
+    return std::make_shared<ObjectType>(std::forward<Obj>(obj));
   }
 };
 
@@ -77,14 +81,14 @@ using unique_ptr_t = detail::smart_ptr_t<InnerCodec, std::unique_ptr<typename In
 template<typename InnerCodec>
 using shared_ptr_t = detail::smart_ptr_t<InnerCodec, std::shared_ptr<typename InnerCodec::object_type>>;
 
-template<typename InnerCodec>
-unique_ptr_t<InnerCodec> unique_ptr(InnerCodec &&inner_codec) {
-  return unique_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename InnerCodec>
+unique_ptr_t<typename std::decay<InnerCodec>::type> unique_ptr(InnerCodec &&inner_codec) {
+  return unique_ptr_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
-template<typename InnerCodec>
-shared_ptr_t<InnerCodec> shared_ptr(InnerCodec &&inner_codec) {
-  return shared_ptr_t<InnerCodec>(std::forward<InnerCodec>(inner_codec));
+template <typename InnerCodec>
+shared_ptr_t<typename std::decay<InnerCodec>::type> shared_ptr(InnerCodec &&inner_codec) {
+  return shared_ptr_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec

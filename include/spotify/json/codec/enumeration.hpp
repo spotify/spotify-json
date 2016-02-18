@@ -89,24 +89,19 @@ class enumeration_t final {
   Mapping _mapping;
 };
 
-template<
-    typename OuterObject,
-    typename InnerCodec>
-enumeration_t<OuterObject, InnerCodec> enumeration(
+template <typename OuterObject, typename InnerCodec>
+enumeration_t<OuterObject, typename std::decay<InnerCodec>::type> enumeration(
     InnerCodec &&inner_codec,
     std::initializer_list<std::pair<OuterObject, typename InnerCodec::object_type>> objs) {
   std::vector<std::pair<OuterObject, typename InnerCodec::object_type>> mapping;
   for (const auto &obj : objs) {
     mapping.push_back(obj);
   }
-  return enumeration_t<OuterObject, InnerCodec>(
-      std::forward<InnerCodec>(inner_codec),
-      std::move(mapping));
+  return enumeration_t<OuterObject, typename std::decay<InnerCodec>::type>(
+      std::forward<InnerCodec>(inner_codec), std::move(mapping));
 }
 
-template<
-    typename OuterObject,
-    typename InnerObject>
+template <typename OuterObject, typename InnerObject>
 enumeration_t<OuterObject, decltype(default_codec<InnerObject>())> enumeration(
     std::initializer_list<std::pair<OuterObject, InnerObject>> objs) {
   std::vector<std::pair<OuterObject, InnerObject>> mapping;

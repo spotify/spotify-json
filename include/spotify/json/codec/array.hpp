@@ -32,19 +32,17 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template<typename Container>
 struct SequenceInserter {
-  static void apply(
-      Container &container, typename Container::value_type &&value) {
-    container.push_back(std::forward<typename Container::value_type>(value));
+  template<typename Container, typename Value>
+  static void apply(Container &container, Value &&value) {
+    container.push_back(std::forward<Value>(value));
   }
 };
 
-template<typename Container>
 struct AssociativeInserter {
-  static void apply(
-      Container &container, typename Container::value_type &&value) {
-    container.insert(std::forward<typename Container::value_type>(value));
+  template<typename Container, typename Value>
+  static void apply(Container &container, Value &&value) {
+    container.insert(std::forward<Value>(value));
   }
 };
 
@@ -86,15 +84,17 @@ class array_t final {
   InnerCodec _inner_codec;
 };
 
-template<typename T, typename InnerCodec>
-array_t<T, InnerCodec, detail::SequenceInserter<T>> array(InnerCodec &&inner_codec) {
-  return array_t<T, InnerCodec, detail::SequenceInserter<T>>(
+template <typename T, typename InnerCodec>
+array_t<T, typename std::decay<InnerCodec>::type, detail::SequenceInserter> array(
+    InnerCodec &&inner_codec) {
+  return array_t<T, typename std::decay<InnerCodec>::type, detail::SequenceInserter>(
       std::forward<InnerCodec>(inner_codec));
 }
 
-template<typename T, typename InnerCodec>
-array_t<T, InnerCodec, detail::AssociativeInserter<T>> set(InnerCodec &&inner_codec) {
-  return array_t<T, InnerCodec, detail::AssociativeInserter<T>>(
+template <typename T, typename InnerCodec>
+array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter> set(
+    InnerCodec &&inner_codec) {
+  return array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter>(
       std::forward<InnerCodec>(inner_codec));
 }
 

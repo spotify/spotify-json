@@ -140,18 +140,18 @@ class transform_t final {
   DecodeTransform _decode_transform;
 };
 
-template<
-    typename InnerCodec,
-    typename EncodeTransform,
-    typename DecodeTransform>
-transform_t<InnerCodec, EncodeTransform, DecodeTransform> transform(
-    InnerCodec &&inner_codec,
-    EncodeTransform &&encode_transform,
-    DecodeTransform &&decode_transform) {
-  return transform_t<InnerCodec, EncodeTransform, DecodeTransform>(
-      std::forward<InnerCodec>(inner_codec),
-      std::forward<EncodeTransform>(encode_transform),
-      std::forward<DecodeTransform>(decode_transform));
+template <typename InnerCodec,
+          typename EncodeTransform,
+          typename DecodeTransform,
+          typename Transform = transform_t<typename std::decay<InnerCodec>::type,
+                                           typename std::decay<EncodeTransform>::type,
+                                           typename std::decay<DecodeTransform>::type>>
+Transform transform(InnerCodec &&inner_codec,
+                    EncodeTransform &&encode_transform,
+                    DecodeTransform &&decode_transform) {
+  return Transform(std::forward<InnerCodec>(inner_codec),
+                   std::forward<EncodeTransform>(encode_transform),
+                   std::forward<DecodeTransform>(decode_transform));
 }
 
 /**
@@ -159,23 +159,18 @@ transform_t<InnerCodec, EncodeTransform, DecodeTransform> transform(
  * EncodeTransform function returns. This only works if EncodeTransform is a
  * function-like thing that can only return one type.
  */
-template<
-    typename EncodeTransform,
-    typename DecodeTransform>
-transform_t<
-    decltype(default_codec<
-          typename detail::function_traits<EncodeTransform>::return_type>()),
-    EncodeTransform,
-    DecodeTransform> transform(
-        EncodeTransform &&encode_transform,
-        DecodeTransform &&decode_transform) {
-  using InnerCodec =
-      decltype(default_codec<
-          typename detail::function_traits<EncodeTransform>::return_type>());
-  return transform_t<InnerCodec, EncodeTransform, DecodeTransform>(
-      InnerCodec(),
-      std::forward<EncodeTransform>(encode_transform),
-      std::forward<DecodeTransform>(decode_transform));
+template <typename EncodeTransform,
+          typename DecodeTransform,
+          typename InnerType = typename std::decay<
+              typename detail::function_traits<EncodeTransform>::return_type>::type,
+          typename InnerCodec = decltype(default_codec<InnerType>()),
+          typename Transform = transform_t<InnerCodec,
+                                           typename std::decay<EncodeTransform>::type,
+                                           typename std::decay<DecodeTransform>::type>>
+Transform transform(EncodeTransform &&encode_transform, DecodeTransform &&decode_transform) {
+  return Transform(default_codec<InnerType>(),
+                   std::forward<EncodeTransform>(encode_transform),
+                   std::forward<DecodeTransform>(decode_transform));
 }
 
 }  // namespace codec
