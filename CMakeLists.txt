@@ -29,6 +29,10 @@ set(json_HEADERS
   include/spotify/json/encode_exception.hpp
   )
 
+set(json_SOURCES
+  src/dummy.cpp
+  )
+
 set(json_codec_HEADERS
   include/spotify/json/codec/any.hpp
   include/spotify/json/codec/array.hpp
@@ -68,6 +72,10 @@ set(json_all_HEADERS
   ${json_HEADERS}
   ${json_codec_HEADERS}
   ${json_detail_HEADERS}
+  )
+
+set(json_all_SOURCES
+  ${json_SOURCES}
   )
 
 set(json_test_HEADERS
@@ -118,6 +126,7 @@ set(json_benchmark_SOURCES
   benchmark/benchmark_string.cpp
   )
 
+set(json_library_TARGET "json")
 set(json_test_TARGET "json_test")
 set(json_benchmark_TARGET "json_benchmark")
 
@@ -128,6 +137,27 @@ source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
 source_group(spotify\\json\\test      FILES ${json_test_HEADERS})
 source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES})
 
+add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
+
+target_include_directories(${json_library_TARGET} PUBLIC ${json_INCLUDE_DIR})
+
+if(WIN32)
+  target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+else()
+  target_compile_options(${json_library_TARGET} PUBLIC "-std=c++11")
+endif()
+
+add_subdirectory(vendor/double-conversion)
+
+if(WIN32)
+  target_compile_options(double-conversion PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+set(double_conversion_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/vendor/double-conversion)
+
+target_include_directories(${json_library_TARGET} PUBLIC ${double_conversion_INCLUDE_DIR})
+target_link_libraries(${json_library_TARGET} double-conversion)
+
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
@@ -135,12 +165,11 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework system)
 
 if(Boost_FOUND)
-  add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS} ${json_all_HEADERS})
-  add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_all_HEADERS})
+  add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS})
+  add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
 
-  target_include_directories(${json_test_TARGET} PUBLIC ${json_INCLUDE_DIR} ${json_test_INCLUDE_DIR})
+  target_include_directories(${json_test_TARGET} PUBLIC ${json_test_INCLUDE_DIR})
   target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
-  target_include_directories(${json_benchmark_TARGET} PUBLIC ${json_INCLUDE_DIR})
   target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
   if(WIN32)
@@ -151,25 +180,15 @@ if(Boost_FOUND)
   else()
     target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
     target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
-
-    target_compile_options(${json_test_TARGET} PRIVATE "-std=c++11")
-    target_compile_options(${json_benchmark_TARGET} PRIVATE "-std=c++11")
   endif()
 
-  add_subdirectory(vendor/double-conversion)
-
-  if(WIN32)
-    target_compile_options(double-conversion PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-  endif()
-
-  target_include_directories(${json_test_TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/double-conversion)
-  target_include_directories(${json_benchmark_TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/vendor/double-conversion)
-  target_link_libraries(${json_test_TARGET} double-conversion)
-  target_link_libraries(${json_benchmark_TARGET} double-conversion)
+  target_link_libraries(${json_test_TARGET} ${json_library_TARGET})
+  target_link_libraries(${json_benchmark_TARGET} ${json_library_TARGET})
 
   enable_testing()
 
   include("AddBoostTests")
+
   ADD_BOOST_TESTS(${json_test_TARGET} ${json_test_SOURCES})
   ADD_BOOST_TESTS(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
 endif(Boost_FOUND)
