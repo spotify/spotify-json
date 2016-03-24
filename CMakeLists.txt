@@ -17,7 +17,6 @@ project(spotify-json)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-set(json_benchmark_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/benchmark/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
@@ -78,23 +77,11 @@ set(json_all_SOURCES
   ${json_SOURCES}
   )
 
-set(json_benchmark_HEADERS
-  benchmark/include/spotify/json/benchmark/benchmark.hpp
-  )
-
-set(json_benchmark_SOURCES
-  benchmark/src/benchmark_main.cpp
-  benchmark/src/benchmark_object.cpp
-  benchmark/src/benchmark_string.cpp
-  )
-
 set(json_library_TARGET "json")
-set(json_benchmark_TARGET "json_benchmark")
 
 source_group(spotify\\json            FILES ${json_HEADERS})
 source_group(spotify\\json\\codec     FILES ${json_codec_HEADERS})
 source_group(spotify\\json\\detail    FILES ${json_detail_HEADERS})
-source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES})
 
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
 
@@ -124,26 +111,8 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework system)
 
 if(Boost_FOUND)
-  add_subdirectory(test)
-
-  add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
-
-  target_include_directories(${json_benchmark_TARGET} PRIVATE ${json_benchmark_INCLUDE_DIR})
-  target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
-
-  if(WIN32)
-    link_directories(${Boost_LIBRARY_DIRS})
-
-    target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-  else()
-    target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
-  endif()
-
-  target_link_libraries(${json_benchmark_TARGET} ${json_library_TARGET})
-
   enable_testing()
 
-  include("AddBoostTests")
-
-  ADD_BOOST_TESTS(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
+  add_subdirectory(benchmark)
+  add_subdirectory(test)
 endif(Boost_FOUND)
