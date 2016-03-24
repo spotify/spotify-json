@@ -22,7 +22,7 @@
 #include <spotify/json/encode_decode.hpp>
 #include <spotify/json/encoding_context.hpp>
 
-#include "benchmark.hpp"
+#include <spotify/json/benchmark/benchmark.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

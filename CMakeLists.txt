@@ -17,6 +17,7 @@ project(spotify-json)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(json_benchmark_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/benchmark/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
@@ -77,12 +78,14 @@ set(json_all_SOURCES
   ${json_SOURCES}
   )
 
+set(json_benchmark_HEADERS
+  benchmark/include/spotify/json/benchmark/benchmark.hpp
+  )
+
 set(json_benchmark_SOURCES
-  benchmark/benchmark.hpp
-  benchmark/benchmark_main.cpp
-  benchmark/benchmark_number.cpp
-  benchmark/benchmark_object.cpp
-  benchmark/benchmark_string.cpp
+  benchmark/src/benchmark_main.cpp
+  benchmark/src/benchmark_object.cpp
+  benchmark/src/benchmark_string.cpp
   )
 
 set(json_library_TARGET "json")
@@ -125,6 +128,7 @@ if(Boost_FOUND)
 
   add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
 
+  target_include_directories(${json_benchmark_TARGET} PRIVATE ${json_benchmark_INCLUDE_DIR})
   target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
   if(WIN32)
