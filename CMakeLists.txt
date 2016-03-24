@@ -17,7 +17,6 @@ project(spotify-json)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-set(json_test_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
@@ -78,46 +77,6 @@ set(json_all_SOURCES
   ${json_SOURCES}
   )
 
-set(json_test_HEADERS
-  test/include/spotify/json/test/only_true.hpp
-  )
-
-set(json_test_SOURCES
-  test/src/test_any.cpp
-  test/src/test_array.cpp
-  test/src/test_bitset.cpp
-  test/src/test_boolean.cpp
-  test/src/test_boost.cpp
-  test/src/test_cast.cpp
-  test/src/test_char_traits.cpp
-  test/src/test_chrono.cpp
-  test/src/test_codec_interface.cpp
-  test/src/test_decoding_context.cpp
-  test/src/test_decoding_helpers.cpp
-  test/src/test_empty_as.cpp
-  test/src/test_encode_decode.cpp
-  test/src/test_encoding_context.cpp
-  test/src/test_encoding_helpers.cpp
-  test/src/test_enumeration.cpp
-  test/src/test_eq.cpp
-  test/src/test_escape.cpp
-  test/src/test_ignore.cpp
-  test/src/test_main.cpp
-  test/src/test_map.cpp
-  test/src/test_null.cpp
-  test/src/test_number.cpp
-  test/src/test_object.cpp
-  test/src/test_omit.cpp
-  test/src/test_one_of.cpp
-  test/src/test_raw.cpp
-  test/src/test_smart_ptr.cpp
-  test/src/test_stack.cpp
-  test/src/test_string.cpp
-  test/src/test_transform.cpp
-  test/src/test_tuple.cpp
-  test/src/test_umbrella.cpp
-  )
-
 set(json_benchmark_SOURCES
   benchmark/benchmark.hpp
   benchmark/benchmark_main.cpp
@@ -127,14 +86,11 @@ set(json_benchmark_SOURCES
   )
 
 set(json_library_TARGET "json")
-set(json_test_TARGET "json_test")
 set(json_benchmark_TARGET "json_benchmark")
 
 source_group(spotify\\json            FILES ${json_HEADERS})
 source_group(spotify\\json\\codec     FILES ${json_codec_HEADERS})
 source_group(spotify\\json\\detail    FILES ${json_detail_HEADERS})
-source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
-source_group(spotify\\json\\test      FILES ${json_test_HEADERS})
 source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES})
 
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
@@ -165,30 +121,25 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework system)
 
 if(Boost_FOUND)
-  add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS})
+  add_subdirectory(test)
+
   add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
 
-  target_include_directories(${json_test_TARGET} PUBLIC ${json_test_INCLUDE_DIR})
-  target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
   target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
   if(WIN32)
     link_directories(${Boost_LIBRARY_DIRS})
 
-    target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
     target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
   else()
-    target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
     target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
   endif()
 
-  target_link_libraries(${json_test_TARGET} ${json_library_TARGET})
   target_link_libraries(${json_benchmark_TARGET} ${json_library_TARGET})
 
   enable_testing()
 
   include("AddBoostTests")
 
-  ADD_BOOST_TESTS(${json_test_TARGET} ${json_test_SOURCES})
   ADD_BOOST_TESTS(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
 endif(Boost_FOUND)
