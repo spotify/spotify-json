@@ -60,12 +60,15 @@ class smart_ptr_t {
       : _inner_codec(std::move(inner_codec)) {}
 
   void encode(const object_type &value, writer &writer) const {
+    BOOST_ASSERT(value);
     _inner_codec.encode(*value, writer);
   }
 
   object_type decode(decoding_context &context) const {
     return codec::make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
   }
+
+  bool should_encode(const object_type &value) const { return bool(value); }
 
  protected:
   InnerCodec _inner_codec;
