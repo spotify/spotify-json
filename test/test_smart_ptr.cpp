@@ -67,6 +67,12 @@ BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_decode) {
   BOOST_CHECK_EQUAL(*obj, "hello");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_not_encode_null) {
+  const auto codec = unique_ptr(string());
+  std::unique_ptr<std::string> obj;
+  BOOST_CHECK(!detail::should_encode(codec, obj));
+}
+
 /*
  * Shared pointer
  */
@@ -94,6 +100,12 @@ BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_decode) {
   std::shared_ptr<std::string> obj = test_decode(codec, "\"hello\"");
   BOOST_REQUIRE(obj);
   BOOST_CHECK_EQUAL(*obj, "hello");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_not_encode_null) {
+  const auto codec = shared_ptr(string());
+  std::shared_ptr<std::string> obj;
+  BOOST_CHECK(!detail::should_encode(codec, obj));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

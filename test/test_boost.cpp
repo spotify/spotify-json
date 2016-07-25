@@ -60,6 +60,11 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_cast_pointer_should_construct_with_helper)
   BOOST_CHECK_EQUAL(encode(codec, ptr), "{}");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_not_encode_null) {
+  const auto codec = boost_shared_ptr(codec::string());
+  boost::shared_ptr<std::string> obj;
+  BOOST_CHECK(!detail::should_encode(codec, obj));
+}
 
 /// boost::optional
 
