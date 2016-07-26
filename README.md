@@ -56,7 +56,7 @@ struct default_codec_t<Track> {
 }  // namespace json
 }  // namespace spotify
 
-void main() {
+int main() {
   const auto parsed_track = decode<Track>(
       "{\"uri\":\"spotify:track:xyz\",metadata:{\"a\":\"b\"}}");
   std::cout << "Parsed track with uri " << parsed_track.uri << std::endl;
@@ -66,6 +66,8 @@ void main() {
   track.uid = "an-uid";
   const auto json = encode(track);
   std::cout << "Encoded the track into " << json << std::endl;
+
+  return 0;
 }
 ```
 
