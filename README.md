@@ -23,6 +23,8 @@ Example
 
 #include <spotify/json.hpp>
 
+using namespace spotify::json;
+
 struct Track {
   std::string uri;
   std::string uid;
