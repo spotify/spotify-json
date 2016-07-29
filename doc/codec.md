@@ -38,7 +38,7 @@ a number of codecs that are available to the user of the library:
 * [`null_t`](#null_t): For `null`
 * [`number_t`](#number_t): For parsing numbers (both floating point numbers and
   integers)
-* [`object`](#object): For custom C++ objects
+* [`object_t`](#object_t): For custom C++ objects
 * [`one_of_t`](#one_of_t): For trying more than one codec
 * [`shared_ptr_t`](#shared_ptr_t): For `shared_ptr`s
 * [`string_t`](#string_t): For strings
@@ -129,8 +129,8 @@ namespace json {
 
 template<>
 struct default_codec_t<Point> {
-  static object<Point> codec() {
-    object<Point> codec;
+  static object_t<Point> codec() {
+    auto codec = object<Point>();
     codec.required("x", &point::x);
     codec.required("y", &point::y);
     return codec;
@@ -254,7 +254,7 @@ An implementation of this interface might look like:
 class my_interface_impl : public my_interface {
  public:
   virtual any_t<std::shared_ptr<my_interface>> codec() override {
-    object<my_interface_impl> codec;
+    auto codec = object<my_interface_impl>();
     codec.required("value", &my_interface_impl::_value);
 
     return any(cast<my_interface>(shared_ptr(codec)));
@@ -342,11 +342,11 @@ namespace json {
 
 template<>
 struct default_codec_t<metadata_response> {
-  static one_of_t<object<metadata_response>, object<metadata_response>> codec() {
-    object<metadata_response> codec_v1;
+  static one_of_t<object_t<metadata_response>, object_t<metadata_response>> codec() {
+    object_t<metadata_response> codec_v1;
     codec.required("n", &metadata_response::x);
 
-    object<metadata_response> codec_v2;
+    object_t<metadata_response> codec_v2;
     codec.required("version", equals(2));
     codec.required("name", &metadata_response::x);
 
@@ -391,7 +391,7 @@ input is malformed JSON.
 `std::string` keys because that's how JSON is specified. The `map_t` codec is
 suitable to use when the maps can contain arbitrary keys. When there is a
 pre-defined set of keys that are interesting and any other keys can be
-discarded, `object` is more suitable, since it parses the keys directly into a
+discarded, `object_t` is more suitable, since it parses the keys directly into a
 C++ object in a type-safe way.
 
 * **Complete class name**: `spotify::json::codec::map_t<MapType, InnerCodec>`,
@@ -439,14 +439,14 @@ serialized and then parsed.
   `default_codec<size_t>()` etc.
 
 
-### `object`
+### `object_t`
 
-`object` is arguably the most important codec in `spotify-json`. It is the codec
-that parses and writes JSON to and from specific C++ classes and structs. Unlike
-the other codecs, `object` codecs aren't created by simply calling a factory
-function such as `string()` or `number<float>()`. Instead, an `object<T>` is
-created, and then the object is configured for the different fields that exist
-in `T`.
+`object_t` is arguably the most important codec in `spotify-json`. It is the
+codec that parses and writes JSON to and from specific C++ classes and structs.
+Unlike the other codecs, `object_t` codecs aren't created by simply calling a
+factory function such as `string()` or `number<float>()`. Instead, an
+`object_t<T>` is created, and then the object is configured for the different
+fields that exist in `T`.
 
 For example:
 
@@ -458,12 +458,12 @@ struct point {
 
 ...
 
-object<point> codec;
+auto codec = object<point>();
 codec.required("x", &point::x);
 codec.required("y", &point::y);
 ```
 
-`object<T>` objects have two methods: `required` and `optional`. They have the
+`object_t<T>` objects have two methods: `required` and `optional`. They have the
 exact same method signature. The difference is that fields that were registered
 with `required` are required: When an object is being decoded and a required
 field is missing from the input, the decoding fails.
@@ -490,12 +490,12 @@ For the `required` and `optional` methods, the following overloads exist:
   encoding, use a default constructed value of the given type. This is mainly
   useful for verification purposes, for example `required("version", equals(5))`
 
-Each field that `object` encodes and decodes uses one virtual method call.
+Each field that `object_t` encodes and decodes uses one virtual method call.
 
-When encoding, `object` writes fields in the order that they were registered.
+When encoding, `object_t` writes fields in the order that they were registered.
 
-It is possible to use `object` for types that are not default constructible, or
-when the default constructor does not do the right thing for the use case at
+It is possible to use `object_t` for types that are not default constructible,
+or when the default constructor does not do the right thing for the use case at
 hand. For that, pass in a functor that constructs an object for use in
 decoding.
 
@@ -508,10 +508,16 @@ struct point {
 
 ...
 
-object<point> codec([]{ return point(0, 0); });
+auto codec = object<point>([]{ return point(0, 0); });
 codec.required("x", &point::x);
 codec.required("y", &point::y);
 ```
+
+* **Complete class name**: `spotify::json::codec::object_t`
+* **Supported types**: Any movable type.
+* **Convenience builder**: `spotify::json::codec::object`
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
 
 ### `one_of_t`
 

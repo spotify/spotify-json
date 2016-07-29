@@ -38,9 +38,8 @@ class base_class {
 class sub_class : public base_class {
 };
 
-codec::object<sub_class> sub_codec() {
-  codec::object<sub_class> codec;
-  return codec;
+codec::object_t<sub_class> sub_codec() {
+  return codec::object<sub_class>();
 }
 
 }  // namespace

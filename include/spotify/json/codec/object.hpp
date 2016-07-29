@@ -35,33 +35,33 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename T>
-class object final {
+template <typename T>
+class object_t final {
  public:
   using object_type = T;
 
-  template<
+  template <
       typename U = T,
       typename = typename std::enable_if<std::is_default_constructible<U>::value>::type>
-  object() {}
+  object_t() {}
 
-  object(const object<T> &object) = default;
-  object(object<T> &&object) = default;
+  object_t(const object_t<T> &) = default;
+  object_t(object_t<T> &&) = default;
 
-  template<
+  template <
       typename Create,
       typename = typename std::enable_if<!std::is_same<
           typename std::decay<Create>::type,
-          object>::value>::type>
-  explicit object(Create &&create)
+          object_t>::value>::type>
+  explicit object_t(Create &&create)
       : _construct(std::forward<Create>(create)) {}
 
-  template<typename... Args>
+  template <typename... Args>
   void optional(const std::string &name, Args &&...args) {
     add_field(name, false, std::forward<Args>(args)...);
   }
 
-  template<typename... Args>
+  template <typename... Args>
   void required(const std::string &name, Args &&...args) {
     add_field(name, true, std::forward<Args>(args)...);
   }
@@ -130,7 +130,7 @@ class object final {
     const size_t field_id;
   };
 
-  template<typename Codec>
+  template <typename Codec>
   struct dummy_field final : public field {
     dummy_field(bool required, size_t field_id, Codec codec)
         : field(required, field_id),
@@ -148,7 +148,7 @@ class object final {
     Codec codec;
   };
 
-  template<typename MemberPtr, typename Codec>
+  template <typename MemberPtr, typename Codec>
   struct member_var_field final : public field {
     member_var_field(bool required, size_t field_id, Codec codec, MemberPtr member_pointer)
         : field(required, field_id),
@@ -324,6 +324,16 @@ class object final {
   field_map _fields;
   size_t _num_required_fields = 0;
 };
+
+template <typename T>
+object_t<T> object() {
+  return object_t<T>();
+}
+
+template <typename Create>
+auto object(Create &&create) -> decltype(create()) {
+  return object_t<decltype(create())>(std::forward<Create>(create));
+}
 
 }  // namespace codec
 }  // namespace json

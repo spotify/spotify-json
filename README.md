@@ -36,8 +36,8 @@ namespace json {
 // encoding and decoding objects of certain types.
 template<>
 struct default_codec_t<Track> {
-  static object<Track> codec() {
-    object<Track> codec;
+  static object_t<Track> codec() {
+    auto codec = object<Track>();
     codec.required("uri", &Track::uri);
     codec.optional("uid", &Track::uid);
     codec.optional("metadata", &Track::metadata);
@@ -70,7 +70,7 @@ Usage
 serialize and parse specific JSON values. There are `codec`s for each of the
 basic data types that JSON offers: [strings](doc/codec.md#string_t),
 [numbers](doc/codec.md#number_t), [arrays](doc/codec.md#array_t),
-[booleans](doc/codec.md#boolean_t), [objects](doc/codec.md#object) and
+[booleans](doc/codec.md#boolean_t), [objects](doc/codec.md#object_t) and
 [null](doc/codec.md#null_t).
 
 
@@ -161,14 +161,14 @@ With `spotify-json`, it is possible to construct a `codec` that can convert
 `Coordinate` directly to and from JSON:
 
 ```cpp
-object<Coordinate> coordinate_codec;
+auto coordinate_codec = object<Coordinate>();
 coordinate_codec.required("x", &Coordinate::x);
 coordinate_codec.required("y", &Coordinate::y);
 ```
 
 The use of `required` will cause parsing to fail if the fields are missing.
 There is also an `optional` method. For more information, see
-[`object`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/codec.md#object).
+[`object_t`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/codec.md#object_t).
 
 This `codec` can be used with `encode` and `decode`:
 
@@ -193,7 +193,7 @@ struct Player {
 A `codec` for `Player` might be created with
 
 ```cpp
-object<Player> player_codec;
+auto player_codec = object<Player>();
 player_codec.required("name", &Player::name);
 // Because there is no default_codec for Coordinate, we need to pass in the
 // codec explicitly:
@@ -217,8 +217,8 @@ namespace json {
 
 template<>
 struct default_codec_t<Coordinate> {
-  static object<Coordinate> codec() {
-    object<Coordinate> codec;
+  static object_t<Coordinate> codec() {
+    auto codec = object<Coordinate>();
     codec.required("x", &Coordinate::x);
     codec.required("y", &Coordinate::y);
     return codec;
@@ -227,8 +227,8 @@ struct default_codec_t<Coordinate> {
 
 template<>
 struct default_codec_t<Player> {
-  static object<Player> codec() {
-    object<Player> codec;
+  static object_t<Player> codec() {
+    auto codec = object<Player>();
     codec.required("name", &Player::name);
     codec.required("position", &Player::position);
     return codec;

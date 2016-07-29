@@ -35,8 +35,8 @@ namespace json {
 
 template<>
 struct default_codec_t<foobar_t> {
-  static codec::object<foobar_t> codec() {
-    codec::object<foobar_t> codec;
+  static codec::object_t<foobar_t> codec() {
+    auto codec = codec::object<foobar_t>();
     codec.required("value", &foobar_t::value);
     return codec;
   }

@@ -34,8 +34,8 @@ struct struct_t {
   int integer;
 };
 
-codec::object<struct_t> required_codec(size_t n) {
-  codec::object<struct_t> codec;
+codec::object_t<struct_t> required_codec(size_t n) {
+  auto codec = codec::object<struct_t>();
   const size_t num_letters = 'z' - 'a';
   for (size_t i = 0; i < n; i++) {
     const auto c = static_cast<char>('a' + (i % num_letters));
