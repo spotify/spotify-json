@@ -1,7 +1,7 @@
 spotify-json API
 ----------------
 
-The `spotify-json` API is designed to make it very easy to turn C++ objects into
+The spotify-json API is designed to make it very easy to turn C++ objects into
 JSON and vice versa. It is not a streaming style API like
 [yajl](http://lloyd.github.io/yajl/) or SAX, and it is not a DOM-style API that
 constructs an abstract syntax tree of a JSON document. Instead, it parses
@@ -167,17 +167,17 @@ bool try_decode_partial(
 Exception that is thrown when parsing fails. For more info, see 
 [decode_exception.hpp](../include/spotify/json/decode_exception.hpp)
 
-The `codec`
+The codec
 ===========
 
-The main entity of the `spotify-json` library is the `codec`. Like iterators in
-the C++ STL, there is no `codec` class that all `codec`s inherit: `codec` is a
+The main entity of the spotify-json library is the *codec*. Like iterators in
+the C++ STL, there is no codec class that all codecs inherit: codec is a
 concept. All codecs must expose an `object_type` typedef and `encode` and
 `decode` methods. The exact interface is specified in
 [codec_interface.hpp](../include/spotify/json/codec/codec_interface.hpp).
 
-`codec`s are highly composable objects. When using the `spotify-json` library,
-you will combine the basic `codec`s into increasingly complex ones, until it
+Codecs are highly composable objects. When using the spotify-json library,
+you will combine the basic codecs into increasingly complex ones, until it
 can parse the JSON objects that your application works with. The library defines
 a number of codecs that are available to the user of the library:
 
@@ -217,10 +217,10 @@ const bool value = decode(bool_codec, "true");
 
 `array_t` is a more complex codec that is for parsing arrays. It does now know
 how to parse the elements that the array contains, so its constructor takes a
-`codec`, which it uses to parse each element of the array.
+codec, which it uses to parse each element of the array.
 
 The type of `array_codec` in the example below is
-`array_t<std::vector<bool>, boolean_t>`, which is quite a mouthful. `codec`
+`array_t<std::vector<bool>, boolean_t>`, which is quite a mouthful. codec
 types often become quite involved. `auto` and `decltype` really help when using
 this library.
 
@@ -229,7 +229,7 @@ const auto array_codec = array<std::vector<bool>>(boolean());
 const auto value = decode(array_codec, "[true,false,false]");
 ```
 
-Following the same principle, `codec`s can be combined to form complex
+Following the same principle, codecs can be combined to form complex
 combinations:
 
 ```cpp
@@ -248,8 +248,8 @@ In some cases, it is important to specify exactly how to work with the JSON, but
 in many cases there aren't many options: An `std::map<std::string, std::string>`
 has one obvious interpretation in JSON, as does `bool` and so on.
 
-As a convenience, `spotify-json` provies an easy way to get a "reasonable
-default" `codec` for a given type. It is used as follows:
+As a convenience, spotify-json provies an easy way to get a "reasonable
+default" codec for a given type. It is used as follows:
 
 ```cpp
 const auto string_codec = default_codec<std::string>();
@@ -262,11 +262,11 @@ const auto array_of_map_of_array_of_bools_codec = default_codec<
 ```
 
 It is possible to add support for application specific types to `default_codec`.
-This is a common pattern and is the recommended way to use `spotify-json` for
+This is a common pattern and is the recommended way to use spotify-json for
 the types that don't require customized behavior depending on the usage. For
 example, in the Spotify client, basic types such as `ContextTrack` and `Context`
 can be encoded using `default_codec`, while `ContextPlayerState`, which in certain
-use cases has to be truncated, has a custom means of getting a `codec` for it.
+use cases has to be truncated, has a custom means of getting codec for it.
 
 In order to add support for custom types to `default_codec`, the template
 `spotify::json::default_codec_t` should be specialized. Here is an example of
@@ -336,7 +336,7 @@ In the example above, it is impossible to assign a concrete codec type to the
 return type of `my_interface::codec`, since the codec for each implementation
 of `my_interface` will have a different type.
 
-Usually in `spotify-json`, there are no virtual method calls. However, `any_t`
+Usually in spotify-json, there are no virtual method calls. However, `any_t`
 introduces one virtual method for each `encode` and `decode` call.
 
 * **Complete class name**: `spotify::json::codec::any_t<ObjectType>`,
@@ -525,7 +525,7 @@ struct default_codec_t<metadata_response> {
 
 ### `lenient_t`
 
-By default, `spotify-json` is strict about the types of the JSON values that it
+By default, spotify-json is strict about the types of the JSON values that it
 parses: If it is instructed to read a string but it encounters "null", it will
 reject the input. `lenient_t` is a codec that attempts to parse a value using an
 inner codec, but if that fails, it skips over the value. It fails only if the
@@ -578,7 +578,7 @@ null.
 ### `number_t`
 
 `number_t` is a codec for numbers, both floating point and integers. Like the
-rest of the `spotify-json` library, it uses the
+rest of the spotify-json library, it uses the
 [double-conversion library](https://github.com/google/double-conversion) for
 parsing and writing of floats, which means numbers don't drift when being
 serialized and then parsed.
@@ -595,7 +595,7 @@ serialized and then parsed.
 
 ### `object_t`
 
-`object_t` is arguably the most important codec in `spotify-json`. It is the
+`object_t` is arguably the most important codec in spotify-json. It is the
 codec that parses and writes JSON to and from specific C++ classes and structs.
 Unlike the other codecs, `object_t` codecs aren't created by simply calling a
 factory function such as `string()` or `number<float>()`. Instead, an

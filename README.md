@@ -5,13 +5,13 @@ A C++11 JSON writer and parser library. It
 
 * requires very little boilerplate code when using it,
 * is fast,
-* comes with a good suite of tests,
+* comes with [a good suite of tests](test),
 * is deployed and in active use on well over 100 million devices,
 * and [has API documentation](doc/api.md).
 
-`spotify-json` itself is a header-only library, but it depends on
+spotify-json itself is a header-only library, but it depends on
 [Google's double-conversion library](https://github.com/google/double-conversion),
-which must be linked in to the code that uses `spotify-json`.
+which must be linked in to the code that uses spotify-json.
 
 Example
 ------
@@ -66,32 +66,32 @@ int main() {
 Usage
 -----
 
-`spotify-json` offers [a range of `codec` types](doc/api.md) that can serialize
-and parse specific JSON values. There are `codec`s for each of the basic data
+spotify-json offers [a range of codec types](doc/api.md) that can serialize
+and parse specific JSON values. There are codecs for each of the basic data
 types that JSON offers: [strings](doc/api.md#string_t),
 [numbers](doc/api.md#number_t), [arrays](doc/api.md#array_t),
 [booleans](doc/api.md#boolean_t), [objects](doc/api.md#object_t) and
 [null](doc/api.md#null_t).
 
 
-### Constructing and composing `codec`s
+### Constructing and composing codecs
 
-A `codec` for integers can be made using
+A codec for integers can be made using
 [`codec::number<int>()`](doc/api.md#number_t). The codec for strings can be
 instantiated with [`codec::string()`](doc/api.md#string_t).
 
-`codec`s are composable. It is for example possible to construct a `codec` for
+Codecs are composable. It is for example possible to construct a codec for
 parsing and serialization of JSON arrays of numbers, such as `[1,4,2]`:
 [`codec::array<std::vector<int>>(codec::number<int>())`](doc/api.md#array_t).
 
 Constructing deeply nested codecs manually as above can become tedious. To ease
 this pain, [`default_codec`](doc/api.md#default_codec_t) is a helper function
-that makes it easy to construct `codec`s for built-in types. For example,
+that makes it easy to construct codecs for built-in types. For example,
 `default_codec<int>()` is a codec that can parse and serialize numbers, and
 `default_codec<std::vector<int>>()` is one that works on arrays of numbers.
 
 It is possible to work with JSON objects with arbitrary keys. For example,
-`default_codec<std::map<std::string, bool>>()` is a `codec` for JSON objects
+`default_codec<std::map<std::string, bool>>()` is a codec for JSON objects
 with strings as keys and booleans as values.
 
 
@@ -146,7 +146,7 @@ boilerplate is painful to write, bug-prone and slow due to unnecessary copying.
 SAX-style event based libraries such as [yajl](http://lloyd.github.io/yajl/)
 avoid the slowdown but require even more boilerplate.
 
-`spotify-json` avoids these issues by parsing the JSON directly into statically
+spotify-json avoids these issues by parsing the JSON directly into statically
 typed data structures. To explain how, let's use the example of a basic
 two-dimensional coordinate, represented in JSON as `{"x":1,"y":2}`. In C++, such
 a coordinate may be represented as a struct:
@@ -161,7 +161,7 @@ struct Coordinate {
 };
 ```
 
-With `spotify-json`, it is possible to construct a `codec` that can convert
+With spotify-json, it is possible to construct a codec that can convert
 `Coordinate` directly to and from JSON:
 
 ```cpp
@@ -174,7 +174,7 @@ The use of `required` will cause parsing to fail if the fields are missing.
 There is also an `optional` method. For more information, see
 [`object_t`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/api.md#object_t).
 
-This `codec` can be used with `encode` and `decode`:
+This codec can be used with `encode` and `decode`:
 
 ```cpp
 encode(coordinate_codec, Coordinate(10, 0)) == "{\"x\":10,\"y\":0}";
@@ -194,7 +194,7 @@ struct Player {
 };
 ```
 
-A `codec` for `Player` might be created with
+A codec for `Player` might be created with
 
 ```cpp
 auto player_codec = object<Player>();
@@ -209,10 +209,10 @@ player.name = "Daniel";
 encode(player_codec, player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
 ```
 
-Since `codec`s are just normal objects, it is possible to create and use
-several different `codec`s for any given data type. This makes it possibile to
+Since codecs are just normal objects, it is possible to create and use
+several different codecs for any given data type. This makes it possibile to
 parameterize parsing and do other fancy things, but for most data types there
-will only really exist one `codec`. For these cases, it is possible to extend
+will only really exist one codec. For these cases, it is possible to extend
 the `default_codec` helper to support your own data types.
 
 ```cpp
@@ -243,7 +243,7 @@ struct default_codec_t<Player> {
 }  // namespace spotify
 ```
 
-`Coordinate` and `Player` can now be used like any other type that `spotify-json`
+`Coordinate` and `Player` can now be used like any other type that spotify-json
 supports out of the box:
 
 ```cpp
@@ -259,7 +259,7 @@ encode(player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
 
 ### Advanced uses
 
-The examples above cover the most commonly used parts of `spotify-json`. The
+The examples above cover the most commonly used parts of spotify-json. The
 library supports more things that sometimes come in handy:
 
 * Most STL containers, including
