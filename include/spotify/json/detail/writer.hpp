@@ -25,6 +25,7 @@
 
 namespace spotify {
 namespace json {
+namespace detail {
 
 struct null_options_type {};
 
@@ -292,5 +293,6 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
 
 typedef basic_writer<buffer, null_options_type> writer;
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

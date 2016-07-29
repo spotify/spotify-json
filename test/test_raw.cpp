@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_number) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
   buffer buffer;
-  writer writer(buffer);
+  detail::writer writer(buffer);
   std::string data = "some junk";
   raw_ref ref(data.data(), data.size());
   raw().encode(ref, writer);

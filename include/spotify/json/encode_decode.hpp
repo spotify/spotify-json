@@ -38,14 +38,14 @@ inline void require_at_end(const decoding_context &context) {
 
 template<typename Codec>
 void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
-  writer w(buffer);
+  detail::writer w(buffer);
   codec.encode(object, w);
 }
 
 template<typename Codec>
 std::string encode(const Codec &codec, const typename Codec::object_type &object) {
   buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
   codec.encode(object, w);
   return std::string(buffer.data(), buffer.size());
 }
@@ -54,7 +54,7 @@ std::string encode(const Codec &codec, const typename Codec::object_type &object
 template<typename Value>
 std::string encode(const Value &value) {
   buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
   default_codec<Value>().encode(value, w);
   return std::string(buffer.data(), buffer.size());
 }

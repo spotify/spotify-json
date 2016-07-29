@@ -66,8 +66,8 @@ class object_t final {
     add_field(name, true, std::forward<Args>(args)...);
   }
 
-  void encode(const object_type &value, writer &w) const {
-    w.add_object([&](writer &w) {
+  void encode(const object_type &value, detail::writer &w) const {
+    w.add_object([&](detail::writer &w) {
       for (const auto &field : _field_list) {
         field.second->encode(field.first, value, w);
       }
@@ -123,7 +123,7 @@ class object_t final {
         field_id(field_id) {}
     virtual ~field() = default;
 
-    virtual void encode(const key &key, const object_type &object, writer &w) const = 0;
+    virtual void encode(const key &key, const object_type &object, detail::writer &w) const = 0;
     virtual void decode(object_type &object, decoding_context &context) const = 0;
 
     const bool required;
@@ -136,7 +136,7 @@ class object_t final {
         : field(required, field_id),
           codec(std::move(codec)) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       w.add_key(key);
       codec.encode(typename Codec::object_type(), w);
     }
@@ -155,7 +155,7 @@ class object_t final {
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = object.*member_pointer;
       if (detail::should_encode(codec, value)) {
         w.add_key(key);
@@ -180,7 +180,7 @@ class object_t final {
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = (object.*getter_ptr)();
       if (detail::should_encode(codec, value)) {
         w.add_key(key);
@@ -207,7 +207,7 @@ class object_t final {
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = get(object);
       if (detail::should_encode(codec, value)) {
         w.add_key(key);

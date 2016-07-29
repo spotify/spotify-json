@@ -125,7 +125,7 @@ class transform_t final {
         _encode_transform(std::move(encode_transform)),
         _decode_transform(std::move(decode_transform)) {}
 
-  void encode(const object_type &value, writer &w) const {
+  void encode(const object_type &value, detail::writer &w) const {
     _inner_codec.encode(_encode_transform(value), w);
   }
 

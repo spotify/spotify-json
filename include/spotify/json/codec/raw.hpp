@@ -40,7 +40,7 @@ class raw_t final {
  public:
   using object_type = raw_ref;
 
-  void encode(const object_type &r, writer &w) const {
+  void encode(const object_type &r, detail::writer &w) const {
     w.write_raw_value(r.data, r.size);
   }
 
