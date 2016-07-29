@@ -1,7 +1,7 @@
 spotify-json
 ============
 
-A C++ JSON writer and parser library. It
+A C++11 JSON writer and parser library. It
 
 * requires very little boilerplate code when using it,
 * is fast,
@@ -99,9 +99,25 @@ with strings as keys and booleans as values.
 Parsing is done using the `decode` function:
 
 ```cpp
-decode(codec::integer(), "123") == 123;
-decode<int>("123") == 123;  // Shortcut for decode(default_codec<int>(), "123")
-decode<std::vector<int>>("[1,2,3]") == std::vector{ 1, 2, 3 };
+try {
+  decode(codec::integer(), "123") == 123;
+  decode<int>("123") == 123;  // Shortcut for decode(default_codec<int>(), "123")
+  decode<std::vector<int>>("[1,2,3]") == std::vector{ 1, 2, 3 };
+} catch (const decode_exception &e) {
+  std::cout << "Failed to decode: " << e.what() << std::endl;
+}
+```
+
+`decode` throws `decode_exception` when parsing fails. There is also a function
+`try_decode` that doesn't throw on parse errors:
+
+```cpp
+int result = 0;
+if (try_decode(result, "123")) {
+  result == 123;
+} else {
+  // Decoding failed!
+}
 ```
 
 Similarly, serialization is done using `encode`: 

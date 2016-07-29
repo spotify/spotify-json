@@ -24,6 +24,10 @@
 namespace spotify {
 namespace json {
 
+/**
+ * decode_exception objects are thrown when decoding fails, for example if the
+ * JSON is invalid, or if the JSON doesn't conform to the specified schema.
+ */
 class decode_exception : public std::runtime_error {
  public:
   template <typename string_type>
