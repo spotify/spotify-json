@@ -18,10 +18,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <spotify/json/boost.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/encode_decode.hpp>
-#include <spotify/json/extension/boost.hpp>
 
 #include "only_true.hpp"
 

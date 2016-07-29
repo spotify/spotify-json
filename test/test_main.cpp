@@ -23,9 +23,9 @@
 #include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/extension/boost.hpp>
-#include <spotify/json/extension/std.hpp>
+#include <spotify/json/boost.hpp>
 #include <spotify/json/detail/pair.hpp>
+#include <spotify/json/detail/std.hpp>
 #include <spotify/json/detail/writer.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)

@@ -20,6 +20,7 @@ set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
+  include/spotify/json/boost.hpp
   include/spotify/json/buffer.hpp
   include/spotify/json/default_codec.hpp
   include/spotify/json/decoding_context.hpp
@@ -56,19 +57,14 @@ set(json_detail_HEADERS
   include/spotify/json/detail/macros.hpp
   include/spotify/json/detail/pair.hpp
   include/spotify/json/detail/primitive_encoder.hpp
+  include/spotify/json/detail/std.hpp
   include/spotify/json/detail/writer.hpp
-  )
-
-set(json_extension_HEADERS
-  include/spotify/json/extension/boost.hpp
-  include/spotify/json/extension/std.hpp
   )
 
 set(json_all_HEADERS
   ${json_HEADERS}
   ${json_codec_HEADERS}
   ${json_detail_HEADERS}
-  ${json_extension_HEADERS}
   )
 
 set(json_test_HEADERS
@@ -122,7 +118,6 @@ set(json_benchmark_TARGET "json_benchmark")
 source_group(spotify\\json            FILES ${json_HEADERS})
 source_group(spotify\\json\\codec     FILES ${json_codec_HEADERS})
 source_group(spotify\\json\\detail    FILES ${json_detail_HEADERS})
-source_group(spotify\\json\\extension FILES ${json_extension_HEADERS})
 source_group(spotify\\json\\test      FILES ${json_test_SOURCES})
 source_group(spotify\\json\\test      FILES ${json_test_HEADERS})
 source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES})
