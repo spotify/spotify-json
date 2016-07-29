@@ -25,20 +25,20 @@ namespace spotify {
 namespace json {
 namespace codec {
 
+struct raw_ref {
+  raw_ref() : data(nullptr), size(0) {}
+  raw_ref(const char *d, size_t s) : data(d), size(s) {}
+  raw_ref(const char *begin, const char *end) : data(begin), size(end - begin) {}
+
+  explicit operator decoding_context() const { return decoding_context(data, size); }
+
+  const char *data;
+  size_t size;
+};
+
 class raw final {
  public:
-  struct ref {
-    ref() : data(nullptr), size(0) {}
-    ref(const char *d, size_t s) : data(d), size(s) {}
-    ref(const char *begin, const char *end) : data(begin), size(end - begin) {}
-
-    explicit operator decoding_context() const { return decoding_context(data, size); }
-
-    const char *data;
-    size_t size;
-  };
-
-  using object_type = ref;
+  using object_type = raw_ref;
 
   void encode(const object_type &r, writer &w) const {
     w.write_raw_value(r.data, r.size);
@@ -47,14 +47,14 @@ class raw final {
   object_type decode(decoding_context &context) const {
     const auto begin = context.position;
     detail::advance_past_value(context);
-    return ref(begin, context.position - begin);
+    return raw_ref(begin, context.position - begin);
   }
 };
 
 }  // namespace codec
 
 template<>
-struct default_codec_t<codec::raw::ref> {
+struct default_codec_t<codec::raw_ref> {
   static codec::raw codec() {
     return codec::raw();
   }

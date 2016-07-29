@@ -25,7 +25,7 @@
 namespace {
 
 struct foobar_t {
-  spotify::json::codec::raw::ref value;
+  spotify::json::codec::raw_ref value;
 };
 
 }  // namespace
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
   spotify::json::buffer buffer;
   spotify::json::writer writer(buffer);
   std::string data = "some junk";
-  spotify::json::codec::raw::ref ref(data.data(), data.size());
+  spotify::json::codec::raw_ref ref(data.data(), data.size());
   spotify::json::codec::raw().encode(ref, writer);
 
   BOOST_CHECK_EQUAL(data, std::string(buffer.data(), buffer.size()));
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
   std::string raw = "{}";
-  json::codec::raw::ref ref(raw.data(), raw.size());
-  std::vector<json::codec::raw::ref> refs{ref, ref, ref};
+  json::codec::raw_ref ref(raw.data(), raw.size());
+  std::vector<json::codec::raw_ref> refs{ref, ref, ref};
 
   BOOST_CHECK_EQUAL(json::encode(refs), "[{},{},{}]");
 }
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
   std::string raw = "true";
-  json::codec::raw::ref ref(raw.data(), raw.size());
+  json::codec::raw_ref ref(raw.data(), raw.size());
 
   BOOST_CHECK_EQUAL(ref.data, raw.data());
   BOOST_CHECK_EQUAL(ref.size, raw.size());
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
   std::string raw = "true";
-  json::codec::raw::ref ref(raw.data(), raw.data() + raw.size());
+  json::codec::raw_ref ref(raw.data(), raw.data() + raw.size());
 
   BOOST_CHECK_EQUAL(ref.data, raw.data());
   BOOST_CHECK_EQUAL(ref.size, raw.size());
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decoding_context) {
   std::string raw = "true";
-  json::codec::raw::ref ref(raw.data(), raw.size());
+  json::codec::raw_ref ref(raw.data(), raw.size());
   json::decoding_context context(ref);
 
   const auto begin = raw.data();
