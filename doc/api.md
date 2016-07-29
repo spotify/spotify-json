@@ -8,10 +8,158 @@ constructs an abstract syntax tree of a JSON document. Instead, it parses
 directly into and writes directly from the C++ objects that are used by the
 application.
 
-When using `spotify-json`, the programmer declares the fields of the C++ objects
-that should be converted. The declarations are used to both encode and decode
-JSON (hence the name "codec"). Because there is only one specification for both
-parsing and serialization, there is no risk for that logic to be out of sync.
+`encode`, `decode` and `try_decode`
+===================================
+
+The actual encoding and decoding of JSON is performed by the functions `encode`,
+`decode` and `try_decode`. They come in a few varieties, for different use
+cases:
+
+```cpp
+/**
+ * Using a specified codec, encode object to an std::string.
+ */
+template <typename Codec>
+std::string encode(
+    const Codec &codec,
+    const typename Codec::object_type &object);
+
+/**
+ * Using the default_codec<Value>() codec, encode value to an std::string.
+ *
+ * This function is a shorthand for: encode(default_codec<Value>(), value)
+ */
+template <typename Value>
+std::string encode(const Value &value);
+
+/**
+ * Using a specified codec, encode object and append the resulting JSON to
+ * buffer.
+ */
+template <typename Codec>
+void encode(
+    const Codec &codec,
+    const typename Codec::object_type &object,
+    buffer &buffer);
+```
+
+```cpp
+/**
+ * Using a specified codec, decode the JSON in string.
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Codec>
+typename Codec::object_type decode(
+    const Codec &codec,
+    const std::string &string) throw(decode_exception);
+
+/**
+ * Using a specified codec, decode the JSON in buffer.
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Codec>
+typename Codec::object_type decode(const Codec &codec, const buffer &buffer)
+    throw(decode_exception);
+
+/**
+ * Using a specified codec, decode the JSON in the C style char array data that
+ * is size bytes long (not including a \0 at the end).
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Codec>
+typename Codec::object_type decode(
+    const Codec &codec,
+    const char *data,
+    size_t size) throw(decode_exception);
+
+/**
+ * Using the default_codec<Value>() codec, decode the JSON in string.
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Value>
+Value decode(const std::string &string) throw(decode_exception);
+```
+
+```cpp
+/**
+ * Using a specified codec, decode the JSON in string.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const std::string &string);
+
+/**
+ * Using a specified codec, decode the JSON in buffer.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const buffer &buffer);
+
+/**
+ * Using a specified codec, decode the JSON in the C style char array data that
+ * is size bytes long (not including a \0 at the end).
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const char *data,
+    size_t size);
+
+/**
+ * Using the default_codec<Value>() codec, decode the JSON in string.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Value>
+bool try_decode(Value &object, const std::string &string);
+
+/**
+ * Using a specified codec, decode the JSON in context. Unlike try_decode, this
+ * function allows stray characters after the end of the parsed JSON object.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode_partial(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const decoding_context &context);
+```
+
+`decode_exception`
+==================
+
+Exception that is thrown when parsing fails. For more info, see 
+[decode_exception.hpp](../include/spotify/json/decode_exception.hpp)
 
 The `codec`
 ===========
@@ -127,7 +275,7 @@ struct point {
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<Point> {
   static object_t<Point> codec() {
     auto codec = object<Point>();
@@ -340,7 +488,7 @@ struct metadata_response {
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<metadata_response> {
   static one_of_t<object_t<metadata_response>, object_t<metadata_response>> codec() {
     object_t<metadata_response> codec_v1;
