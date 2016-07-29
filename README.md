@@ -6,7 +6,7 @@ A C++ JSON writer and parser library. It
 * requires very little boilerplate code when using it,
 * is fast,
 * comes with a good suite of tests,
-* is deployed and in active use on well over 50 million devices.
+* is deployed and in active use on well over 100 million devices.
 * [has documentation](doc/codec.md).
 
 `spotify-json` itself is a header-only library, but it depends on
