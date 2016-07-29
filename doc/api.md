@@ -1,14 +1,14 @@
-codec API
----------
+spotify-json API
+----------------
 
-The codec API is designed to make it very easy to turn C++ objects into JSON and
-vice versa. It is not a streaming style API like
+The `spotify-json` API is designed to make it very easy to turn C++ objects into
+JSON and vice versa. It is not a streaming style API like
 [yajl](http://lloyd.github.io/yajl/) or SAX, and it is not a DOM-style API that
 constructs an abstract syntax tree of a JSON document. Instead, it parses
 directly into and writes directly from the C++ objects that are used by the
 application.
 
-When using the codec API, the programmer declares the fields of the C++ objects
+When using `spotify-json`, the programmer declares the fields of the C++ objects
 that should be converted. The declarations are used to both encode and decode
 JSON (hence the name "codec"). Because there is only one specification for both
 parsing and serialization, there is no risk for that logic to be out of sync.
@@ -16,10 +16,10 @@ parsing and serialization, there is no risk for that logic to be out of sync.
 The `codec`
 ===========
 
-The main entity of the codec library is, unsurprisingly, the `codec`. Like
-iterators in the C++ STL, there is no `codec` class that all `codec`s inherit:
-`codec` is a concept. All codecs must expose an `object_type` typedef and
-`encode` and `decode` methods. The exact interface is specified in
+The main entity of the `spotify-json` library is the `codec`. Like iterators in
+the C++ STL, there is no `codec` class that all `codec`s inherit: `codec` is a
+concept. All codecs must expose an `object_type` typedef and `encode` and
+`decode` methods. The exact interface is specified in
 [codec_interface.hpp](../include/spotify/json/codec/codec_interface.hpp).
 
 `codec`s are highly composable objects. When using the `spotify-json` library,

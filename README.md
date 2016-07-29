@@ -7,7 +7,7 @@ A C++11 JSON writer and parser library. It
 * is fast,
 * comes with a good suite of tests,
 * is deployed and in active use on well over 100 million devices,
-* and [has API documentation](doc/codec.md).
+* and [has API documentation](doc/api.md).
 
 `spotify-json` itself is a header-only library, but it depends on
 [Google's double-conversion library](https://github.com/google/double-conversion),
@@ -66,12 +66,12 @@ int main() {
 Usage
 -----
 
-`spotify-json` offers [a range of `codec` types](doc/codec.md) that can
-serialize and parse specific JSON values. There are `codec`s for each of the
-basic data types that JSON offers: [strings](doc/codec.md#string_t),
-[numbers](doc/codec.md#number_t), [arrays](doc/codec.md#array_t),
-[booleans](doc/codec.md#boolean_t), [objects](doc/codec.md#object_t) and
-[null](doc/codec.md#null_t).
+`spotify-json` offers [a range of `codec` types](doc/api.md) that can serialize
+and parse specific JSON values. There are `codec`s for each of the basic data
+types that JSON offers: [strings](doc/api.md#string_t),
+[numbers](doc/api.md#number_t), [arrays](doc/api.md#array_t),
+[booleans](doc/api.md#boolean_t), [objects](doc/api.md#object_t) and
+[null](doc/api.md#null_t).
 
 
 ### Constructing and composing `codec`s
@@ -168,7 +168,7 @@ coordinate_codec.required("y", &Coordinate::y);
 
 The use of `required` will cause parsing to fail if the fields are missing.
 There is also an `optional` method. For more information, see
-[`object_t`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/codec.md#object_t).
+[`object_t`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/api.md#object_t).
 
 This `codec` can be used with `encode` and `decode`:
 
@@ -259,22 +259,22 @@ The examples above cover the most commonly used parts of `spotify-json`. The
 library supports more things that sometimes come in handy:
 
 * Most STL containers, including
-  [`vector`, `deque`, `list`, `set`, `unordered_set`](doc/codec.md#array_t),
-  [`map` and `unordered_map`](doc/codec.md#map_t)
-* [C++ `enum`s and similar types](doc/codec.md#enumeration_t)
-* [Arbitrary conversion logic](doc/codec.md#transform_t), for example when a
+  [`vector`, `deque`, `list`, `set`, `unordered_set`](doc/api.md#array_t),
+  [`map` and `unordered_map`](doc/api.md#map_t)
+* [C++ `enum`s and similar types](doc/api.md#enumeration_t)
+* [Arbitrary conversion logic](doc/api.md#transform_t), for example when a
   raw binary hash in C++ is represented as a hex coded string in JSON
-* [Dealing with versioning](doc/codec.md#equals_t)
-* [Ignoring values that are of the wrong type instead of failing the parse](doc/codec.md#lenient_t)
-* Values wrapped in [`unique_ptr`s](doc/codec.md#unique_ptr_t) and
-  [`shared_ptr`s](doc/codec.md#shared_ptr_t)
-* [`boost::optional`](doc/codec.md#optional)
-* [`boost::chrono` and `std::chrono` types](doc/codec.md#chrono)
-* [Dealing with virtual classes / type erasure](doc/codec.md#cast_t)
-* [Floating point numbers with lossless serialize/parse roundtrip](doc/codec.md#map_t)
+* [Dealing with versioning](doc/api.md#equals_t)
+* [Ignoring values that are of the wrong type instead of failing the parse](doc/api.md#lenient_t)
+* Values wrapped in [`unique_ptr`s](doc/api.md#unique_ptr_t) and
+  [`shared_ptr`s](doc/api.md#shared_ptr_t)
+* [`boost::optional`](doc/api.md#optional)
+* [`boost::chrono` and `std::chrono` types](doc/api.md#chrono)
+* [Dealing with virtual classes / type erasure](doc/api.md#cast_t)
+* [Floating point numbers with lossless serialize/parse roundtrip](doc/api.md#map_t)
 
 
-[Detailed API documentation](doc/codec.md)
+[Detailed API documentation](doc/api.md)
 ------------------------------------------
 
 Building and running tests
