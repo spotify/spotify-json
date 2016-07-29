@@ -147,6 +147,16 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding) 
   BOOST_CHECK_EQUAL(example.value, "hello");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding_factory) {
+  auto codec = object([]{
+    example_t value;
+    value.value = "hello";
+    return value;
+  });
+  const auto example = test_decode(codec, "{}");
+  BOOST_CHECK_EQUAL(example.value, "hello");
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {
   simple_t simple;
   simple.value = "hey";

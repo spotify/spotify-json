@@ -331,7 +331,7 @@ object_t<T> object() {
 }
 
 template <typename Create>
-auto object(Create &&create) -> decltype(create()) {
+auto object(Create &&create) -> object_t<decltype(create())> {
   return object_t<decltype(create())>(std::forward<Create>(create));
 }
 
