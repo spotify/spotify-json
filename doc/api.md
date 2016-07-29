@@ -15,6 +15,8 @@ The actual encoding and decoding of JSON is performed by the functions `encode`,
 `decode` and `try_decode`. They come in a few varieties, for different use
 cases:
 
+### `encode`
+
 ```cpp
 /**
  * Using a specified codec, encode object to an std::string.
@@ -42,6 +44,8 @@ void encode(
     const typename Codec::object_type &object,
     buffer &buffer);
 ```
+
+### `decode`
 
 ```cpp
 /**
@@ -87,6 +91,8 @@ typename Codec::object_type decode(
 template <typename Value>
 Value decode(const std::string &string) throw(decode_exception);
 ```
+
+### `try_decode`
 
 ```cpp
 /**

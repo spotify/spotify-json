@@ -76,18 +76,19 @@ types that JSON offers: [strings](doc/api.md#string_t),
 
 ### Constructing and composing `codec`s
 
-A `codec` for integers can be made using `codec::integer()`. The codec for
-strings can be instantiated with `codec::string()`.
+A `codec` for integers can be made using
+[`codec::number<int>()`](doc/api.md#number_t). The codec for strings can be
+instantiated with [`codec::string()`](doc/api.md#string_t).
 
 `codec`s are composable. It is for example possible to construct a `codec` for
 parsing and serialization of JSON arrays of numbers, such as `[1,4,2]`:
-`codec::array<std::vector<int>>(codec::integer())`.
+[`codec::array<std::vector<int>>(codec::number<int>())`](doc/api.md#array_t).
 
 Constructing deeply nested codecs manually as above can become tedious. To ease
-this pain, `default_codec` is a helper function that makes it easy to construct
-`codec`s for built-in types. For example, `default_codec<int>()` is a codec that
-can parse and serialize numbers, and `default_codec<std::vector<int>>()` is one
-that works on arrays of numbers.
+this pain, [`default_codec`](doc/api.md#default_codec_t) is a helper function
+that makes it easy to construct `codec`s for built-in types. For example,
+`default_codec<int>()` is a codec that can parse and serialize numbers, and
+`default_codec<std::vector<int>>()` is one that works on arrays of numbers.
 
 It is possible to work with JSON objects with arbitrary keys. For example,
 `default_codec<std::map<std::string, bool>>()` is a `codec` for JSON objects
@@ -96,11 +97,12 @@ with strings as keys and booleans as values.
 
 ### Parsing and serialization
 
-Parsing is done using the `decode` function:
+Parsing is done using the [`decode`](doc/api.md#decode)
+function:
 
 ```cpp
 try {
-  decode(codec::integer(), "123") == 123;
+  decode(codec::number<int>(), "123") == 123;
   decode<int>("123") == 123;  // Shortcut for decode(default_codec<int>(), "123")
   decode<std::vector<int>>("[1,2,3]") == std::vector{ 1, 2, 3 };
 } catch (const decode_exception &e) {
@@ -108,8 +110,10 @@ try {
 }
 ```
 
-`decode` throws `decode_exception` when parsing fails. There is also a function
-`try_decode` that doesn't throw on parse errors:
+[`decode`](doc/api.md#decode) throws
+[`decode_exception`](doc/api.md#decode_exception) when parsing fails. There is
+also a function [`try_decode`](doc/api.md#try_decode) that doesn't throw on
+parse errors:
 
 ```cpp
 int result = 0;
@@ -120,10 +124,10 @@ if (try_decode(result, "123")) {
 }
 ```
 
-Similarly, serialization is done using `encode`: 
+Similarly, serialization is done using [`encode`](doc/api.md#encode):
 
 ```cpp
-encode(codec::integer(), 123) == "123";
+encode(codec::number<int>(), 123) == "123";
 encode(123) == "123";  // Shortcut for encode(default_codec<int>(), 123)
 encode(std::vector<int>{ 1, 2, 3 }) == "[1,2,3]";
 ```
