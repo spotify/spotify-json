@@ -804,6 +804,8 @@ false) but if the `none_as_null` option is used (i.e.
 `spotify::json::codec::optional(some_codec, spotify::json::codec::none_as_null)`),
 `boost::none` is encoded as `null`.
 
+This codec is in header `<spotify/json/boost.hpp>`.
+
 * **Complete class name**: `spotify::json::codec::optional_t`
 * **Supported types**: `std::optional<T>`
 * **Convenience builder**: `spotify::json::codec::optional`
@@ -814,6 +816,8 @@ false) but if the `none_as_null` option is used (i.e.
 spotify-json provides support for `duration` and `time_point` types of
 `std::chrono` and `boost::chrono`. They are implemented using `transform_t`, so
 they don't have `*_t` classes like many of the other codecs.
+
+For `boost::chrono`, include header `<spotify/json/boost.hpp>`.
 
 * **Complete class name**: N/A. See above.
 * **Supported types**: All `std::chrono::duration`, `std::chrono::time_point`,
