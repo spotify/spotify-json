@@ -36,7 +36,7 @@ struct raw_ref {
   size_t size;
 };
 
-class raw final {
+class raw_t final {
  public:
   using object_type = raw_ref;
 
@@ -51,11 +51,15 @@ class raw final {
   }
 };
 
+inline raw_t raw() {
+  return raw_t();
+}
+
 }  // namespace codec
 
 template<>
 struct default_codec_t<codec::raw_ref> {
-  static codec::raw codec() {
+  static codec::raw_t codec() {
     return codec::raw();
   }
 };
