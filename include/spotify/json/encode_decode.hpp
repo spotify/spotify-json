@@ -34,7 +34,7 @@ inline void require_at_end(const decoding_context &context) {
   }
 }
 
-}
+}  // namespace detail
 
 template<typename Codec>
 void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
