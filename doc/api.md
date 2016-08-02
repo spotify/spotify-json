@@ -1,29 +1,183 @@
-codec API
----------
+spotify-json API
+----------------
 
-The codec API is designed to make it very easy to turn C++ objects into JSON and
-vice versa. It is not a streaming style API like
+The spotify-json API is designed to make it very easy to turn C++ objects into
+JSON and vice versa. It is not a streaming style API like
 [yajl](http://lloyd.github.io/yajl/) or SAX, and it is not a DOM-style API that
 constructs an abstract syntax tree of a JSON document. Instead, it parses
 directly into and writes directly from the C++ objects that are used by the
 application.
 
-When using the codec API, the programmer declares the fields of the C++ objects
-that should be converted. The declarations are used to both encode and decode
-JSON (hence the name "codec"). Because there is only one specification for both
-parsing and serialization, there is no risk for that logic to be out of sync.
+`encode`, `decode` and `try_decode`
+===================================
 
-The `codec`
+The actual encoding and decoding of JSON is performed by the functions `encode`,
+`decode` and `try_decode`. They come in a few varieties, for different use
+cases:
+
+### `encode`
+
+```cpp
+/**
+ * Using a specified codec, encode object to an std::string.
+ */
+template <typename Codec>
+std::string encode(
+    const Codec &codec,
+    const typename Codec::object_type &object);
+
+/**
+ * Using the default_codec<Value>() codec, encode value to an std::string.
+ *
+ * This function is a shorthand for: encode(default_codec<Value>(), value)
+ */
+template <typename Value>
+std::string encode(const Value &value);
+
+/**
+ * Using a specified codec, encode object and append the resulting JSON to
+ * buffer.
+ */
+template <typename Codec>
+void encode(
+    const Codec &codec,
+    const typename Codec::object_type &object,
+    buffer &buffer);
+```
+
+### `decode`
+
+```cpp
+/**
+ * Using a specified codec, decode the JSON in string.
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Codec>
+typename Codec::object_type decode(
+    const Codec &codec,
+    const std::string &string) throw(decode_exception);
+
+/**
+ * Using a specified codec, decode the JSON in buffer.
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Codec>
+typename Codec::object_type decode(const Codec &codec, const buffer &buffer)
+    throw(decode_exception);
+
+/**
+ * Using a specified codec, decode the JSON in the C style char array data that
+ * is size bytes long (not including a \0 at the end).
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Codec>
+typename Codec::object_type decode(
+    const Codec &codec,
+    const char *data,
+    size_t size) throw(decode_exception);
+
+/**
+ * Using the default_codec<Value>() codec, decode the JSON in string.
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Value>
+Value decode(const std::string &string) throw(decode_exception);
+```
+
+### `try_decode`
+
+```cpp
+/**
+ * Using a specified codec, decode the JSON in string.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const std::string &string);
+
+/**
+ * Using a specified codec, decode the JSON in buffer.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const buffer &buffer);
+
+/**
+ * Using a specified codec, decode the JSON in the C style char array data that
+ * is size bytes long (not including a \0 at the end).
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const char *data,
+    size_t size);
+
+/**
+ * Using the default_codec<Value>() codec, decode the JSON in string.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Value>
+bool try_decode(Value &object, const std::string &string);
+
+/**
+ * Using a specified codec, decode the JSON in context. Unlike try_decode, this
+ * function allows stray characters after the end of the parsed JSON object.
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Codec>
+bool try_decode_partial(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const decoding_context &context);
+```
+
+`decode_exception`
+==================
+
+Exception that is thrown when parsing fails. For more info, see 
+[decode_exception.hpp](../include/spotify/json/decode_exception.hpp)
+
+The codec
 ===========
 
-The main entity of the codec library is, unsurprisingly, the `codec`. Like
-iterators in the C++ STL, there is no `codec` class that all `codec`s inherit:
-`codec` is a concept. All codecs must expose an `object_type` typedef and
-`encode` and `decode` methods. The exact interface is specified in
+The main entity of the spotify-json library is the *codec*. Like iterators in
+the C++ STL, there is no codec class that all codecs inherit: codec is a
+concept. All codecs must expose an `object_type` typedef and `encode` and
+`decode` methods. The exact interface is specified in
 [codec_interface.hpp](../include/spotify/json/codec/codec_interface.hpp).
 
-`codec`s are highly composable objects. When using the `spotify-json` library,
-you will combine the basic `codec`s into increasingly complex ones, until it
+Codecs are highly composable objects. When using the spotify-json library,
+you will combine the basic codecs into increasingly complex ones, until it
 can parse the JSON objects that your application works with. The library defines
 a number of codecs that are available to the user of the library:
 
@@ -38,7 +192,7 @@ a number of codecs that are available to the user of the library:
 * [`null_t`](#null_t): For `null`
 * [`number_t`](#number_t): For parsing numbers (both floating point numbers and
   integers)
-* [`object`](#object): For custom C++ objects
+* [`object_t`](#object_t): For custom C++ objects
 * [`one_of_t`](#one_of_t): For trying more than one codec
 * [`shared_ptr_t`](#shared_ptr_t): For `shared_ptr`s
 * [`string_t`](#string_t): For strings
@@ -63,10 +217,10 @@ const bool value = decode(bool_codec, "true");
 
 `array_t` is a more complex codec that is for parsing arrays. It does now know
 how to parse the elements that the array contains, so its constructor takes a
-`codec`, which it uses to parse each element of the array.
+codec, which it uses to parse each element of the array.
 
 The type of `array_codec` in the example below is
-`array_t<std::vector<bool>, boolean_t>`, which is quite a mouthful. `codec`
+`array_t<std::vector<bool>, boolean_t>`, which is quite a mouthful. codec
 types often become quite involved. `auto` and `decltype` really help when using
 this library.
 
@@ -75,7 +229,7 @@ const auto array_codec = array<std::vector<bool>>(boolean());
 const auto value = decode(array_codec, "[true,false,false]");
 ```
 
-Following the same principle, `codec`s can be combined to form complex
+Following the same principle, codecs can be combined to form complex
 combinations:
 
 ```cpp
@@ -94,8 +248,8 @@ In some cases, it is important to specify exactly how to work with the JSON, but
 in many cases there aren't many options: An `std::map<std::string, std::string>`
 has one obvious interpretation in JSON, as does `bool` and so on.
 
-As a convenience, `spotify-json` provies an easy way to get a "reasonable
-default" `codec` for a given type. It is used as follows:
+As a convenience, spotify-json provies an easy way to get a "reasonable
+default" codec for a given type. It is used as follows:
 
 ```cpp
 const auto string_codec = default_codec<std::string>();
@@ -108,11 +262,11 @@ const auto array_of_map_of_array_of_bools_codec = default_codec<
 ```
 
 It is possible to add support for application specific types to `default_codec`.
-This is a common pattern and is the recommended way to use `spotify-json` for
+This is a common pattern and is the recommended way to use spotify-json for
 the types that don't require customized behavior depending on the usage. For
 example, in the Spotify client, basic types such as `ContextTrack` and `Context`
 can be encoded using `default_codec`, while `ContextPlayerState`, which in certain
-use cases has to be truncated, has a custom means of getting a `codec` for it.
+use cases has to be truncated, has a custom means of getting codec for it.
 
 In order to add support for custom types to `default_codec`, the template
 `spotify::json::default_codec_t` should be specialized. Here is an example of
@@ -127,10 +281,10 @@ struct point {
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<Point> {
-  static object<Point> codec() {
-    object<Point> codec;
+  static object_t<Point> codec() {
+    auto codec = object<Point>();
     codec.required("x", &point::x);
     codec.required("y", &point::y);
     return codec;
@@ -182,7 +336,7 @@ In the example above, it is impossible to assign a concrete codec type to the
 return type of `my_interface::codec`, since the codec for each implementation
 of `my_interface` will have a different type.
 
-Usually in `spotify-json`, there are no virtual method calls. However, `any_t`
+Usually in spotify-json, there are no virtual method calls. However, `any_t`
 introduces one virtual method for each `encode` and `decode` call.
 
 * **Complete class name**: `spotify::json::codec::any_t<ObjectType>`,
@@ -254,7 +408,7 @@ An implementation of this interface might look like:
 class my_interface_impl : public my_interface {
  public:
   virtual any_t<std::shared_ptr<my_interface>> codec() override {
-    object<my_interface_impl> codec;
+    auto codec = object<my_interface_impl>();
     codec.required("value", &my_interface_impl::_value);
 
     return any(cast<my_interface>(shared_ptr(codec)));
@@ -340,13 +494,13 @@ struct metadata_response {
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<metadata_response> {
-  static one_of_t<object<metadata_response>, object<metadata_response>> codec() {
-    object<metadata_response> codec_v1;
+  static one_of_t<object_t<metadata_response>, object_t<metadata_response>> codec() {
+    object_t<metadata_response> codec_v1;
     codec.required("n", &metadata_response::x);
 
-    object<metadata_response> codec_v2;
+    object_t<metadata_response> codec_v2;
     codec.required("version", equals(2));
     codec.required("name", &metadata_response::x);
 
@@ -371,7 +525,7 @@ struct default_codec_t<metadata_response> {
 
 ### `lenient_t`
 
-By default, `spotify-json` is strict about the types of the JSON values that it
+By default, spotify-json is strict about the types of the JSON values that it
 parses: If it is instructed to read a string but it encounters "null", it will
 reject the input. `lenient_t` is a codec that attempts to parse a value using an
 inner codec, but if that fails, it skips over the value. It fails only if the
@@ -391,7 +545,7 @@ input is malformed JSON.
 `std::string` keys because that's how JSON is specified. The `map_t` codec is
 suitable to use when the maps can contain arbitrary keys. When there is a
 pre-defined set of keys that are interesting and any other keys can be
-discarded, `object` is more suitable, since it parses the keys directly into a
+discarded, `object_t` is more suitable, since it parses the keys directly into a
 C++ object in a type-safe way.
 
 * **Complete class name**: `spotify::json::codec::map_t<MapType, InnerCodec>`,
@@ -424,7 +578,7 @@ null.
 ### `number_t`
 
 `number_t` is a codec for numbers, both floating point and integers. Like the
-rest of the `spotify-json` library, it uses the
+rest of the spotify-json library, it uses the
 [double-conversion library](https://github.com/google/double-conversion) for
 parsing and writing of floats, which means numbers don't drift when being
 serialized and then parsed.
@@ -439,14 +593,14 @@ serialized and then parsed.
   `default_codec<size_t>()` etc.
 
 
-### `object`
+### `object_t`
 
-`object` is arguably the most important codec in `spotify-json`. It is the codec
-that parses and writes JSON to and from specific C++ classes and structs. Unlike
-the other codecs, `object` codecs aren't created by simply calling a factory
-function such as `string()` or `number<float>()`. Instead, an `object<T>` is
-created, and then the object is configured for the different fields that exist
-in `T`.
+`object_t` is arguably the most important codec in spotify-json. It is the
+codec that parses and writes JSON to and from specific C++ classes and structs.
+Unlike the other codecs, `object_t` codecs aren't created by simply calling a
+factory function such as `string()` or `number<float>()`. Instead, an
+`object_t<T>` is created, and then the object is configured for the different
+fields that exist in `T`.
 
 For example:
 
@@ -458,12 +612,12 @@ struct point {
 
 ...
 
-object<point> codec;
+auto codec = object<point>();
 codec.required("x", &point::x);
 codec.required("y", &point::y);
 ```
 
-`object<T>` objects have two methods: `required` and `optional`. They have the
+`object_t<T>` objects have two methods: `required` and `optional`. They have the
 exact same method signature. The difference is that fields that were registered
 with `required` are required: When an object is being decoded and a required
 field is missing from the input, the decoding fails.
@@ -490,12 +644,12 @@ For the `required` and `optional` methods, the following overloads exist:
   encoding, use a default constructed value of the given type. This is mainly
   useful for verification purposes, for example `required("version", equals(5))`
 
-Each field that `object` encodes and decodes uses one virtual method call.
+Each field that `object_t` encodes and decodes uses one virtual method call.
 
-When encoding, `object` writes fields in the order that they were registered.
+When encoding, `object_t` writes fields in the order that they were registered.
 
-It is possible to use `object` for types that are not default constructible, or
-when the default constructor does not do the right thing for the use case at
+It is possible to use `object_t` for types that are not default constructible,
+or when the default constructor does not do the right thing for the use case at
 hand. For that, pass in a functor that constructs an object for use in
 decoding.
 
@@ -508,10 +662,16 @@ struct point {
 
 ...
 
-object<point> codec([]{ return point(0, 0); });
+auto codec = object<point>([]{ return point(0, 0); });
 codec.required("x", &point::x);
 codec.required("y", &point::y);
 ```
+
+* **Complete class name**: `spotify::json::codec::object_t`
+* **Supported types**: Any movable type.
+* **Convenience builder**: `spotify::json::codec::object`
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
 
 ### `one_of_t`
 
@@ -533,12 +693,12 @@ understands.
 * **Convenience builder**: `spotify::json::codec::one_of(Codec...)`
 * **`default_codec` support**: No; the convenience builder must be used explicitly.
 
-### `raw` ###
+### `raw_t` ###
 
-`raw` is a codec that doesn't actually decode or encode but instead deals with
+`raw_t` is a codec that doesn't actually decode or encode but instead deals with
 the raw data of the JSON value.
 
-When decoding, this codec yields a `spotify::json::codec::raw::ref` whose
+When decoding, this codec yields a `spotify::json::codec::raw_ref` whose
 `data` member points to the first character of the value (i.e. `{` for a JSON
 object or `t` for the value `true`) and whose `size` member is the size of the
 entire raw value up to and including the last character (i.e. `}` for a JSON
@@ -650,6 +810,8 @@ false) but if the `none_as_null` option is used (i.e.
 `spotify::json::codec::optional(some_codec, spotify::json::codec::none_as_null)`),
 `boost::none` is encoded as `null`.
 
+This codec is in header `<spotify/json/boost.hpp>`.
+
 * **Complete class name**: `spotify::json::codec::optional_t`
 * **Supported types**: `std::optional<T>`
 * **Convenience builder**: `spotify::json::codec::optional`
@@ -660,6 +822,8 @@ false) but if the `none_as_null` option is used (i.e.
 spotify-json provides support for `duration` and `time_point` types of
 `std::chrono` and `boost::chrono`. They are implemented using `transform_t`, so
 they don't have `*_t` classes like many of the other codecs.
+
+For `boost::chrono`, include header `<spotify/json/boost.hpp>`.
 
 * **Complete class name**: N/A. See above.
 * **Supported types**: All `std::chrono::duration`, `std::chrono::time_point`,

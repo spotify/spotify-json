@@ -23,6 +23,7 @@
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
+BOOST_AUTO_TEST_SUITE(detail)
 
 BOOST_AUTO_TEST_CASE(json_writer_add_pair) {
   json::buffer buffer;
@@ -68,7 +69,7 @@ BOOST_AUTO_TEST_CASE(json_writer_write_raw_value_should_add_separator) {
   json::buffer buffer;
   writer w(buffer);
 
-  w.add_array([](json::writer &w) {
+  w.add_array([](writer &w) {
     w.write_raw_value("{}", 2);
     w.write_raw_value("{}", 2);
     w.write_raw_value("{}", 2);
@@ -79,5 +80,6 @@ BOOST_AUTO_TEST_CASE(json_writer_write_raw_value_should_add_separator) {
   BOOST_CHECK_EQUAL("[{},{},{}]", json);
 }
 
+BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

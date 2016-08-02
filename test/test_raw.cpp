@@ -25,7 +25,7 @@
 namespace {
 
 struct foobar_t {
-  spotify::json::codec::raw::ref value;
+  spotify::json::codec::raw_ref value;
 };
 
 }  // namespace
@@ -35,8 +35,8 @@ namespace json {
 
 template<>
 struct default_codec_t<foobar_t> {
-  static codec::object<foobar_t> codec() {
-    codec::object<foobar_t> codec;
+  static codec::object_t<foobar_t> codec() {
+    auto codec = codec::object<foobar_t>();
     codec.required("value", &foobar_t::value);
     return codec;
   }
@@ -52,8 +52,8 @@ BOOST_AUTO_TEST_SUITE(codec)
 namespace {
 
 foobar_t decode_foobar(const char *data) {
-  spotify::json::decoding_context ctx(data, data + std::strlen(data));
-  return spotify::json::default_codec<foobar_t>().decode(ctx);
+  decoding_context ctx(data, data + std::strlen(data));
+  return default_codec<foobar_t>().decode(ctx);
 }
 
 void verify_decode_raw(const std::string &raw_value) {
@@ -107,21 +107,21 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_number) {
 //
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
-  spotify::json::buffer buffer;
-  spotify::json::writer writer(buffer);
+  buffer buffer;
+  detail::writer writer(buffer);
   std::string data = "some junk";
-  spotify::json::codec::raw::ref ref(data.data(), data.size());
-  spotify::json::codec::raw().encode(ref, writer);
+  raw_ref ref(data.data(), data.size());
+  raw().encode(ref, writer);
 
   BOOST_CHECK_EQUAL(data, std::string(buffer.data(), buffer.size()));
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
   std::string raw = "{}";
-  json::codec::raw::ref ref(raw.data(), raw.size());
-  std::vector<json::codec::raw::ref> refs{ref, ref, ref};
+  raw_ref ref(raw.data(), raw.size());
+  std::vector<raw_ref> refs{ref, ref, ref};
 
-  BOOST_CHECK_EQUAL(json::encode(refs), "[{},{},{}]");
+  BOOST_CHECK_EQUAL(encode(refs), "[{},{},{}]");
 }
 
 //
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
   std::string raw = "true";
-  json::codec::raw::ref ref(raw.data(), raw.size());
+  raw_ref ref(raw.data(), raw.size());
 
   BOOST_CHECK_EQUAL(ref.data, raw.data());
   BOOST_CHECK_EQUAL(ref.size, raw.size());
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
   std::string raw = "true";
-  json::codec::raw::ref ref(raw.data(), raw.data() + raw.size());
+  raw_ref ref(raw.data(), raw.data() + raw.size());
 
   BOOST_CHECK_EQUAL(ref.data, raw.data());
   BOOST_CHECK_EQUAL(ref.size, raw.size());
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decoding_context) {
   std::string raw = "true";
-  json::codec::raw::ref ref(raw.data(), raw.size());
-  json::decoding_context context(ref);
+  raw_ref ref(raw.data(), raw.size());
+  decoding_context context(ref);
 
   const auto begin = raw.data();
   const auto end = begin + raw.size();

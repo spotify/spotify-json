@@ -55,8 +55,8 @@ struct example_t {
   std::string value;
 };
 
-codec::object<example_t> example_codec() {
-  codec::object<example_t> codec;
+codec::object_t<example_t> example_codec() {
+  codec::object_t<example_t> codec;
   codec.optional("simple", &example_t::simple);
   codec.required("value", &example_t::value);
   return codec;
@@ -71,14 +71,14 @@ class getset_t {
   std::string value;
 };
 
-codec::object<getset_t> getset_codec() {
-  codec::object<getset_t> codec;
+codec::object_t<getset_t> getset_codec() {
+  codec::object_t<getset_t> codec;
   codec.required("value", &getset_t::get_value, &getset_t::set_value);
   return codec;
 }
 
-codec::object<getset_t> getset_lambda_codec() {
-  codec::object<getset_t> codec;
+codec::object_t<getset_t> getset_lambda_codec() {
+  codec::object_t<getset_t> codec;
   codec.required("value",
                  [](const getset_t &x) { return x.get_value(); },
                  [](getset_t &x, const std::string &value) { x.set_value(value); });
@@ -87,8 +87,8 @@ codec::object<getset_t> getset_lambda_codec() {
 
 struct subclass_t : simple_t {};
 
-codec::object<subclass_t> subclass_codec() {
-  codec::object<subclass_t> codec;
+codec::object_t<subclass_t> subclass_codec() {
+  codec::object_t<subclass_t> codec;
   codec.optional("value", &subclass_t::value);
   return codec;
 }
@@ -97,8 +97,8 @@ codec::object<subclass_t> subclass_codec() {
 
 template<>
 struct default_codec_t<simple_t> {
-  static codec::object<simple_t> codec() {
-    codec::object<simple_t> codec;
+  static codec::object_t<simple_t> codec() {
+    codec::object_t<simple_t> codec;
     codec.optional("value", &simple_t::value);
     return codec;
   }
@@ -107,11 +107,11 @@ struct default_codec_t<simple_t> {
 BOOST_AUTO_TEST_SUITE(codec)
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_construct) {
-  object<simple_t> codec;
+  object_t<simple_t> codec;
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_construct_with_custom_creator) {
-  object<example_t> codec([]{
+  object_t<example_t> codec([]{
     return example_t();
   });
 }
@@ -138,7 +138,17 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_overwrite_duplicate_fields) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding) {
-  object<example_t> codec([]{
+  object_t<example_t> codec([]{
+    example_t value;
+    value.value = "hello";
+    return value;
+  });
+  const auto example = test_decode(codec, "{}");
+  BOOST_CHECK_EQUAL(example.value, "hello");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding_factory) {
+  auto codec = object([]{
     example_t value;
     value.value = "hello";
     return value;
@@ -158,7 +168,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_respect_should_encode) {
   using data_t = std::pair<bool, bool>;
   const auto data = data_t(true, false);
 
-  codec::object<data_t> codec;
+  codec::object_t<data_t> codec;
   codec.optional("first", &data_t::first, only_true_t());
   codec.required("second", &data_t::second, only_true_t());
 
@@ -169,7 +179,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {
   simple_t simple;
   simple.value = "";
 
-  codec::object<simple_t> codec;
+  codec::object_t<simple_t> codec;
   codec.required("0", &simple_t::value);
   codec.optional("1", &simple_t::value);
   codec.optional("2", &simple_t::value);
@@ -187,17 +197,17 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_use_provided_codec) {
-  object<simple_t> other_simple_codec;
+  object_t<simple_t> other_simple_codec;
   other_simple_codec.optional("other", &simple_t::value);
 
-  object<example_t> codec;
+  object_t<example_t> codec;
   codec.required("s", &example_t::simple, other_simple_codec);
   const auto example = test_decode(codec, "{\"s\":{\"other\":\"Hello!\"}}");
   BOOST_CHECK_EQUAL(example.simple.value, "Hello!");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_dummy_fields) {
-  object<example_t> codec;
+  object_t<example_t> codec;
   codec.required("dummy", boolean());
 
   test_decode(codec, "{\"dummy\":true}");
@@ -205,7 +215,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_dummy_fields) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_dummy_fields) {
-  object<example_t> codec;
+  object_t<example_t> codec;
   codec.required("dummy", string());
 
   BOOST_CHECK_EQUAL(encode(codec, example_t()), "{\"dummy\":\"\"}");

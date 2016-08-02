@@ -45,7 +45,7 @@ class enumeration_t final {
       : _inner_codec(std::move(inner_codec)),
         _mapping(std::move(mapping)) {}
 
-  void encode(const object_type &value, writer &w) const {
+  void encode(const object_type &value, detail::writer &w) const {
     const auto it = std::find_if(
         _mapping.begin(),
         _mapping.end(),

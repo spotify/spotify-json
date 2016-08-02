@@ -44,7 +44,7 @@ class codec_interface final {
   /**
    * Write an object to a writer.
    */
-  void encode(const object_type &value, writer &writer) const;
+  void encode(const object_type &value, detail::writer &writer) const;
 
   /**
    * Parse the given JSON. The string to parse begins at context.position and

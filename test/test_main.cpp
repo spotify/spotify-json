@@ -23,9 +23,9 @@
 #include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/extension/boost.hpp>
-#include <spotify/json/extension/std.hpp>
+#include <spotify/json/boost.hpp>
 #include <spotify/json/detail/pair.hpp>
+#include <spotify/json/detail/std.hpp>
 #include <spotify/json/detail/writer.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE(json)
 
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector_with_boost_optional) {
   json::buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
 
   std::vector<boost::optional<int>> vector;
   vector.push_back(boost::optional<int>(1));
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector_with_boost_optiona
 
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_map_with_boost_optional) {
   json::buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
 
   std::map<std::string, boost::optional<int>> map;
   map["a"] = boost::optional<int>(1);
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_map_with_boost_optional) 
 
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector) {
   json::buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
 
   std::vector<std::string> vector;
   vector.push_back("a");
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector) {
 
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_deque) {
   json::buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
 
   std::deque<std::string> deque;
   deque.push_back("a");
@@ -106,7 +106,7 @@ struct test_options {
 BOOST_AUTO_TEST_CASE(json_options_should_be_set_with_constructor) {
   test_options options(123);
   json::buffer buffer;
-  basic_writer<json::buffer, test_options> w(buffer, options);
+  detail::basic_writer<json::buffer, test_options> w(buffer, options);
 
   BOOST_CHECK_EQUAL(w.options().value, 123);
 }
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(json_options_should_be_set_with_constructor) {
 BOOST_AUTO_TEST_CASE(json_options_should_be_settable_with_stream_operator) {
   test_options options(123);
   json::buffer buffer;
-  basic_writer<json::buffer, test_options> w(buffer, options);
+  detail::basic_writer<json::buffer, test_options> w(buffer, options);
 
   w << test_options(456);
 
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(json_options_should_be_settable_with_stream_operator) {
 
 BOOST_AUTO_TEST_CASE(json_options_should_use_default_constructor) {
   json::buffer buffer;
-  basic_writer<json::buffer, test_options> w(buffer);
+  detail::basic_writer<json::buffer, test_options> w(buffer);
 
   BOOST_CHECK_EQUAL(w.options().value, test_options::DEFAULT_VALUE);
 }

@@ -30,8 +30,8 @@ struct custom_obj {
   std::string val;
 };
 
-codec::object<custom_obj> custom_codec() {
-  codec::object<custom_obj> codec;
+codec::object_t<custom_obj> custom_codec() {
+  auto codec = codec::object<custom_obj>();
   codec.required("a", &custom_obj::val);
   return codec;
 }
@@ -40,8 +40,8 @@ codec::object<custom_obj> custom_codec() {
 
 template<>
 struct default_codec_t<custom_obj> {
-  static codec::object<custom_obj> codec() {
-    codec::object<custom_obj> codec;
+  static codec::object_t<custom_obj> codec() {
+    auto codec = codec::object<custom_obj>();
     codec.required("x", &custom_obj::val);
     return codec;
   }

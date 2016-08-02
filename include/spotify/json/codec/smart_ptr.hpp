@@ -59,7 +59,7 @@ class smart_ptr_t {
   explicit smart_ptr_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  void encode(const object_type &value, writer &writer) const {
+  void encode(const object_type &value, detail::writer &writer) const {
     BOOST_ASSERT(value);
     _inner_codec.encode(*value, writer);
   }

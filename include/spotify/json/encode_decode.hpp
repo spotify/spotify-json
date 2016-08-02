@@ -36,31 +36,32 @@ inline void require_at_end(const decoding_context &context) {
 
 }  // namespace detail
 
-template<typename Codec>
+template <typename Codec>
 void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
-  writer w(buffer);
+  detail::writer w(buffer);
   codec.encode(object, w);
 }
 
-template<typename Codec>
+template <typename Codec>
 std::string encode(const Codec &codec, const typename Codec::object_type &object) {
   buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
   codec.encode(object, w);
   return std::string(buffer.data(), buffer.size());
 }
 
 
-template<typename Value>
+template <typename Value>
 std::string encode(const Value &value) {
   buffer buffer;
-  writer w(buffer);
+  detail::writer w(buffer);
   default_codec<Value>().encode(value, w);
   return std::string(buffer.data(), buffer.size());
 }
 
-template<typename Codec>
-typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
+template <typename Codec>
+typename Codec::object_type decode(const Codec &codec, const char *data, size_t size)
+    throw(decode_exception) {
   decoding_context c(data, data + size);
   detail::advance_past_whitespace(c);
   const auto result = codec.decode(c);
@@ -69,22 +70,24 @@ typename Codec::object_type decode(const Codec &codec, const char *data, size_t 
   return result;
 }
 
-template<typename Codec>
-typename Codec::object_type decode(const Codec &codec, const std::string &string) {
+template <typename Codec>
+typename Codec::object_type decode(const Codec &codec, const std::string &string)
+    throw(decode_exception) {
   return decode(codec, string.data(), string.size());
 }
 
-template<typename Codec>
-typename Codec::object_type decode(const Codec &codec, const buffer &buffer) {
+template <typename Codec>
+typename Codec::object_type decode(const Codec &codec, const buffer &buffer)
+    throw(decode_exception) {
   return decode(codec, buffer.data(), buffer.size());
 }
 
-template<typename Value>
-Value decode(const std::string &string) {
+template <typename Value>
+Value decode(const std::string &string) throw(decode_exception) {
   return decode(default_codec<Value>(), string);
 }
 
-template<typename Codec>
+template <typename Codec>
 bool try_decode(
     typename Codec::object_type &object,
     const Codec &codec,
@@ -102,7 +105,7 @@ bool try_decode(
   }
 }
 
-template<typename Codec>
+template <typename Codec>
 bool try_decode(
     typename Codec::object_type &object,
     const Codec &codec,
@@ -110,7 +113,7 @@ bool try_decode(
   return try_decode(object, codec, string.data(), string.size());
 }
 
-template<typename Codec>
+template <typename Codec>
 bool try_decode(
     typename Codec::object_type &object,
     const Codec &codec,
@@ -118,15 +121,16 @@ bool try_decode(
   return try_decode(object, codec, buffer.data(), buffer.size());
 }
 
-template<typename Value>
+template <typename Value>
 bool try_decode(Value &object, const std::string &string) {
   return try_decode(object, default_codec<Value>(), string);
 }
 
 template <typename Codec>
-bool try_decode_partial(typename Codec::object_type &object,
-                        const Codec &codec,
-                        const decoding_context &context) {
+bool try_decode_partial(
+    typename Codec::object_type &object,
+    const Codec &codec,
+    const decoding_context &context) {
   decoding_context c(context);
   try {
     detail::advance_past_whitespace(c);

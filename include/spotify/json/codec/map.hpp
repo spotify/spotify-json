@@ -47,8 +47,8 @@ class map_t final {
   explicit map_t(InnerCodec inner_codec)
       : _inner_codec(inner_codec) {}
 
-  void encode(const object_type &array, writer &w) const {
-    w.add_object([&](writer &w) {
+  void encode(const object_type &array, detail::writer &w) const {
+    w.add_object([&](detail::writer &w) {
       for (const auto &element : array) {
         if (detail::should_encode(_inner_codec, element.second)) {
           w.add_key(element.first);

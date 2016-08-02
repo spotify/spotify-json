@@ -18,10 +18,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <spotify/json/boost.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/encode_decode.hpp>
-#include <spotify/json/extension/boost.hpp>
 
 #include "only_true.hpp"
 
@@ -38,9 +38,8 @@ class base_class {
 class sub_class : public base_class {
 };
 
-codec::object<sub_class> sub_codec() {
-  codec::object<sub_class> codec;
-  return codec;
+codec::object_t<sub_class> sub_codec() {
+  return codec::object<sub_class>();
 }
 
 }  // namespace

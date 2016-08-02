@@ -34,7 +34,7 @@ class dummy_t final {
  public:
   using object_type = T;
 
-  void encode(object_type value, writer &w) const {
+  void encode(object_type value, detail::writer &w) const {
     w << false;
   }
 
@@ -51,8 +51,8 @@ class base_class {
 class sub_class : public base_class {
 };
 
-object<sub_class> sub_codec() {
-  object<sub_class> codec;
+object_t<sub_class> sub_codec() {
+  auto codec = object<sub_class>();
   return codec;
 }
 

@@ -32,6 +32,7 @@
 
 namespace spotify {
 namespace json {
+namespace detail {
 
 template<typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::optional<T> &optional) {
@@ -56,6 +57,8 @@ basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, o
   }
   return writer;
 }
+
+}  // namespace detail
 
 /// boost::shared_ptr
 
@@ -114,7 +117,7 @@ class optional_t final {
   optional_t(InnerCodec inner_codec, none_as_null_t)
       : _inner_codec(inner_codec), _none_as_null(true) {}
 
-  void encode(const object_type &value, writer &w) const {
+  void encode(const object_type &value, detail::writer &w) const {
     if (value) {
       _inner_codec.encode(*value, w);
     } else {
@@ -198,10 +201,13 @@ inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
 
 }  // namespace boost_detail
 
+namespace detail {
+
 template<typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::container::flat_map<K, V> &map) {
   return boost_detail::write_object(writer, map);
 }
 
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

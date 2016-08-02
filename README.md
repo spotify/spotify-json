@@ -1,17 +1,17 @@
 spotify-json
 ============
 
-A C++ JSON writer and parser library. It
+A C++11 JSON writer and parser library. It
 
 * requires very little boilerplate code when using it,
 * is fast,
-* comes with a good suite of tests,
+* comes with [a good suite of tests](test),
 * is deployed and in active use on well over 100 million devices,
-* and [has API documentation](doc/codec.md).
+* and [has API documentation](doc/api.md).
 
-`spotify-json` itself is a header-only library, but it depends on
+spotify-json itself is a header-only library, but it depends on
 [Google's double-conversion library](https://github.com/google/double-conversion),
-which must be linked in to the code that uses `spotify-json`.
+which must be linked in to the code that uses spotify-json.
 
 Example
 ------
@@ -22,6 +22,8 @@ Example
 #include <string>
 
 #include <spotify/json.hpp>
+
+using namespace spotify::json;
 
 struct Track {
   std::string uri;
@@ -36,8 +38,8 @@ namespace json {
 // encoding and decoding objects of certain types.
 template<>
 struct default_codec_t<Track> {
-  static object<Track> codec() {
-    object<Track> codec;
+  static object_t<Track> codec() {
+    auto codec = object<Track>();
     codec.required("uri", &Track::uri);
     codec.optional("uid", &Track::uid);
     codec.optional("metadata", &Track::metadata);
@@ -66,48 +68,68 @@ int main() {
 Usage
 -----
 
-`spotify-json` offers [a range of `codec` types](doc/codec.md) that can
-serialize and parse specific JSON values. There are `codec`s for each of the
-basic data types that JSON offers: [strings](doc/codec.md#string_t),
-[numbers](doc/codec.md#number_t), [arrays](doc/codec.md#array_t),
-[booleans](doc/codec.md#boolean_t), [objects](doc/codec.md#object) and
-[null](doc/codec.md#null_t).
+spotify-json offers [a range of codec types](doc/api.md) that can serialize
+and parse specific JSON values. There are codecs for each of the basic data
+types that JSON offers: [strings](doc/api.md#string_t),
+[numbers](doc/api.md#number_t), [arrays](doc/api.md#array_t),
+[booleans](doc/api.md#boolean_t), [objects](doc/api.md#object_t) and
+[null](doc/api.md#null_t).
 
 
-### Constructing and composing `codec`s
+### Constructing and composing codecs
 
-A `codec` for integers can be made using `codec::integer()`. The codec for
-strings can be instantiated with `codec::string()`.
+A codec for integers can be made using
+[`codec::number<int>()`](doc/api.md#number_t). The codec for strings can be
+instantiated with [`codec::string()`](doc/api.md#string_t).
 
-`codec`s are composable. It is for example possible to construct a `codec` for
+Codecs are composable. It is for example possible to construct a codec for
 parsing and serialization of JSON arrays of numbers, such as `[1,4,2]`:
-`codec::array<std::vector<int>>(codec::integer())`.
+[`codec::array<std::vector<int>>(codec::number<int>())`](doc/api.md#array_t).
 
 Constructing deeply nested codecs manually as above can become tedious. To ease
-this pain, `default_codec` is a helper function that makes it easy to construct
-`codec`s for built-in types. For example, `default_codec<int>()` is a codec that
-can parse and serialize numbers, and `default_codec<std::vector<int>>()` is one
-that works on arrays of numbers.
+this pain, [`default_codec`](doc/api.md#default_codec_t) is a helper function
+that makes it easy to construct codecs for built-in types. For example,
+`default_codec<int>()` is a codec that can parse and serialize numbers, and
+`default_codec<std::vector<int>>()` is one that works on arrays of numbers.
 
 It is possible to work with JSON objects with arbitrary keys. For example,
-`default_codec<std::map<std::string, bool>>()` is a `codec` for JSON objects
+`default_codec<std::map<std::string, bool>>()` is a codec for JSON objects
 with strings as keys and booleans as values.
 
 
 ### Parsing and serialization
 
-Parsing is done using the `decode` function:
+Parsing is done using the [`decode`](doc/api.md#decode)
+function:
 
 ```cpp
-decode(codec::integer(), "123") == 123;
-decode<int>("123") == 123;  // Shortcut for decode(default_codec<int>(), "123")
-decode<std::vector<int>>("[1,2,3]") == std::vector{ 1, 2, 3 };
+try {
+  decode(codec::number<int>(), "123") == 123;
+  decode<int>("123") == 123;  // Shortcut for decode(default_codec<int>(), "123")
+  decode<std::vector<int>>("[1,2,3]") == std::vector{ 1, 2, 3 };
+} catch (const decode_exception &e) {
+  std::cout << "Failed to decode: " << e.what() << std::endl;
+}
 ```
 
-Similarly, serialization is done using `encode`: 
+[`decode`](doc/api.md#decode) throws
+[`decode_exception`](doc/api.md#decode_exception) when parsing fails. There is
+also a function [`try_decode`](doc/api.md#try_decode) that doesn't throw on
+parse errors:
 
 ```cpp
-encode(codec::integer(), 123) == "123";
+int result = 0;
+if (try_decode(result, "123")) {
+  result == 123;
+} else {
+  // Decoding failed!
+}
+```
+
+Similarly, serialization is done using [`encode`](doc/api.md#encode):
+
+```cpp
+encode(codec::number<int>(), 123) == "123";
 encode(123) == "123";  // Shortcut for encode(default_codec<int>(), 123)
 encode(std::vector<int>{ 1, 2, 3 }) == "[1,2,3]";
 ```
@@ -126,7 +148,7 @@ boilerplate is painful to write, bug-prone and slow due to unnecessary copying.
 SAX-style event based libraries such as [yajl](http://lloyd.github.io/yajl/)
 avoid the slowdown but require even more boilerplate.
 
-`spotify-json` avoids these issues by parsing the JSON directly into statically
+spotify-json avoids these issues by parsing the JSON directly into statically
 typed data structures. To explain how, let's use the example of a basic
 two-dimensional coordinate, represented in JSON as `{"x":1,"y":2}`. In C++, such
 a coordinate may be represented as a struct:
@@ -141,20 +163,20 @@ struct Coordinate {
 };
 ```
 
-With `spotify-json`, it is possible to construct a `codec` that can convert
+With spotify-json, it is possible to construct a codec that can convert
 `Coordinate` directly to and from JSON:
 
 ```cpp
-object<Coordinate> coordinate_codec;
+auto coordinate_codec = object<Coordinate>();
 coordinate_codec.required("x", &Coordinate::x);
 coordinate_codec.required("y", &Coordinate::y);
 ```
 
 The use of `required` will cause parsing to fail if the fields are missing.
 There is also an `optional` method. For more information, see
-[`object`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/codec.md#object).
+[`object_t`'s API documentation](https://ghe.spotify.net/spotify-sdk/spotify-json/blob/master/doc/api.md#object_t).
 
-This `codec` can be used with `encode` and `decode`:
+This codec can be used with `encode` and `decode`:
 
 ```cpp
 encode(coordinate_codec, Coordinate(10, 0)) == "{\"x\":10,\"y\":0}";
@@ -174,10 +196,10 @@ struct Player {
 };
 ```
 
-A `codec` for `Player` might be created with
+A codec for `Player` might be created with
 
 ```cpp
-object<Player> player_codec;
+auto player_codec = object<Player>();
 player_codec.required("name", &Player::name);
 // Because there is no default_codec for Coordinate, we need to pass in the
 // codec explicitly:
@@ -189,10 +211,10 @@ player.name = "Daniel";
 encode(player_codec, player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
 ```
 
-Since `codec`s are just normal objects, it is possible to create and use
-several different `codec`s for any given data type. This makes it possibile to
+Since codecs are just normal objects, it is possible to create and use
+several different codecs for any given data type. This makes it possibile to
 parameterize parsing and do other fancy things, but for most data types there
-will only really exist one `codec`. For these cases, it is possible to extend
+will only really exist one codec. For these cases, it is possible to extend
 the `default_codec` helper to support your own data types.
 
 ```cpp
@@ -201,8 +223,8 @@ namespace json {
 
 template<>
 struct default_codec_t<Coordinate> {
-  static object<Coordinate> codec() {
-    object<Coordinate> codec;
+  static object_t<Coordinate> codec() {
+    auto codec = object<Coordinate>();
     codec.required("x", &Coordinate::x);
     codec.required("y", &Coordinate::y);
     return codec;
@@ -211,8 +233,8 @@ struct default_codec_t<Coordinate> {
 
 template<>
 struct default_codec_t<Player> {
-  static object<Player> codec() {
-    object<Player> codec;
+  static object_t<Player> codec() {
+    auto codec = object<Player>();
     codec.required("name", &Player::name);
     codec.required("position", &Player::position);
     return codec;
@@ -223,7 +245,7 @@ struct default_codec_t<Player> {
 }  // namespace spotify
 ```
 
-`Coordinate` and `Player` can now be used like any other type that `spotify-json`
+`Coordinate` and `Player` can now be used like any other type that spotify-json
 supports out of the box:
 
 ```cpp
@@ -239,26 +261,26 @@ encode(player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
 
 ### Advanced uses
 
-The examples above cover the most commonly used parts of `spotify-json`. The
+The examples above cover the most commonly used parts of spotify-json. The
 library supports more things that sometimes come in handy:
 
 * Most STL containers, including
-  [`vector`, `deque`, `list`, `set`, `unordered_set`](doc/codec.md#array_t),
-  [`map` and `unordered_map`](doc/codec.md#map_t)
-* [C++ `enum`s and similar types](doc/codec.md#enumeration_t)
-* [Arbitrary conversion logic](doc/codec.md#transform_t), for example when a
+  [`vector`, `deque`, `list`, `set`, `unordered_set`](doc/api.md#array_t),
+  [`map` and `unordered_map`](doc/api.md#map_t)
+* [C++ `enum`s and similar types](doc/api.md#enumeration_t)
+* [Arbitrary conversion logic](doc/api.md#transform_t), for example when a
   raw binary hash in C++ is represented as a hex coded string in JSON
-* [Dealing with versioning](doc/codec.md#equals_t)
-* [Ignoring values that are of the wrong type instead of failing the parse](doc/codec.md#lenient_t)
-* Values wrapped in [`unique_ptr`s](doc/codec.md#unique_ptr_t) and
-  [`shared_ptr`s](doc/codec.md#shared_ptr_t)
-* [`boost::optional`](doc/codec.md#optional)
-* [`boost::chrono` and `std::chrono` types](doc/codec.md#chrono)
-* [Dealing with virtual classes / type erasure](doc/codec.md#cast_t)
-* [Floating point numbers with lossless serialize/parse roundtrip](doc/codec.md#map_t)
+* [Dealing with versioning](doc/api.md#equals_t)
+* [Ignoring values that are of the wrong type instead of failing the parse](doc/api.md#lenient_t)
+* Values wrapped in [`unique_ptr`s](doc/api.md#unique_ptr_t) and
+  [`shared_ptr`s](doc/api.md#shared_ptr_t)
+* [`boost::optional`](doc/api.md#optional)
+* [`boost::chrono` and `std::chrono` types](doc/api.md#chrono)
+* [Dealing with virtual classes / type erasure](doc/api.md#cast_t)
+* [Floating point numbers with lossless serialize/parse roundtrip](doc/api.md#map_t)
 
 
-[Detailed API documentation](doc/codec.md)
+[Detailed API documentation](doc/api.md)
 ------------------------------------------
 
 Building and running tests

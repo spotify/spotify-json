@@ -35,39 +35,39 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename T>
-class object final {
+template <typename T>
+class object_t final {
  public:
   using object_type = T;
 
-  template<
+  template <
       typename U = T,
       typename = typename std::enable_if<std::is_default_constructible<U>::value>::type>
-  object() {}
+  object_t() {}
 
-  object(const object<T> &object) = default;
-  object(object<T> &&object) = default;
+  object_t(const object_t<T> &) = default;
+  object_t(object_t<T> &&) = default;
 
-  template<
+  template <
       typename Create,
       typename = typename std::enable_if<!std::is_same<
           typename std::decay<Create>::type,
-          object>::value>::type>
-  explicit object(Create &&create)
+          object_t>::value>::type>
+  explicit object_t(Create &&create)
       : _construct(std::forward<Create>(create)) {}
 
-  template<typename... Args>
+  template <typename... Args>
   void optional(const std::string &name, Args &&...args) {
     add_field(name, false, std::forward<Args>(args)...);
   }
 
-  template<typename... Args>
+  template <typename... Args>
   void required(const std::string &name, Args &&...args) {
     add_field(name, true, std::forward<Args>(args)...);
   }
 
-  void encode(const object_type &value, writer &w) const {
-    w.add_object([&](writer &w) {
+  void encode(const object_type &value, detail::writer &w) const {
+    w.add_object([&](detail::writer &w) {
       for (const auto &field : _field_list) {
         field.second->encode(field.first, value, w);
       }
@@ -123,20 +123,20 @@ class object final {
         field_id(field_id) {}
     virtual ~field() = default;
 
-    virtual void encode(const key &key, const object_type &object, writer &w) const = 0;
+    virtual void encode(const key &key, const object_type &object, detail::writer &w) const = 0;
     virtual void decode(object_type &object, decoding_context &context) const = 0;
 
     const bool required;
     const size_t field_id;
   };
 
-  template<typename Codec>
+  template <typename Codec>
   struct dummy_field final : public field {
     dummy_field(bool required, size_t field_id, Codec codec)
         : field(required, field_id),
           codec(std::move(codec)) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       w.add_key(key);
       codec.encode(typename Codec::object_type(), w);
     }
@@ -148,14 +148,14 @@ class object final {
     Codec codec;
   };
 
-  template<typename MemberPtr, typename Codec>
+  template <typename MemberPtr, typename Codec>
   struct member_var_field final : public field {
     member_var_field(bool required, size_t field_id, Codec codec, MemberPtr member_pointer)
         : field(required, field_id),
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = object.*member_pointer;
       if (detail::should_encode(codec, value)) {
         w.add_key(key);
@@ -180,7 +180,7 @@ class object final {
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = (object.*getter_ptr)();
       if (detail::should_encode(codec, value)) {
         w.add_key(key);
@@ -207,7 +207,7 @@ class object final {
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
 
-    void encode(const key &key, const object_type &object, writer &w) const override {
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = get(object);
       if (detail::should_encode(codec, value)) {
         w.add_key(key);
@@ -324,6 +324,16 @@ class object final {
   field_map _fields;
   size_t _num_required_fields = 0;
 };
+
+template <typename T>
+object_t<T> object() {
+  return object_t<T>();
+}
+
+template <typename Create>
+auto object(Create &&create) -> object_t<decltype(create())> {
+  return object_t<decltype(create())>(std::forward<Create>(create));
+}
 
 }  // namespace codec
 }  // namespace json

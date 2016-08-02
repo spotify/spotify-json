@@ -51,7 +51,7 @@ struct example_t {
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_construct) {
-  one_of_t<object<example_t>> codec;
+  one_of_t<object_t<example_t>> codec;
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_construct_with_helper) {
@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_construct_with_helper) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_encode_with_first) {
-  object<example_t> first;
+  auto first = object<example_t>();
   first.required("a", &example_t::value);
 
-  object<example_t> second;
+  auto second = object<example_t>();
   second.required("b", &example_t::value);
 
   const auto codec = one_of(first, second);
@@ -74,10 +74,10 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_encode_with_first) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_first_if_possible) {
-  object<example_t> first;
+  auto first = object<example_t>();
   first.required("a", &example_t::value);
 
-  object<example_t> second;
+  auto second = object<example_t>();
 
   const auto codec = one_of(first, second);
   const auto example = test_decode(codec, "{\"a\":\"first\"}");
@@ -85,10 +85,10 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_first_if_possible) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_second_if_needed) {
-  object<example_t> first;
+  auto first = object<example_t>();
   first.required("a", &example_t::value);
 
-  object<example_t> second;
+  auto second = object<example_t>();
   second.required("b", &example_t::value);
 
   const auto codec = one_of(first, second);
@@ -97,10 +97,10 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_second_if_needed) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_fail_decode_if_all_fail) {
-  object<example_t> first;
+  auto first = object<example_t>();
   first.required("a", &example_t::value);
 
-  object<example_t> second;
+  auto second = object<example_t>();
   second.required("b", &example_t::value);
 
   const auto codec = one_of(first, second);
