@@ -60,8 +60,7 @@ std::string encode(const Value &value) {
 }
 
 template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const char *data, size_t size)
-    throw(decode_exception) {
+typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
   decoding_context c(data, data + size);
   detail::advance_past_whitespace(c);
   const auto result = codec.decode(c);
@@ -71,19 +70,17 @@ typename Codec::object_type decode(const Codec &codec, const char *data, size_t 
 }
 
 template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const std::string &string)
-    throw(decode_exception) {
+typename Codec::object_type decode(const Codec &codec, const std::string &string) {
   return decode(codec, string.data(), string.size());
 }
 
 template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const buffer &buffer)
-    throw(decode_exception) {
+typename Codec::object_type decode(const Codec &codec, const buffer &buffer) {
   return decode(codec, buffer.data(), buffer.size());
 }
 
 template <typename Value>
-Value decode(const std::string &string) throw(decode_exception) {
+Value decode(const std::string &string) {
   return decode(default_codec<Value>(), string);
 }
 
