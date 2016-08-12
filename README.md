@@ -186,8 +186,7 @@ coord.x == 12;
 coord.y == 13;
 ```
 
-Objects of different types can be nested. To demonstrate this, let's introduce
-another data type:
+Objects can be nested. To demonstrate this, let's introduce another data type:
 
 ```cpp
 struct Player {
