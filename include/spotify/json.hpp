@@ -23,7 +23,7 @@
 #include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/enumeration.hpp>
 #include <spotify/json/codec/equals.hpp>
-#include <spotify/json/codec/lenient.hpp>
+#include <spotify/json/codec/ignore.hpp>
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/null.hpp>
 #include <spotify/json/codec/number.hpp>

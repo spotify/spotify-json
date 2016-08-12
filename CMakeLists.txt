@@ -37,7 +37,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/codec_interface.hpp
   include/spotify/json/codec/enumeration.hpp
   include/spotify/json/codec/equals.hpp
-  include/spotify/json/codec/lenient.hpp
+  include/spotify/json/codec/ignore.hpp
   include/spotify/json/codec/map.hpp
   include/spotify/json/codec/null.hpp
   include/spotify/json/codec/number.hpp
@@ -87,8 +87,8 @@ set(json_test_SOURCES
   test/test_enumeration.cpp
   test/test_equals.cpp
   test/test_escape.cpp
+  test/test_ignore.cpp
   test/test_key.cpp
-  test/test_lenient.cpp
   test/test_main.cpp
   test/test_map.cpp
   test/test_null.cpp

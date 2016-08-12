@@ -51,6 +51,8 @@ class equals_t final {
     return result;
   }
 
+  // TODO(peck): should_encode
+
  private:
   InnerCodec _inner_codec;
   object_type _value;

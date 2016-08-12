@@ -98,6 +98,8 @@ class one_of_t final {
         decltype(_codecs), std::tuple_size<decltype(_codecs)>::value>::decode(_codecs, context);
   }
 
+  // TODO(peck): should_encode
+
  private:
   std::tuple<Codec, Codecs ...> _codecs;
 };

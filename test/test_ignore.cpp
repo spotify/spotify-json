@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,8 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/codec/lenient.hpp>
-#include <spotify/json/codec/string.hpp>
+#include <spotify/json/codec/ignore.hpp>
 #include <spotify/json/encode_decode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
@@ -44,31 +43,27 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
 
 }  // namespace
 
-BOOST_AUTO_TEST_CASE(json_codec_lenient_should_construct) {
-  lenient_t<string_t> codec(string());
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_construct) {
+  ignore_t<std::string> codec;
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_lenient_should_construct_with_helper) {
-  lenient(string());
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_construct_with_helper) {
+  ignore<std::string>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_lenient_should_encode) {
-  const auto codec = lenient(string());
-  BOOST_CHECK_EQUAL(encode(codec, "hello"), "\"hello\"");
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_not_encode) {
+  const auto codec = ignore<std::string>();
+  BOOST_CHECK(!codec.should_encode("abc"));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_lenient_should_decode_successfully) {
-  const auto codec = lenient(string());
-  BOOST_CHECK_EQUAL(test_decode(codec, "\"hello\""), "hello");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_lenient_should_decode_leniently) {
-  const auto codec = lenient(string());
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_decode_successfully) {
+  const auto codec = ignore<std::string>();
+  BOOST_CHECK_EQUAL(test_decode(codec, "\"hello\""), "");
   BOOST_CHECK_EQUAL(test_decode(codec, "[{},true]"), "");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_lenient_should_fail_on_invalid_input) {
-  const auto codec = lenient(string());
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_fail_on_invalid_input) {
+  const auto codec = ignore<std::string>();
   test_decode_fail(codec, "a");
 }
 
