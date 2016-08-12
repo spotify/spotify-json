@@ -68,7 +68,7 @@ int main() {
 Usage
 -----
 
-spotify-json offers [a range of codec types](doc/api.md) that can serialize
+spotify-json offers [a range of codec types](doc/api.md#the-codec) that can serialize
 and parse specific JSON values. There are codecs for each of the basic data
 types that JSON offers: [strings](doc/api.md#string_t),
 [numbers](doc/api.md#number_t), [arrays](doc/api.md#array_t),
