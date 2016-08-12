@@ -42,6 +42,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/null.hpp
   include/spotify/json/codec/number.hpp
   include/spotify/json/codec/object.hpp
+  include/spotify/json/codec/omit.hpp
   include/spotify/json/codec/one_of.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
@@ -94,6 +95,7 @@ set(json_test_SOURCES
   test/test_null.cpp
   test/test_number.cpp
   test/test_object.cpp
+  test/test_omit.cpp
   test/test_one_of.cpp
   test/test_pair.cpp
   test/test_primitive_encoder.cpp
