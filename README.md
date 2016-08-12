@@ -191,6 +191,7 @@ Objects can be nested. To demonstrate this, let's introduce another data type:
 ```cpp
 struct Player {
   std::string name;
+  std::string instrument;
   Coordinate position;
 };
 ```
@@ -200,6 +201,7 @@ A codec for `Player` might be created with
 ```cpp
 auto player_codec = object<Player>();
 player_codec.required("name", &Player::name);
+player_codec.required("instrument", &Player::instrument);
 // Because there is no default_codec for Coordinate, we need to pass in the
 // codec explicitly:
 player_codec.required("position", &Player::position, coordinate_codec);
@@ -207,7 +209,11 @@ player_codec.required("position", &Player::position, coordinate_codec);
 // Let's use it:
 Player player;
 player.name = "Daniel";
-encode(player_codec, player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
+player.instrument = "guitar";
+encode(player_codec, player) == "{" \
+    "\"name\":\"Daniel\"," \
+    "\"instrument\":\"guitar\"," \
+    "\"position\":{\"x\":0,\"y\":0}}";
 ```
 
 Since codecs are just normal objects, it is possible to create and use
@@ -235,6 +241,7 @@ struct default_codec_t<Player> {
   static object_t<Player> codec() {
     auto codec = object<Player>();
     codec.required("name", &Player::name);
+    codec.required("instrument", &Player::instrument);
     codec.required("position", &Player::position);
     return codec;
   }
@@ -253,8 +260,12 @@ encode(Coordinate(10, 0)) == "{\"x\":10,\"y\":0}";
 decode<std::vector<Coordinate>>("[{\"x\":1,\"y\":-1}]") == std::vector<Coordinate>{ Coordinate(1, -1) };
 
 Player player;
-player.name = "Daniel";
-encode(player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
+player.name = "Martin";
+player.instrument = "drums";
+encode(player) == "{" \
+    "\"name\":\"Martin\"," \
+    "\"instrument\":\"drums\"," \
+    "\"position\":{\"x\":0,\"y\":0}}";
 ```
 
 
