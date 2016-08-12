@@ -29,9 +29,10 @@ static null_type null;
 
 namespace codec {
 
+template <typename ObjectType>
 class null_t final {
  public:
-  using object_type = null_type;
+  using object_type = ObjectType;
 
   void encode(const object_type &value, detail::writer &w) const {
     w.add_null();
@@ -39,20 +40,21 @@ class null_t final {
 
   object_type decode(decoding_context &context) const {
     detail::advance_past_null(context);
-    return null_type();
+    return object_type();
   }
 };
 
-inline null_t null() {
-  return null_t();
+template <typename ObjectType = null_type>
+inline null_t<ObjectType> null() {
+  return null_t<ObjectType>();
 }
 
 }  // namespace codec
 
 template<>
 struct default_codec_t<null_type> {
-  static codec::null_t codec() {
-    return codec::null_t();
+  static codec::null_t<null_type> codec() {
+    return codec::null_t<null_type>();
   }
 };
 

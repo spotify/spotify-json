@@ -24,7 +24,7 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename InnerCodec>
+template <typename InnerCodec>
 class lenient_t final {
  public:
   using object_type = typename InnerCodec::object_type;

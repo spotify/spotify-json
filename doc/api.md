@@ -567,11 +567,14 @@ C++ object in a type-safe way.
 ### `null_t`
 
 `null_t` is a codec that is only capable of parsing and writing the JSON value
-null.
+null. By default it encodes to and from `spotify::json::null_type`, which is an
+empty struct class, but it can be used with other types as well.
 
 * **Complete class name**: `spotify::json::codec::null_t`
-* **Supported types**: Only `spotify::json::null_type`
-* **Convenience builder**: `spotify::json::codec::null()`
+* **Supported types**: Any default constructible type.
+  `spotify::json::null_type` is used by default.
+* **Convenience builder**: `spotify::json::codec::null()`, or
+  `spotify::json::codec::null<T>()` to use a type other than `null_type`.
 * **`default_codec` support**: `default_codec<null_type>()`
 
 
