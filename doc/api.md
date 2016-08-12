@@ -167,8 +167,33 @@ bool try_decode_partial(
 Exception that is thrown when parsing fails. For more info, see 
 [decode_exception.hpp](../include/spotify/json/decode_exception.hpp)
 
+Handling missing, empty, `null` and invalid values
+==================================================
+
+By default, spotify-json is rather strict in what input it accepts. When parsing
+an object of a given type, only JSON input with that type is accepted. For
+example, when spotify-json encounters `null` when it expects a string, a number
+or an object it fails the parse.
+
+Furthermore, by default spotify-json always encodes fields of objects, even when
+they are empty.
+
+This behavior is sometimes not desirable, so spotify-json allows for configuring
+it:
+
+* [`object_t`](#object_t) allows the user to declare a field as `optional`. This
+  allows the parsing to succeed when a field declared for that object is
+  not present. This modifies decoding behavior only.
+* [`one_of_t`](#one_of_t) makes it possible to permit `null` or invalid values
+  in the input without affecting serialization. This modifies decoding behavior
+  only.
+* [`default_as_t`](#default_as_t) can be used to encode empty values as `null`
+  (`default_as_null`, modifies encoding and decoding behavior) and to omit empty
+  values, for example strings or arrays (`default_as_omit`, modifies encoding
+  behavior only).
+
 The codec
-===========
+=========
 
 The main entity of the spotify-json library is the *codec*. Like iterators in
 the C++ STL, there is no codec class that all codecs inherit: codec is a
@@ -185,14 +210,18 @@ a number of codecs that are available to the user of the library:
 * [`array_t`](#array_t): For arrays (`std::vector`, `std::deque` etc)
 * [`boolean_t`](#boolean_t): For `bool`s
 * [`cast_t`](#cast_t): For dynamic casting `shared_ptr`s
+* [`default_as_t`](#default_as_t): For controlling encoding behavior of default
+  constructed or empty objects.
 * [`enumeration_t`](#enumeration_t): For enums and other enumerations of values
 * [`eq_t`](#eq_t): For requiring a specific value
-* [`lenient_t`](#lenient_t): For allowing values to be of the wrong type
+* [`ignore_t`](#ignore_t): For ignoring JSON input.
 * [`map_t`](#map_t): For `std::map` and other maps
 * [`null_t`](#null_t): For `null`
 * [`number_t`](#number_t): For parsing numbers (both floating point numbers and
   integers)
 * [`object_t`](#object_t): For custom C++ objects
+* [`omit_t`](#omit_t): Codec that can't decode and that doesn't encode. For use
+  with [`default_as_t`](#default_as_t).
 * [`one_of_t`](#one_of_t): For trying more than one codec
 * [`shared_ptr_t`](#shared_ptr_t): For `shared_ptr`s
 * [`string_t`](#string_t): For strings
@@ -234,10 +263,11 @@ combinations:
 
 ```cpp
 using my_type = std::map<std::string,std::unique_ptr<std::string>>;
-// Construct a codec for a map from string to shared_ptr of strings,
+// Construct a codec for a map from string to unique_ptr of strings,
 // where, if an unexpected type is encountered in the value of the map,
-// it is ignored instead of failing the parse.
-const auto my_codec = map<my_type>(unique_ptr(lenient(string())));
+// it is treated as an empty string instead of failing the parse.
+const auto my_codec =
+    map<my_type>(unique_ptr(one_of(string(), ignore<std::string>())));
 const my_type value = decode(my_codec, "{\"a\":null,\"b\":\"hey\"}");
 ```
 
@@ -307,15 +337,15 @@ be used.
 
 ```cpp
 // A primitive example of the use of any_t:
-const lenient_t<string_t> lenient_codec = lenient(string());
+const string_t string_codec = string();
 const eq_t<string_t> strict_codec = eq("x");
 
-// lenient_codec and strict_codec have separate types, so it's not possible
+// string_t and eq_t<string_t> have separate types, so it's not possible
 // to just assign one or the other to another variable. However, both
-// lenient_codec and strict_codec can be turned into any_t<std::string>
+// string_t and eq_t<string_t> can be turned into any_t<std::string>
 // objects, which can then be assigned to a variable of that type.
 const any_t<std::string> one_or_the_other = strict ?
-    any(strict_codec) : any(lenient_codec);
+    any(strict_codec) : any(string_codec);
 ```
 
 The example above is a bit contrived. A more realistic case where use of `any_t`
@@ -431,9 +461,70 @@ In the code above, the use of `cast_t` is required because when the user of
 * **Supported types**: `std::shared_ptr<T>`
 * **Convenience builder**: `spotify::json::codec::cast<T>(InnerCodec)`
 * **`default_codec` support**: No; the convenience builder must be used
-  explicitly. Unless you know that you need to use this codec, there probably is
-  no need to do it.
+  explicitly.
 
+### `default_as_t`
+
+By default, spotify-json never encodes empty smart pointers, `boost::optional`
+or arrays as `null`. It also does not accept `null` when decoding unless it has
+been explicitly allowed. In many cases, this behavior is fine and expected, but
+in some cases it is desirable to be more permissive when parsing, or even
+required to emit `null` instead of nothing when an object is missing.
+
+`default_as_t` is a codec that allows for control over how default constructed
+(empty) objects are encoded and decoded. It wraps an inner codec, which does
+most of the heavy lifting, and a "default codec", which is used when the object
+to be encoded is empty (equal to a default constructed object of that type).
+
+It is most commonly used with the [`null_t`](#null_t) and [`omit_t`](#omit_t)
+codecs, and there are convenience functions for those two cases:
+`default_as_null` and `default_as_omit`.
+
+`default_as_null` causes empty objects to be encoded as `null`, and causes
+`null` to be parsed to a default constructed object. For example,
+`default_as_null(default_codec<std::shared_ptr<std::string>>())` is a codec
+for a `shared_ptr<string>` that encodes a `nullptr` `shared_ptr` to `null`.
+Without the `default_as_null` wrapper, null would be disallowed both when
+encoding and when decoding.
+
+```cpp
+const auto codec = default_as_null(default_codec<std::shared_ptr<std::string>>());
+encode(codec, std::shared_ptr<std::string>()) == "null";
+encode(codec, std::make_shared<std::string>("abc")) == "\"abc\"";
+```
+
+`default_as_omit` causes empty objects to be omitted from the output. For
+example, `default_as_omit(string())` is a codec that, when embedded in for
+example an `object_t` codec, causes the field to be omitted if it's empty.
+This can be useful for decluttering the JSON if the object has many fields that
+are usually not set.
+
+```cpp
+struct Val {
+  std::string a;
+  std::string b;
+};
+
+// ...
+
+auto codec = object<Val>();
+codec.optional("a", &Val::a);
+codec.optional("b", &Val::b, default_as_omit(string()));
+
+encode(codec, Val()) == "{\"a\":\"\"}";  // no "b"
+```
+
+* **Complete class name**:
+  `spotify::json::codec::default_t<DefaultCodec, InnerCodec>`, where
+  `DefaultCodec` is the type of the codec that's used for empty values and
+  `InnerCodec` is the type of the codec that's used otherwise.
+* **Supported types**: Any default constructible type.
+* **Convenience builder**:
+  `spotify::json::codec::default_as_null(inner_codec)`,
+  `spotify::json::codec::default_as_omit(inner_codec)`, or
+  `spotify::json::codec::default_as(default_codec, inner_codec)` to use any
+  other codec as default codec.
+* **`default_codec` support**: `default_codec<null_type>()`
 
 ### `enumeration_t`
 
@@ -523,18 +614,25 @@ struct default_codec_t<metadata_response> {
   explicitly.
 
 
-### `lenient_t`
+### `ignore_t`
 
-By default, spotify-json is strict about the types of the JSON values that it
-parses: If it is instructed to read a string but it encounters "null", it will
-reject the input. `lenient_t` is a codec that attempts to parse a value using an
-inner codec, but if that fails, it skips over the value. It fails only if the
-input is malformed JSON.
+`ignore_t` is a primitive codec that just skips over the input JSON and returns
+a default constructed object when decoding and that asks to not be encoded. It
+can be used for requiring an object to be there when the information in it is
+not relevant.
 
-* **Complete class name**: `spotify::json::codec::lenient_t<InnerCodec>`,
-  where `InnerCodec` is the type of the codec that actually codes the value.
-* **Supported types**: Any type that the underlying codec supports.
-* **Convenience builder**: `spotify::json::codec::lenient(InnerCodec)`
+`ignore_t` can be used with the [`one_of_t`](#one_of_t) codec in order to not
+fail the parse even if the object does not follow the specified schema. The
+documentation for `one_of_t` has examples for how to do this.
+
+[`omit_t`](#omit_t) is similar to `ignore_t`. The difference is that `ignore_t`
+always succeeds decoding (if the input is valid JSON) and returns a default
+initialized object always fails decoding, while `omit_t` always fails decoding.
+
+* **Complete class name**: `spotify::json::codec::ignore_t<T>`, where `T` is the
+  type that is default constructed and returned on decoding.
+* **Supported types**: Any default constructible type.
+* **Convenience builder**: `spotify::json::codec::ignore<T>()`
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
 
@@ -563,20 +661,24 @@ C++ object in a type-safe way.
 * **`default_codec` support**: `default_codec<std::map<std::string, T>>()`,
   `default_codec<std::unordered_map<std::string, T>>()`.
 
-
 ### `null_t`
 
 `null_t` is a codec that is only capable of parsing and writing the JSON value
 null. By default it encodes to and from `spotify::json::null_type`, which is an
 empty struct class, but it can be used with other types as well.
 
-* **Complete class name**: `spotify::json::codec::null_t`
+The `null_t` codec can be used with the [`default_as_t`](#default_as_t) codec
+in order to encode `nullptr` smart pointers or other empty objects (empty
+`boost::optional` or even empty arrays) as `null` in JSON. The documentation for
+`default_as_t` has examples for how to do this.
+
+* **Complete class name**: `spotify::json::codec::null_t<T>` where `T` is the
+  type that is created when the codec successfully decodes a JSON `null`.
 * **Supported types**: Any default constructible type.
   `spotify::json::null_type` is used by default.
 * **Convenience builder**: `spotify::json::codec::null()`, or
   `spotify::json::codec::null<T>()` to use a type other than `null_type`.
 * **`default_codec` support**: `default_codec<null_type>()`
-
 
 ### `number_t`
 
@@ -676,6 +778,25 @@ codec.required("y", &point::y);
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
 
+### `omit_t`
+
+`omit_t` is a primitive codec that cannot decode any value and that asks to
+not be encoded. It indicates that the object should be omitted from the JSON
+output. This codec is typically used with the [`default_as_t`](#default_as_t)
+codec. The documentation for `default_as_t` has usage examples.
+
+[`ignore_t`](#ignore_t) is similar to `omit_t`. The difference is that `omit_t`
+always fails decoding, while `ignore_t` always succeeds decoding (if the input
+is valid JSON) and returns a default initialized object.
+
+* **Complete class name**: `spotify::json::codec::omit_t<T>`, where `T` is the
+  type that would have been encoded and decoded if the codec actually did code
+  anything.
+* **Supported types**: Any type.
+* **Convenience builder**: `spotify::json::codec::omit<T>()`
+* **`default_codec` support**: No; the convenience builder must be used
+  explicitly.
+
 ### `one_of_t`
 
 `one_of_t` is a codec that takes one or more inner codecs. When decoding, it
@@ -685,7 +806,36 @@ always uses the first inner codec.
 `one_of_t` is useful when there are different versions of the JSON format and
 each version has its own codec. A nice pattern is to use [`eq_t`](#eq_t)
 in the version-specific codecs to enforce that they only parse JSON it
-understands.
+understands. An example of that can be found on the documentation for the
+[`eq_t`](#eq_t) codec.
+
+`one_of_t` can also be used with `null_t` or `ignore_t` to make the decoding
+more permissive:
+
+```cpp
+struct Val {
+  std::string require_string;
+  std::string allow_null;
+  std::string allow_anything;
+};
+
+// ...
+
+auto codec = object<Val>();
+codec.required("require_string", &Val::require_string);
+// If parsing the value as a string fails, try parsing null
+codec.required("allow_null", &Val::b, one_of(string(), null<std::string>()));
+// If parsing the value as a string fails, try skipping over
+// one JSON value in the input and parse as "".
+codec.required("allow_anything", &Val::b, one_of(string(), ignore<std::string>()));
+
+const auto val = decode<Val>(
+    "{\"require_string\":\"a\",\"allow_null\":null,\"allow_anything\":123}");
+val.require_string == "a";
+val.allow_null == "";
+val.allow_anything == "";
+
+```
 
 * **Complete class name**: `spotify::json::codec::one_of_t<Codec...>`,
   where `Codec...` is a list of the codec types that will be used for encoding
