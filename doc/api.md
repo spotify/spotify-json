@@ -186,7 +186,7 @@ a number of codecs that are available to the user of the library:
 * [`boolean_t`](#boolean_t): For `bool`s
 * [`cast_t`](#cast_t): For dynamic casting `shared_ptr`s
 * [`enumeration_t`](#enumeration_t): For enums and other enumerations of values
-* [`equals_t`](#equals_t): For requiring a specific value
+* [`eq_t`](#eq_t): For requiring a specific value
 * [`lenient_t`](#lenient_t): For allowing values to be of the wrong type
 * [`map_t`](#map_t): For `std::map` and other maps
 * [`null_t`](#null_t): For `null`
@@ -308,7 +308,7 @@ be used.
 ```cpp
 // A primitive example of the use of any_t:
 const lenient_t<string_t> lenient_codec = lenient(string());
-const equals_t<string_t> strict_codec = value("x");
+const eq_t<string_t> strict_codec = eq("x");
 
 // lenient_codec and strict_codec have separate types, so it's not possible
 // to just assign one or the other to another variable. However, both
@@ -475,13 +475,13 @@ void useEnumeration() {
   explicitly.
 
 
-### `equals_t`
+### `eq_t`
 
-`equals_t` is a codec that only supports encoding and decoding one specific
-value. For example, `equals("Hello!")` is a codec that will fail unless the
+`eq_t` is a codec that only supports encoding and decoding one specific
+value. For example, `eq("Hello!")` is a codec that will fail unless the
 input is exactly `"Hello!"`.
 
-The most common use case for the `equals_t` codec is to enforce that a version
+The most common use case for the `eq_t` codec is to enforce that a version
 field in the JSON object has a specific value. It can be combined with
 `one_of_t` to construct a codec that supports parsing more than one version of
 the object.
@@ -501,7 +501,7 @@ struct default_codec_t<metadata_response> {
     codec.required("n", &metadata_response::x);
 
     object_t<metadata_response> codec_v2;
-    codec.required("version", equals(2));
+    codec.required("version", eq(2));
     codec.required("name", &metadata_response::x);
 
     return one_of(codec_v2, codec_v1);
@@ -512,12 +512,12 @@ struct default_codec_t<metadata_response> {
 }  // namespace spotify
 ```
 
-* **Complete class name**: `spotify::json::codec::equals_t<InnerCodec>`,
+* **Complete class name**: `spotify::json::codec::eq_t<InnerCodec>`,
   where `InnerCodec` is the type of the codec that actually codes the value.
 * **Supported types**: Any type that the underlying codec supports.
-* **Convenience builder**: `spotify::json::codec::equals(InnerCodec, Value)`,
+* **Convenience builder**: `spotify::json::codec::eq(InnerCodec, Value)`,
   which uses the provided inner codec object, and
-  `spotify::json::codec::equals(Value)`, which uses
+  `spotify::json::codec::eq(Value)`, which uses
   `default_codec<Value>()` as the inner codec.
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
@@ -645,7 +645,7 @@ For the `required` and `optional` methods, the following overloads exist:
 * `optional/required("field_name", codec)`: When decoding, don't save the
   results anywhere, just make sure that the codec accepts the input. When
   encoding, use a default constructed value of the given type. This is mainly
-  useful for verification purposes, for example `required("version", equals(5))`
+  useful for verification purposes, for example `required("version", eq(5))`
 
 Each field that `object_t` encodes and decodes uses one virtual method call.
 
@@ -683,7 +683,7 @@ tries the inner codecs one by one until one succeeds to decode. For encoding, it
 always uses the first inner codec.
 
 `one_of_t` is useful when there are different versions of the JSON format and
-each version has its own codec. A nice pattern is to use [`equals_t`](#equals_t)
+each version has its own codec. A nice pattern is to use [`eq_t`](#eq_t)
 in the version-specific codecs to enforce that they only parse JSON it
 understands.
 

@@ -19,7 +19,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/string.hpp>
-#include <spotify/json/codec/equals.hpp>
+#include <spotify/json/codec/eq.hpp>
 #include <spotify/json/encode_decode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
@@ -44,30 +44,30 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
 
 }  // namespace
 
-BOOST_AUTO_TEST_CASE(json_codec_equals_should_construct) {
-  equals_t<string_t> codec(string(), "hello");
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_construct) {
+  eq_t<string_t> codec(string(), "hello");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_equals_should_construct_with_helper_with_codec) {
-  equals(string(), "hello");
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_construct_with_helper_with_codec) {
+  eq(string(), "hello");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_equals_should_construct_with_helper) {
-  equals(std::string("hello"));
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_construct_with_helper) {
+  eq(std::string("hello"));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_equals_should_encode_original_value) {
-  const auto codec = equals(std::string("A"));
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_encode_original_value) {
+  const auto codec = eq(std::string("A"));
   BOOST_CHECK_EQUAL(encode(codec, "B"), "\"A\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_equals_should_decode) {
-  const auto codec = equals(std::string("A"));
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_decode) {
+  const auto codec = eq(std::string("A"));
   BOOST_CHECK_EQUAL(test_decode(codec, "\"A\""), "A");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_equals_should_enforce_correct_value_with_decode) {
-  const auto codec = equals(std::string("A"));
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_enforce_correct_value_with_decode) {
+  const auto codec = eq(std::string("A"));
   test_decode_fail(codec, "\"B\"");
 }
 
