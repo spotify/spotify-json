@@ -80,7 +80,7 @@ class default_as_t final {
  private:
   DefaultCodec _default_codec;
   InnerCodec _inner_codec;
-  object_type _default;
+  object_type _default = object_type();
 };
 
 template <typename DefaultCodec, typename InnerCodec>

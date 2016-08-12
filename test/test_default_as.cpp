@@ -14,13 +14,18 @@
  * the License.
  */
 
+#include <memory>
 #include <string>
 
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/default_as.hpp>
+#include <spotify/json/codec/eq.hpp>
 #include <spotify/json/codec/null.hpp>
+#include <spotify/json/codec/number.hpp>
+#include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/omit.hpp>
+#include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/encode_decode.hpp>
 
@@ -29,6 +34,11 @@ BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
+
+struct Val {
+  std::string a;
+  std::string b;
+};
 
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
@@ -99,6 +109,26 @@ BOOST_AUTO_TEST_CASE(json_codec_default_as_should_fail_on_invalid_input) {
   test_decode_fail(codec, "null");
   test_decode_fail(codec, "e");
   test_decode_fail(codec, "[{},true]");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_default_as_with_eq) {
+  const auto codec = default_as(eq(123), number<int>());
+  BOOST_CHECK_EQUAL(encode(codec, 0), "123");
+  BOOST_CHECK(test_decode(codec, "123") == 123);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_default_as_with_shared_ptr) {
+  const auto codec = default_as_null(default_codec<std::shared_ptr<std::string>>());
+  BOOST_CHECK_EQUAL(encode(codec, std::shared_ptr<std::string>()), "null");
+  BOOST_CHECK_EQUAL(encode(codec, std::make_shared<std::string>("abc")), "\"abc\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_default_as_with_object_and_omit) {
+  auto codec = object<Val>();
+  codec.optional("a", &Val::a);
+  codec.optional("b", &Val::b, default_as_omit(string()));
+
+  BOOST_CHECK_EQUAL(encode(codec, Val()), "{\"a\":\"\"}");  // no "b"
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
