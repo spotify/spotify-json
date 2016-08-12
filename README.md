@@ -3,6 +3,7 @@ spotify-json
 
 A C++11 JSON writer and parser library. It
 
+* parses and serializes directly to and from statically typed C++ objects,
 * requires very little boilerplate code,
 * is fast,
 * comes with [a good suite of tests](test),
