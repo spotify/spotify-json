@@ -753,7 +753,7 @@ that is done by a codec inside it.
 * **`default_codec` support**: `default_codec<unique_ptr<T>>()`
 
 
-### transform_t
+### `transform_t`
 
 There are types that spotify-json doesn't have built-in support for that aren't
 objects that should be encoded as JSON objects (this case is handled by
@@ -805,7 +805,7 @@ const auto codec = transform(
   explicitly.
 
 
-### optional_t
+### `optional_t`
 
 `optional_t` is a codec for strings for `boost::optional<T>`. By default,
 values of `boost::none` are not encoded at all (`should_encode()` returns
