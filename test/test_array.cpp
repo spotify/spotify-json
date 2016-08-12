@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-template<typename Parsed = std::vector<bool>>
+template <typename Parsed = std::vector<bool>>
 Parsed array_parse(const char *not_array) {
   const auto codec = default_codec<Parsed>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));

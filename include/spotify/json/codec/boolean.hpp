@@ -48,7 +48,7 @@ inline boolean_t boolean() {
 
 }  // namespace codec
 
-template<>
+template <>
 struct default_codec_t<bool> {
   static codec::boolean_t codec() {
     return codec::boolean_t();

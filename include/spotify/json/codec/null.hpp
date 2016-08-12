@@ -51,7 +51,7 @@ inline null_t<ObjectType> null() {
 
 }  // namespace codec
 
-template<>
+template <>
 struct default_codec_t<null_type> {
   static codec::null_t<null_type> codec() {
     return codec::null_t<null_type>();

@@ -30,7 +30,7 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename T, typename InnerCodec>
+template <typename T, typename InnerCodec>
 class map_t final {
  public:
   using object_type = T;
@@ -77,21 +77,21 @@ class map_t final {
   InnerCodec _inner_codec;
 };
 
-template<typename T, typename InnerCodec>
+template <typename T, typename InnerCodec>
 map_t<T, typename std::decay<InnerCodec>::type> map(InnerCodec &&inner_codec) {
   return map_t<T, typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
 }
 
 }  // namespace codec
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::map<std::string, T>> {
   static decltype(codec::map<std::map<std::string, T>>(default_codec<T>())) codec() {
     return codec::map<std::map<std::string, T>>(default_codec<T>());
   }
 };
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::unordered_map<std::string, T>> {
   static decltype(codec::map<std::unordered_map<std::string, T>>(default_codec<T>())) codec() {
     return codec::map<std::unordered_map<std::string, T>>(default_codec<T>());

@@ -33,14 +33,14 @@ namespace json {
 namespace detail {
 
 struct SequenceInserter {
-  template<typename Container, typename Value>
+  template <typename Container, typename Value>
   static void apply(Container &container, Value &&value) {
     container.push_back(std::forward<Value>(value));
   }
 };
 
 struct AssociativeInserter {
-  template<typename Container, typename Value>
+  template <typename Container, typename Value>
   static void apply(Container &container, Value &&value) {
     container.insert(std::forward<Value>(value));
   }
@@ -50,7 +50,7 @@ struct AssociativeInserter {
 
 namespace codec {
 
-template<typename T, typename InnerCodec, typename Inserter>
+template <typename T, typename InnerCodec, typename Inserter>
 class array_t final {
  public:
   using object_type = T;
@@ -100,35 +100,35 @@ array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter> s
 
 }  // namespace codec
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::vector<T>> {
   static decltype(codec::array<std::vector<T>>(default_codec<T>())) codec() {
     return codec::array<std::vector<T>>(default_codec<T>());
   }
 };
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::deque<T>> {
   static decltype(codec::array<std::deque<T>>(default_codec<T>())) codec() {
     return codec::array<std::deque<T>>(default_codec<T>());
   }
 };
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::list<T>> {
   static decltype(codec::array<std::list<T>>(default_codec<T>())) codec() {
     return codec::array<std::list<T>>(default_codec<T>());
   }
 };
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::set<T>> {
   static decltype(codec::set<std::set<T>>(default_codec<T>())) codec() {
     return codec::set<std::set<T>>(default_codec<T>());
   }
 };
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::unordered_set<T>> {
   static decltype(codec::set<std::unordered_set<T>>(default_codec<T>())) codec() {
     return codec::set<std::unordered_set<T>>(default_codec<T>());

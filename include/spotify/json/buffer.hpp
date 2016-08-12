@@ -432,7 +432,7 @@ class buffer {
         5);
   }
 
-  template<typename D>
+  template <typename D>
   buffer &write_fp(D value) {
     using dtoa_converter = double_conversion::DoubleToStringConverter;
     using dtoa_builder = double_conversion::StringBuilder;

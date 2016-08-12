@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_SUITE(json)
 
 namespace {
 
-template<typename Codec>
+template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
@@ -40,7 +40,7 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
-template<typename Codec>
+template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
@@ -95,7 +95,7 @@ codec::object_t<subclass_t> subclass_codec() {
 
 }  // namespace
 
-template<>
+template <>
 struct default_codec_t<simple_t> {
   static codec::object_t<simple_t> codec() {
     codec::object_t<simple_t> codec;

@@ -36,7 +36,7 @@ namespace json {
 
 // Specialize spotify::json::default_codec_t to specify default behavior when
 // encoding and decoding objects of certain types.
-template<>
+template <>
 struct default_codec_t<Track> {
   static object_t<Track> codec() {
     auto codec = object<Track>();
@@ -220,7 +220,7 @@ the `default_codec` helper to support your own data types.
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<Coordinate> {
   static object_t<Coordinate> codec() {
     auto codec = object<Coordinate>();
@@ -230,7 +230,7 @@ struct default_codec_t<Coordinate> {
   }
 };
 
-template<>
+template <>
 struct default_codec_t<Player> {
   static object_t<Player> codec() {
     auto codec = object<Player>();

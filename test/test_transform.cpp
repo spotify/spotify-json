@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-template<typename Codec>
+template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);

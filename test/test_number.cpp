@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-template<typename Codec>
+template <typename Codec>
 typename Codec::object_type test_decode_dont_gobble(
     const Codec &codec,
     const std::string &json,
@@ -41,7 +41,7 @@ typename Codec::object_type test_decode_dont_gobble(
   return obj;
 }
 
-template<typename Codec>
+template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
@@ -49,7 +49,7 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
-template<typename Codec>
+template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);

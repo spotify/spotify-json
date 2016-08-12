@@ -30,7 +30,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template<typename WriterType, typename Iterable>
+template <typename WriterType, typename Iterable>
 inline WriterType &write_array(WriterType &writer, const Iterable &iterable) {
   const typename WriterType::scoped_array array(writer);
   for (typename Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
@@ -39,7 +39,7 @@ inline WriterType &write_array(WriterType &writer, const Iterable &iterable) {
   return writer;
 }
 
-template<typename WriterType, typename Iterable>
+template <typename WriterType, typename Iterable>
 inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
   const typename WriterType::scoped_object object(writer);
   for (typename Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
@@ -48,37 +48,37 @@ inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
   return writer;
 }
 
-template<typename stream_type, typename options_type, typename T>
+template <typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::vector<T> &vector) {
   return write_array(writer, vector);
 }
 
-template<typename stream_type, typename options_type, typename T>
+template <typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::deque<T> &deque) {
   return write_array(writer, deque);
 }
 
-template<typename stream_type, typename options_type, typename T>
+template <typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::set<T> &set) {
   return write_array(writer, set);
 }
 
-template<typename stream_type, typename options_type, typename T>
+template <typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::unordered_set<T> &set) {
   return write_array(writer, set);
 }
 
-template<typename stream_type, typename options_type, typename K, typename V>
+template <typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::pair<K, V> &pair) {
   return writer.add_pair(pair.first, pair.second);
 }
 
-template<typename stream_type, typename options_type, typename K, typename V>
+template <typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::map<K, V> &map) {
   return write_object(writer, map);
 }
 
-template<typename stream_type, typename options_type, typename K, typename V>
+template <typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::unordered_map<K, V> &map) {
   return write_object(writer, map);
 }

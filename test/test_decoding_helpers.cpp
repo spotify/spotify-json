@@ -33,7 +33,7 @@ decoding_context make_context(const char *str) {
   return decoding_context(str, str + strlen(str));
 }
 
-template<typename Advance>
+template <typename Advance>
 void verify_advance(const Advance &advance, const char *str) {
   auto ctx = make_context(str);
   const auto original_ctx = ctx;
@@ -42,13 +42,13 @@ void verify_advance(const Advance &advance, const char *str) {
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-template<typename Advance>
+template <typename Advance>
 void verify_advance_fail(const Advance &advance, const char *str) {
   auto ctx = make_context(str);
   BOOST_CHECK_THROW(advance(ctx), decode_exception);
 }
 
-template<typename Advance>
+template <typename Advance>
 void verify_advance_partial(const Advance &advance, const char *str, size_t len) {
   auto ctx = make_context(str);
   const auto original_ctx = ctx;

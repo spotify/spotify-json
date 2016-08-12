@@ -27,12 +27,12 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename T>
+template <typename T>
 class any_t final {
  public:
   using object_type = T;
 
-  template<typename Codec>
+  template <typename Codec>
   explicit any_t(Codec codec)
       : _codec(std::make_shared<erased_codec_impl<Codec>>(std::move(codec))) {}
 
@@ -58,7 +58,7 @@ class any_t final {
     virtual bool should_encode(const object_type &value) const = 0;
   };
 
-  template<typename Codec>
+  template <typename Codec>
   class erased_codec_impl final : public erased_codec {
    public:
     explicit erased_codec_impl(Codec codec)
@@ -83,7 +83,7 @@ class any_t final {
   std::shared_ptr<const erased_codec> _codec;
 };
 
-template<typename Codec>
+template <typename Codec>
 any_t<typename Codec::object_type> any(Codec &&codec) {
   return any_t<typename Codec::object_type>(std::forward<Codec>(codec));
 }

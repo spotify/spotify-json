@@ -29,7 +29,7 @@ namespace detail {
 
 struct null_options_type {};
 
-template<typename stream_type, typename options_type>
+template <typename stream_type, typename options_type>
 class basic_writer {
  public:
   explicit basic_writer(stream_type &stream)
@@ -100,7 +100,7 @@ class basic_writer {
    * key should refer to. It must be called while printing the keys of an
    * object.
    */
-  template<typename K>
+  template <typename K>
   basic_writer &add_key(const K &key) {
     return (*this << key).clear_separator().put(':');
   }
@@ -109,7 +109,7 @@ class basic_writer {
    * \brief Write a JSON key and value to the underlying stream. It must be
    * called while printing the keys of an object.
    */
-  template<typename K, typename V>
+  template <typename K, typename V>
   basic_writer &add_pair(const K &key, const V &value) {
     return add_key(key) << value;
   }
@@ -124,7 +124,7 @@ class basic_writer {
       _writer.separator_and_clear().put('[');
     }
 
-    template<typename KeyType>
+    template <typename KeyType>
     scoped_array(basic_writer &writer, const KeyType &key)
         : _writer(writer) {
       (_writer.separator_and_clear() << key).clear_separator().put(':').put('[');
@@ -141,7 +141,7 @@ class basic_writer {
   /**
    * \brief Write a JSON array to the underlying stream.
    */
-  template<typename Functor>
+  template <typename Functor>
   void add_array(const Functor &func) {
     const scoped_array object(*this);
     func(*this);
@@ -150,7 +150,7 @@ class basic_writer {
   /**
    * \brief Write a keyed JSON array to the underlying stream.
    */
-  template<typename KeyType, typename Functor>
+  template <typename KeyType, typename Functor>
   void add_array(const KeyType &key, const Functor &func) {
     const scoped_array array(*this, key);
     func(*this);
@@ -166,7 +166,7 @@ class basic_writer {
       _writer.separator_and_clear().put('{');
     }
 
-    template<typename KeyType>
+    template <typename KeyType>
     scoped_object(basic_writer &writer, const KeyType &key)
         : _writer(writer) {
       (_writer.separator_and_clear() << key).clear_separator().put(':').put('{');
@@ -183,7 +183,7 @@ class basic_writer {
   /**
    * \brief Write a JSON object to the underlying stream.
    */
-  template<typename Functor>
+  template <typename Functor>
   void add_object(const Functor &func) {
     const scoped_object object(*this);
     func(*this);
@@ -192,7 +192,7 @@ class basic_writer {
   /**
    * \brief Write a keyed JSON object to the underlying stream.
    */
-  template<typename KeyType, typename Functor>
+  template <typename KeyType, typename Functor>
   void add_object(const KeyType &key, const Functor &func) {
     const scoped_object object(*this, key);
     func(*this);
@@ -244,7 +244,7 @@ class basic_writer {
   /**
    * \brief Write a value to the underlying stream.
    */
-  template<typename T>
+  template <typename T>
   basic_writer &write(const T &value) {
     _stream << value;
     return *this;
@@ -277,7 +277,7 @@ class basic_writer {
   /**
    * Give the operator overload below access to our internals.
    */
-  template<typename S, typename O, typename T>
+  template <typename S, typename O, typename T>
   friend basic_writer<S, O> &operator <<(basic_writer<S, O> &, const T &);
 };
 
@@ -286,7 +286,7 @@ class basic_writer {
  * By declaring this template here the compiler will consider other
  * possibly matching overloads before settling on this one.
  */
-template<typename stream_type, typename options_type, typename T>
+template <typename stream_type, typename options_type, typename T>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const T &value) {
   return writer.separator_and_set().write(value);
 }

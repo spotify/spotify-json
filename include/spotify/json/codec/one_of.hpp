@@ -26,13 +26,13 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template<typename... Codecs>
+template <typename... Codecs>
 struct codecs_share_same_object_type;
 
-template<typename Codec>
+template <typename Codec>
 struct codecs_share_same_object_type<Codec> : std::true_type {};
 
-template<typename FirstCodec, typename SecondCodec, typename... Codecs>
+template <typename FirstCodec, typename SecondCodec, typename... Codecs>
 struct codecs_share_same_object_type<FirstCodec, SecondCodec, Codecs...>
     : std::integral_constant<
           bool,
@@ -41,7 +41,7 @@ struct codecs_share_same_object_type<FirstCodec, SecondCodec, Codecs...>
               typename SecondCodec::object_type>::value &&
           codecs_share_same_object_type<SecondCodec, Codecs...>::value> {};
 
-template<typename Tuple, size_t N>
+template <typename Tuple, size_t N>
 struct try_each_codec {
   using object_type = typename std::tuple_element<
       std::tuple_size<Tuple>::value - N, Tuple>::type::object_type;
@@ -57,7 +57,7 @@ struct try_each_codec {
   }
 };
 
-template<typename Tuple>
+template <typename Tuple>
 struct try_each_codec<Tuple, 0> {
   using object_type = typename std::tuple_element<0, Tuple>::type::object_type;
 
@@ -76,7 +76,7 @@ namespace codec {
  *
  * When encoding, the first codec is always used.
  */
-template<typename Codec, typename... Codecs>
+template <typename Codec, typename... Codecs>
 class one_of_t final {
  public:
   static_assert(
@@ -85,7 +85,7 @@ class one_of_t final {
 
   using object_type = typename Codec::object_type;
 
-  template<typename... Args>
+  template <typename... Args>
   explicit one_of_t(Args&& ...args)
       : _codecs(std::forward<Args>(args)...) {}
 
@@ -102,7 +102,7 @@ class one_of_t final {
   std::tuple<Codec, Codecs ...> _codecs;
 };
 
-template<typename... Codecs>
+template <typename... Codecs>
 one_of_t<typename std::decay<Codecs>::type...> one_of(Codecs&& ...codecs) {
   return one_of_t<typename std::decay<Codecs>::type...>(std::forward<Codecs>(codecs)...);
 }

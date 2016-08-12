@@ -38,7 +38,7 @@ codec::object_t<custom_obj> custom_codec() {
 
 }
 
-template<>
+template <>
 struct default_codec_t<custom_obj> {
   static codec::object_t<custom_obj> codec() {
     auto codec = codec::object<custom_obj>();

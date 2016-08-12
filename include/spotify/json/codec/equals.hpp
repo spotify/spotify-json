@@ -33,7 +33,7 @@ namespace codec {
  * together with one_of, which makes it possible to specify different codecs
  * for different versions.
  */
-template<typename InnerCodec>
+template <typename InnerCodec>
 class equals_t final {
  public:
   using object_type = typename InnerCodec::object_type;
@@ -63,7 +63,7 @@ equals_t<typename std::decay<InnerCodec>::type> equals(InnerCodec &&inner_codec,
                                                          std::move(value));
 }
 
-template<typename Value>
+template <typename Value>
 auto equals(Value &&value) -> decltype(equals(default_codec<Value>(), std::forward<Value>(value))) {
   return equals(default_codec<Value>(), std::forward<Value>(value));
 }

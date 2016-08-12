@@ -33,7 +33,7 @@ namespace codec {
  * Codec that maps values from a set of JSON values to values of another C++
  * type. This is useful for enums.
  */
-template<typename OuterObject, typename InnerCodec>
+template <typename OuterObject, typename InnerCodec>
 class enumeration_t final {
   using InnerType = typename InnerCodec::object_type;
   using Mapping = std::vector<std::pair<OuterObject, InnerType>>;

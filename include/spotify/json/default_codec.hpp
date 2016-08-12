@@ -25,10 +25,10 @@ namespace json {
  * The overloaded class should have one static method codec() that returns
  * a codec by value for that type.
  */
-template<typename T>
+template <typename T>
 struct default_codec_t;
 
-template<typename T>
+template <typename T>
 decltype(default_codec_t<T>::codec()) default_codec() {
   return default_codec_t<T>::codec();
 }

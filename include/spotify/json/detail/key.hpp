@@ -24,7 +24,7 @@ namespace spotify {
 namespace json {
 
 class key {
-  template<typename InputIterator, typename InputEndIterator>
+  template <typename InputIterator, typename InputEndIterator>
   static std::string escape_for_storage(const InputIterator &begin, const InputEndIterator &end) {
     std::string storage("\"");
     detail::write_escaped(storage, begin, end);
@@ -43,7 +43,7 @@ class key {
         data(_storage.data()),
         size(_storage.size()) {}
 
-  template<typename Iterable>
+  template <typename Iterable>
   explicit key(const Iterable &iterable)
       : _storage(escape_for_storage(iterable.begin(), iterable.end())),
         data(_storage.data()),
