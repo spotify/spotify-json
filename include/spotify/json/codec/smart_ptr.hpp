@@ -60,7 +60,10 @@ class smart_ptr_t {
       : _inner_codec(std::move(inner_codec)) {}
 
   void encode(const object_type &value, detail::writer &writer) const {
-    BOOST_ASSERT(value);
+    if (!value) {
+      // This should not happen; should_encode requests to not encode this.
+      throw std::logic_error("Cannot encode null smart pointer");
+    }
     _inner_codec.encode(*value, writer);
   }
 
