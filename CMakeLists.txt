@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Spotify AB
+# Copyright (c) 2014-2016 Spotify AB
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -26,6 +26,7 @@ set(json_HEADERS
   include/spotify/json/decoding_context.hpp
   include/spotify/json/decode_exception.hpp
   include/spotify/json/encode_decode.hpp
+  include/spotify/json/encoding_context.hpp
   )
 
 set(json_codec_HEADERS
@@ -87,6 +88,7 @@ set(json_test_SOURCES
   test/test_decoding_helpers.cpp
   test/test_default_as.cpp
   test/test_encode_decode.cpp
+  test/test_encoding_context.cpp
   test/test_enumeration.cpp
   test/test_eq.cpp
   test/test_escape.cpp
