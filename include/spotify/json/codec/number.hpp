@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,10 +20,12 @@
 #include <limits>
 #include <type_traits>
 
+#include <double-conversion/double-conversion.h>
+
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -55,19 +57,21 @@ inline double decode_floating_point(
 }
 
 template <typename T>
-class floating_point_t : public primitive_encoder<T> {
+class floating_point_t {
  public:
-  T decode(decoding_context &context) const {
+  using object_type = T;
+
+  object_type decode(decoding_context &context) const {
     using atod_converter = double_conversion::StringToDoubleConverter;
     static const atod_converter converter(
         atod_converter::ALLOW_TRAILING_JUNK,
-        std::numeric_limits<T>::quiet_NaN(),
-        std::numeric_limits<T>::quiet_NaN(),
+        std::numeric_limits<object_type>::quiet_NaN(),
+        std::numeric_limits<object_type>::quiet_NaN(),
         nullptr,
         nullptr);
 
     int bytes_read = 0;
-    const auto result = decode_floating_point<T>(
+    const auto result = decode_floating_point<object_type>(
         converter,
         context.position,
         context.end - context.position,
@@ -75,6 +79,10 @@ class floating_point_t : public primitive_encoder<T> {
     fail_if(context, std::isnan(result), "Invalid floating point number");
     skip(context, bytes_read);
     return result;
+  }
+
+  void encode(const object_type &value, writer &writer) const {
+    writer << value;
   }
 };
 
@@ -366,20 +374,32 @@ template <typename T, bool is_integer, bool is_signed>
 class integer_t;
 
 template <typename T>
-class integer_t<T, true, false> : public primitive_encoder<T> {
+class integer_t<T, true, false> {
  public:
-  json_force_inline T decode(decoding_context &context) const {
-    return decode_positive_integer<T>(context);
+  using object_type = T;
+
+  json_force_inline object_type decode(decoding_context &context) const {
+    return decode_positive_integer<object_type>(context);
+  }
+
+  void encode(const object_type &value, writer &writer) const {
+    writer << value;
   }
 };
 
 template <typename T>
-class integer_t<T, true, true> : public primitive_encoder<T> {
+class integer_t<T, true, true> {
  public:
-  json_force_inline T decode(decoding_context &context) const {
+  using object_type = T;
+
+  json_force_inline object_type decode(decoding_context &context) const {
     return (peek(context) == '-' ?
-        decode_negative_integer<T>(context) :
-        decode_positive_integer<T>(context));
+        decode_negative_integer<object_type>(context) :
+        decode_positive_integer<object_type>(context));
+  }
+
+  void encode(const object_type &value, writer &writer) const {
+    writer << value;
   }
 };
 
