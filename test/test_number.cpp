@@ -55,10 +55,6 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
-struct example_t {
-  std::string value;
-};
-
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_construct) {
