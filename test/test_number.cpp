@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -100,13 +100,8 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_construct_with_default_codec) {
 }
 
 /*
- * Floating Point Numbers
+ * Decoding Floating Point Numbers
  */
-
-BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_exactly) {
-  BOOST_CHECK_EQUAL(encode(0.5), "0.5");
-  BOOST_CHECK_EQUAL(encode(0.5f), "0.5");
-}
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_exactly) {
   BOOST_CHECK_EQUAL(test_decode(number<double>(), "0.5"), 0.5);
@@ -128,7 +123,16 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_float_numbers) 
 }
 
 /*
- * Signed Integers
+ * Encoding Floating Point Numbers
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_exactly) {
+  BOOST_CHECK_EQUAL(encode(0.5), "0.5");
+  BOOST_CHECK_EQUAL(encode(0.5f), "0.5");
+}
+
+/*
+ * Decoding Signed Integers
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_signed_positive_integer) {
@@ -249,7 +253,25 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_gobble_characters_after_signed
 }
 
 /*
- * Unsigned Integers
+ * Encoding Signed Integers
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_positive_integer) {
+  BOOST_CHECK_EQUAL(encode(number<int8_t>(), 127), "127");
+  BOOST_CHECK_EQUAL(encode(number<int16_t>(), 32767), "32767");
+  BOOST_CHECK_EQUAL(encode(number<int32_t>(), INT32_MAX), "2147483647");
+  BOOST_CHECK_EQUAL(encode(number<int64_t>(), INT64_MAX), "9223372036854775807");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_negative_integer) {
+  BOOST_CHECK_EQUAL(encode(number<int8_t>(), -128), "-128");
+  BOOST_CHECK_EQUAL(encode(number<int16_t>(), -32768), "-32768");
+  BOOST_CHECK_EQUAL(encode(number<int32_t>(), INT32_MIN), "-2147483648");
+  BOOST_CHECK_EQUAL(encode(number<int64_t>(), INT64_MIN), "-9223372036854775808");
+}
+
+/*
+ * Decoding Unsigned Integers
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_unsigned_positive_integer) {
@@ -333,6 +355,17 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_gobble_characters_after_unsign
   BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0]", 4), 15);
   BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0}", 4), 15);
   BOOST_CHECK_EQUAL(test_decode_dont_gobble(number<uint8_t>(), "15.0#", 4), 15);
+}
+
+/*
+ * Encoding Unsigned Integers
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_unsigned_positive_integer) {
+  BOOST_CHECK_EQUAL(encode(number<uint8_t>(), 255), "255");
+  BOOST_CHECK_EQUAL(encode(number<uint16_t>(), 65535), "65535");
+  BOOST_CHECK_EQUAL(encode(number<uint32_t>(), 4294967295), "4294967295");
+  BOOST_CHECK_EQUAL(encode(number<uint64_t>(), UINT64_MAX), "18446744073709551615");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
