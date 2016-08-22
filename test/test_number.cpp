@@ -134,9 +134,26 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_decode_invalid_float_numbers) 
  * Encoding Floating Point Numbers
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_exactly) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_exactly_with_writer) {
   BOOST_CHECK_EQUAL(encode(0.5), "0.5");
   BOOST_CHECK_EQUAL(encode(0.5f), "0.5");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_float_exactly) {
+  BOOST_CHECK_EQUAL(test_encode(number<float>(), 0.5f), "0.5");
+  BOOST_CHECK_EQUAL(test_encode(number<double>(), 0.5), "0.5");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_not_encode_not_a_number) {
+  BOOST_CHECK_THROW(test_encode(number<float>(), NAN), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(number<double>(), NAN), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_not_encode_infinity) {
+  BOOST_CHECK_THROW(test_encode(number<float>(), -INFINITY), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(number<float>(), +INFINITY), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(number<double>(), -INFINITY), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(number<double>(), +INFINITY), std::invalid_argument);
 }
 
 /*

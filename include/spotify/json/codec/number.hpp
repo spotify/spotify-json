@@ -85,6 +85,31 @@ class floating_point_t {
   void encode(const object_type &value, writer &writer) const {
     writer << value;
   }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    // The maximum buffer size required to emit a double in base 10, for decimal
+    // and exponential representations, is 25 bytes; based on the settings used
+    // below for the DoubleToStringConverter. We add another byte for the null
+    // terminator, but it is not actually needed because we don't finalize the
+    // builder.
+    const auto max_required_size = 26;
+    const auto p = reinterpret_cast<char *>(context.reserve(max_required_size));
+
+    // The converter is based on the ECMAScript converter, but will not convert
+    // special values, like Infinity and NaN, since JSON does not support those.
+    using dtoa_converter = double_conversion::DoubleToStringConverter;
+    const dtoa_converter converter(
+        dtoa_converter::UNIQUE_ZERO | dtoa_converter::EMIT_POSITIVE_EXPONENT_SIGN,
+        nullptr, nullptr, 'e', -6, 21, 6, 0);
+
+    using dtoa_builder = double_conversion::StringBuilder;
+    dtoa_builder builder(p, max_required_size);
+    if (!converter.ToShortest(value, &builder)) {
+      throw std::invalid_argument("Special values like 'Infinity' or 'NaN' are supported in JSON.");
+    }
+
+    context.advance(builder.position());
+  }
 };
 
 template <typename T, bool is_positive>
