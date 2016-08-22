@@ -282,7 +282,7 @@ library supports more things that sometimes come in handy:
 * [Arbitrary conversion logic](doc/api.md#transform_t), for example when a
   raw binary hash in C++ is represented as a hex coded string in JSON
 * [Dealing with versioning](doc/api.md#eq_t)
-* [Ignoring values that are of the wrong type instead of failing the parse](doc/api.md#lenient_t)
+* [Ignoring values that are of the wrong type instead of failing the parse](doc/api.md#handling-missing-empty-null-and-invalid-values)
 * Values wrapped in [`unique_ptr`s](doc/api.md#unique_ptr_t) and
   [`shared_ptr`s](doc/api.md#shared_ptr_t)
 * [`boost::optional`](doc/api.md#optional)
