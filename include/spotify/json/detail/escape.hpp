@@ -32,7 +32,7 @@ class null_terminated_end_iterator {
   }
 };
 
-template<typename OutputType>
+template <typename OutputType>
 struct escape_traits {
   static void write(OutputType &out, const char *data, size_t length) {
     out.write(data, length);
@@ -42,13 +42,13 @@ struct escape_traits {
   }
 };
 
-template<>
+template <>
 inline void escape_traits<std::string>::write(
     std::string &out, const char *data, size_t length) {
   out.append(data, length);
 }
 
-template<>
+template <>
 inline void escape_traits<std::string>::put(
     std::string &out, char ch) {
   out.push_back(ch);
@@ -62,7 +62,7 @@ inline void escape_traits<std::string>::put(
   *
   * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
   */
-template<typename OutputType, typename InputIterator, typename InputEndIterator>
+template <typename OutputType, typename InputIterator, typename InputEndIterator>
 inline OutputType &write_escaped(OutputType &out, const InputIterator &begin, const InputEndIterator &end) {
   typedef escape_traits<OutputType> traits;
 

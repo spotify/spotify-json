@@ -22,7 +22,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template<typename T>
+template <typename T>
 class iterator : public std::iterator<std::input_iterator_tag, T> {
  public:
   explicit iterator(T *ptr = nullptr) : _ptr(ptr) {}

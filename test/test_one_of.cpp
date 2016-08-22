@@ -19,6 +19,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <spotify/json/codec/ignore.hpp>
+#include <spotify/json/codec/null.hpp>
 #include <spotify/json/codec/one_of.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/string.hpp>
@@ -30,7 +32,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-template<typename Codec>
+template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
@@ -38,7 +40,7 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
-template<typename Codec>
+template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
@@ -105,6 +107,24 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_fail_decode_if_all_fail) {
 
   const auto codec = one_of(first, second);
   test_decode_fail(codec, "{}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_one_of_null) {
+  const auto codec = one_of(string(), null<std::string>());
+  BOOST_CHECK_EQUAL(test_decode(codec, "\"abc\""), "abc");
+  BOOST_CHECK_EQUAL(test_decode(codec, "\"\""), "");
+  BOOST_CHECK_EQUAL(test_decode(codec, "null"), "");
+  test_decode_fail(codec, "{}");
+  test_decode_fail(codec, "{");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_one_of_ignore) {
+  const auto codec = one_of(string(), ignore<std::string>());
+  BOOST_CHECK_EQUAL(test_decode(codec, "\"abc\""), "abc");
+  BOOST_CHECK_EQUAL(test_decode(codec, "\"\""), "");
+  BOOST_CHECK_EQUAL(test_decode(codec, "null"), "");
+  BOOST_CHECK_EQUAL(test_decode(codec, "{}"), "");
+  test_decode_fail(codec, "{");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

@@ -3,6 +3,7 @@ spotify-json
 
 A C++11 JSON writer and parser library. It
 
+* parses and serializes directly to and from statically typed C++ objects,
 * requires very little boilerplate code,
 * is fast,
 * comes with [a good suite of tests](test),
@@ -36,7 +37,7 @@ namespace json {
 
 // Specialize spotify::json::default_codec_t to specify default behavior when
 // encoding and decoding objects of certain types.
-template<>
+template <>
 struct default_codec_t<Track> {
   static object_t<Track> codec() {
     auto codec = object<Track>();
@@ -191,6 +192,7 @@ Objects can be nested. To demonstrate this, let's introduce another data type:
 ```cpp
 struct Player {
   std::string name;
+  std::string instrument;
   Coordinate position;
 };
 ```
@@ -200,6 +202,7 @@ A codec for `Player` might be created with
 ```cpp
 auto player_codec = object<Player>();
 player_codec.required("name", &Player::name);
+player_codec.required("instrument", &Player::instrument);
 // Because there is no default_codec for Coordinate, we need to pass in the
 // codec explicitly:
 player_codec.required("position", &Player::position, coordinate_codec);
@@ -207,7 +210,11 @@ player_codec.required("position", &Player::position, coordinate_codec);
 // Let's use it:
 Player player;
 player.name = "Daniel";
-encode(player_codec, player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
+player.instrument = "guitar";
+encode(player_codec, player) == "{" \
+    "\"name\":\"Daniel\"," \
+    "\"instrument\":\"guitar\"," \
+    "\"position\":{\"x\":0,\"y\":0}}";
 ```
 
 Since codecs are just normal objects, it is possible to create and use
@@ -220,7 +227,7 @@ the `default_codec` helper to support your own data types.
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<Coordinate> {
   static object_t<Coordinate> codec() {
     auto codec = object<Coordinate>();
@@ -230,11 +237,12 @@ struct default_codec_t<Coordinate> {
   }
 };
 
-template<>
+template <>
 struct default_codec_t<Player> {
   static object_t<Player> codec() {
     auto codec = object<Player>();
     codec.required("name", &Player::name);
+    codec.required("instrument", &Player::instrument);
     codec.required("position", &Player::position);
     return codec;
   }
@@ -253,8 +261,12 @@ encode(Coordinate(10, 0)) == "{\"x\":10,\"y\":0}";
 decode<std::vector<Coordinate>>("[{\"x\":1,\"y\":-1}]") == std::vector<Coordinate>{ Coordinate(1, -1) };
 
 Player player;
-player.name = "Daniel";
-encode(player) == "{\"name\":\"Daniel\",\"position\":{\"x\":0,\"y\":0}}";
+player.name = "Martin";
+player.instrument = "drums";
+encode(player) == "{" \
+    "\"name\":\"Martin\"," \
+    "\"instrument\":\"drums\"," \
+    "\"position\":{\"x\":0,\"y\":0}}";
 ```
 
 
@@ -269,8 +281,8 @@ library supports more things that sometimes come in handy:
 * [C++ `enum`s and similar types](doc/api.md#enumeration_t)
 * [Arbitrary conversion logic](doc/api.md#transform_t), for example when a
   raw binary hash in C++ is represented as a hex coded string in JSON
-* [Dealing with versioning](doc/api.md#equals_t)
-* [Ignoring values that are of the wrong type instead of failing the parse](doc/api.md#lenient_t)
+* [Dealing with versioning](doc/api.md#eq_t)
+* [Ignoring values that are of the wrong type instead of failing the parse](doc/api.md#handling-missing-empty-null-and-invalid-values)
 * Values wrapped in [`unique_ptr`s](doc/api.md#unique_ptr_t) and
   [`shared_ptr`s](doc/api.md#shared_ptr_t)
 * [`boost::optional`](doc/api.md#optional)

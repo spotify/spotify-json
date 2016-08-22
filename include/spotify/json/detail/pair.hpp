@@ -24,7 +24,7 @@ namespace json {
  *
  * ATTENTION! Key and value are only referenced, not copied!
  */
-template<typename K, typename V>
+template <typename K, typename V>
 class pair {
  public:
   /**
@@ -40,17 +40,17 @@ class pair {
 /**
  * \brief Create a JSON key-value pair.
  */
-template<typename K, typename V>
+template <typename K, typename V>
 inline pair<K, V> make_pair(const K &key, const V &value) {
   return pair<K, V>(key, value);
 }
 
 namespace detail {
 
-template<typename stream_type, typename options_type>
+template <typename stream_type, typename options_type>
 class basic_writer;
 
-template<typename stream_type, typename options_type, typename K, typename V>
+template <typename stream_type, typename options_type, typename K, typename V>
 basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const pair<K, V> &pair) {
   return writer.add_pair(pair.key, pair.value);
 }

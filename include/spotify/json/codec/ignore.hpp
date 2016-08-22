@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,22 +16,40 @@
 
 #pragma once
 
+#include <stdexcept>
+
+#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/writer.hpp>
+
 namespace spotify {
 namespace json {
-
-/**
- * Overload this template for types that default_codec<T>() should support.
- *
- * The overloaded class should have one static method codec() that returns
- * a codec by value for that type.
- */
-template <typename T>
-struct default_codec_t;
+namespace codec {
 
 template <typename T>
-decltype(default_codec_t<T>::codec()) default_codec() {
-  return default_codec_t<T>::codec();
+class ignore_t final {
+ public:
+  using object_type = T;
+
+  void encode(const object_type &value, detail::writer &w) const {
+    throw std::logic_error("ignore_t codec cannot encode");
+  }
+
+  object_type decode(decoding_context &context) const {
+    detail::advance_past_value(context);
+    return T();
+  }
+
+  bool should_encode(const object_type &value) const {
+    return false;
+  }
+};
+
+template <typename T>
+ignore_t<T> ignore() {
+  return ignore_t<T>();
 }
 
+}  // namespace codec
 }  // namespace json
 }  // namespace spotify

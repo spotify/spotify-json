@@ -26,7 +26,7 @@ namespace detail {
  * primitive_encoder is a base class for codecs for primitive types such as
  * numbers, strings and booleans.
  */
-template<typename T>
+template <typename T>
 class primitive_encoder {
  public:
   using object_type = T;

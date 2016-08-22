@@ -175,7 +175,7 @@ inline string_t string() {
 
 }  // namespace codec
 
-template<>
+template <>
 struct default_codec_t<std::string> {
   static codec::string_t codec() {
     return codec::string_t();

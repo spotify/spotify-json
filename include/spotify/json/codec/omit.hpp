@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <stdexcept>
+
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/writer.hpp>
@@ -24,36 +26,30 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename InnerCodec>
-class lenient_t final {
+template <typename T>
+class omit_t final {
  public:
-  using object_type = typename InnerCodec::object_type;
-
-  explicit lenient_t(InnerCodec inner_codec)
-      : _inner_codec(std::move(inner_codec)) {}
+  using object_type = T;
 
   void encode(const object_type &value, detail::writer &w) const {
-    _inner_codec.encode(value, w);
+    throw std::logic_error("omit_t codec cannot encode");
   }
 
   object_type decode(decoding_context &context) const {
-    const auto original_position = context.position;
-    try {
-      return _inner_codec.decode(context);
-    } catch (const decode_exception &) {
-      context.position = original_position;
-      detail::advance_past_value(context);
-      return object_type();
-    }
+    detail::fail(context, "omit codec cannot decode");
+
+    // Avoid compiler warnings; fail always throws
+    throw std::logic_error("unreachable");
   }
 
- private:
-  InnerCodec _inner_codec;
+  bool should_encode(const object_type &value) const {
+    return false;
+  }
 };
 
-template <typename InnerCodec>
-lenient_t<typename std::decay<InnerCodec>::type> lenient(InnerCodec &&inner_codec) {
-  return lenient_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
+template <typename T>
+omit_t<T> omit() {
+  return omit_t<T>();
 }
 
 }  // namespace codec

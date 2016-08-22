@@ -33,7 +33,7 @@ struct foobar_t {
 namespace spotify {
 namespace json {
 
-template<>
+template <>
 struct default_codec_t<foobar_t> {
   static codec::object_t<foobar_t> codec() {
     auto codec = codec::object<foobar_t>();

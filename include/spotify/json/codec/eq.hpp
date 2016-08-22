@@ -33,12 +33,12 @@ namespace codec {
  * together with one_of, which makes it possible to specify different codecs
  * for different versions.
  */
-template<typename InnerCodec>
-class equals_t final {
+template <typename InnerCodec>
+class eq_t final {
  public:
   using object_type = typename InnerCodec::object_type;
 
-  equals_t(InnerCodec inner_codec, object_type value)
+  eq_t(InnerCodec inner_codec, object_type value)
       : _inner_codec(std::move(inner_codec)), _value(value) {}
 
   void encode(const object_type &value, detail::writer &w) const {
@@ -51,21 +51,25 @@ class equals_t final {
     return result;
   }
 
+  // TODO(peck): should_encode
+
  private:
   InnerCodec _inner_codec;
   object_type _value;
 };
 
 template <typename InnerCodec>
-equals_t<typename std::decay<InnerCodec>::type> equals(InnerCodec &&inner_codec,
-                                                       typename InnerCodec::object_type value) {
-  return equals_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec),
-                                                         std::move(value));
+eq_t<typename std::decay<InnerCodec>::type> eq(
+    InnerCodec &&inner_codec,
+    typename InnerCodec::object_type value) {
+  return eq_t<typename std::decay<InnerCodec>::type>(
+      std::forward<InnerCodec>(inner_codec),
+      std::move(value));
 }
 
-template<typename Value>
-auto equals(Value &&value) -> decltype(equals(default_codec<Value>(), std::forward<Value>(value))) {
-  return equals(default_codec<Value>(), std::forward<Value>(value));
+template <typename Value>
+auto eq(Value &&value) -> decltype(eq(default_codec<Value>(), std::forward<Value>(value))) {
+  return eq(default_codec<Value>(), std::forward<Value>(value));
 }
 
 }  // namespace codec

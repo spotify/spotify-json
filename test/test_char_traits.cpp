@@ -36,7 +36,7 @@ const std::vector<char> non_hex_letters =
 const std::vector<char> whitespace = { ' ', '\t', '\n', '\r' };
 const std::vector<char> zero = { '\0' };
 
-template<typename Fn, typename Range>
+template <typename Fn, typename Range>
 void check(const Fn &fn, bool should_be_true, const Range &range) {
   for (const auto chr : range) {
     BOOST_CHECK(!should_be_true ^ fn(chr));

@@ -26,17 +26,17 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename ToPointerType, typename FromPointerType>
+template <typename ToPointerType, typename FromPointerType>
 struct codec_cast;
 
-template<typename ToType, typename FromType>
+template <typename ToType, typename FromType>
 struct codec_cast<std::shared_ptr<ToType>, std::shared_ptr<FromType>> {
   static std::shared_ptr<ToType> cast(const std::shared_ptr<FromType> &ptr) {
     return std::dynamic_pointer_cast<ToType>(ptr);
   }
 };
 
-template<typename PointerType, typename InnerCodec>
+template <typename PointerType, typename InnerCodec>
 class cast_t {
  public:
   using object_type = PointerType;

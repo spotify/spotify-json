@@ -57,7 +57,7 @@ inline raw_t raw() {
 
 }  // namespace codec
 
-template<>
+template <>
 struct default_codec_t<codec::raw_ref> {
   static codec::raw_t codec() {
     return codec::raw();

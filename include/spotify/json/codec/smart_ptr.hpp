@@ -26,10 +26,10 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template<typename SmartPointer>
+template <typename SmartPointer>
 struct make_smart_ptr_t;
 
-template<typename T>
+template <typename T>
 struct make_smart_ptr_t<std::unique_ptr<T>> {
   template <typename Obj>
   static std::unique_ptr<T> make(Obj &&obj) {
@@ -38,7 +38,7 @@ struct make_smart_ptr_t<std::unique_ptr<T>> {
   }
 };
 
-template<typename T>
+template <typename T>
 struct make_smart_ptr_t<std::shared_ptr<T>> {
   template <typename Obj>
   static std::shared_ptr<T> make(Obj &&obj) {
@@ -51,7 +51,7 @@ struct make_smart_ptr_t<std::shared_ptr<T>> {
 
 namespace detail {
 
-template<typename InnerCodec, typename SmartPointer>
+template <typename InnerCodec, typename SmartPointer>
 class smart_ptr_t {
  public:
   using object_type = SmartPointer;
@@ -60,7 +60,10 @@ class smart_ptr_t {
       : _inner_codec(std::move(inner_codec)) {}
 
   void encode(const object_type &value, detail::writer &writer) const {
-    BOOST_ASSERT(value);
+    if (!value) {
+      // This should not happen; should_encode requests to not encode this.
+      throw std::logic_error("Cannot encode null smart pointer");
+    }
     _inner_codec.encode(*value, writer);
   }
 
@@ -78,10 +81,10 @@ class smart_ptr_t {
 
 namespace codec {
 
-template<typename InnerCodec>
+template <typename InnerCodec>
 using unique_ptr_t = detail::smart_ptr_t<InnerCodec, std::unique_ptr<typename InnerCodec::object_type>>;
 
-template<typename InnerCodec>
+template <typename InnerCodec>
 using shared_ptr_t = detail::smart_ptr_t<InnerCodec, std::shared_ptr<typename InnerCodec::object_type>>;
 
 template <typename InnerCodec>
@@ -96,14 +99,14 @@ shared_ptr_t<typename std::decay<InnerCodec>::type> shared_ptr(InnerCodec &&inne
 
 }  // namespace codec
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::unique_ptr<T>> {
   static decltype(codec::unique_ptr(default_codec<T>())) codec() {
     return codec::unique_ptr(default_codec<T>());
   }
 };
 
-template<typename T>
+template <typename T>
 struct default_codec_t<std::shared_ptr<T>> {
   static decltype(codec::shared_ptr(default_codec<T>())) codec() {
     return codec::shared_ptr(default_codec<T>());

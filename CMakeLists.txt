@@ -35,13 +35,15 @@ set(json_codec_HEADERS
   include/spotify/json/codec/cast.hpp
   include/spotify/json/codec/chrono.hpp
   include/spotify/json/codec/codec_interface.hpp
+  include/spotify/json/codec/default_as.hpp
   include/spotify/json/codec/enumeration.hpp
-  include/spotify/json/codec/equals.hpp
-  include/spotify/json/codec/lenient.hpp
+  include/spotify/json/codec/eq.hpp
+  include/spotify/json/codec/ignore.hpp
   include/spotify/json/codec/map.hpp
   include/spotify/json/codec/null.hpp
   include/spotify/json/codec/number.hpp
   include/spotify/json/codec/object.hpp
+  include/spotify/json/codec/omit.hpp
   include/spotify/json/codec/one_of.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
@@ -83,17 +85,19 @@ set(json_test_SOURCES
   test/test_codec_interface.cpp
   test/test_decoding_context.cpp
   test/test_decoding_helpers.cpp
+  test/test_default_as.cpp
   test/test_encode_decode.cpp
   test/test_enumeration.cpp
-  test/test_equals.cpp
+  test/test_eq.cpp
   test/test_escape.cpp
+  test/test_ignore.cpp
   test/test_key.cpp
-  test/test_lenient.cpp
   test/test_main.cpp
   test/test_map.cpp
   test/test_null.cpp
   test/test_number.cpp
   test/test_object.cpp
+  test/test_omit.cpp
   test/test_one_of.cpp
   test/test_pair.cpp
   test/test_primitive_encoder.cpp

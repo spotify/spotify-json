@@ -157,7 +157,7 @@ inline void advance_past_four(decoding_context &context, const char *characters)
  *
  * context.has_failed() must be false when this function is called.
  */
-template<typename Parse>
+template <typename Parse>
 void advance_past_comma_separated(decoding_context &context, char intro, char outro, Parse parse) {
   advance_past(context, intro);
   advance_past_whitespace(context);
@@ -183,7 +183,7 @@ void advance_past_comma_separated(decoding_context &context, char intro, char ou
  * and store it away as needed. The callback may be invoked a few times even if
  * parsing fails later on.
  */
-template<typename DecodeKey, typename Callback>
+template <typename DecodeKey, typename Callback>
 void advance_past_object(
     decoding_context &context,
     const DecodeKey &decode_key,
@@ -339,27 +339,27 @@ inline void advance_past_value(decoding_context &context) {
   }
 }
 
-template<typename T>
+template <typename T>
 struct has_should_encode_method {
-  template<typename U>
+  template <typename U>
   static auto test(int) -> decltype(
       std::declval<U>().should_encode(std::declval<typename U::object_type>()),
       std::true_type());
 
-  template<typename>
+  template <typename>
   static std::false_type test(...);
 
  public:
   static constexpr bool value = std::is_same<decltype(test<T>(0)),std::true_type>::value;
 };
 
-template<typename Codec>
+template <typename Codec>
 typename std::enable_if<!has_should_encode_method<Codec>::value, bool>::type
 should_encode(const Codec &codec, const typename Codec::object_type &value) {
   return true;
 }
 
-template<typename Codec>
+template <typename Codec>
 typename std::enable_if<has_should_encode_method<Codec>::value, bool>::type
 should_encode(const Codec &codec, const typename Codec::object_type &value) {
   return codec.should_encode(value);

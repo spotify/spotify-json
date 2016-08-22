@@ -25,23 +25,23 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template<typename Duration>
+template <typename Duration>
 typename Duration::rep encodeTransformDuration(Duration duration) {
   return duration.count();
 }
 
-template<typename Duration>
+template <typename Duration>
 Duration decodeTransformDuration(
     typename Duration::rep duration_rep, size_t offset) {
   return Duration(duration_rep);
 }
 
-template<typename TimePoint>
+template <typename TimePoint>
 typename TimePoint::rep encodeTransformTimePoint(TimePoint time_point) {
   return time_point.time_since_epoch().count();
 }
 
-template<typename TimePoint>
+template <typename TimePoint>
 TimePoint decodeTransformTimePoint(
     typename TimePoint::rep duration_rep, size_t offset) {
   return TimePoint(typename TimePoint::duration(duration_rep));
@@ -50,7 +50,7 @@ TimePoint decodeTransformTimePoint(
 }  // namespace detail
 namespace codec {
 
-template<typename Duration>
+template <typename Duration>
 decltype(transform(
     &detail::encodeTransformDuration<Duration>,
     &detail::decodeTransformDuration<Duration>))
@@ -60,7 +60,7 @@ duration() {
       &detail::decodeTransformDuration<Duration>);
 }
 
-template<typename TimePoint>
+template <typename TimePoint>
 decltype(transform(
     &detail::encodeTransformTimePoint<TimePoint>,
     &detail::decodeTransformTimePoint<TimePoint>))
@@ -72,14 +72,14 @@ time_point() {
 
 }  // namespace codec
 
-template<typename Rep, typename Period>
+template <typename Rep, typename Period>
 struct default_codec_t<std::chrono::duration<Rep, Period>> {
   static decltype(codec::duration<std::chrono::duration<Rep, Period>>()) codec() {
     return codec::duration<std::chrono::duration<Rep, Period>>();
   }
 };
 
-template<typename Clock, typename Duration>
+template <typename Clock, typename Duration>
 struct default_codec_t<std::chrono::time_point<Clock, Duration>> {
   static decltype(codec::time_point<std::chrono::time_point<Clock, Duration>>()) codec() {
     return codec::time_point<std::chrono::time_point<Clock, Duration>>();
