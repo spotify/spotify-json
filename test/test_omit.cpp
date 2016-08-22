@@ -36,7 +36,7 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_codec_omit_should_construct) {
-  omit_t<std::string> codec;
+  omit_t<std::string>();
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_omit_should_construct_with_helper) {
