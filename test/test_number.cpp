@@ -55,6 +55,14 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_construct) {
@@ -256,18 +264,34 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_gobble_characters_after_signed
  * Encoding Signed Integers
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_positive_integer) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_positive_integer_with_writer) {
+  BOOST_CHECK_EQUAL(encode(number<int8_t>(), 0), "0");
   BOOST_CHECK_EQUAL(encode(number<int8_t>(), 127), "127");
   BOOST_CHECK_EQUAL(encode(number<int16_t>(), 32767), "32767");
   BOOST_CHECK_EQUAL(encode(number<int32_t>(), INT32_MAX), "2147483647");
   BOOST_CHECK_EQUAL(encode(number<int64_t>(), INT64_MAX), "9223372036854775807");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_negative_integer) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_negative_integer_with_writer) {
   BOOST_CHECK_EQUAL(encode(number<int8_t>(), -128), "-128");
   BOOST_CHECK_EQUAL(encode(number<int16_t>(), -32768), "-32768");
   BOOST_CHECK_EQUAL(encode(number<int32_t>(), INT32_MIN), "-2147483648");
   BOOST_CHECK_EQUAL(encode(number<int64_t>(), INT64_MIN), "-9223372036854775808");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_positive_integer) {
+  BOOST_CHECK_EQUAL(test_encode(number<int8_t>(), 0), "0");
+  BOOST_CHECK_EQUAL(test_encode(number<int8_t>(), 127), "127");
+  BOOST_CHECK_EQUAL(test_encode(number<int16_t>(), 32767), "32767");
+  BOOST_CHECK_EQUAL(test_encode(number<int32_t>(), INT32_MAX), "2147483647");
+  BOOST_CHECK_EQUAL(test_encode(number<int64_t>(), INT64_MAX), "9223372036854775807");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_signed_negative_integer) {
+  BOOST_CHECK_EQUAL(test_encode(number<int8_t>(), -128), "-128");
+  BOOST_CHECK_EQUAL(test_encode(number<int16_t>(), -32768), "-32768");
+  BOOST_CHECK_EQUAL(test_encode(number<int32_t>(), INT32_MIN), "-2147483648");
+  BOOST_CHECK_EQUAL(test_encode(number<int64_t>(), INT64_MIN), "-9223372036854775808");
 }
 
 /*
@@ -361,11 +385,20 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_not_gobble_characters_after_unsign
  * Encoding Unsigned Integers
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_unsigned_positive_integer) {
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_unsigned_positive_integer_with_writer) {
+  BOOST_CHECK_EQUAL(encode(number<uint8_t>(), 0), "0");
   BOOST_CHECK_EQUAL(encode(number<uint8_t>(), 255), "255");
   BOOST_CHECK_EQUAL(encode(number<uint16_t>(), 65535), "65535");
   BOOST_CHECK_EQUAL(encode(number<uint32_t>(), 4294967295), "4294967295");
   BOOST_CHECK_EQUAL(encode(number<uint64_t>(), UINT64_MAX), "18446744073709551615");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_unsigned_positive_integer) {
+  BOOST_CHECK_EQUAL(test_encode(number<uint8_t>(), 0), "0");
+  BOOST_CHECK_EQUAL(test_encode(number<uint8_t>(), 255), "255");
+  BOOST_CHECK_EQUAL(test_encode(number<uint16_t>(), 65535), "65535");
+  BOOST_CHECK_EQUAL(test_encode(number<uint32_t>(), 4294967295), "4294967295");
+  BOOST_CHECK_EQUAL(test_encode(number<uint64_t>(), UINT64_MAX), "18446744073709551615");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
