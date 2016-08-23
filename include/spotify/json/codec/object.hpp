@@ -219,9 +219,9 @@ class object_t final {
       set(object, codec.decode(context));
     }
 
+    Codec codec;
     Getter get;
     Setter set;
-    Codec codec;
   };
 
   template <typename ValueType, typename ObjectType>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,10 +20,13 @@
 #include <limits>
 #include <type_traits>
 
+#include <double-conversion/double-conversion.h>
+
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -55,19 +58,21 @@ inline double decode_floating_point(
 }
 
 template <typename T>
-class floating_point_t : public primitive_encoder<T> {
+class floating_point_t {
  public:
-  T decode(decoding_context &context) const {
+  using object_type = T;
+
+  object_type decode(decoding_context &context) const {
     using atod_converter = double_conversion::StringToDoubleConverter;
     static const atod_converter converter(
         atod_converter::ALLOW_TRAILING_JUNK,
-        std::numeric_limits<T>::quiet_NaN(),
-        std::numeric_limits<T>::quiet_NaN(),
+        std::numeric_limits<object_type>::quiet_NaN(),
+        std::numeric_limits<object_type>::quiet_NaN(),
         nullptr,
         nullptr);
 
     int bytes_read = 0;
-    const auto result = decode_floating_point<T>(
+    const auto result = decode_floating_point<object_type>(
         converter,
         context.position,
         context.end - context.position,
@@ -75,6 +80,35 @@ class floating_point_t : public primitive_encoder<T> {
     fail_if(context, std::isnan(result), "Invalid floating point number");
     skip(context, bytes_read);
     return result;
+  }
+
+  void encode(const object_type &value, writer &writer) const {
+    writer << value;
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    // The maximum buffer size required to emit a double in base 10, for decimal
+    // and exponential representations, is 25 bytes; based on the settings used
+    // below for the DoubleToStringConverter. We add another byte for the null
+    // terminator, but it is not actually needed because we don't finalize the
+    // builder.
+    const auto max_required_size = 26;
+    const auto p = reinterpret_cast<char *>(context.reserve(max_required_size));
+
+    // The converter is based on the ECMAScript converter, but will not convert
+    // special values, like Infinity and NaN, since JSON does not support those.
+    using dtoa_converter = double_conversion::DoubleToStringConverter;
+    const dtoa_converter converter(
+        dtoa_converter::UNIQUE_ZERO | dtoa_converter::EMIT_POSITIVE_EXPONENT_SIGN,
+        nullptr, nullptr, 'e', -6, 21, 6, 0);
+
+    using dtoa_builder = double_conversion::StringBuilder;
+    dtoa_builder builder(p, max_required_size);
+    if (!converter.ToShortest(value, &builder)) {
+      throw std::invalid_argument("Special values like 'Infinity' or 'NaN' are supported in JSON.");
+    }
+
+    context.advance(builder.position());
   }
 };
 
@@ -362,24 +396,124 @@ json_force_inline T decode_positive_integer(decoding_context &context) {
   return decode_integer<T, true>(context);
 }
 
+template <typename T>
+size_t count_digits_negative(const T value) {
+  return (
+    value > -10 ? 1 :
+    value > -100 ? 2 :
+    value > -1000 ? 3 :
+    value > -10000 ? 4 :
+    value > -100000 ? 5 :
+    value > -1000000 ? 6 :
+    value > -10000000 ? 7 :
+    value > -100000000 ? 8 :
+    value > -1000000000 ? 9 :
+    value > -10000000000LL ? 10 :
+    value > -100000000000LL ? 11 :
+    value > -1000000000000LL ? 12 :
+    value > -10000000000000LL ? 13 :
+    value > -100000000000000LL ? 14 :
+    value > -1000000000000000LL ? 15 :
+    value > -10000000000000000LL ? 16 :
+    value > -100000000000000000LL ? 17 :
+    value > -1000000000000000000LL ? 18 :
+    19);
+}
+
+template <typename T>
+size_t count_digits_positive(const T value) {
+  return (
+      value < 10 ? 1 :
+      value < 100 ? 2 :
+      value < 1000 ? 3 :
+      value < 10000 ? 4 :
+      value < 100000 ? 5 :
+      value < 1000000 ? 6 :
+      value < 10000000 ? 7 :
+      value < 100000000 ? 8 :
+      value < 1000000000 ? 9 :
+      value < 10000000000ULL ? 10 :
+      value < 100000000000ULL ? 11 :
+      value < 1000000000000ULL ? 12 :
+      value < 10000000000000ULL ? 13 :
+      value < 100000000000000ULL ? 14 :
+      value < 1000000000000000ULL ? 15 :
+      value < 10000000000000000ULL ? 16 :
+      value < 100000000000000000ULL ? 17 :
+      value < 1000000000000000000ULL ? 18 :
+      value < 10000000000000000000ULL ? 19 :
+      20);
+}
+
+template <typename T>
+json_force_inline void encode_negative_integer(encoding_context &context, T value) {
+  const auto n = count_digits_negative(value);
+  const auto p = context.reserve(n + 1);
+  p[0] = '-';
+  switch (n) {
+    #define C(_n) case _n: p[_n] = ('0' - (value % 10)); value /= 10
+    /*20*/ C(19); C(18); C(17); C(16); C(15); C(14); C(13); C(12); C(11);
+    C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
+    #undef C
+  }
+  context.advance(n + 1);
+}
+
+template <typename T>
+json_force_inline void encode_positive_integer(encoding_context &context, T value) {
+  const auto n = count_digits_positive(value);
+  const auto p = context.reserve(n) - 1;  // - 1 to avoid doing in the switch cases
+  switch (n) {
+    #define C(_n) case _n: p[_n] = ('0' + (value % 10)); value /= 10
+    C(20); C(19); C(18); C(17); C(16); C(15); C(14); C(13); C(12); C(11);
+    C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
+    #undef C
+  }
+  context.advance(n);
+}
+
 template <typename T, bool is_integer, bool is_signed>
 class integer_t;
 
 template <typename T>
-class integer_t<T, true, false> : public primitive_encoder<T> {
+class integer_t<T, true, false> {
  public:
-  json_force_inline T decode(decoding_context &context) const {
-    return decode_positive_integer<T>(context);
+  using object_type = T;
+
+  json_force_inline object_type decode(decoding_context &context) const {
+    return decode_positive_integer<object_type>(context);
+  }
+
+  json_force_inline void encode(const object_type value, writer &writer) const {
+    writer << value;
+  }
+
+  json_force_inline void encode(encoding_context &context, const object_type value) const {
+    encode_positive_integer(context, value);
   }
 };
 
 template <typename T>
-class integer_t<T, true, true> : public primitive_encoder<T> {
+class integer_t<T, true, true> {
  public:
-  json_force_inline T decode(decoding_context &context) const {
+  using object_type = T;
+
+  json_force_inline object_type decode(decoding_context &context) const {
     return (peek(context) == '-' ?
-        decode_negative_integer<T>(context) :
-        decode_positive_integer<T>(context));
+        decode_negative_integer<object_type>(context) :
+        decode_positive_integer<object_type>(context));
+  }
+
+  json_force_inline void encode(const object_type value, writer &writer) const {
+    writer << value;
+  }
+
+  json_force_inline void encode(encoding_context &context, const object_type value) const {
+    if (value < 0) {
+      encode_negative_integer(context, value);
+    } else {
+      encode_positive_integer(context, value);
+    }
   }
 };
 
