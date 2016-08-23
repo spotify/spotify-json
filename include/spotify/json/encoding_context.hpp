@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include <algorithm>  // std::max
-#include <cstddef>    // size_t
-#include <cstdint>    // uint8_t
-#include <cstdlib>    // malloc, realloc, free
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
 
 #include <spotify/json/detail/macros.hpp>
 
@@ -32,7 +32,7 @@ namespace json {
  */
 struct encoding_context final {
   encoding_context(const size_t capacity = 4096)
-      : _buf(static_cast<uint8_t *>(::malloc(capacity))),
+      : _buf(static_cast<uint8_t *>(std::malloc(capacity))),
         _ptr(_buf),
         _end(_buf + capacity),
         _capacity(capacity) {
@@ -42,7 +42,7 @@ struct encoding_context final {
   }
 
   ~encoding_context() {
-    ::free(_buf);
+    std::free(_buf);
   }
 
   json_force_inline uint8_t *reserve(const size_t num_bytes) {
@@ -74,7 +74,7 @@ struct encoding_context final {
     const auto new_size = (old_size + num_bytes);
     const auto new_capacity = std::max(new_size, _capacity * 2);
 
-    if (!(_buf = static_cast<uint8_t *>(::realloc(_buf, new_capacity)))) {
+    if (!(_buf = static_cast<uint8_t *>(std::realloc(_buf, new_capacity)))) {
       throw std::bad_alloc();
     }
 
