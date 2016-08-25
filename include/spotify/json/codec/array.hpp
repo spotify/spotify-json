@@ -76,16 +76,19 @@ class array_t final {
   void encode(const object_type &array, detail::writer &w) const {
     w.add_array([&](detail::writer &w) {
       for (const auto &element : array) {
-        _inner_codec.encode(element, w);
+        if (json_likely(detail::should_encode(_inner_codec, element))) {
+          _inner_codec.encode(element, w);
+        }
       }
     });
   }
 
-  void encode(encoding_context &context, const object_type &array) {
+  void encode(encoding_context &context, const object_type &array) const {
     context.append('[');
     for (const auto &element : array) {
-      _inner_codec.encode(context, element);
-      context.append(',');
+      if (json_likely(detail::should_encode(_inner_codec, element))) {
+        _inner_codec.encode(context, element); context.append(',');
+      }
     }
     context.append_or_replace(',', ']');
   }
