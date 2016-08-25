@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -44,7 +44,40 @@ void map_parse_should_fail(const char *not_map) {
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
+template <typename Codec, typename T>
+std::string test_encode(const Codec &codec, const std::map<std::string, T> &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
+template <typename T>
+std::string test_encode(const std::map<std::string, T> &value) {
+  return test_encode(default_codec<std::map<std::string, T>>(), value);
+}
+
 }  // namespace
+
+/*
+ * Constructing
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_with_helper) {
+  map<std::map<std::string, bool>>(boolean());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_map_with_default_codec) {
+  default_codec<std::map<std::string, bool>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_unordered_map_with_default_codec) {
+  default_codec<std::unordered_map<std::string, bool>>();
+}
+
+/*
+ * Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_map_should_decode_empty_map) {
   BOOST_CHECK(map_parse("{}").empty());
@@ -72,15 +105,21 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_not_decode_otherwise) {
   map_parse_should_fail("{\"a\":false,\"b\":true,");
 }
 
+/*
+ * Encoding
+ */
+
 BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_empty) {
   std::map<std::string, bool> map;
   BOOST_CHECK_EQUAL(encode(map), "{}");
+  BOOST_CHECK_EQUAL(test_encode(map), "{}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_single_element) {
   std::map<std::string, bool> map;
   map["a"] = true;
   BOOST_CHECK_EQUAL(encode(map), "{\"a\":true}");
+  BOOST_CHECK_EQUAL(test_encode(map), "{\"a\":true}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_two_elements) {
@@ -88,6 +127,7 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_two_elements) {
   map["a"] = true;
   map["b"] = false;
   BOOST_CHECK_EQUAL(encode(map), "{\"a\":true,\"b\":false}");
+  BOOST_CHECK_EQUAL(test_encode(map), "{\"a\":true,\"b\":false}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_map_should_respect_should_encode) {
@@ -96,18 +136,7 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_respect_should_encode) {
   map["b"] = false;
   const auto codec = codec::map<std::map<std::string, bool>>(only_true_t());
   BOOST_CHECK_EQUAL(encode(codec, map), "{\"a\":true}");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_with_helper) {
-  map<std::map<std::string, bool>>(boolean());
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_map_with_default_codec) {
-  default_codec<std::map<std::string, bool>>();
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_map_should_construct_unordered_map_with_default_codec) {
-  default_codec<std::unordered_map<std::string, bool>>();
+  BOOST_CHECK_EQUAL(test_encode(codec, map), "{\"a\":true}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
