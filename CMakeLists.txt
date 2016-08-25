@@ -59,7 +59,6 @@ set(json_detail_HEADERS
   include/spotify/json/detail/key.hpp
   include/spotify/json/detail/macros.hpp
   include/spotify/json/detail/pair.hpp
-  include/spotify/json/detail/primitive_encoder.hpp
   include/spotify/json/detail/std.hpp
   include/spotify/json/detail/writer.hpp
   )
@@ -102,7 +101,6 @@ set(json_test_SOURCES
   test/test_omit.cpp
   test/test_one_of.cpp
   test/test_pair.cpp
-  test/test_primitive_encoder.cpp
   test/test_raw.cpp
   test/test_smart_ptr.cpp
   test/test_string.cpp
