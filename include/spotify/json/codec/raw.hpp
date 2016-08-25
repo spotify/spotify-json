@@ -16,10 +16,13 @@
 
 #pragma once
 
+#include <cstring>
+
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -40,14 +43,19 @@ class raw_t final {
  public:
   using object_type = raw_ref;
 
-  void encode(const object_type &r, detail::writer &w) const {
-    w.write_raw_value(r.data, r.size);
-  }
-
   object_type decode(decoding_context &context) const {
     const auto begin = context.position;
     detail::advance_past_value(context);
     return raw_ref(begin, context.position - begin);
+  }
+
+  void encode(const object_type &r, detail::writer &w) const {
+    w.write_raw_value(r.data, r.size);
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    std::memcpy(context.reserve(value.size), value.data, value.size);
+    context.advance(value.size);
   }
 };
 
