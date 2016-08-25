@@ -155,9 +155,9 @@ class string_t final {
   }
 
   static void encode_utf8(decoding_context &context, std::string &out, unsigned p) {
-    if (p <= 0x7F) {
+    if (json_likely(p <= 0x7F)) {
       encode_utf8_1(out, p);
-    } else if (p <= 0x07FF) {
+    } else if (json_likely(p <= 0x07FF)) {
       encode_utf8_2(out, p);
     } else {
       encode_utf8_3(out, p);
