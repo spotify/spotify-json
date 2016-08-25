@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -89,16 +90,22 @@ class one_of_t final {
   explicit one_of_t(Args&& ...args)
       : _codecs(std::forward<Args>(args)...) {}
 
-  void encode(const object_type &value, detail::writer &w) const {
-    std::get<0>(_codecs).encode(value, w);
-  }
-
   object_type decode(decoding_context &context) const {
     return detail::try_each_codec<
         decltype(_codecs), std::tuple_size<decltype(_codecs)>::value>::decode(_codecs, context);
   }
 
-  // TODO(peck): should_encode
+  void encode(const object_type &value, detail::writer &w) const {
+    std::get<0>(_codecs).encode(value, w);
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    std::get<0>(_codecs).encode(context, value);
+  }
+
+  bool should_encode(const object_type &value) const {
+    return detail::should_encode(std::get<0>(_codecs), value);
+  }
 
  private:
   std::tuple<Codec, Codecs ...> _codecs;
