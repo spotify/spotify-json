@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,6 +26,8 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
+namespace {
+
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
@@ -40,10 +42,24 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 enum class Test {
   A,
   B
 };
+
+}  // namespace
+
+/*
+ * Constructing
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_construct) {
   enumeration_t<Test, string_t> codec(
@@ -67,18 +83,9 @@ BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_construct_with_multiple_param
   enumeration<Test, std::string>({ { Test::A, "A" }, { Test::B, "B" } });
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_encode) {
-  const auto codec = enumeration<Test, std::string>({
-      { Test::A, "A" },
-      { Test::B, "B" } });
-  BOOST_CHECK_EQUAL(encode(codec, Test::A), "\"A\"");
-  BOOST_CHECK_EQUAL(encode(codec, Test::B), "\"B\"");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_not_encode_missing_value) {
-  const auto codec = enumeration<Test, std::string>({ { Test::A, "A" } });
-  BOOST_CHECK_THROW(encode(codec, Test::B), std::invalid_argument);
-}
+/*
+ * Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_decode) {
   const auto codec = enumeration<Test, std::string>({
@@ -91,6 +98,26 @@ BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_decode) {
 BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_not_decode_invalid_value) {
   const auto codec = enumeration<Test, std::string>({ { Test::A, "A" } });
   test_decode_fail(codec, "\"B\"");
+}
+
+/*
+ * Encoding
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_encode) {
+  const auto codec = enumeration<Test, std::string>({
+      { Test::A, "A" },
+      { Test::B, "B" } });
+  BOOST_CHECK_EQUAL(encode(codec, Test::A), "\"A\"");
+  BOOST_CHECK_EQUAL(encode(codec, Test::B), "\"B\"");
+  BOOST_CHECK_EQUAL(test_encode(codec, Test::A), "\"A\"");
+  BOOST_CHECK_EQUAL(test_encode(codec, Test::B), "\"B\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_not_encode_missing_value) {
+  const auto codec = enumeration<Test, std::string>({ { Test::A, "A" } });
+  BOOST_CHECK_THROW(encode(codec, Test::B), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(codec, Test::B), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

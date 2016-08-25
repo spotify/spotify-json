@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,7 +23,9 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -45,30 +47,6 @@ class enumeration_t final {
       : _inner_codec(std::move(inner_codec)),
         _mapping(std::move(mapping)) {}
 
-  void encode(const object_type &value, detail::writer &w) const {
-    const auto it = std::find_if(
-        _mapping.begin(),
-        _mapping.end(),
-        [&](const std::pair<OuterObject, InnerType> &pair) {
-          return pair.first == value;
-        });
-    if (it == _mapping.end()) {
-      // This should never happen because should_encode should cause this
-      // method to never be called with an unknown value.
-      throw std::invalid_argument("Encoding unknown enumeration value");
-    }
-    _inner_codec.encode(it->second, w);
-  }
-
-  bool should_encode(const object_type &value) const {
-    return std::find_if(
-        _mapping.begin(),
-        _mapping.end(),
-        [&](const std::pair<OuterObject, InnerType> &pair) {
-          return pair.first == value;
-        }) != _mapping.end();
-  }
-
   object_type decode(decoding_context &context) const {
     const auto result = _inner_codec.decode(context);
     const auto it = std::find_if(
@@ -77,14 +55,40 @@ class enumeration_t final {
         [&](const std::pair<OuterObject, InnerType> &pair) {
           return pair.second == result;
         });
-    detail::fail_if(
-        context,
-        it == _mapping.end(),
-        "Encountered unknown enumeration value");
+    detail::fail_if(context, it == _mapping.end(), "Encountered unknown enumeration value");
     return it->first;
   }
 
+  void encode(const object_type &value, detail::writer &w) const {
+    const auto it = find(value);
+    if (json_unlikely(it == _mapping.end())) {
+      throw std::invalid_argument("Encoding unknown enumeration value");
+    }
+    _inner_codec.encode(it->second, w);
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    const auto it = find(value);
+    if (json_unlikely(it == _mapping.end())) {
+      throw std::invalid_argument("Encoding unknown enumeration value");
+    }
+    _inner_codec.encode(context, (*it).second);
+  }
+
+  bool should_encode(const object_type &value) const {
+    return find(value) != _mapping.end();
+  }
+
  private:
+  json_never_inline typename Mapping::const_iterator find(const object_type &value) const {
+    return std::find_if(
+        _mapping.begin(),
+        _mapping.end(),
+        [&](const std::pair<OuterObject, InnerType> &pair) {
+          return pair.first == value;
+        });
+  }
+
   InnerCodec _inner_codec;
   Mapping _mapping;
 };
