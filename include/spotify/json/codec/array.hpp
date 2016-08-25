@@ -87,7 +87,8 @@ class array_t final {
     context.append('[');
     for (const auto &element : array) {
       if (json_likely(detail::should_encode(_inner_codec, element))) {
-        _inner_codec.encode(context, element); context.append(',');
+        _inner_codec.encode(context, element);
+        context.append(',');
       }
     }
     context.append_or_replace(',', ']');

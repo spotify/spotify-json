@@ -77,8 +77,10 @@ class map_t final {
     context.append('{');
     for (const auto &element : map) {
       if (json_likely(detail::should_encode(_inner_codec, element.second))) {
-        _string_codec.encode(context, element.first); context.append(':');
-        _inner_codec.encode(context, element.second); context.append(',');
+        _string_codec.encode(context, element.first);
+        context.append(':');
+        _inner_codec.encode(context, element.second);
+        context.append(',');
       }
     }
     context.append_or_replace(',', '}');
