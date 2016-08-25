@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -41,17 +41,23 @@ class eq_t final {
   eq_t(InnerCodec inner_codec, object_type value)
       : _inner_codec(std::move(inner_codec)), _value(value) {}
 
-  void encode(const object_type &value, detail::writer &w) const {
-    _inner_codec.encode(_value, w);
-  }
-
   object_type decode(decoding_context &context) const {
     object_type result = _inner_codec.decode(context);
     detail::fail_if(context, result != _value, "Encountered unexpected value");
     return result;
   }
 
-  // TODO(peck): should_encode
+  void encode(const object_type &value, detail::writer &w) const {
+    _inner_codec.encode(_value, w);
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    _inner_codec.encode(context, _value);
+  }
+
+  bool should_encode(const object_type &value) const {
+    return detail::should_encode(_inner_codec, value);
+  }
 
  private:
   InnerCodec _inner_codec;
