@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +18,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -42,11 +43,6 @@ class codec_interface final {
   using object_type = void *;
 
   /**
-   * Write an object to a writer.
-   */
-  void encode(const object_type &value, detail::writer &writer) const;
-
-  /**
    * Parse the given JSON. The string to parse begins at context.position and
    * ends at context.end. It is not an error if end is beyond the object that
    * this codec parses.
@@ -63,6 +59,16 @@ class codec_interface final {
   object_type decode(decoding_context &context) const;
 
   /**
+   * Write an object to a writer.
+   */
+  void encode(const object_type &value, detail::writer &writer) const;
+
+  /**
+   * Write an object to a writer.
+   */
+  void encode(encoding_context &context, const object_type &value) const;
+
+  /**
    * This method is optional.
    *
    * If it is present and it returns false for a specific value, writers of JSON
@@ -70,9 +76,9 @@ class codec_interface final {
    * boost::optional, where not even the key name or a comma should be printed if
    * the value is boost::none.
    *
-   * There is no guarantee that encode will not be called for a given value if
-   * this method returns false. Encode should simply write nothing if it is called
-   * with a value that should not be encoded.
+   * The caller is responsible for not calling the encode method whenever this
+   * method returns false. If the encode method is called anyway, an exception
+   * should be thrown.
    */
   bool should_encode(const object_type &value) const;
 };
