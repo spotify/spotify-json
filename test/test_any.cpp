@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -28,6 +28,14 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 bool any_parse(const char *str) {
   any_t<bool> codec = any_t<bool>(boolean());
   auto ctx = decoding_context(str, str + strlen(str));
@@ -43,6 +51,8 @@ BOOST_AUTO_TEST_CASE(json_any_should_encode) {
   any_t<bool> codec = any_t<bool>(boolean());
   BOOST_CHECK_EQUAL(encode(codec, true), "true");
   BOOST_CHECK_EQUAL(encode(codec, false), "false");
+  BOOST_CHECK_EQUAL(test_encode(codec, true), "true");
+  BOOST_CHECK_EQUAL(test_encode(codec, false), "false");
 }
 
 BOOST_AUTO_TEST_CASE(json_any_should_decode) {
