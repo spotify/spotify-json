@@ -76,12 +76,10 @@ class string_t final {
   static void skip_past_simple_characters(decoding_context &context) {
     const auto end = context.end;
     auto position = context.position;
-    JSON_STRING_SKIP_N(1,  2, uint8_t,  if, done_x)
-    JSON_STRING_SKIP_N(2,  4, uint16_t, if, done_x)
-    JSON_STRING_SKIP_N(4,  8, uint32_t, if, done_x)
-    JSON_STRING_SKIP_N(8, 16, uint64_t, if, done_8)
-    JSON_STRING_SKIP_N(16, x, json_uint128_t, while, done_F)
-    done_F: JSON_STRING_SKIP_N(8, x, uint64_t, if, done_8)
+    JSON_STRING_SKIP_N(1, 2, uint8_t,  if, done_x)
+    JSON_STRING_SKIP_N(2, 4, uint16_t, if, done_x)
+    JSON_STRING_SKIP_N(4, 8, uint32_t, if, done_x)
+    JSON_STRING_SKIP_N(8, x, uint64_t, if, done_8)
     done_8: JSON_STRING_SKIP_N(4, x, uint32_t, if, done_x)
     done_x: context.position = position;
   }
