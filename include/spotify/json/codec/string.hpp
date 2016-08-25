@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,8 +20,10 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/escape.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -38,11 +40,27 @@ namespace codec {
     position += n; \
   }
 
-class string_t final : public detail::primitive_encoder<std::string> {
+class string_t final {
  public:
+  using object_type = std::string;
+
   json_never_inline object_type decode(decoding_context &context) const {
     detail::advance_past(context, '"');
     return decode_string(context);
+  }
+
+  void encode(const object_type &value, detail::writer &writer) const {
+    writer << value;
+  }
+
+  void encode(encoding_context &context, const object_type value) const {
+    const auto max_escaped_size = value.size() * 6;  // 6 is length of \u00xx
+    const auto ptr = context.reserve(max_escaped_size + 2);  // 2 is for the "s
+    auto pos = ptr + 1;
+    detail::write_escaped(pos, value.begin(), value.end());
+    ptr[0] = '"';  // leading "
+    pos[0] = '"';  // trailing "
+    context.advance(pos - ptr + 1);
   }
 
  private:
