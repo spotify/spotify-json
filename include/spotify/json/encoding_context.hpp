@@ -56,6 +56,21 @@ struct encoding_context final {
     _ptr += num_bytes;
   }
 
+  json_force_inline void append(const uint8_t c) {
+    reserve(1)[0] = c;
+    advance(1);
+  }
+
+  json_force_inline void append_or_replace(
+      const uint8_t replacing,
+      const uint8_t with) {
+    if (json_unlikely(empty() || _ptr[-1] != replacing)) {
+      append(with);
+    } else {
+      _ptr[-1] = with;
+    }
+  }
+
   json_force_inline const uint8_t *data() const {
     return _buf;
   }
@@ -66,6 +81,10 @@ struct encoding_context final {
 
   json_force_inline size_t capacity() const {
     return _capacity;
+  }
+
+  json_force_inline bool empty() const {
+    return (_ptr == _buf);
   }
 
  private:

@@ -28,6 +28,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_context_should_construct_without_capacity) {
   const encoding_context ctx;
   BOOST_CHECK_EQUAL(ctx.size(), 0);
   BOOST_CHECK_NE(ctx.capacity(), 0);
+  BOOST_CHECK(ctx.empty());
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_context_should_construct_with_capacity) {
@@ -73,6 +74,39 @@ BOOST_AUTO_TEST_CASE(json_decoding_context_should_maintain_correct_size_when_adv
   ctx.advance(3);
   ctx.advance(5);
   BOOST_CHECK_EQUAL(ctx.size(), 12);
+  BOOST_CHECK(!ctx.empty());
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_context_should_append_single_byte) {
+  encoding_context ctx;
+  ctx.append('1');
+  ctx.append('2');
+  BOOST_CHECK_EQUAL(ctx.data()[0], '1');
+  BOOST_CHECK_EQUAL(ctx.data()[1], '2');
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_context_should_replace_last_byte) {
+  encoding_context ctx;
+  ctx.append('1');
+  ctx.append_or_replace('1', '2');
+  BOOST_REQUIRE_EQUAL(ctx.size(), 1);
+  BOOST_CHECK_EQUAL(ctx.data()[0], '2');
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_context_should_not_replace_wrong_last_byte) {
+  encoding_context ctx;
+  ctx.append('1');
+  ctx.append_or_replace('3', '2');
+  BOOST_REQUIRE_EQUAL(ctx.size(), 2);
+  BOOST_CHECK_EQUAL(ctx.data()[0], '1');
+  BOOST_CHECK_EQUAL(ctx.data()[1], '2');
+}
+
+BOOST_AUTO_TEST_CASE(json_decoding_context_should_not_replace_in_empty_context) {
+  encoding_context ctx;
+  ctx.append_or_replace('1', '2');
+  BOOST_REQUIRE_EQUAL(ctx.size(), 1);
+  BOOST_CHECK_EQUAL(ctx.data()[0], '2');
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json
