@@ -23,6 +23,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -45,14 +46,6 @@ class default_as_t final {
       : _default_codec(std::move(default_codec)),
         _inner_codec(std::move(inner_codec)) {}
 
-  void encode(const object_type &value, detail::writer &w) const {
-    if (value == _default) {
-      _default_codec.encode(value, w);
-    } else {
-      _inner_codec.encode(value, w);
-    }
-  }
-
   object_type decode(decoding_context &context) const {
     const auto original_position = context.position;
     try {
@@ -66,6 +59,22 @@ class default_as_t final {
         // example that the object is not a valid null.
         throw exc;
       }
+    }
+  }
+
+  void encode(const object_type &value, detail::writer &w) const {
+    if (value == _default) {
+      _default_codec.encode(value, w);
+    } else {
+      _inner_codec.encode(value, w);
+    }
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    if (value == _default) {
+      _default_codec.encode(context, value);
+    } else {
+      _inner_codec.encode(context, value);
     }
   }
 
