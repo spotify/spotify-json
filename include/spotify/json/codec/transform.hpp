@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,6 +19,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -125,13 +126,17 @@ class transform_t final {
         _encode_transform(std::move(encode_transform)),
         _decode_transform(std::move(decode_transform)) {}
 
+  object_type decode(decoding_context &context) const {
+    const auto offset = context.offset();  // Capture offset before decoding
+    return _decode_transform(_inner_codec.decode(context), offset);
+  }
+
   void encode(const object_type &value, detail::writer &w) const {
     _inner_codec.encode(_encode_transform(value), w);
   }
 
-  object_type decode(decoding_context &context) const {
-    const auto offset = context.offset();  // Capture offset before decoding
-    return _decode_transform(_inner_codec.decode(context), offset);
+  void encode(encoding_context &context, const object_type &value) const {
+    _inner_codec.encode(context, _encode_transform(value));
   }
 
  private:
