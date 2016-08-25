@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -36,10 +36,18 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 }  // namespace
 
 /*
- * Unique pointer
+ * Unique Pointer
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_construct) {
@@ -58,6 +66,7 @@ BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_encode) {
   const auto codec = unique_ptr(string());
   const auto input = std::unique_ptr<std::string>(new std::string("hello"));
   BOOST_CHECK_EQUAL(encode(codec, input), "\"hello\"");
+  BOOST_CHECK_EQUAL(test_encode(codec, input), "\"hello\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_decode) {
@@ -74,7 +83,7 @@ BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_not_encode_null) {
 }
 
 /*
- * Shared pointer
+ * Shared Pointer
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct) {
@@ -93,6 +102,7 @@ BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_encode) {
   const auto codec = shared_ptr(string());
   const auto input = std::make_shared<std::string>("hello");
   BOOST_CHECK_EQUAL(encode(codec, input), "\"hello\"");
+  BOOST_CHECK_EQUAL(test_encode(codec, input), "\"hello\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_decode) {
