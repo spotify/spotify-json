@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -27,6 +27,7 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -64,6 +65,14 @@ class array_t final {
   explicit array_t(InnerCodec inner_codec)
       : _inner_codec(inner_codec) {}
 
+  object_type decode(decoding_context &context) const {
+    object_type output;
+    detail::advance_past_comma_separated(context, '[', ']', [&]{
+      Inserter::apply(output, _inner_codec.decode(context));
+    });
+    return output;
+  }
+
   void encode(const object_type &array, detail::writer &w) const {
     w.add_array([&](detail::writer &w) {
       for (const auto &element : array) {
@@ -72,12 +81,13 @@ class array_t final {
     });
   }
 
-  object_type decode(decoding_context &context) const {
-    object_type output;
-    detail::advance_past_comma_separated(context, '[', ']', [&]{
-      Inserter::apply(output, _inner_codec.decode(context));
-    });
-    return output;
+  void encode(encoding_context &context, const object_type &array) {
+    context.append('[');
+    for (const auto &element : array) {
+      _inner_codec.encode(context, element);
+      context.append(',');
+    }
+    context.append_or_replace(',', ']');
   }
 
  private:
