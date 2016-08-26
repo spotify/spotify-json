@@ -272,7 +272,7 @@ The examples above cover the most commonly used parts of spotify-json. The
 library supports more things that sometimes come in handy:
 
 * Most STL containers, including
-  [`vector`, `deque`, `list`, `set`, `unordered_set`](doc/api.md#array_t),
+  [`array`, `vector`, `deque`, `list`, `set`, `unordered_set`](doc/api.md#array_t),
   [`map` and `unordered_map`](doc/api.md#map_t)
 * [C++ `enum`s and similar types](doc/api.md#enumeration_t)
 * [Arbitrary conversion logic](doc/api.md#transform_t), for example when a
