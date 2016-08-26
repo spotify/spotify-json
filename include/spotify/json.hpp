@@ -21,7 +21,7 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/chrono.hpp>
-#include <spotify/json/codec/default_as.hpp>
+#include <spotify/json/codec/empty_as.hpp>
 #include <spotify/json/codec/enumeration.hpp>
 #include <spotify/json/codec/eq.hpp>
 #include <spotify/json/codec/ignore.hpp>

@@ -30,19 +30,19 @@ namespace json {
 namespace codec {
 
 template <typename DefaultCodec, typename InnerCodec>
-class default_as_t final {
+class empty_as_t final {
  public:
   static_assert(
       std::is_same<
           typename InnerCodec::object_type,
           typename InnerCodec::object_type>::value,
-      "The codecs provided to default_as_t must encode the same type");
+      "The codecs provided to empty_as_t must encode the same type");
 
   using object_type = typename InnerCodec::object_type;
 
-  default_as_t() = default;
+  empty_as_t() = default;
 
-  default_as_t(DefaultCodec default_codec, InnerCodec inner_codec)
+  empty_as_t(DefaultCodec default_codec, InnerCodec inner_codec)
       : _default_codec(std::move(default_codec)),
         _inner_codec(std::move(inner_codec)) {}
 
@@ -93,30 +93,30 @@ class default_as_t final {
 };
 
 template <typename DefaultCodec, typename InnerCodec>
-default_as_t<typename std::decay<DefaultCodec>::type, typename std::decay<InnerCodec>::type> default_as(
+empty_as_t<typename std::decay<DefaultCodec>::type, typename std::decay<InnerCodec>::type> empty_as(
     DefaultCodec &&default_codec,
     InnerCodec &&inner_codec) {
-  return default_as_t<typename std::decay<DefaultCodec>::type, typename std::decay<InnerCodec>::type>(
+  return empty_as_t<typename std::decay<DefaultCodec>::type, typename std::decay<InnerCodec>::type>(
       std::forward<DefaultCodec>(default_codec),
       std::forward<InnerCodec>(inner_codec));
 }
 
 template <typename InnerCodec>
-default_as_t<
+empty_as_t<
     null_t<typename std::decay<InnerCodec>::type::object_type>,
-    typename std::decay<InnerCodec>::type> default_as_null(
+    typename std::decay<InnerCodec>::type> empty_as_null(
         InnerCodec &&inner_codec) {
-  return default_as(
+  return empty_as(
       null<typename std::decay<InnerCodec>::type::object_type>(),
       std::forward<InnerCodec>(inner_codec));
 }
 
 template <typename InnerCodec>
-default_as_t<
+empty_as_t<
     omit_t<typename std::decay<InnerCodec>::type::object_type>,
-    typename std::decay<InnerCodec>::type> default_as_omit(
+    typename std::decay<InnerCodec>::type> empty_as_omit(
         InnerCodec &&inner_codec) {
-  return default_as(
+  return empty_as(
       omit<typename std::decay<InnerCodec>::type::object_type>(),
       std::forward<InnerCodec>(inner_codec));
 }
