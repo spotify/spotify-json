@@ -187,9 +187,9 @@ it:
 * [`one_of_t`](#one_of_t) makes it possible to permit `null` or invalid values
   in the input without affecting serialization. This modifies decoding behavior
   only.
-* [`default_as_t`](#default_as_t) can be used to encode empty values as `null`
-  (`default_as_null`, modifies encoding and decoding behavior) and to omit empty
-  values, for example strings or arrays (`default_as_omit`, modifies encoding
+* [`empty_as_t`](#empty_as_t) can be used to encode empty values as `null`
+  (`empty_as_null`, modifies encoding and decoding behavior) and to omit empty
+  values, for example strings or arrays (`empty_as_omit`, modifies encoding
   behavior only).
 
 The codec
@@ -210,7 +210,7 @@ a number of codecs that are available to the user of the library:
 * [`array_t`](#array_t): For arrays (`std::vector`, `std::deque` etc)
 * [`boolean_t`](#boolean_t): For `bool`s
 * [`cast_t`](#cast_t): For dynamic casting `shared_ptr`s
-* [`default_as_t`](#default_as_t): For controlling encoding behavior of default
+* [`empty_as_t`](#empty_as_t): For controlling encoding behavior of default
   constructed or empty objects.
 * [`enumeration_t`](#enumeration_t): For enums and other enumerations of values
 * [`eq_t`](#eq_t): For requiring a specific value
@@ -221,7 +221,7 @@ a number of codecs that are available to the user of the library:
   integers)
 * [`object_t`](#object_t): For custom C++ objects
 * [`omit_t`](#omit_t): Codec that can't decode and that doesn't encode. For use
-  with [`default_as_t`](#default_as_t).
+  with [`empty_as_t`](#empty_as_t).
 * [`one_of_t`](#one_of_t): For trying more than one codec
 * [`shared_ptr_t`](#shared_ptr_t): For `shared_ptr`s
 * [`string_t`](#string_t): For strings
@@ -463,7 +463,7 @@ In the code above, the use of `cast_t` is required because when the user of
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
 
-### `default_as_t`
+### `empty_as_t`
 
 By default, spotify-json never encodes empty smart pointers, `boost::optional`
 or arrays as `null`. It also does not accept `null` when decoding unless it has
@@ -471,30 +471,30 @@ been explicitly allowed. In many cases, this behavior is fine and expected, but
 in some cases it is desirable to be more permissive when parsing, or even
 required to emit `null` instead of nothing when an object is missing.
 
-`default_as_t` is a codec that allows for control over how default constructed
+`empty_as_t` is a codec that allows for control over how default constructed
 (empty) objects are encoded and decoded. It wraps an inner codec, which does
 most of the heavy lifting, and a "default codec", which is used when the object
 to be encoded is empty (equal to a default constructed object of that type).
 
 It is most commonly used with the [`null_t`](#null_t) and [`omit_t`](#omit_t)
 codecs, and there are convenience functions for those two cases:
-`default_as_null` and `default_as_omit`.
+`empty_as_null` and `empty_as_omit`.
 
-`default_as_null` causes empty objects to be encoded as `null`, and causes
-`null` to be parsed to a default constructed object. For example,
-`default_as_null(default_codec<std::shared_ptr<std::string>>())` is a codec
+`empty_as_null` causes empty objects to be encoded as `null`, and causes `null`
+to be parsed to a default constructed object. For example,
+`empty_as_null(default_codec<std::shared_ptr<std::string>>())` is a codec
 for a `shared_ptr<string>` that encodes a `nullptr` `shared_ptr` to `null`.
-Without the `default_as_null` wrapper, null would be disallowed both when
+Without the `empty_as_null` wrapper, null would be disallowed both when
 encoding and when decoding.
 
 ```cpp
-const auto codec = default_as_null(default_codec<std::shared_ptr<std::string>>());
+const auto codec = empty_as_null(default_codec<std::shared_ptr<std::string>>());
 encode(codec, std::shared_ptr<std::string>()) == "null";
 encode(codec, std::make_shared<std::string>("abc")) == "\"abc\"";
 ```
 
-`default_as_omit` causes empty objects to be omitted from the output. For
-example, `default_as_omit(string())` is a codec that, when embedded in for
+`empty_as_omit` causes empty objects to be omitted from the output. For
+example, `empty_as_omit(string())` is a codec that, when embedded in for
 example an `object_t` codec, causes the field to be omitted if it's empty.
 This can be useful for decluttering the JSON if the object has many fields that
 are usually not set.
@@ -509,7 +509,7 @@ struct Val {
 
 auto codec = object<Val>();
 codec.optional("a", &Val::a);
-codec.optional("b", &Val::b, default_as_omit(string()));
+codec.optional("b", &Val::b, empty_as_omit(string()));
 
 encode(codec, Val()) == "{\"a\":\"\"}";  // no "b"
 ```
@@ -520,9 +520,9 @@ encode(codec, Val()) == "{\"a\":\"\"}";  // no "b"
   `InnerCodec` is the type of the codec that's used otherwise.
 * **Supported types**: Any default constructible type.
 * **Convenience builder**:
-  `spotify::json::codec::default_as_null(inner_codec)`,
-  `spotify::json::codec::default_as_omit(inner_codec)`, or
-  `spotify::json::codec::default_as(default_codec, inner_codec)` to use any
+  `spotify::json::codec::empty_as_null(inner_codec)`,
+  `spotify::json::codec::empty_as_omit(inner_codec)`, or
+  `spotify::json::codec::empty_as(default_codec, inner_codec)` to use any
   other codec as default codec.
 * **`default_codec` support**: `default_codec<null_type>()`
 
@@ -667,10 +667,10 @@ C++ object in a type-safe way.
 null. By default it encodes to and from `spotify::json::null_type`, which is an
 empty struct class, but it can be used with other types as well.
 
-The `null_t` codec can be used with the [`default_as_t`](#default_as_t) codec
+The `null_t` codec can be used with the [`empty_as_t`](#empty_as_t) codec
 in order to encode `nullptr` smart pointers or other empty objects (empty
 `boost::optional` or even empty arrays) as `null` in JSON. The documentation for
-`default_as_t` has examples for how to do this.
+`empty_as_t` has examples for how to do this.
 
 * **Complete class name**: `spotify::json::codec::null_t<T>` where `T` is the
   type that is created when the codec successfully decodes a JSON `null`.
@@ -782,8 +782,8 @@ codec.required("y", &point::y);
 
 `omit_t` is a primitive codec that cannot decode any value and that asks to
 not be encoded. It indicates that the object should be omitted from the JSON
-output. This codec is typically used with the [`default_as_t`](#default_as_t)
-codec. The documentation for `default_as_t` has usage examples.
+output. This codec is typically used with the [`empty_as_t`](#empty_as_t)
+codec. The documentation for `empty_as_t` has usage examples.
 
 [`ignore_t`](#ignore_t) is similar to `omit_t`. The difference is that `omit_t`
 always fails decoding, while `ignore_t` always succeeds decoding (if the input

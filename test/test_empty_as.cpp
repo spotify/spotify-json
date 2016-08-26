@@ -19,7 +19,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/codec/default_as.hpp>
+#include <spotify/json/codec/empty_as.hpp>
 #include <spotify/json/codec/eq.hpp>
 #include <spotify/json/codec/null.hpp>
 #include <spotify/json/codec/number.hpp>
@@ -68,50 +68,50 @@ std::string test_encode(const Codec &codec, const typename Codec::object_type &v
  * Constructing
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_default_construct) {
-  default_as_t<null_t<std::string>, string_t> codec;
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_default_construct) {
+  empty_as_t<null_t<std::string>, string_t> codec;
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_construct) {
-  default_as_t<null_t<std::string>, string_t> codec((null_t<std::string>()), string_t());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_construct) {
+  empty_as_t<null_t<std::string>, string_t> codec((null_t<std::string>()), string_t());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_construct_with_helper) {
-  default_as(null<std::string>(), string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_construct_with_helper) {
+  empty_as(null<std::string>(), string());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_null_should_construct) {
-  default_as_null(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_null_should_construct) {
+  empty_as_null(string());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_omit_should_construct) {
-  default_as_omit(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_omit_should_construct) {
+  empty_as_omit(string());
 }
 
 /*
  * Decoding
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_decode) {
-  const auto codec = default_as_omit(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_decode) {
+  const auto codec = empty_as_omit(string());
   BOOST_CHECK_EQUAL(test_decode(codec, "\"\""), "");
   BOOST_CHECK_EQUAL(test_decode(codec, "\"hello\""), "hello");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_decode_default) {
-  const auto codec = default_as_null(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_decode_default) {
+  const auto codec = empty_as_null(string());
   BOOST_CHECK_EQUAL(test_decode(codec, "null"), "");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_fail_on_invalid_input) {
-  const auto codec = default_as_omit(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_fail_on_invalid_input) {
+  const auto codec = empty_as_omit(string());
   test_decode_fail(codec, "null");
   test_decode_fail(codec, "e");
   test_decode_fail(codec, "[{},true]");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_with_eq) {
-  const auto codec = default_as(eq(123), number<int>());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_with_eq) {
+  const auto codec = empty_as(eq(123), number<int>());
   BOOST_CHECK_EQUAL(encode(codec, 0), "123");
   BOOST_CHECK(test_decode(codec, "123") == 123);
 }
@@ -120,37 +120,37 @@ BOOST_AUTO_TEST_CASE(json_codec_default_as_with_eq) {
  * Encoding
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_encode_default) {
-  const auto codec = default_as_null(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_encode_default) {
+  const auto codec = empty_as_null(string());
   BOOST_CHECK(codec.should_encode(""));
   BOOST_CHECK_EQUAL(encode(codec, ""), "null");
   BOOST_CHECK_EQUAL(test_encode(codec, ""), "null");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_not_encode_default) {
-  const auto codec = default_as_omit(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_not_encode_default) {
+  const auto codec = empty_as_omit(string());
   BOOST_CHECK(!codec.should_encode(""));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_should_encode_non_default) {
-  const auto codec = default_as_omit(string());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_encode_non_default) {
+  const auto codec = empty_as_omit(string());
   BOOST_CHECK(codec.should_encode("abc"));
   BOOST_CHECK_EQUAL(encode(codec, "abc"), "\"abc\"");
   BOOST_CHECK_EQUAL(test_encode(codec, "abc"), "\"abc\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_with_shared_ptr) {
-  const auto codec = default_as_null(default_codec<std::shared_ptr<std::string>>());
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_with_shared_ptr) {
+  const auto codec = empty_as_null(default_codec<std::shared_ptr<std::string>>());
   BOOST_CHECK_EQUAL(encode(codec, std::shared_ptr<std::string>()), "null");
   BOOST_CHECK_EQUAL(encode(codec, std::make_shared<std::string>("abc")), "\"abc\"");
   BOOST_CHECK_EQUAL(test_encode(codec, std::shared_ptr<std::string>()), "null");
   BOOST_CHECK_EQUAL(test_encode(codec, std::make_shared<std::string>("abc")), "\"abc\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_default_as_with_object_and_omit) {
+BOOST_AUTO_TEST_CASE(json_codec_empty_as_with_object_and_omit) {
   auto codec = object<Val>();
   codec.optional("a", &Val::a);
-  codec.optional("b", &Val::b, default_as_omit(string()));
+  codec.optional("b", &Val::b, empty_as_omit(string()));
   BOOST_CHECK_EQUAL(encode(codec, Val()), R"({"a":""})");  // no "b"
   BOOST_CHECK_EQUAL(test_encode(codec, Val()), R"({"a":""})");  // no "b"
 }
