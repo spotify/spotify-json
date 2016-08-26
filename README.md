@@ -53,7 +53,7 @@ struct default_codec_t<Track> {
 
 int main() {
   const auto parsed_track = decode<Track>(
-      "{\"uri\":\"spotify:track:xyz\",metadata:{\"a\":\"b\"}}");
+      R"({ "uri": "spotify:track:xyz", "metadata": { "a": "b" } })");
   std::cout << "Parsed track with uri " << parsed_track.uri << std::endl;
 
   Track track;
@@ -180,9 +180,9 @@ There is also an `optional` method. For more information, see
 This codec can be used with `encode` and `decode`:
 
 ```cpp
-encode(coordinate_codec, Coordinate(10, 0)) == "{\"x\":10,\"y\":0}";
+encode(coordinate_codec, Coordinate(10, 0)) == R"({"x":10,"y":0})";
 
-const Coordinate coord = decode(coordinate_codec, "{\"x\":12,\"y\":13}");
+const Coordinate coord = decode(coordinate_codec, R"({ "x": 12, "y": 13 })");
 coord.x == 12;
 coord.y == 13;
 ```
@@ -211,11 +211,8 @@ player_codec.required("position", &Player::position, coordinate_codec);
 Player player;
 player.name = "Daniel";
 player.instrument = "guitar";
-encode(player_codec, player) == "{" \
-    "\"name\":\"Daniel\"," \
-    "\"instrument\":\"guitar\"," \
-    "\"position\":{\"x\":0,\"y\":0}}";
-```
+encode(player_codec, player) ==
+    R"({"name":"Daniel","instrument":"guitar","position":{"x":0,"y":0}})";
 
 Since codecs are just normal objects, it is possible to create and use
 several different codecs for any given data type. This makes it possibile to
@@ -256,17 +253,15 @@ struct default_codec_t<Player> {
 supports out of the box:
 
 ```cpp
-encode(Coordinate(10, 0)) == "{\"x\":10,\"y\":0}";
+encode(Coordinate(10, 0)) == R"({"x":10,"y":0})";
 
-decode<std::vector<Coordinate>>("[{\"x\":1,\"y\":-1}]") == std::vector<Coordinate>{ Coordinate(1, -1) };
+decode<std::vector<Coordinate>>(R"([{ "x": 1, "y": -1 }])") == std::vector<Coordinate>{ Coordinate(1, -1) };
 
 Player player;
 player.name = "Martin";
 player.instrument = "drums";
-encode(player) == "{" \
-    "\"name\":\"Martin\"," \
-    "\"instrument\":\"drums\"," \
-    "\"position\":{\"x\":0,\"y\":0}}";
+encode(player) ==
+    R"({"name":"Martin","instrument":"drums","position":{"x":0,"y":0}})";
 ```
 
 
