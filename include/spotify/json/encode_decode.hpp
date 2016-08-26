@@ -64,6 +64,11 @@ typename Codec::object_type decode(const Codec &codec, const std::string &string
 }
 
 template <typename Value>
+Value decode(const char *data, size_t size) {
+  return decode(default_codec<Value>(), data, size);
+}
+
+template <typename Value>
 Value decode(const std::string &string) {
   return decode(default_codec<Value>(), string);
 }

@@ -75,6 +75,16 @@ typename Codec::object_type decode(
  */
 template <typename Value>
 Value decode(const std::string &string) throw(decode_exception);
+
+/**
+ * Using the default_codec<Value>() codec, decode the JSON in the C style char
+ * array data that is size bytes long (not including a \0 at the end).
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Value>
+Value decode(const char *data, size_t size) throw(decode_exception);
 ```
 
 ### `try_decode`
