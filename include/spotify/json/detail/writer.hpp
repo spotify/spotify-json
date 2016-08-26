@@ -106,6 +106,20 @@ class basic_writer {
   }
 
   /**
+   * \brief Write a JSON key to the underlying stream. This prints the key and
+   * then a colon, so it must be followed by a call to print the value that the
+   * key should refer to. It must be called while printing the keys of an
+   * object.
+   * \note This method was just added to get some code changes in object.hpp to
+   * compile and test. It will be removed shortly.
+   */
+  basic_writer &add_escaped_key(const std::string &escaped_key) {
+    return separator_and_set()
+        .write_raw(escaped_key.data(), escaped_key.size())
+        .clear_separator();
+  }
+
+  /**
    * \brief Write a JSON key and value to the underlying stream. It must be
    * called while printing the keys of an object.
    */

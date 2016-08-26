@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 
 #include <spotify/json/detail/macros.hpp>
 
@@ -69,6 +70,11 @@ struct encoding_context final {
     } else {
       _ptr[-1] = with;
     }
+  }
+
+  json_force_inline void append(const void *data, const size_t size) {
+    std::memcpy(reserve(size), data, size);
+    advance(size);
   }
 
   json_force_inline const uint8_t *data() const {

@@ -29,7 +29,6 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/key.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
@@ -110,22 +109,31 @@ class object_t final {
   void encode(encoding_context &context, const object_type &value) const {
     context.append('{');
     for (const auto &field : _field_list) {
-      field.second->encode(field.first, value, context);
+      field.second->encode(context, field.first, value);
     }
     context.append_or_replace(',', '}');
   }
 
  private:
-  json_force_inline static void append_key_to_context(encoding_context &context, const key &key) {
-    const auto len = key.size + 1;
-    const auto ptr = context.reserve(len);
-    std::memcpy(ptr, key.data, key.size);
-    ptr[key.size] = ':';
-    context.advance(len);
+  static std::string escape_key(const std::string &key) {
+    std::string escaped_key;
+    escaped_key += "\"";
+    detail::write_escaped(escaped_key, key.begin(), key.end());
+    escaped_key += "\":";
+    return escaped_key;
+  }
+
+  json_force_inline static void append_key_to_context(
+      encoding_context &context,
+      const std::string &escaped_key) {
+    context.append(escaped_key.data(), escaped_key.size());
   }
 
   template <typename Codec>
-  json_force_inline static void append_val_to_context(encoding_context &context, const Codec &codec, const typename Codec::object_type &value) {
+  json_force_inline static void append_val_to_context(
+      encoding_context &context,
+      const Codec &codec,
+      const typename Codec::object_type &value) {
     codec.encode(context, value);
     context.append(',');
   }
@@ -148,9 +156,17 @@ class object_t final {
           field_id(field_id) {}
     virtual ~field() = default;
 
-    virtual void decode(object_type &object, decoding_context &context) const = 0;
-    virtual void encode(const key &key, const object_type &object, detail::writer &w) const = 0;
-    virtual void encode(const key &key, const object_type &object, encoding_context &context) const = 0;
+    virtual void decode(
+        object_type &object,
+        decoding_context &context) const = 0;
+    virtual void encode(
+        const std::string &escaped_key,
+        const object_type &object,
+        detail::writer &w) const = 0;
+    virtual void encode(
+        encoding_context &context,
+        const std::string &escaped_key,
+        const object_type &object) const = 0;
 
     const bool required;
     const size_t field_id;
@@ -166,18 +182,24 @@ class object_t final {
       codec.decode(context);
     }
 
-    void encode(const key &key, const object_type &object, detail::writer &w) const override {
+    void encode(
+        const std::string &escaped_key,
+        const object_type &object,
+        detail::writer &w) const override {
       const auto &value = typename Codec::object_type();
       if (json_likely(detail::should_encode(codec, value))) {
-        w.add_key(key);
+        w.add_escaped_key(escaped_key);
         codec.encode(value, w);
       }
     }
 
-    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+    void encode(
+        encoding_context &context,
+        const std::string &escaped_key,
+        const object_type &object) const override {
       const auto &value = typename Codec::object_type();
       if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, key);
+        append_key_to_context(context, escaped_key);
         append_val_to_context(context, codec, value);
       }
     }
@@ -196,18 +218,24 @@ class object_t final {
       object.*member_pointer = codec.decode(context);
     }
 
-    void encode(const key &key, const object_type &object, detail::writer &w) const override {
+    void encode(
+        const std::string &escaped_key,
+        const object_type &object,
+        detail::writer &w) const override {
       const auto &value = object.*member_pointer;
       if (json_likely(detail::should_encode(codec, value))) {
-        w.add_key(key);
+        w.add_escaped_key(escaped_key);
         codec.encode(value, w);
       }
     }
 
-    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+    void encode(
+        encoding_context &context,
+        const std::string &escaped_key,
+        const object_type &object) const override {
       const auto &value = object.*member_pointer;
       if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, key);
+        append_key_to_context(context, escaped_key);
         append_val_to_context(context, codec, value);
       }
     }
@@ -229,18 +257,24 @@ class object_t final {
       (object.*setter_ptr)(codec.decode(context));
     }
 
-    void encode(const key &key, const object_type &object, detail::writer &w) const override {
+    void encode(
+        const std::string &escaped_key,
+        const object_type &object,
+        detail::writer &w) const override {
       const auto &value = (object.*getter_ptr)();
       if (json_likely(detail::should_encode(codec, value))) {
-        w.add_key(key);
+        w.add_escaped_key(escaped_key);
         codec.encode(value, w);
       }
     }
 
-    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+    void encode(
+        encoding_context &context,
+        const std::string &escaped_key,
+        const object_type &object) const override {
       const auto &value = (object.*getter_ptr)();
       if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, key);
+        append_key_to_context(context, escaped_key);
         append_val_to_context(context, codec, value);
       }
     }
@@ -264,18 +298,24 @@ class object_t final {
       set(object, codec.decode(context));
     }
 
-    void encode(const key &key, const object_type &object, detail::writer &w) const override {
+    void encode(
+        const std::string &escaped_key,
+        const object_type &object,
+        detail::writer &w) const override {
       const auto &value = get(object);
       if (json_likely(detail::should_encode(codec, value))) {
-        w.add_key(key);
+        w.add_escaped_key(escaped_key);
         codec.encode(value, w);
       }
     }
 
-    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+    void encode(
+        encoding_context &context,
+        const std::string &escaped_key,
+        const object_type &object) const override {
       const auto &value = get(object);
       if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, key);
+        append_key_to_context(context, escaped_key);
         append_val_to_context(context, codec, value);
       }
     }
@@ -366,22 +406,23 @@ class object_t final {
   void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
     const auto was_saved = _fields.insert(typename field_map::value_type(name, f)).second;
     if (was_saved) {
-      _field_list.push_back(std::make_pair(key(name), f));
+      _field_list.push_back(std::make_pair(escape_key(name), f));
       if (required) {
         _num_required_fields++;
       }
     }
   }
 
-  using field_list = std::vector<std::pair<key, std::shared_ptr<const field>>>;
+  using field_vec = std::vector<std::pair<std::string, std::shared_ptr<const field>>>;
   using field_map = std::unordered_map<std::string, std::shared_ptr<const field>>;
+
   /**
    * _construct may be unset, but only if T is default constructible. This is
    * enforced compile time by enabling the constructor that doesn't set it only
    * if T is default constructible.
    */
   const std::function<T ()> _construct;
-  field_list _field_list;
+  field_vec _field_list;
   field_map _fields;
   size_t _num_required_fields = 0;
 };
