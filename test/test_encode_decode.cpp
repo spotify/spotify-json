@@ -65,14 +65,6 @@ BOOST_AUTO_TEST_CASE(json_decode_should_decode_from_bytes_with_custom_codec) {
   BOOST_CHECK_EQUAL(obj.val, "e");
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_buffer_with_custom_codec) {
-  static const char * const kData = R"({"a":"f"})";
-  buffer b;
-  b.write(kData, strlen(kData));
-  const auto obj = decode(custom_codec(), b);
-  BOOST_CHECK_EQUAL(obj.val, "f");
-}
-
 BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_string_with_custom_codec) {
   const auto obj = decode(custom_codec(), R"({"a":"g"})");
   BOOST_CHECK_EQUAL(obj.val, "g");
@@ -114,15 +106,6 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_decode_from_bytes_with_custom_codec)
   custom_obj obj;
   BOOST_CHECK(try_decode(obj, custom_codec(), kData, strlen(kData)));
   BOOST_CHECK_EQUAL(obj.val, "e");
-}
-
-BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_buffer_with_custom_codec) {
-  static const char * const kData = R"({"a":"f"})";
-  buffer b;
-  b.write(kData, strlen(kData));
-  custom_obj obj;
-  BOOST_CHECK(try_decode(obj, custom_codec(), b));
-  BOOST_CHECK_EQUAL(obj.val, "f");
 }
 
 BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_string_with_custom_codec) {

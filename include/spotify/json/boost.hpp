@@ -28,41 +28,9 @@
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/detail/pair.hpp>
-#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
-namespace detail {
-
-template <typename stream_type, typename options_type, typename T>
-basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::optional<T> &optional) {
-  if (optional) {
-    writer << optional.get();
-  }
-  return writer;
-}
-
-template <typename stream_type, typename options_type, typename K, typename V>
-basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const pair<K, boost::optional<V> > &pair) {
-  if (pair.value) {
-    writer.add_pair(pair.key, pair.value.get());
-  }
-  return writer;
-}
-
-template <typename stream_type, typename options_type, typename K, typename V>
-basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const std::pair<K, boost::optional<V> > &pair) {
-  if (pair.second) {
-    writer.add_pair(pair.first, pair.second.get());
-  }
-  return writer;
-}
-
-}  // namespace detail
-
-/// boost::shared_ptr
-
 namespace codec {
 
 template <typename T>
@@ -90,19 +58,6 @@ struct codec_cast<boost::shared_ptr<ToType>, boost::shared_ptr<FromType>> {
     return boost::dynamic_pointer_cast<ToType>(ptr);
   }
 };
-
-}  // namespace codec
-
-template <typename T>
-struct default_codec_t<boost::shared_ptr<T>> {
-  static decltype(boost_shared_ptr(default_codec<T>())) codec() {
-    return boost_shared_ptr(default_codec<T>());
-  }
-};
-
-/// boost::optional
-
-namespace codec {
 
 template <typename InnerCodec>
 class optional_t final {
@@ -139,13 +94,18 @@ optional_t<typename std::decay<InnerCodec>::type> optional(InnerCodec &&inner_co
 }  // namespace codec
 
 template <typename T>
+struct default_codec_t<boost::shared_ptr<T>> {
+  static decltype(boost_shared_ptr(default_codec<T>())) codec() {
+    return boost_shared_ptr(default_codec<T>());
+  }
+};
+
+template <typename T>
 struct default_codec_t<boost::optional<T>> {
   static decltype(codec::optional(default_codec<T>())) codec() {
     return codec::optional(default_codec<T>());
   }
 };
-
-/// boost::chrono types
 
 template <typename Rep, typename Period>
 struct default_codec_t<boost::chrono::duration<Rep, Period>> {
@@ -161,9 +121,6 @@ struct default_codec_t<boost::chrono::time_point<Clock, Duration>> {
   }
 };
 
-
-/// boost::container::flat_map
-
 template <typename T>
 struct default_codec_t<boost::container::flat_map<std::string, T>> {
   static decltype(codec::map<boost::container::flat_map<std::string, T>>(default_codec<T>())) codec() {
@@ -171,26 +128,5 @@ struct default_codec_t<boost::container::flat_map<std::string, T>> {
   }
 };
 
-namespace boost_detail {
-
-template <typename WriterType, typename Iterable>
-inline WriterType &write_object(WriterType &writer, const Iterable &iterable) {
-  const typename WriterType::scoped_object object(writer);
-  for (typename Iterable::const_iterator it = iterable.begin(); it != iterable.end(); ++it) {
-    writer << *it;
-  }
-  return writer;
-}
-
-}  // namespace boost_detail
-
-namespace detail {
-
-template <typename stream_type, typename options_type, typename K, typename V>
-basic_writer<stream_type, options_type> &operator <<(basic_writer<stream_type, options_type> &writer, const boost::container::flat_map<K, V> &map) {
-  return boost_detail::write_object(writer, map);
-}
-
-}  // namespace detail
 }  // namespace json
 }  // namespace spotify

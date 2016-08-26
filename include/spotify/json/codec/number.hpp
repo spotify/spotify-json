@@ -25,7 +25,6 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -80,10 +79,6 @@ class floating_point_t {
     fail_if(context, std::isnan(result), "Invalid floating point number");
     skip(context, bytes_read);
     return result;
-  }
-
-  void encode(const object_type &value, writer &writer) const {
-    writer << value;
   }
 
   void encode(encoding_context &context, const object_type &value) const {
@@ -484,10 +479,6 @@ class integer_t<T, true, false> {
     return decode_positive_integer<object_type>(context);
   }
 
-  json_force_inline void encode(const object_type value, writer &writer) const {
-    writer << value;
-  }
-
   json_force_inline void encode(encoding_context &context, const object_type value) const {
     encode_positive_integer(context, value);
   }
@@ -502,10 +493,6 @@ class integer_t<T, true, true> {
     return (peek(context) == '-' ?
         decode_negative_integer<object_type>(context) :
         decode_positive_integer<object_type>(context));
-  }
-
-  json_force_inline void encode(const object_type value, writer &writer) const {
-    writer << value;
   }
 
   json_force_inline void encode(encoding_context &context, const object_type value) const {
