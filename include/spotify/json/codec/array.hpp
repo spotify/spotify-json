@@ -33,7 +33,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-struct SequenceInserter {
+struct sequence_inserter {
   using state = int;
   static const state init_state = 0;
 
@@ -50,7 +50,7 @@ struct SequenceInserter {
   }
 };
 
-struct FixedSizeSequenceInserter {
+struct fixed_size_sequence_inserter {
   using state = size_t;
   static const state init_state = 0;
 
@@ -68,7 +68,7 @@ struct FixedSizeSequenceInserter {
   }
 };
 
-struct AssociativeInserter {
+struct associative_inserter {
   using state = int;
   static const state init_state = 0;
 
@@ -85,25 +85,25 @@ struct AssociativeInserter {
   }
 };
 
-template <typename T> struct Inserter;
+template <typename T> struct inserter;
 
 template <typename T>
-struct Inserter<std::vector<T>> : public SequenceInserter {};
+struct inserter<std::vector<T>> : public sequence_inserter {};
 
 template <typename T>
-struct Inserter<std::deque<T>> : public SequenceInserter {};
+struct inserter<std::deque<T>> : public sequence_inserter {};
 
 template <typename T>
-struct Inserter<std::list<T>> : public SequenceInserter {};
+struct inserter<std::list<T>> : public sequence_inserter {};
 
 template <typename T, size_t Size>
-struct Inserter<std::array<T, Size>> : public FixedSizeSequenceInserter {};
+struct inserter<std::array<T, Size>> : public fixed_size_sequence_inserter {};
 
 template <typename T>
-struct Inserter<std::set<T>> : public AssociativeInserter {};
+struct inserter<std::set<T>> : public associative_inserter {};
 
 template <typename T>
-struct Inserter<std::unordered_set<T>> : public AssociativeInserter {};
+struct inserter<std::unordered_set<T>> : public associative_inserter {};
 
 }  // namespace detail
 
@@ -150,9 +150,9 @@ class array_t final {
 };
 
 template <typename T, typename InnerCodec>
-array_t<T, typename std::decay<InnerCodec>::type, detail::Inserter<T>> array(
+array_t<T, typename std::decay<InnerCodec>::type, detail::inserter<T>> array(
     InnerCodec &&inner_codec) {
-  return array_t<T, typename std::decay<InnerCodec>::type, detail::Inserter<T>>(
+  return array_t<T, typename std::decay<InnerCodec>::type, detail::inserter<T>>(
       std::forward<InnerCodec>(inner_codec));
 }
 
