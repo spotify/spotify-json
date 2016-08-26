@@ -123,6 +123,23 @@ std::string generate_escaped_string_answer(size_t approximate_size) {
   return string;
 }
 
+std::string generate_utf8_string_answer(size_t size) {
+  std::string string;
+  for (size_t i = 0; i < size; i++) {
+    string.append("\xE2\x98\x83");
+  }
+  return string;
+}
+
+std::string generate_utf8_string(size_t size) {
+  std::string string("\"");
+  for (size_t i = 0; i < size; i++) {
+    string.append("\xE2\x98\x83");
+  }
+  string.append("\"");
+  return string;
+}
+
 }  // namespace
 
 /*
@@ -229,8 +246,15 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_single_character) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_string) {
-  const auto string = generate_simple_string_answer(4097);
-  const auto answer = generate_simple_string(4097);
+  const auto string = generate_simple_string_answer(10027);
+  const auto answer = generate_simple_string(10027);
+  BOOST_CHECK_EQUAL(encode(string), answer);
+  BOOST_CHECK_EQUAL(test_encode(string), answer);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_utf8_string) {
+  const auto string = generate_utf8_string_answer(10027);
+  const auto answer = generate_utf8_string(10027);
   BOOST_CHECK_EQUAL(encode(string), answer);
   BOOST_CHECK_EQUAL(test_encode(string), answer);
 }
