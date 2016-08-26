@@ -29,7 +29,7 @@ namespace json {
 namespace detail {
 
 inline void require_at_end(const decoding_context &context) {
-  if (context.position != context.end) {
+  if (json_unlikely(context.position != context.end)) {
     detail::fail(context, "Unexpected trailing input");
   }
 }
@@ -74,8 +74,8 @@ bool try_decode(
     const Codec &codec,
     const char *data,
     size_t size) {
-  decoding_context c(data, data + size);
   try {
+    decoding_context c(data, data + size);
     detail::advance_past_whitespace(c);
     object = codec.decode(c);
     detail::advance_past_whitespace(c);
@@ -104,8 +104,8 @@ bool try_decode_partial(
     typename Codec::object_type &object,
     const Codec &codec,
     const decoding_context &context) {
-  decoding_context c(context);
   try {
+    decoding_context c(context);
     detail::advance_past_whitespace(c);
     object = codec.decode(c);
     return true;
