@@ -25,6 +25,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/encoding_helpers.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -99,10 +100,7 @@ class floating_point_t {
 
     using dtoa_builder = double_conversion::StringBuilder;
     dtoa_builder builder(p, max_required_size);
-    if (!converter.ToShortest(value, &builder)) {
-      throw std::invalid_argument("Special values like 'Infinity' or 'NaN' are supported in JSON.");
-    }
-
+    detail::fail_if(context, !converter.ToShortest(value, &builder), "Special values like 'Infinity' or 'NaN' are supported in JSON.");
     context.advance(builder.position());
   }
 };

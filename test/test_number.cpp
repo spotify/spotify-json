@@ -23,6 +23,7 @@
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode_exception.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -145,15 +146,15 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_float_exactly) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_encode_not_a_number) {
-  BOOST_CHECK_THROW(test_encode(number<float>(), NAN), std::invalid_argument);
-  BOOST_CHECK_THROW(test_encode(number<double>(), NAN), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(number<float>(), NAN), encode_exception);
+  BOOST_CHECK_THROW(test_encode(number<double>(), NAN), encode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_number_should_not_encode_infinity) {
-  BOOST_CHECK_THROW(test_encode(number<float>(), -INFINITY), std::invalid_argument);
-  BOOST_CHECK_THROW(test_encode(number<float>(), +INFINITY), std::invalid_argument);
-  BOOST_CHECK_THROW(test_encode(number<double>(), -INFINITY), std::invalid_argument);
-  BOOST_CHECK_THROW(test_encode(number<double>(), +INFINITY), std::invalid_argument);
+  BOOST_CHECK_THROW(test_encode(number<float>(), -INFINITY), encode_exception);
+  BOOST_CHECK_THROW(test_encode(number<float>(), +INFINITY), encode_exception);
+  BOOST_CHECK_THROW(test_encode(number<double>(), -INFINITY), encode_exception);
+  BOOST_CHECK_THROW(test_encode(number<double>(), +INFINITY), encode_exception);
 }
 
 /*
