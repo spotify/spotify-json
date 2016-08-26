@@ -214,6 +214,7 @@ player.name = "Daniel";
 player.instrument = "guitar";
 encode(player_codec, player) ==
     R"({"name":"Daniel","instrument":"guitar","position":{"x":0,"y":0}})";
+```
 
 Since codecs are just normal objects, it is possible to create and use
 several different codecs for any given data type. This makes it possibile to
