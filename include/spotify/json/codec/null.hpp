@@ -19,7 +19,6 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -38,10 +37,6 @@ class null_t final {
   object_type decode(decoding_context &context) const {
     detail::advance_past_null(context);
     return object_type();
-  }
-
-  void encode(const object_type &value, detail::writer &writer) const {
-    writer.add_null();
   }
 
   void encode(encoding_context &context, const object_type value) const {

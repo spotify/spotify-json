@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/null.hpp>
+#include <spotify/json/encode_decode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -45,34 +46,9 @@ BOOST_AUTO_TEST_CASE(json_codec_integer_null_should_encode) {
   BOOST_CHECK_EQUAL(test_encode(1001), "null");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_null_should_encode_with_writer) {
-  const auto codec = null();
-
-  buffer buffer;
-  detail::writer w(buffer);
-  codec.encode(null_type(), w);
-  const std::string result(buffer.data(), buffer.size());
-  BOOST_CHECK_EQUAL(result, "null");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_integer_null_should_encode_with_writer) {
-  const auto codec = null_t<int>();
-
-  buffer buffer;
-  detail::writer w(buffer);
-  codec.encode(0, w);
-  const std::string result(buffer.data(), buffer.size());
-  BOOST_CHECK_EQUAL(result, "null");
-}
-
 BOOST_AUTO_TEST_CASE(json_codec_integer_null_should_encode_non_default_value) {
   const auto codec = null_t<int>();
-
-  buffer buffer;
-  detail::writer w(buffer);
-  codec.encode(1, w);
-  const std::string result(buffer.data(), buffer.size());
-  BOOST_CHECK_EQUAL(result, "null");
+  BOOST_CHECK_EQUAL(encode(codec, 1), "null");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_null) {

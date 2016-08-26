@@ -116,11 +116,6 @@ class optional_t final {
     return _inner_codec.decode(context);
   }
 
-  void encode(const object_type &value, detail::writer &w) const {
-    // TODO: Fail if value is null. But removing this method, so don't care now.
-    _inner_codec.encode(*value, w);
-  }
-
   void encode(encoding_context &context, const object_type &value) const {
     detail::fail_if(context, !value, "Cannot encode uninitialized optional");
     _inner_codec.encode(context, *value);

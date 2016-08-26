@@ -18,7 +18,6 @@
 
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -33,10 +32,6 @@ class only_true_t final {
 
   object_type decode(decoding_context &context) const {
     return object_type();
-  }
-
-  void encode(const object_type &value, detail::writer &writer) const {
-    writer << value;
   }
 
   void encode(encoding_context &context, const object_type &value) const {

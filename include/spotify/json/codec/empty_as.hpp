@@ -22,7 +22,6 @@
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -59,14 +58,6 @@ class empty_as_t final {
         // example that the object is not a valid null.
         throw exc;
       }
-    }
-  }
-
-  void encode(const object_type &value, detail::writer &w) const {
-    if (value == _default) {
-      _default_codec.encode(value, w);
-    } else {
-      _inner_codec.encode(value, w);
     }
   }
 

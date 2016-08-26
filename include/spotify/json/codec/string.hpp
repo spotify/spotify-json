@@ -24,7 +24,6 @@
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/escape.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -49,10 +48,6 @@ class string_t final {
   json_never_inline object_type decode(decoding_context &context) const {
     detail::advance_past(context, '"');
     return decode_string(context);
-  }
-
-  json_never_inline void encode(const object_type &value, detail::writer &writer) const {
-    writer << value;
   }
 
   json_never_inline void encode(encoding_context &context, const object_type value) const {

@@ -20,7 +20,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/detail/encoding_helpers.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -37,12 +37,8 @@ class ignore_t final {
     return T();
   }
 
-  void encode(const object_type &value, detail::writer &w) const {
-    throw std::logic_error("ignore_t codec cannot encode");
-  }
-
   void encode(encoding_context &context, const object_type &value) const {
-    throw std::logic_error("ignore_t codec cannot encode");
+    detail::fail(context, "ignore_t codec cannot encode");
   }
 
   bool should_encode(const object_type &value) const {

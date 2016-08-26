@@ -21,6 +21,7 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/enumeration.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode_exception.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -116,8 +117,8 @@ BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_encode) {
 
 BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_not_encode_missing_value) {
   const auto codec = enumeration<Test, std::string>({ { Test::A, "A" } });
-  BOOST_CHECK_THROW(encode(codec, Test::B), std::invalid_argument);
-  BOOST_CHECK_THROW(test_encode(codec, Test::B), std::invalid_argument);
+  BOOST_CHECK_THROW(encode(codec, Test::B), encode_exception);
+  BOOST_CHECK_THROW(test_encode(codec, Test::B), encode_exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
