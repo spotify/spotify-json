@@ -85,31 +85,31 @@ struct associative_inserter {
   }
 };
 
-template <typename T> struct inserter;
+template <typename T> struct container_inserter;
 
 template <typename T>
-struct inserter<std::vector<T>> : public sequence_inserter {};
+struct container_inserter<std::vector<T>> : public sequence_inserter {};
 
 template <typename T>
-struct inserter<std::deque<T>> : public sequence_inserter {};
+struct container_inserter<std::deque<T>> : public sequence_inserter {};
 
 template <typename T>
-struct inserter<std::list<T>> : public sequence_inserter {};
+struct container_inserter<std::list<T>> : public sequence_inserter {};
 
 template <typename T, size_t Size>
-struct inserter<std::array<T, Size>> : public fixed_size_sequence_inserter {};
+struct container_inserter<std::array<T, Size>> : public fixed_size_sequence_inserter {};
 
 template <typename T>
-struct inserter<std::set<T>> : public associative_inserter {};
+struct container_inserter<std::set<T>> : public associative_inserter {};
 
 template <typename T>
-struct inserter<std::unordered_set<T>> : public associative_inserter {};
+struct container_inserter<std::unordered_set<T>> : public associative_inserter {};
 
 }  // namespace detail
 
 namespace codec {
 
-template <typename T, typename InnerCodec, typename Inserter>
+template <typename T, typename InnerCodec>
 class array_t final {
  public:
   using object_type = T;
@@ -124,13 +124,14 @@ class array_t final {
       : _inner_codec(inner_codec) {}
 
   object_type decode(decoding_context &context) const {
+    using inserter = detail::container_inserter<T>;
     object_type output;
-    typename Inserter::state state = Inserter::init_state;
+    typename inserter::state state = inserter::init_state;
     detail::advance_past_comma_separated(context, '[', ']', [&]{
-      state = Inserter::insert(
+      state = inserter::insert(
           context, state, output, _inner_codec.decode(context));
     });
-    Inserter::validate(context, state, output);
+    inserter::validate(context, state, output);
     return output;
   }
 
@@ -150,9 +151,9 @@ class array_t final {
 };
 
 template <typename T, typename InnerCodec>
-array_t<T, typename std::decay<InnerCodec>::type, detail::inserter<T>> array(
+array_t<T, typename std::decay<InnerCodec>::type> array(
     InnerCodec &&inner_codec) {
-  return array_t<T, typename std::decay<InnerCodec>::type, detail::inserter<T>>(
+  return array_t<T, typename std::decay<InnerCodec>::type>(
       std::forward<InnerCodec>(inner_codec));
 }
 
