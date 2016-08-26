@@ -47,15 +47,6 @@ struct default_codec_t<custom_obj> {
   }
 };
 
-BOOST_AUTO_TEST_CASE(json_encode_should_encode_into_buffer) {
-  custom_obj obj;
-  obj.val = "b";
-
-  buffer buffer;
-  encode(custom_codec(), obj, buffer);
-  BOOST_CHECK_EQUAL(std::string(buffer.data(), buffer.size()), R"({"a":"b"})");
-}
-
 BOOST_AUTO_TEST_CASE(json_encode_should_encode_into_string_with_custom_codec) {
   custom_obj obj;
   obj.val = "c";

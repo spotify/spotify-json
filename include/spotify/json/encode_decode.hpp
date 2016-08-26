@@ -22,7 +22,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -38,26 +38,15 @@ inline void require_at_end(const decoding_context &context) {
 }  // namespace detail
 
 template <typename Codec>
-void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
-  detail::writer w(buffer);
-  codec.encode(object, w);
+json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
+  encoding_context context;
+  codec.encode(context, object);
+  return std::string(reinterpret_cast<const char *>(context.data()), context.size());
 }
-
-template <typename Codec>
-std::string encode(const Codec &codec, const typename Codec::object_type &object) {
-  buffer buffer;
-  detail::writer w(buffer);
-  codec.encode(object, w);
-  return std::string(buffer.data(), buffer.size());
-}
-
 
 template <typename Value>
-std::string encode(const Value &value) {
-  buffer buffer;
-  detail::writer w(buffer);
-  default_codec<Value>().encode(value, w);
-  return std::string(buffer.data(), buffer.size());
+json_never_inline std::string encode(const Value &value) {
+  return encode(default_codec<Value>(), value);
 }
 
 template <typename Codec>
