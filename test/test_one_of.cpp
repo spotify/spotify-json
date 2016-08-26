@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -46,11 +46,23 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 struct example_t {
   std::string value;
 };
 
 }  // namespace
+
+/*
+ * Constructing
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_construct) {
   one_of_t<object_t<example_t>> codec;
@@ -60,20 +72,9 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_construct_with_helper) {
   one_of(object<example_t>(), object<example_t>());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_one_of_should_encode_with_first) {
-  auto first = object<example_t>();
-  first.required("a", &example_t::value);
-
-  auto second = object<example_t>();
-  second.required("b", &example_t::value);
-
-  const auto codec = one_of(first, second);
-
-  example_t value;
-  value.value = "val";
-
-  BOOST_CHECK_EQUAL(encode(codec, value), "{\"a\":\"val\"}");
-}
+/*
+ * Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_first_if_possible) {
   auto first = object<example_t>();
@@ -125,6 +126,33 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_ignore) {
   BOOST_CHECK_EQUAL(test_decode(codec, "null"), "");
   BOOST_CHECK_EQUAL(test_decode(codec, "{}"), "");
   test_decode_fail(codec, "{");
+}
+
+/*
+ * Encoding
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_one_of_should_encode_with_first) {
+  auto first = object<example_t>();
+  first.required("a", &example_t::value);
+
+  auto second = object<example_t>();
+  second.required("b", &example_t::value);
+
+  const auto codec = one_of(first, second);
+
+  example_t value;
+  value.value = "val";
+
+  BOOST_CHECK_EQUAL(encode(codec, value), "{\"a\":\"val\"}");
+  BOOST_CHECK_EQUAL(test_encode(codec, value), "{\"a\":\"val\"}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_should_forward_should_encode) {
+  const auto yay = one_of(string(), ignore<std::string>());
+  const auto nay = one_of(ignore<std::string>(), string());
+  BOOST_CHECK(yay.should_encode(""));
+  BOOST_CHECK(!nay.should_encode(""));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

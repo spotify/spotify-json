@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,17 +16,22 @@
 
 #pragma once
 
+#include <cstring>
+
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
 namespace codec {
 
-class boolean_t final : public detail::primitive_encoder<bool> {
+class boolean_t final {
  public:
+  using object_type = bool;
+
   object_type decode(decoding_context &context) const {
     const char first = detail::peek(context);
     if (first == 'f') {
@@ -39,6 +44,16 @@ class boolean_t final : public detail::primitive_encoder<bool> {
       detail::fail(context, "Unexpected input, expected boolean");
       return false;
     }
+  }
+
+  void encode(const object_type &value, detail::writer &writer) const {
+    writer << value;
+  }
+
+  void encode(encoding_context &context, const object_type value) const {
+    const auto size = value ? 4 : 5;
+    std::memcpy(context.reserve(size), value ? "true" : "false", size);
+    context.advance(size);
   }
 };
 

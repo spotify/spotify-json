@@ -43,6 +43,10 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
 
 }  // namespace
 
+/*
+ * Constructing
+ */
+
 BOOST_AUTO_TEST_CASE(json_codec_ignore_should_construct) {
   ignore_t<std::string>();
 }
@@ -51,10 +55,9 @@ BOOST_AUTO_TEST_CASE(json_codec_ignore_should_construct_with_helper) {
   ignore<std::string>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_ignore_should_not_encode) {
-  const auto codec = ignore<std::string>();
-  BOOST_CHECK(!codec.should_encode("abc"));
-}
+/*
+ * Encoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_ignore_should_decode_successfully) {
   const auto codec = ignore<std::string>();
@@ -65,6 +68,15 @@ BOOST_AUTO_TEST_CASE(json_codec_ignore_should_decode_successfully) {
 BOOST_AUTO_TEST_CASE(json_codec_ignore_should_fail_on_invalid_input) {
   const auto codec = ignore<std::string>();
   test_decode_fail(codec, "a");
+}
+
+/*
+ * Encoding
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_not_encode) {
+  const auto codec = ignore<std::string>();
+  BOOST_CHECK(!codec.should_encode("abc"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

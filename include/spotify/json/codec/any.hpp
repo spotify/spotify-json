@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,6 +22,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -44,6 +45,10 @@ class any_t final {
     _codec->encode(value, w);
   }
 
+  void encode(encoding_context &context, const object_type &value) const {
+    _codec->encode(context, value);
+  }
+
   bool should_encode(const object_type &value) const {
     return _codec->should_encode(value);
   }
@@ -55,6 +60,7 @@ class any_t final {
 
     virtual T decode(decoding_context &context) const = 0;
     virtual void encode(const T &value, detail::writer &w) const = 0;
+    virtual void encode(encoding_context &context, const object_type &value) const = 0;
     virtual bool should_encode(const object_type &value) const = 0;
   };
 
@@ -70,6 +76,10 @@ class any_t final {
 
     void encode(const T &value, detail::writer &w) const override {
       return _codec.encode(value, w);
+    }
+
+    void encode(encoding_context &context, const object_type &value) const override {
+      _codec.encode(context, value);
     }
 
     bool should_encode(const object_type &value) const override {

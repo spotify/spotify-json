@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -44,13 +45,19 @@ class cast_t {
   explicit cast_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
+  object_type decode(decoding_context &context) const {
+    return _inner_codec.decode(context);
+  }
+
   void encode(object_type value, detail::writer &w) const {
     _inner_codec.encode(
         codec_cast<typename InnerCodec::object_type, PointerType>::cast(value), w);
   }
 
-  object_type decode(decoding_context &context) const {
-    return _inner_codec.decode(context);
+  void encode(encoding_context &context, object_type value) const {
+    _inner_codec.encode(
+        context,
+        codec_cast<typename InnerCodec::object_type, PointerType>::cast(value));
   }
 
  private:

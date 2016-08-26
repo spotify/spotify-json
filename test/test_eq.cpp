@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -42,7 +42,19 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 }  // namespace
+
+/*
+ * Constructing
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_eq_should_construct) {
   eq_t<string_t> codec(string(), "hello");
@@ -56,10 +68,9 @@ BOOST_AUTO_TEST_CASE(json_codec_eq_should_construct_with_helper) {
   eq(std::string("hello"));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_eq_should_encode_original_value) {
-  const auto codec = eq(std::string("A"));
-  BOOST_CHECK_EQUAL(encode(codec, "B"), "\"A\"");
-}
+/*
+ * Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_eq_should_decode) {
   const auto codec = eq(std::string("A"));
@@ -69,6 +80,16 @@ BOOST_AUTO_TEST_CASE(json_codec_eq_should_decode) {
 BOOST_AUTO_TEST_CASE(json_codec_eq_should_enforce_correct_value_with_decode) {
   const auto codec = eq(std::string("A"));
   test_decode_fail(codec, "\"B\"");
+}
+
+/*
+ * Encoding
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_encode_original_value) {
+  const auto codec = eq(std::string("A"));
+  BOOST_CHECK_EQUAL(encode(codec, "B"), "\"A\"");
+  BOOST_CHECK_EQUAL(test_encode(codec, "B"), "\"A\"");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

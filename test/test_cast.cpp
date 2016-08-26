@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -64,10 +64,18 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
 }  // namespace
 
 /*
- * Raw pointer
+ * Raw Pointer
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_construct) {
@@ -82,6 +90,7 @@ BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_encode) {
   const std::shared_ptr<base_class> ptr = std::make_shared<sub_class>();
   const auto codec = cast<std::shared_ptr<base_class>>(shared_ptr(sub_codec()));
   BOOST_CHECK_EQUAL(encode(codec, ptr), "{}");
+  BOOST_CHECK_EQUAL(test_encode(codec, ptr), "{}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_decode) {

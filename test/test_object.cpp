@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -44,6 +44,19 @@ template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
+}
+
+template <typename Codec>
+std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
+template <typename T>
+std::string test_encode(const T &value) {
+  return test_encode(default_codec<T>(), value);
 }
 
 struct simple_t {
@@ -106,6 +119,10 @@ struct default_codec_t<simple_t> {
 
 BOOST_AUTO_TEST_SUITE(codec)
 
+/*
+ * Constructing
+ */
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_construct) {
   object_t<simple_t> codec;
 }
@@ -115,6 +132,10 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_construct_with_custom_creator) {
     return example_t();
   });
 }
+
+/*
+ * Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_fields) {
   const auto simple = test_decode(default_codec<simple_t>(), "{\"value\":\"hey\"}");
@@ -157,11 +178,52 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_use_custom_creator_when_decoding_f
   BOOST_CHECK_EQUAL(example.value, "hello");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_object_should_use_provided_codec) {
+  object_t<simple_t> other_simple_codec;
+  other_simple_codec.optional("other", &simple_t::value);
+
+  object_t<example_t> codec;
+  codec.required("s", &example_t::simple, other_simple_codec);
+  const auto example = test_decode(codec, "{\"s\":{\"other\":\"Hello!\"}}");
+  BOOST_CHECK_EQUAL(example.simple.value, "Hello!");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_dummy_fields) {
+  object_t<example_t> codec;
+  codec.required("dummy", boolean());
+  test_decode(codec, "{\"dummy\":true}");
+  test_decode_fail(codec, "{\"dummy\":null}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_setter_field) {
+  const auto codec = getset_codec();
+  const auto getset = test_decode(codec, "{\"value\":\"foobar\"}");
+  BOOST_CHECK_EQUAL("foobar", getset.get_value());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_lambda_setter_field) {
+  const auto codec = getset_lambda_codec();
+  const auto getset = test_decode(codec, "{\"value\":\"foobar\"}");
+  BOOST_CHECK_EQUAL("foobar", getset.get_value());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_object_should_work_with_base_class_member_ptr) {
+  const auto codec = subclass_codec();
+  subclass_t subclass;
+  subclass.value = "foobar";
+
+  BOOST_CHECK_EQUAL(decode(codec, encode(codec, subclass)).value, subclass.value);
+}
+
+/*
+ * Encoding
+ */
+
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {
   simple_t simple;
   simple.value = "hey";
-  const auto json = encode(simple);
-  BOOST_CHECK_EQUAL(json, "{\"value\":\"hey\"}");
+  BOOST_CHECK_EQUAL(encode(simple), "{\"value\":\"hey\"}");
+  BOOST_CHECK_EQUAL(test_encode(simple), "{\"value\":\"hey\"}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_respect_should_encode) {
@@ -173,6 +235,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_respect_should_encode) {
   codec.required("second", &data_t::second, only_true_t());
 
   BOOST_CHECK_EQUAL(encode(codec, data), "{\"first\":true}");
+  BOOST_CHECK_EQUAL(test_encode(codec, data), "{\"first\":true}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {
@@ -191,27 +254,11 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields_in_provided_order) {
   codec.optional("8", &simple_t::value);
   codec.optional("9", &simple_t::value);
 
-  BOOST_CHECK_EQUAL(encode(codec, simple), "{"
+  const auto answer = "{"
       "\"0\":\"\",\"1\":\"\",\"2\":\"\",\"3\":\"\",\"4\":\"\","
-      "\"5\":\"\",\"6\":\"\",\"7\":\"\",\"8\":\"\",\"9\":\"\"}");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_object_should_use_provided_codec) {
-  object_t<simple_t> other_simple_codec;
-  other_simple_codec.optional("other", &simple_t::value);
-
-  object_t<example_t> codec;
-  codec.required("s", &example_t::simple, other_simple_codec);
-  const auto example = test_decode(codec, "{\"s\":{\"other\":\"Hello!\"}}");
-  BOOST_CHECK_EQUAL(example.simple.value, "Hello!");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_dummy_fields) {
-  object_t<example_t> codec;
-  codec.required("dummy", boolean());
-
-  test_decode(codec, "{\"dummy\":true}");
-  test_decode_fail(codec, "{\"dummy\":null}");
+      "\"5\":\"\",\"6\":\"\",\"7\":\"\",\"8\":\"\",\"9\":\"\"}";
+  BOOST_CHECK_EQUAL(encode(codec, simple), answer);
+  BOOST_CHECK_EQUAL(test_encode(codec, simple), answer);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_dummy_fields) {
@@ -219,13 +266,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_dummy_fields) {
   codec.required("dummy", string());
 
   BOOST_CHECK_EQUAL(encode(codec, example_t()), "{\"dummy\":\"\"}");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_setter_field) {
-  const auto codec = getset_codec();
-  const auto getset = test_decode(codec, "{\"value\":\"foobar\"}");
-
-  BOOST_CHECK_EQUAL("foobar", getset.get_value());
+  BOOST_CHECK_EQUAL(test_encode(codec, example_t()), "{\"dummy\":\"\"}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_getter_field) {
@@ -234,13 +275,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_getter_field) {
   getset.set_value("foobar");
 
   BOOST_CHECK_EQUAL(encode(codec, getset), "{\"value\":\"foobar\"}");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_lambda_setter_field) {
-  const auto codec = getset_lambda_codec();
-  const auto getset = test_decode(codec, "{\"value\":\"foobar\"}");
-
-  BOOST_CHECK_EQUAL("foobar", getset.get_value());
+  BOOST_CHECK_EQUAL(test_encode(codec, getset), "{\"value\":\"foobar\"}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_lambda_getter_field) {
@@ -249,14 +284,7 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_lambda_getter_field) {
   getset.set_value("foobar");
 
   BOOST_CHECK_EQUAL(encode(codec, getset), "{\"value\":\"foobar\"}");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_object_should_work_with_base_class_member_ptr) {
-  const auto codec = subclass_codec();
-  subclass_t subclass;
-  subclass.value = "foobar";
-
-  BOOST_CHECK_EQUAL(decode(codec, encode(codec, subclass)).value, subclass.value);
+  BOOST_CHECK_EQUAL(test_encode(codec, getset), "{\"value\":\"foobar\"}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

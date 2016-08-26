@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -27,6 +27,8 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
+namespace {
+
 std::string string_parse(const char *string) {
   const auto codec = default_codec<std::string>();
   auto ctx = decoding_context(string, string + strlen(string));
@@ -38,6 +40,13 @@ std::string string_parse(const char *string) {
 void string_parse_fail(const char *string) {
   auto ctx = decoding_context(string, string + strlen(string));
   BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
+}
+
+std::string test_encode(const std::string &value) {
+  encoding_context c;
+  string().encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
 }
 
 std::string random_simple_character(size_t i) {
@@ -105,6 +114,8 @@ std::string generate_escaped_string_answer(size_t approximate_size) {
   }
   return string;
 }
+
+}  // namespace
 
 /*
  * Decoding Simple Strings
@@ -189,14 +200,12 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_long_escaped_string) {
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_empty) {
   BOOST_CHECK_EQUAL(encode(std::string()), "\"\"");
+  BOOST_CHECK_EQUAL(test_encode(std::string()), "\"\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_single_character) {
   BOOST_CHECK_EQUAL(encode(std::string("a")), "\"a\"");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_escaped_character) {
-  BOOST_CHECK_EQUAL(encode(std::string("\"")), "\"\\\"\"");
+  BOOST_CHECK_EQUAL(test_encode("a"), "\"a\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_helper) {
@@ -205,6 +214,27 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_helper) {
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_default_codec) {
   default_codec<std::string>();
+}
+
+/*
+ * Encoding Escaped Strings
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_escaped_character) {
+  BOOST_CHECK_EQUAL(encode(std::string("\"")), "\"\\\"\"");
+  BOOST_CHECK_EQUAL(test_encode("\""), "\"\\\"\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_popular_escaped_characters) {
+  const auto string = "\b\t\n\f\r";
+  const auto answer = "\"\\b\\t\\n\\f\\r\"";
+  BOOST_CHECK_EQUAL(encode(std::string(string)), answer);
+  BOOST_CHECK_EQUAL(test_encode(string), answer);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_escaped_control_characters) {
+  BOOST_CHECK_EQUAL(encode(std::string("\x01\x02")), "\"\\u0001\\u0002\"");
+  BOOST_CHECK_EQUAL(test_encode("\x01\x02"), "\"\\u0001\\u0002\"");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

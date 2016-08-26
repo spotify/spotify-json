@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <string>
@@ -29,7 +30,9 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/key.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -66,14 +69,6 @@ class object_t final {
     add_field(name, true, std::forward<Args>(args)...);
   }
 
-  void encode(const object_type &value, detail::writer &w) const {
-    w.add_object([&](detail::writer &w) {
-      for (const auto &field : _field_list) {
-        field.second->encode(field.first, value, w);
-      }
-    });
-  }
-
   object_type decode(decoding_context &context) const {
     uint_fast32_t num_seen_req_fields = 0;
     std::vector<bool> seen_req_fields(_fields.size());
@@ -104,7 +99,37 @@ class object_t final {
     return output;
   }
 
+  void encode(const object_type &value, detail::writer &w) const {
+    w.add_object([&](detail::writer &w) {
+      for (const auto &field : _field_list) {
+        field.second->encode(field.first, value, w);
+      }
+    });
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    context.append('{');
+    for (const auto &field : _field_list) {
+      field.second->encode(field.first, value, context);
+    }
+    context.append_or_replace(',', '}');
+  }
+
  private:
+  json_force_inline static void append_key_to_context(encoding_context &context, const key &key) {
+    const auto len = key.size + 1;
+    const auto ptr = context.reserve(len);
+    std::memcpy(ptr, key.data, key.size);
+    ptr[key.size] = ':';
+    context.advance(len);
+  }
+
+  template <typename Codec>
+  json_force_inline static void append_val_to_context(encoding_context &context, const Codec &codec, const typename Codec::object_type &value) {
+    codec.encode(context, value);
+    context.append(',');
+  }
+
   T construct(std::true_type is_default_constructible) const {
     // Avoid the cost of an std::function invocation if no construct function
     // is provided.
@@ -113,18 +138,19 @@ class object_t final {
 
   T construct(std::false_type is_default_constructible) const {
     // T is not default constructible. Because _construct must be set if T is
-    // default constructible, there is no reason to test it in this case.
+    // not default constructible, there is no reason to test it in this case.
     return _construct();
   }
 
   struct field {
-    field(bool required, size_t field_id) :
-        required(required),
-        field_id(field_id) {}
+    field(bool required, size_t field_id)
+        : required(required),
+          field_id(field_id) {}
     virtual ~field() = default;
 
-    virtual void encode(const key &key, const object_type &object, detail::writer &w) const = 0;
     virtual void decode(object_type &object, decoding_context &context) const = 0;
+    virtual void encode(const key &key, const object_type &object, detail::writer &w) const = 0;
+    virtual void encode(const key &key, const object_type &object, encoding_context &context) const = 0;
 
     const bool required;
     const size_t field_id;
@@ -136,13 +162,24 @@ class object_t final {
         : field(required, field_id),
           codec(std::move(codec)) {}
 
-    void encode(const key &key, const object_type &object, detail::writer &w) const override {
-      w.add_key(key);
-      codec.encode(typename Codec::object_type(), w);
-    }
-
     void decode(object_type &object, decoding_context &context) const override {
       codec.decode(context);
+    }
+
+    void encode(const key &key, const object_type &object, detail::writer &w) const override {
+      const auto &value = typename Codec::object_type();
+      if (json_likely(detail::should_encode(codec, value))) {
+        w.add_key(key);
+        codec.encode(value, w);
+      }
+    }
+
+    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+      const auto &value = typename Codec::object_type();
+      if (json_likely(detail::should_encode(codec, value))) {
+        append_key_to_context(context, key);
+        append_val_to_context(context, codec, value);
+      }
     }
 
     Codec codec;
@@ -155,16 +192,24 @@ class object_t final {
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
+    void decode(object_type &object, decoding_context &context) const override {
+      object.*member_pointer = codec.decode(context);
+    }
+
     void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = object.*member_pointer;
-      if (detail::should_encode(codec, value)) {
+      if (json_likely(detail::should_encode(codec, value))) {
         w.add_key(key);
         codec.encode(value, w);
       }
     }
 
-    void decode(object_type &object, decoding_context &context) const override {
-      object.*member_pointer = codec.decode(context);
+    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+      const auto &value = object.*member_pointer;
+      if (json_likely(detail::should_encode(codec, value))) {
+        append_key_to_context(context, key);
+        append_val_to_context(context, codec, value);
+      }
     }
 
     Codec codec;
@@ -180,16 +225,24 @@ class object_t final {
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
 
+    void decode(object_type &object, decoding_context &context) const override {
+      (object.*setter_ptr)(codec.decode(context));
+    }
+
     void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = (object.*getter_ptr)();
-      if (detail::should_encode(codec, value)) {
+      if (json_likely(detail::should_encode(codec, value))) {
         w.add_key(key);
         codec.encode(value, w);
       }
     }
 
-    void decode(object_type &object, decoding_context &context) const override {
-      (object.*setter_ptr)(codec.decode(context));
+    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+      const auto &value = (object.*getter_ptr)();
+      if (json_likely(detail::should_encode(codec, value))) {
+        append_key_to_context(context, key);
+        append_val_to_context(context, codec, value);
+      }
     }
 
     Codec codec;
@@ -207,16 +260,24 @@ class object_t final {
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
 
+    void decode(object_type &object, decoding_context &context) const override {
+      set(object, codec.decode(context));
+    }
+
     void encode(const key &key, const object_type &object, detail::writer &w) const override {
       const auto &value = get(object);
-      if (detail::should_encode(codec, value)) {
+      if (json_likely(detail::should_encode(codec, value))) {
         w.add_key(key);
         codec.encode(value, w);
       }
     }
 
-    void decode(object_type &object, decoding_context &context) const override {
-      set(object, codec.decode(context));
+    void encode(const key &key, const object_type &object, encoding_context &context) const override {
+      const auto &value = get(object);
+      if (json_likely(detail::should_encode(codec, value))) {
+        append_key_to_context(context, key);
+        append_val_to_context(context, codec, value);
+      }
     }
 
     Codec codec;

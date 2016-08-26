@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -59,16 +60,22 @@ class smart_ptr_t {
   explicit smart_ptr_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
+  object_type decode(decoding_context &context) const {
+    return codec::make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
+  }
+
   void encode(const object_type &value, detail::writer &writer) const {
-    if (!value) {
-      // This should not happen; should_encode requests to not encode this.
+    if (json_unlikely(!value)) {
       throw std::logic_error("Cannot encode null smart pointer");
     }
     _inner_codec.encode(*value, writer);
   }
 
-  object_type decode(decoding_context &context) const {
-    return codec::make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
+  void encode(encoding_context &context, const object_type &value) const {
+    if (json_unlikely(!value)) {
+      throw std::logic_error("Cannot encode null smart pointer");
+    }
+    _inner_codec.encode(context, *value);
   }
 
   bool should_encode(const object_type &value) const { return bool(value); }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,6 +21,7 @@
 
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/boolean.hpp>
+#include <spotify/json/codec/omit.hpp>
 #include <spotify/json/encode_decode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
@@ -45,7 +46,48 @@ void array_parse_should_fail(const char *not_array) {
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
+template <typename Codec, typename T>
+std::string test_encode(const Codec &codec, const std::vector<T> &value) {
+  encoding_context c;
+  codec.encode(c, value);
+  const auto data = c.data();
+  return std::string(data, data + c.size());
+}
+
+template <typename T>
+std::string test_encode(const std::vector<T> &value) {
+  return test_encode(default_codec<std::vector<T>>(), value);
+}
+
 }  // namespace
+
+/*
+ * Constructing
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_with_helper) {
+  array<std::vector<bool>>(boolean());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_vector_with_default_codec) {
+  default_codec<std::vector<bool>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_deque_with_default_codec) {
+  default_codec<std::deque<bool>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_set_with_default_codec) {
+  default_codec<std::set<bool>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_default_codec) {
+  default_codec<std::unordered_set<bool>>();
+}
+
+/*
+ * Vector Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_array) {
   BOOST_CHECK(array_parse("[]").empty());
@@ -68,53 +110,51 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise) {
   array_parse_should_fail("[false,true,");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec) {
+  const auto inner_codec(boolean());
+  const auto array_codec(array<std::vector<bool>>(inner_codec));
+  BOOST_CHECK(decode(array_codec, "[]").empty());
+}
+
+/*
+ * Vector Encoding
+ */
+
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty) {
-  std::vector<bool> vec;
+  const std::vector<bool> vec;
   BOOST_CHECK_EQUAL(encode(vec), "[]");
+  BOOST_CHECK_EQUAL(test_encode(vec), "[]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element) {
   const std::vector<bool> vec = { true };
   BOOST_CHECK_EQUAL(encode(vec), "[true]");
+  BOOST_CHECK_EQUAL(test_encode(vec), "[true]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements) {
   const std::vector<bool> vec = { false, true };
   BOOST_CHECK_EQUAL(encode(vec), "[false,true]");
+  BOOST_CHECK_EQUAL(test_encode(vec), "[false,true]");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_with_helper) {
-  array<std::vector<bool>>(boolean());
+BOOST_AUTO_TEST_CASE(json_codec_array_should_not_encode_omitted_elements) {
+  const std::vector<bool> vec = { false, true };
+  const auto codec = array<std::vector<bool>>(omit<bool>());
+  BOOST_CHECK_EQUAL(encode(codec, vec), "[]");
+  BOOST_CHECK_EQUAL(test_encode(codec, vec), "[]");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_vector_with_default_codec) {
-  default_codec<std::vector<bool>>();
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_deque_with_default_codec) {
-  default_codec<std::deque<bool>>();
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_set_with_default_codec) {
-  default_codec<std::set<bool>>();
-}
+/*
+ * Set Decoding
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_set) {
   BOOST_CHECK(array_parse<std::set<bool>>("[]").empty());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_default_codec) {
-  default_codec<std::unordered_set<bool>>();
-}
-
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_unordered_set) {
   BOOST_CHECK(array_parse<std::unordered_set<bool>>("[]").empty());
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec) {
-  const auto inner_codec(boolean());
-  const auto array_codec(array<std::vector<bool>>(inner_codec));
-  BOOST_CHECK(decode(array_codec, "[]").empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

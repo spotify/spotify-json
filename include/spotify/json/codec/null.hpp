@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,7 +19,8 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/primitive_encoder.hpp>
+#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -34,13 +35,18 @@ class null_t final {
  public:
   using object_type = ObjectType;
 
-  void encode(const object_type &value, detail::writer &w) const {
-    w.add_null();
-  }
-
   object_type decode(decoding_context &context) const {
     detail::advance_past_null(context);
     return object_type();
+  }
+
+  void encode(const object_type &value, detail::writer &writer) const {
+    writer.add_null();
+  }
+
+  void encode(encoding_context &context, const object_type value) const {
+    std::memcpy(context.reserve(4), "null", 4);
+    context.advance(4);
   }
 };
 
