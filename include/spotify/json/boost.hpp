@@ -25,9 +25,9 @@
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/map.hpp>
-#include <spotify/json/codec/null.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/encoding_helpers.hpp>
 #include <spotify/json/detail/pair.hpp>
 #include <spotify/json/detail/writer.hpp>
 
@@ -104,56 +104,34 @@ struct default_codec_t<boost::shared_ptr<T>> {
 
 namespace codec {
 
-struct none_as_null_t {};
-
-static const none_as_null_t none_as_null = none_as_null_t();
-
 template <typename InnerCodec>
 class optional_t final {
  public:
   using object_type = boost::optional<typename InnerCodec::object_type>;
 
-  explicit optional_t(InnerCodec inner_codec) : _inner_codec(inner_codec), _none_as_null(false) {}
-
-  optional_t(InnerCodec inner_codec, none_as_null_t)
-      : _inner_codec(inner_codec), _none_as_null(true) {}
+  explicit optional_t(InnerCodec inner_codec)
+      : _inner_codec(inner_codec) {}
 
   object_type decode(decoding_context &context) const {
-    if (_none_as_null) {
-      detail::require_bytes<1>(context);
-      if (detail::peek_unchecked(context) == 'n') {
-        detail::advance_past_null(context);
-        return boost::none;
-      }
-    }
-
     return _inner_codec.decode(context);
   }
 
   void encode(const object_type &value, detail::writer &w) const {
-    if (value) {
-      _inner_codec.encode(*value, w);
-    } else {
-      w.add_null();
-    }
+    // TODO: Fail if value is null. But removing this method, so don't care now.
+    _inner_codec.encode(*value, w);
   }
 
   void encode(encoding_context &context, const object_type &value) const {
-    if (value) {
-      _inner_codec.encode(context, *value);
-    } else {
-      _null_codec.encode(context, null_type());
-    }
+    detail::fail_if(context, !value, "Cannot encode uninitialized optional");
+    _inner_codec.encode(context, *value);
   }
 
   bool should_encode(const object_type &value) const {
-    return _none_as_null || (value != boost::none);
+    return (value != boost::none) && detail::should_encode(_inner_codec, *value);
   }
 
  private:
-  null_t<null_type> _null_codec;
   InnerCodec _inner_codec;
-  bool _none_as_null;
 };
 
 template <typename InnerCodec, typename... Options>
