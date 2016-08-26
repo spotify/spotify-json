@@ -365,16 +365,19 @@ introduces one virtual method for each `encode` and `decode` call.
   `std::list<std::string>`, and `InnerCodec` is the type of the codec that's
   used for the values inside of the array, for example `integer_t` or
   `string_t`.
-* **Supported types**: The array-like containers in the STL: `std::vector<T>`,
-  `std::list<T>`, `std::deque<T>`, `std::set<T>`, `std::unordered_set<T>`. (When
-  parsing into set types, duplicate values are dropped.)
-* **Convenience builder**: For example
-  `spotify::json::codec::array<std::vector<int>>(integer())` for sequence containers
-  or `spotify::json::codec::set<std::set<int>>(integer())` for associative containers.
-  If no custom inner codec is required, `default_codec` is even more convenient.
-* **`default_codec` support**: `default_codec<std::vector<T>>()`,
-  `default_codec<std::list<T>>()`, `default_codec<std::deque<T>>()`,
-  `default_codec<std::set<T>>()`, `default_codec<std::unordered_set<T>>()`
+* **Supported types**: The array-like containers in the STL:
+  `std::array<T, Size>`, `std::vector<T>`, `std::list<T>`, `std::deque<T>`,
+  `std::set<T>`, `std::unordered_set<T>`. (When parsing into set types,
+  duplicate values are dropped.)
+* **Convenience builder**: `spotify::json::codec::array<T>(InnerCodec)`, where
+  `T` is the array type. For example
+  `spotify::json::codec::array<std::vector<int>>(integer())` or
+  or `spotify::json::codec::array<std::set<int>>(integer())`.
+  If no custom inner codec is required, `default_codec` is more convenient.
+* **`default_codec` support**: `default_codec<std::array<T, Size>>()`,
+  `default_codec<std::vector<T>>()`, `default_codec<std::list<T>>()`,
+  `default_codec<std::deque<T>>()`, `default_codec<std::set<T>>()`,
+  `default_codec<std::unordered_set<T>>()`
 
 ### `boolean_t`
 

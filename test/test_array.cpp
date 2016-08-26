@@ -21,6 +21,7 @@
 
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/boolean.hpp>
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/encode_decode.hpp>
 
@@ -40,8 +41,9 @@ Parsed array_parse(const char *not_array) {
   return result;
 }
 
+template <typename Parsed = std::vector<bool>>
 void array_parse_should_fail(const char *not_array) {
-  const auto codec = default_codec<std::vector<bool>>();
+  const auto codec = default_codec<Parsed>();
   auto ctx = decoding_context(not_array, not_array + strlen(not_array));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
@@ -60,6 +62,10 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_vector_with_default_codec
   default_codec<std::vector<bool>>();
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_array_with_default_codec) {
+  default_codec<std::array<bool, 3>>();
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_deque_with_default_codec) {
   default_codec<std::deque<bool>>();
 }
@@ -76,19 +82,19 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_construct_unordered_set_with_defaul
  * Vector Decoding
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_array) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_vector) {
   BOOST_CHECK(array_parse("[]").empty());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_single_element) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_single_element_vector) {
   BOOST_CHECK(array_parse("[true]") == std::vector<bool>({ true }));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_two_elements) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_two_elements_vector) {
   BOOST_CHECK(array_parse("[true,false]") == std::vector<bool>({ true, false }));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise_vector) {
   array_parse_should_fail("");
   array_parse_should_fail("[");
   array_parse_should_fail("[[");
@@ -97,7 +103,52 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise) {
   array_parse_should_fail("[false,true,");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec_vector) {
+  const auto inner_codec(boolean());
+  const auto array_codec(array<std::vector<bool>>(inner_codec));
+  BOOST_CHECK(decode(array_codec, "[]").empty());
+}
+
+/*
+ * Array Decoding
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_array) {
+  const auto res = array_parse<std::array<int, 0>>("[]");
+  BOOST_CHECK(res.empty());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_single_element_array) {
+  const auto res = array_parse<std::array<bool, 1>>("[true]");
+  const auto expected = std::array<bool, 1>({ true });
+  BOOST_CHECK(res == expected);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_two_elements_array) {
+  const auto res = array_parse<std::array<bool, 2>>("[true,false]");
+  const auto expected = std::array<bool, 2>({ true, false });
+  BOOST_CHECK(res == expected);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise_array) {
+  array_parse_should_fail<std::array<bool, 1>>("[]");
+  array_parse_should_fail<std::array<bool, 0>>("[true]");
+
+  array_parse_should_fail<std::array<bool, 0>>("");
+  array_parse_should_fail<std::array<bool, 1>>("");
+  array_parse_should_fail<std::array<bool, 0>>("[");
+  array_parse_should_fail<std::array<bool, 1>>("[");
+  array_parse_should_fail<std::array<bool, 0>>("[[");
+  array_parse_should_fail<std::array<bool, 1>>("[[");
+  array_parse_should_fail<std::array<bool, 0>>("[false");
+  array_parse_should_fail<std::array<bool, 1>>("[false");
+  array_parse_should_fail<std::array<bool, 0>>("[false,true,]");
+  array_parse_should_fail<std::array<bool, 1>>("[false,true,]");
+  array_parse_should_fail<std::array<bool, 0>>("[false,true,");
+  array_parse_should_fail<std::array<bool, 1>>("[false,true,");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec_array) {
   const auto inner_codec(boolean());
   const auto array_codec(array<std::vector<bool>>(inner_codec));
   BOOST_CHECK(decode(array_codec, "[]").empty());
@@ -107,25 +158,50 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec) {
  * Vector Encoding
  */
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty_vector) {
   const std::vector<bool> vec;
   BOOST_CHECK_EQUAL(encode(vec), "[]");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element_vector) {
   const std::vector<bool> vec = { true };
   BOOST_CHECK_EQUAL(encode(vec), "[true]");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements_vector) {
   const std::vector<bool> vec = { false, true };
   BOOST_CHECK_EQUAL(encode(vec), "[false,true]");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_array_should_not_encode_omitted_elements) {
+BOOST_AUTO_TEST_CASE(json_codec_array_should_not_encode_omitted_elements_vector) {
   const std::vector<bool> vec = { false, true };
   const auto codec = array<std::vector<bool>>(omit<bool>());
   BOOST_CHECK_EQUAL(encode(codec, vec), "[]");
+}
+
+/*
+ * Array Encoding
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty_array) {
+  const std::array<int, 0> arr = {};
+  BOOST_CHECK_EQUAL(encode(arr), "[]");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element_array) {
+  const std::array<int, 1> arr = { 7 };
+  BOOST_CHECK_EQUAL(encode(arr), "[7]");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements_array) {
+  const std::array<int, 2> arr = { 4, 9 };
+  BOOST_CHECK_EQUAL(encode(arr), "[4,9]");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_not_encode_omitted_elements_array) {
+  const std::array<bool, 2> arr = { false, true };
+  const auto codec = array<std::array<bool, 2>>(omit<bool>());
+  BOOST_CHECK_EQUAL(encode(codec, arr), "[]");
 }
 
 /*

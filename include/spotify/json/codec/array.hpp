@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <array>
 #include <deque>
 #include <list>
 #include <set>
@@ -32,25 +33,83 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-struct SequenceInserter {
+struct sequence_inserter {
+  using state = int;
+  static const state init_state = 0;
+
   template <typename Container, typename Value>
-  static void apply(Container &container, Value &&value) {
+  static state insert(
+      decoding_context &, state, Container &container, Value &&value) {
     container.push_back(std::forward<Value>(value));
+    return init_state;
+  }
+
+  template <typename Container>
+  static void validate(decoding_context &, state, Container &) {
+    // Nothing to validate
   }
 };
 
-struct AssociativeInserter {
+struct fixed_size_sequence_inserter {
+  using state = size_t;
+  static const state init_state = 0;
+
   template <typename Container, typename Value>
-  static void apply(Container &container, Value &&value) {
-    container.insert(std::forward<Value>(value));
+  static state insert(
+      decoding_context &context, state pos, Container &container, Value &&value) {
+    fail_if(context, pos >= container.size(), "Too many elements in array");
+    container[pos] = value;
+    return pos + 1;
+  }
+
+  template <typename Container>
+  static void validate(decoding_context &context, state pos, Container &container) {
+    fail_if(context, pos != container.size(), "Too few elements in array");
   }
 };
+
+struct associative_inserter {
+  using state = int;
+  static const state init_state = 0;
+
+  template <typename Container, typename Value>
+  static state insert(
+      decoding_context &, state, Container &container, Value &&value) {
+    container.insert(std::forward<Value>(value));
+    return init_state;
+  }
+
+  template <typename Container>
+  static void validate(decoding_context &, state, Container &) {
+    // Nothing to validate
+  }
+};
+
+template <typename T> struct container_inserter;
+
+template <typename T>
+struct container_inserter<std::vector<T>> : public sequence_inserter {};
+
+template <typename T>
+struct container_inserter<std::deque<T>> : public sequence_inserter {};
+
+template <typename T>
+struct container_inserter<std::list<T>> : public sequence_inserter {};
+
+template <typename T, size_t Size>
+struct container_inserter<std::array<T, Size>> : public fixed_size_sequence_inserter {};
+
+template <typename T>
+struct container_inserter<std::set<T>> : public associative_inserter {};
+
+template <typename T>
+struct container_inserter<std::unordered_set<T>> : public associative_inserter {};
 
 }  // namespace detail
 
 namespace codec {
 
-template <typename T, typename InnerCodec, typename Inserter>
+template <typename T, typename InnerCodec>
 class array_t final {
  public:
   using object_type = T;
@@ -65,10 +124,14 @@ class array_t final {
       : _inner_codec(inner_codec) {}
 
   object_type decode(decoding_context &context) const {
+    using inserter = detail::container_inserter<T>;
     object_type output;
+    typename inserter::state state = inserter::init_state;
     detail::advance_past_comma_separated(context, '[', ']', [&]{
-      Inserter::apply(output, _inner_codec.decode(context));
+      state = inserter::insert(
+          context, state, output, _inner_codec.decode(context));
     });
+    inserter::validate(context, state, output);
     return output;
   }
 
@@ -88,16 +151,9 @@ class array_t final {
 };
 
 template <typename T, typename InnerCodec>
-array_t<T, typename std::decay<InnerCodec>::type, detail::SequenceInserter> array(
+array_t<T, typename std::decay<InnerCodec>::type> array(
     InnerCodec &&inner_codec) {
-  return array_t<T, typename std::decay<InnerCodec>::type, detail::SequenceInserter>(
-      std::forward<InnerCodec>(inner_codec));
-}
-
-template <typename T, typename InnerCodec>
-array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter> set(
-    InnerCodec &&inner_codec) {
-  return array_t<T, typename std::decay<InnerCodec>::type, detail::AssociativeInserter>(
+  return array_t<T, typename std::decay<InnerCodec>::type>(
       std::forward<InnerCodec>(inner_codec));
 }
 
@@ -124,17 +180,24 @@ struct default_codec_t<std::list<T>> {
   }
 };
 
+template <typename T, size_t Size>
+struct default_codec_t<std::array<T, Size>> {
+  static decltype(codec::array<std::array<T, Size>>(default_codec<T>())) codec() {
+    return codec::array<std::array<T, Size>>(default_codec<T>());
+  }
+};
+
 template <typename T>
 struct default_codec_t<std::set<T>> {
-  static decltype(codec::set<std::set<T>>(default_codec<T>())) codec() {
-    return codec::set<std::set<T>>(default_codec<T>());
+  static decltype(codec::array<std::set<T>>(default_codec<T>())) codec() {
+    return codec::array<std::set<T>>(default_codec<T>());
   }
 };
 
 template <typename T>
 struct default_codec_t<std::unordered_set<T>> {
-  static decltype(codec::set<std::unordered_set<T>>(default_codec<T>())) codec() {
-    return codec::set<std::unordered_set<T>>(default_codec<T>());
+  static decltype(codec::array<std::unordered_set<T>>(default_codec<T>())) codec() {
+    return codec::array<std::unordered_set<T>>(default_codec<T>());
   }
 };
 
