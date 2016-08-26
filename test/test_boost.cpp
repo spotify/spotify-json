@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Spotify AB
+ * Copyright (c) 2015-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,7 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/boost.hpp>
+#include <spotify/json/codec/boost.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/codec/string.hpp>
