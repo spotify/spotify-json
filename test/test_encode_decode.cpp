@@ -115,6 +115,20 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_decode_from_bytes_with_custom_codec)
   BOOST_CHECK_EQUAL(obj.val, "e");
 }
 
+BOOST_AUTO_TEST_CASE(json_try_decode_should_decode_from_bytes) {
+  static const char * const kData = "78";
+  int val = 12;
+  BOOST_CHECK(try_decode<int>(val, kData, strlen(kData)));
+  BOOST_CHECK_EQUAL(val, 78);
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_not_decode_from_invalid_bytes) {
+  static const char * const kData = "d78";
+  int val = 12;
+  BOOST_CHECK(!try_decode<int>(val, kData, strlen(kData)));
+  BOOST_CHECK_EQUAL(val, 12);
+}
+
 BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_string_with_custom_codec) {
   custom_obj obj;
   BOOST_CHECK(try_decode(obj, custom_codec(), R"({"a":"g"})"));

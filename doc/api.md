@@ -129,6 +129,17 @@ template <typename Value>
 bool try_decode(Value &object, const std::string &string);
 
 /**
+ * Using the default_codec<Value>() codec, decode the JSON in the C style char
+ * array data that is size bytes long (not including a \0 at the end).
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Value>
+bool try_decode(Value &object, const char *data, size_t size);
+
+/**
  * Using a specified codec, decode the JSON in context. Unlike try_decode, this
  * function allows stray characters after the end of the parsed JSON object.
  *

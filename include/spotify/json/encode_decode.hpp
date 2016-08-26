@@ -104,6 +104,11 @@ bool try_decode(Value &object, const std::string &string) {
   return try_decode(object, default_codec<Value>(), string);
 }
 
+template <typename Value>
+bool try_decode(Value &object, const char *data, size_t size) {
+  return try_decode(object, default_codec<Value>(), data, size);
+}
+
 template <typename Codec>
 bool try_decode_partial(
     typename Codec::object_type &object,
