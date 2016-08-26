@@ -45,8 +45,7 @@ class null_t final {
   }
 
   void encode(encoding_context &context, const object_type value) const {
-    std::memcpy(context.reserve(4), "null", 4);
-    context.advance(4);
+    context.append("null", 4);
   }
 };
 
