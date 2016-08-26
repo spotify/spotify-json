@@ -54,14 +54,6 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 }  // namespace
 
 /*
@@ -124,7 +116,6 @@ BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_encode_default) {
   const auto codec = empty_as_null(string());
   BOOST_CHECK(codec.should_encode(""));
   BOOST_CHECK_EQUAL(encode(codec, ""), "null");
-  BOOST_CHECK_EQUAL(test_encode(codec, ""), "null");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_not_encode_default) {
@@ -136,15 +127,12 @@ BOOST_AUTO_TEST_CASE(json_codec_empty_as_should_encode_non_default) {
   const auto codec = empty_as_omit(string());
   BOOST_CHECK(codec.should_encode("abc"));
   BOOST_CHECK_EQUAL(encode(codec, "abc"), "\"abc\"");
-  BOOST_CHECK_EQUAL(test_encode(codec, "abc"), "\"abc\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_empty_as_with_shared_ptr) {
   const auto codec = empty_as_null(default_codec<std::shared_ptr<std::string>>());
   BOOST_CHECK_EQUAL(encode(codec, std::shared_ptr<std::string>()), "null");
   BOOST_CHECK_EQUAL(encode(codec, std::make_shared<std::string>("abc")), "\"abc\"");
-  BOOST_CHECK_EQUAL(test_encode(codec, std::shared_ptr<std::string>()), "null");
-  BOOST_CHECK_EQUAL(test_encode(codec, std::make_shared<std::string>("abc")), "\"abc\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_empty_as_with_object_and_omit) {
@@ -152,7 +140,6 @@ BOOST_AUTO_TEST_CASE(json_codec_empty_as_with_object_and_omit) {
   codec.optional("a", &Val::a);
   codec.optional("b", &Val::b, empty_as_omit(string()));
   BOOST_CHECK_EQUAL(encode(codec, Val()), R"({"a":""})");  // no "b"
-  BOOST_CHECK_EQUAL(test_encode(codec, Val()), R"({"a":""})");  // no "b"
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

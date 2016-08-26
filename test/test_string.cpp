@@ -42,13 +42,6 @@ void string_parse_fail(const char *string) {
   BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
 }
 
-std::string test_encode(const std::string &value) {
-  encoding_context c;
-  string().encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 std::string random_simple_character(size_t i) {
   char c;
   switch (i % 3) {
@@ -237,26 +230,22 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_long_escaped_string) {
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_empty) {
   BOOST_CHECK_EQUAL(encode(std::string()), "\"\"");
-  BOOST_CHECK_EQUAL(test_encode(std::string()), "\"\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_single_character) {
   BOOST_CHECK_EQUAL(encode(std::string("a")), "\"a\"");
-  BOOST_CHECK_EQUAL(test_encode("a"), "\"a\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_string) {
   const auto string = generate_simple_string_answer(10027);
   const auto answer = generate_simple_string(10027);
   BOOST_CHECK_EQUAL(encode(string), answer);
-  BOOST_CHECK_EQUAL(test_encode(string), answer);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_utf8_string) {
   const auto string = generate_utf8_string_answer(10027);
   const auto answer = generate_utf8_string(10027);
   BOOST_CHECK_EQUAL(encode(string), answer);
-  BOOST_CHECK_EQUAL(test_encode(string), answer);
 }
 
 /*
@@ -265,19 +254,16 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_utf8_string) {
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_escaped_character) {
   BOOST_CHECK_EQUAL(encode(std::string("\"")), "\"\\\"\"");
-  BOOST_CHECK_EQUAL(test_encode("\""), "\"\\\"\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_popular_escaped_characters) {
   const auto string = "\b\t\n\f\r";
   const auto answer = "\"\\b\\t\\n\\f\\r\"";
   BOOST_CHECK_EQUAL(encode(std::string(string)), answer);
-  BOOST_CHECK_EQUAL(test_encode(string), answer);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_escaped_control_characters) {
   BOOST_CHECK_EQUAL(encode(std::string("\x01\x02")), "\"\\u0001\\u0002\"");
-  BOOST_CHECK_EQUAL(test_encode("\x01\x02"), "\"\\u0001\\u0002\"");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

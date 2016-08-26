@@ -46,14 +46,6 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 struct example_t {
   std::string value;
 };
@@ -145,7 +137,6 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_encode_with_first) {
   value.value = "val";
 
   BOOST_CHECK_EQUAL(encode(codec, value), R"({"a":"val"})");
-  BOOST_CHECK_EQUAL(test_encode(codec, value), R"({"a":"val"})");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_should_forward_should_encode) {

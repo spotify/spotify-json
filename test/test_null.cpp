@@ -26,24 +26,12 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
-namespace {
-
-template <typename T>
-std::string test_encode(const T &value) {
-  encoding_context c;
-  null<T>().encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
-}  // namespace
-
 BOOST_AUTO_TEST_CASE(json_codec_null_should_encode) {
-  BOOST_CHECK_EQUAL(test_encode(null_type()), "null");
+  BOOST_CHECK_EQUAL(encode(null_type()), "null");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_integer_null_should_encode) {
-  BOOST_CHECK_EQUAL(test_encode(1001), "null");
+  BOOST_CHECK_EQUAL(encode(null<int>(), 1001), "null");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_integer_null_should_encode_non_default_value) {
