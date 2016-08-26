@@ -284,7 +284,7 @@ library supports more things that sometimes come in handy:
 * [`boost::optional`](doc/api.md#optional)
 * [`boost::chrono` and `std::chrono` types](doc/api.md#chrono)
 * [Dealing with virtual classes / type erasure](doc/api.md#cast_t)
-* [Floating point numbers with lossless serialize/parse roundtrip](doc/api.md#map_t)
+* [Floating point numbers with lossless serialize/parse roundtrip](doc/api.md#number_t)
 
 
 [Detailed API documentation](doc/api.md)
