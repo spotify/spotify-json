@@ -33,7 +33,7 @@ namespace json {
  */
 struct encoding_context final {
   encoding_context(const size_t capacity = 4096)
-      : _buf(static_cast<uint8_t *>(std::malloc(capacity))),
+      : _buf(static_cast<uint8_t *>(capacity ? std::malloc(capacity) : nullptr)),
         _ptr(_buf),
         _end(_buf + capacity),
         _capacity(capacity) {
