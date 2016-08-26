@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Spotify AB
+ * Copyright (c) 2014-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -25,6 +25,7 @@
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/map.hpp>
+#include <spotify/json/codec/null.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/pair.hpp>
@@ -117,14 +118,6 @@ class optional_t final {
   optional_t(InnerCodec inner_codec, none_as_null_t)
       : _inner_codec(inner_codec), _none_as_null(true) {}
 
-  void encode(const object_type &value, detail::writer &w) const {
-    if (value) {
-      _inner_codec.encode(*value, w);
-    } else {
-      w.add_null();
-    }
-  }
-
   object_type decode(decoding_context &context) const {
     if (_none_as_null) {
       detail::require_bytes<1>(context);
@@ -137,11 +130,28 @@ class optional_t final {
     return _inner_codec.decode(context);
   }
 
+  void encode(const object_type &value, detail::writer &w) const {
+    if (value) {
+      _inner_codec.encode(*value, w);
+    } else {
+      w.add_null();
+    }
+  }
+
+  void encode(encoding_context &context, const object_type &value) const {
+    if (value) {
+      _inner_codec.encode(context, *value);
+    } else {
+      _null_codec.encode(context, null_type());
+    }
+  }
+
   bool should_encode(const object_type &value) const {
     return _none_as_null || (value != boost::none);
   }
 
  private:
+  null_t<null_type> _null_codec;
   InnerCodec _inner_codec;
   bool _none_as_null;
 };
