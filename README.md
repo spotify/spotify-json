@@ -6,6 +6,7 @@ A C++11 JSON writer and parser library. It
 * parses and serializes directly to and from statically typed C++ objects,
 * requires very little boilerplate code,
 * is fast,
+* supports UTF-8,
 * comes with [a good suite of tests](test),
 * is deployed and in active use on well over 100 million devices,
 * and [has API documentation](doc/api.md).
