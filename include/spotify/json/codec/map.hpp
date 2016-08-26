@@ -24,7 +24,6 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -60,17 +59,6 @@ class map_t final {
           output.insert(value_type(std::move(key), _inner_codec.decode(context)));
         });
     return output;
-  }
-
-  void encode(const object_type &array, detail::writer &w) const {
-    w.add_object([&](detail::writer &w) {
-      for (const auto &element : array) {
-        if (json_likely(detail::should_encode(_inner_codec, element.second))) {
-          w.add_key(element.first);
-          _inner_codec.encode(element.second, w);
-        }
-      }
-    });
   }
 
   void encode(encoding_context &context, const object_type &map) const {

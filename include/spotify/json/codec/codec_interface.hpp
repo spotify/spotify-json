@@ -17,7 +17,6 @@
 #pragma once
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -59,19 +58,14 @@ class codec_interface final {
   object_type decode(decoding_context &context) const;
 
   /**
-   * Write an object to a writer.
-   */
-  void encode(const object_type &value, detail::writer &writer) const;
-
-  /**
-   * Write an object to a writer.
+   * Write an object to an encoding context.
    */
   void encode(encoding_context &context, const object_type &value) const;
 
   /**
    * This method is optional.
    *
-   * If it is present and it returns false for a specific value, writers of JSON
+   * If it is present and it returns false for a specific value, coders of JSON
    * objects will skip that value. This is necessary for codecs of types such as
    * boost::optional, where not even the key name or a comma should be printed if
    * the value is boost::none.

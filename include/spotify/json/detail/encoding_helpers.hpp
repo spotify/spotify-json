@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,38 +14,33 @@
  * the License.
  */
 
-#include <boost/test/unit_test.hpp>
+#pragma once
 
-#include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/detail/macros.hpp>
+#include <spotify/json/encode_exception.hpp>
+#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
-namespace codec {
+namespace detail {
 
-/**
- * Codec for booleans that only encodes true.
- */
-class only_true_t final {
- public:
-  using object_type = bool;
+template <typename string_type>
+json_never_inline json_noreturn void fail(
+    const encoding_context &context,
+    const string_type &error) {
+  throw encode_exception(error);
+}
 
-  object_type decode(decoding_context &context) const {
-    return object_type();
+template <typename string_type>
+json_force_inline void fail_if(
+    const encoding_context &context,
+    const bool condition,
+    const string_type &error) {
+  if (json_unlikely(condition)) {
+    fail(context, error);
   }
+}
 
-  void encode(encoding_context &context, const object_type &value) const {
-    _bool_codec.encode(context, true);
-  }
-
-  bool should_encode(const object_type &value) const {
-    return value;
-  }
-
- private:
-  boolean_t _bool_codec;
-};
-
-}  // namespace codec
+}  // namespace detail
 }  // namespace json
 }  // namespace spotify

@@ -46,19 +46,6 @@ void array_parse_should_fail(const char *not_array) {
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
-template <typename Codec, typename T>
-std::string test_encode(const Codec &codec, const std::vector<T> &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
-template <typename T>
-std::string test_encode(const std::vector<T> &value) {
-  return test_encode(default_codec<std::vector<T>>(), value);
-}
-
 }  // namespace
 
 /*
@@ -123,26 +110,22 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_accept_inner_codec) {
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty) {
   const std::vector<bool> vec;
   BOOST_CHECK_EQUAL(encode(vec), "[]");
-  BOOST_CHECK_EQUAL(test_encode(vec), "[]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element) {
   const std::vector<bool> vec = { true };
   BOOST_CHECK_EQUAL(encode(vec), "[true]");
-  BOOST_CHECK_EQUAL(test_encode(vec), "[true]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements) {
   const std::vector<bool> vec = { false, true };
   BOOST_CHECK_EQUAL(encode(vec), "[false,true]");
-  BOOST_CHECK_EQUAL(test_encode(vec), "[false,true]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_not_encode_omitted_elements) {
   const std::vector<bool> vec = { false, true };
   const auto codec = array<std::vector<bool>>(omit<bool>());
   BOOST_CHECK_EQUAL(encode(codec, vec), "[]");
-  BOOST_CHECK_EQUAL(test_encode(codec, vec), "[]");
 }
 
 /*

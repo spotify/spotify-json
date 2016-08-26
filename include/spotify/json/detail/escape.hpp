@@ -21,6 +21,8 @@
 #include <cstring>
 #include <string>
 
+#include <spotify/json/detail/macros.hpp>
+
 namespace spotify {
 namespace json {
 namespace detail {
@@ -37,28 +39,14 @@ class null_terminated_end_iterator {
 
 template <typename OutputType>
 struct escape_traits {
-  static void write(OutputType &out, const char *data, const size_t size) {
-    out.write(data, size);
-  }
   static void put(OutputType &out, char c) {
     out.put(c);
   }
 };
 
 template <>
-inline void escape_traits<std::string>::write(std::string &out, const char *data, const size_t size) {
-  out.append(data, size);
-}
-
-template <>
 inline void escape_traits<std::string>::put(std::string &out, const char c) {
   out.push_back(c);
-}
-
-template <>
-inline void escape_traits<uint8_t *>::write(uint8_t *&out, const char *data, const size_t size) {
-  std::memcpy(out, data, size);
-  out += size;
 }
 
 template <>
@@ -79,6 +67,8 @@ inline OutputType &write_escaped(
     OutputType &out,
     const InputIterator &begin,
     const InputEndIterator &end) {
+  using traits = escape_traits<OutputType>;
+
   static const char *HEX = "0123456789ABCDEF";
   static const char POPULAR_CONTROL_CHARACTERS[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -87,26 +77,33 @@ inline OutputType &write_escaped(
     0, 0, 0, 0, 0, 0, 0, 0
   };
 
-  for (InputIterator it = begin; end != it; ++it) {
-    const unsigned char ch = static_cast<unsigned char>(*it);
-    const bool is_control_character(ch < 0x20);
-    const bool is_popular_control_character(is_control_character && POPULAR_CONTROL_CHARACTERS[ch]);
-    const bool is_special_character(ch == '\\' || ch == '"' || ch == '/');
+  for (auto it = begin; json_likely(end != it); ++it) {
+    const auto c = static_cast<unsigned char>(*it);
 
-    using traits = escape_traits<OutputType>;
-    if (is_popular_control_character) {
+    if (json_unlikely(c == '\\' || c == '"' || c == '/')) {
       traits::put(out, '\\');
-      traits::put(out, POPULAR_CONTROL_CHARACTERS[ch]);
-    } else if (is_special_character) {
-      traits::put(out, '\\');
-      traits::put(out, ch);
-    } else if (is_control_character) {
-      traits::write(out, "\\u00", 4);
-      traits::put(out, HEX[(ch >> 4)]);
-      traits::put(out, HEX[(ch & 0x0F)]);
-    } else {
-      traits::put(out, ch);
+      traits::put(out, c);
+      continue;
     }
+
+    if (json_likely(c >= 0x20)) {
+      traits::put(out, c);
+      continue;
+    }
+
+    const auto control_character = POPULAR_CONTROL_CHARACTERS[c];
+    if (json_likely(control_character)) {
+      traits::put(out, '\\');
+      traits::put(out, control_character);
+      continue;
+    }
+
+    traits::put(out, '\\');
+    traits::put(out, 'u');
+    traits::put(out, '0');
+    traits::put(out, '0');
+    traits::put(out, HEX[(c >> 4)]);
+    traits::put(out, HEX[(c & 0x0F)]);
   }
 
   return out;

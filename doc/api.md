@@ -20,6 +20,9 @@ cases:
 ```cpp
 /**
  * Using a specified codec, encode object to an std::string.
+ *
+ * @throws encode_exception if the JSON encoding fails, e.g., trying to encode
+ * a NaN number or a null pointer.
  */
 template <typename Codec>
 std::string encode(
@@ -30,20 +33,12 @@ std::string encode(
  * Using the default_codec<Value>() codec, encode value to an std::string.
  *
  * This function is a shorthand for: encode(default_codec<Value>(), value)
+ *
+ * @throws encode_exception if the JSON encoding fails, e.g., trying to encode
+ * a NaN number or a null pointer.
  */
 template <typename Value>
 std::string encode(const Value &value);
-
-/**
- * Using a specified codec, encode object and append the resulting JSON to
- * buffer.
- */
-template <typename Codec>
-void encode(
-    const Codec &codec,
-    const typename Codec::object_type &object,
-    buffer &buffer);
-```
 
 ### `decode`
 
@@ -58,16 +53,6 @@ template <typename Codec>
 typename Codec::object_type decode(
     const Codec &codec,
     const std::string &string) throw(decode_exception);
-
-/**
- * Using a specified codec, decode the JSON in buffer.
- *
- * @throws decode_exception if the JSON parsing fails.
- * @return The parsed object.
- */
-template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const buffer &buffer)
-    throw(decode_exception);
 
 /**
  * Using a specified codec, decode the JSON in the C style char array data that
@@ -109,19 +94,6 @@ bool try_decode(
     const std::string &string);
 
 /**
- * Using a specified codec, decode the JSON in buffer.
- *
- * If the parsing succeeds, the result is assigned to object.
- *
- * @return true if the parsing succeeds.
- */
-template <typename Codec>
-bool try_decode(
-    typename Codec::object_type &object,
-    const Codec &codec,
-    const buffer &buffer);
-
-/**
  * Using a specified codec, decode the JSON in the C style char array data that
  * is size bytes long (not including a \0 at the end).
  *
@@ -160,6 +132,12 @@ bool try_decode_partial(
     const Codec &codec,
     const decoding_context &context);
 ```
+
+`decode_exception`
+==================
+
+Exception that is thrown when encoding fails. For more info, see 
+[decode_exception.hpp](../include/spotify/json/encode_exception.hpp)
 
 `decode_exception`
 ==================

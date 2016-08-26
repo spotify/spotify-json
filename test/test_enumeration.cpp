@@ -21,6 +21,7 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/enumeration.hpp>
 #include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode_exception.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -40,14 +41,6 @@ template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
   decoding_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
-}
-
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
 }
 
 enum class Test {
@@ -110,14 +103,11 @@ BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_encode) {
       { Test::B, "B" } });
   BOOST_CHECK_EQUAL(encode(codec, Test::A), "\"A\"");
   BOOST_CHECK_EQUAL(encode(codec, Test::B), "\"B\"");
-  BOOST_CHECK_EQUAL(test_encode(codec, Test::A), "\"A\"");
-  BOOST_CHECK_EQUAL(test_encode(codec, Test::B), "\"B\"");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_enumeration_should_not_encode_missing_value) {
   const auto codec = enumeration<Test, std::string>({ { Test::A, "A" } });
-  BOOST_CHECK_THROW(encode(codec, Test::B), std::invalid_argument);
-  BOOST_CHECK_THROW(test_encode(codec, Test::B), std::invalid_argument);
+  BOOST_CHECK_THROW(encode(codec, Test::B), encode_exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

@@ -18,7 +18,6 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -129,10 +128,6 @@ class transform_t final {
   object_type decode(decoding_context &context) const {
     const auto offset = context.offset();  // Capture offset before decoding
     return _decode_transform(_inner_codec.decode(context), offset);
-  }
-
-  void encode(const object_type &value, detail::writer &w) const {
-    _inner_codec.encode(_encode_transform(value), w);
   }
 
   void encode(encoding_context &context, const object_type &value) const {

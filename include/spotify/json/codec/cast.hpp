@@ -20,7 +20,6 @@
 #include <utility>
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -49,15 +48,9 @@ class cast_t {
     return _inner_codec.decode(context);
   }
 
-  void encode(object_type value, detail::writer &w) const {
-    _inner_codec.encode(
-        codec_cast<typename InnerCodec::object_type, PointerType>::cast(value), w);
-  }
-
   void encode(encoding_context &context, object_type value) const {
-    _inner_codec.encode(
-        context,
-        codec_cast<typename InnerCodec::object_type, PointerType>::cast(value));
+    using inner_type = typename InnerCodec::object_type;
+    _inner_codec.encode(context, codec_cast<inner_type, PointerType>::cast(value));
   }
 
  private:

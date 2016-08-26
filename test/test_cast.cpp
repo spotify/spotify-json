@@ -34,10 +34,6 @@ class dummy_t final {
  public:
   using object_type = T;
 
-  void encode(object_type value, detail::writer &w) const {
-    w << false;
-  }
-
   object_type decode(decoding_context &context) const {
     return new T();
   }
@@ -64,14 +60,6 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 }  // namespace
 
 /*
@@ -90,7 +78,6 @@ BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_encode) {
   const std::shared_ptr<base_class> ptr = std::make_shared<sub_class>();
   const auto codec = cast<std::shared_ptr<base_class>>(shared_ptr(sub_codec()));
   BOOST_CHECK_EQUAL(encode(codec, ptr), "{}");
-  BOOST_CHECK_EQUAL(test_encode(codec, ptr), "{}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_cast_pointer_should_decode) {

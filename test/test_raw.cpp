@@ -68,19 +68,6 @@ void verify_decode_raw(const std::string &raw_value) {
   BOOST_CHECK_EQUAL(raw_value.size(), foobar.value.size);
 }
 
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
-template <typename T>
-std::string test_encode(const T &value) {
-  return test_encode(default_codec<T>(), value);
-}
-
 }  // namespace
 
 /*
@@ -154,18 +141,14 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_number) {
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
   std::string data = "some junk";
   raw_ref ref(data.data(), data.size());
-
   BOOST_CHECK_EQUAL(encode(ref), data);
-  BOOST_CHECK_EQUAL(test_encode(ref), data);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
   std::string raw = "{}";
   raw_ref ref(raw.data(), raw.size());
   std::vector<raw_ref> refs{ref, ref, ref};
-
   BOOST_CHECK_EQUAL(encode(refs), "[{},{},{}]");
-  BOOST_CHECK_EQUAL(test_encode(refs), "[{},{},{}]");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

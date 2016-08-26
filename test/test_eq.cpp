@@ -42,14 +42,6 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 }  // namespace
 
 /*
@@ -89,7 +81,6 @@ BOOST_AUTO_TEST_CASE(json_codec_eq_should_enforce_correct_value_with_decode) {
 BOOST_AUTO_TEST_CASE(json_codec_eq_should_encode_original_value) {
   const auto codec = eq(std::string("A"));
   BOOST_CHECK_EQUAL(encode(codec, "B"), "\"A\"");
-  BOOST_CHECK_EQUAL(test_encode(codec, "B"), "\"A\"");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

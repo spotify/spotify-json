@@ -20,19 +20,19 @@ set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
-  include/spotify/json/boost.hpp
-  include/spotify/json/buffer.hpp
   include/spotify/json/default_codec.hpp
   include/spotify/json/decoding_context.hpp
   include/spotify/json/decode_exception.hpp
   include/spotify/json/encode_decode.hpp
   include/spotify/json/encoding_context.hpp
+  include/spotify/json/encode_exception.hpp
   )
 
 set(json_codec_HEADERS
   include/spotify/json/codec/any.hpp
   include/spotify/json/codec/array.hpp
   include/spotify/json/codec/boolean.hpp
+  include/spotify/json/codec/boost.hpp
   include/spotify/json/codec/cast.hpp
   include/spotify/json/codec/chrono.hpp
   include/spotify/json/codec/codec_interface.hpp
@@ -54,13 +54,10 @@ set(json_codec_HEADERS
 set(json_detail_HEADERS
   include/spotify/json/detail/char_traits.hpp
   include/spotify/json/detail/decoding_helpers.hpp
+  include/spotify/json/detail/encoding_helpers.hpp
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
-  include/spotify/json/detail/key.hpp
   include/spotify/json/detail/macros.hpp
-  include/spotify/json/detail/pair.hpp
-  include/spotify/json/detail/std.hpp
-  include/spotify/json/detail/writer.hpp
   )
 
 set(json_all_HEADERS
@@ -78,7 +75,6 @@ set(json_test_SOURCES
   test/test_array.cpp
   test/test_boolean.cpp
   test/test_boost.cpp
-  test/test_buffer.cpp
   test/test_cast.cpp
   test/test_char_traits.cpp
   test/test_chrono.cpp
@@ -92,7 +88,6 @@ set(json_test_SOURCES
   test/test_eq.cpp
   test/test_escape.cpp
   test/test_ignore.cpp
-  test/test_key.cpp
   test/test_main.cpp
   test/test_map.cpp
   test/test_null.cpp
@@ -100,13 +95,11 @@ set(json_test_SOURCES
   test/test_object.cpp
   test/test_omit.cpp
   test/test_one_of.cpp
-  test/test_pair.cpp
   test/test_raw.cpp
   test/test_smart_ptr.cpp
   test/test_string.cpp
   test/test_transform.cpp
   test/test_umbrella.cpp
-  test/test_writer.cpp
   )
 
 set(json_benchmark_SOURCES

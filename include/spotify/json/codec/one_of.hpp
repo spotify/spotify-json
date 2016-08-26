@@ -20,7 +20,6 @@
 #include <type_traits>
 
 #include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -93,10 +92,6 @@ class one_of_t final {
   object_type decode(decoding_context &context) const {
     return detail::try_each_codec<
         decltype(_codecs), std::tuple_size<decltype(_codecs)>::value>::decode(_codecs, context);
-  }
-
-  void encode(const object_type &value, detail::writer &w) const {
-    std::get<0>(_codecs).encode(value, w);
   }
 
   void encode(encoding_context &context, const object_type &value) const {

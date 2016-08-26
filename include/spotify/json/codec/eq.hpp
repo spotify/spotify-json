@@ -18,7 +18,6 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/writer.hpp>
 
 namespace spotify {
 namespace json {
@@ -45,10 +44,6 @@ class eq_t final {
     object_type result = _inner_codec.decode(context);
     detail::fail_if(context, result != _value, "Encountered unexpected value");
     return result;
-  }
-
-  void encode(const object_type &value, detail::writer &w) const {
-    _inner_codec.encode(_value, w);
   }
 
   void encode(encoding_context &context, const object_type &value) const {

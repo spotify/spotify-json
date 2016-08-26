@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,38 +14,26 @@
  * the License.
  */
 
-#include <boost/test/unit_test.hpp>
+#pragma once
 
-#include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/decoding_context.hpp>
+#include <stdexcept>
+#include <string>
+
+#include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
 namespace json {
-namespace codec {
 
 /**
- * Codec for booleans that only encodes true.
+ * encode_exception objects are thrown when encoding fails, for example when
+ * trying to encode a null smart pointer or a NaN floating point number.
  */
-class only_true_t final {
+class encode_exception : public std::runtime_error {
  public:
-  using object_type = bool;
-
-  object_type decode(decoding_context &context) const {
-    return object_type();
-  }
-
-  void encode(encoding_context &context, const object_type &value) const {
-    _bool_codec.encode(context, true);
-  }
-
-  bool should_encode(const object_type &value) const {
-    return value;
-  }
-
- private:
-  boolean_t _bool_codec;
+  template <typename string_type>
+  explicit json_never_inline encode_exception(const string_type &what)
+      : runtime_error(what) {}
 };
 
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

@@ -34,23 +34,14 @@ void boolean_parse_should_fail(const char *not_boolean) {
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
-std::string test_encode(const bool value) {
-  encoding_context c;
-  boolean().encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_encode_true) {
   BOOST_CHECK_EQUAL(encode(true), "true");
-  BOOST_CHECK_EQUAL(test_encode(true), "true");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_encode_false) {
   BOOST_CHECK_EQUAL(encode(false), "false");
-  BOOST_CHECK_EQUAL(test_encode(false), "false");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_true) {

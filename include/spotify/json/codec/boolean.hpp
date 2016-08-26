@@ -21,7 +21,6 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -44,10 +43,6 @@ class boolean_t final {
       detail::fail(context, "Unexpected input, expected boolean");
       return false;
     }
-  }
-
-  void encode(const object_type &value, detail::writer &writer) const {
-    writer << value;
   }
 
   void encode(encoding_context &context, const object_type value) const {

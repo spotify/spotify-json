@@ -109,5 +109,12 @@ BOOST_AUTO_TEST_CASE(json_decoding_context_should_not_replace_in_empty_context) 
   BOOST_CHECK_EQUAL(ctx.data()[0], '2');
 }
 
+BOOST_AUTO_TEST_CASE(json_decoding_context_should_append_multiple_bytes) {
+  encoding_context ctx;
+  ctx.append("12", 3);
+  BOOST_CHECK_EQUAL(ctx.data()[0], '1');
+  BOOST_CHECK_EQUAL(ctx.data()[1], '2');
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

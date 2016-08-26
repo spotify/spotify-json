@@ -18,11 +18,10 @@
 
 #include <string>
 
-#include <spotify/json/buffer.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/writer.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -30,7 +29,7 @@ namespace json {
 namespace detail {
 
 inline void require_at_end(const decoding_context &context) {
-  if (context.position != context.end) {
+  if (json_unlikely(context.position != context.end)) {
     detail::fail(context, "Unexpected trailing input");
   }
 }
@@ -38,26 +37,15 @@ inline void require_at_end(const decoding_context &context) {
 }  // namespace detail
 
 template <typename Codec>
-void encode(const Codec &codec, const typename Codec::object_type &object, buffer &buffer) {
-  detail::writer w(buffer);
-  codec.encode(object, w);
+json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
+  encoding_context context;
+  codec.encode(context, object);
+  return std::string(reinterpret_cast<const char *>(context.data()), context.size());
 }
-
-template <typename Codec>
-std::string encode(const Codec &codec, const typename Codec::object_type &object) {
-  buffer buffer;
-  detail::writer w(buffer);
-  codec.encode(object, w);
-  return std::string(buffer.data(), buffer.size());
-}
-
 
 template <typename Value>
-std::string encode(const Value &value) {
-  buffer buffer;
-  detail::writer w(buffer);
-  default_codec<Value>().encode(value, w);
-  return std::string(buffer.data(), buffer.size());
+json_never_inline std::string encode(const Value &value) {
+  return encode(default_codec<Value>(), value);
 }
 
 template <typename Codec>
@@ -75,11 +63,6 @@ typename Codec::object_type decode(const Codec &codec, const std::string &string
   return decode(codec, string.data(), string.size());
 }
 
-template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const buffer &buffer) {
-  return decode(codec, buffer.data(), buffer.size());
-}
-
 template <typename Value>
 Value decode(const std::string &string) {
   return decode(default_codec<Value>(), string);
@@ -91,8 +74,8 @@ bool try_decode(
     const Codec &codec,
     const char *data,
     size_t size) {
-  decoding_context c(data, data + size);
   try {
+    decoding_context c(data, data + size);
     detail::advance_past_whitespace(c);
     object = codec.decode(c);
     detail::advance_past_whitespace(c);
@@ -111,14 +94,6 @@ bool try_decode(
   return try_decode(object, codec, string.data(), string.size());
 }
 
-template <typename Codec>
-bool try_decode(
-    typename Codec::object_type &object,
-    const Codec &codec,
-    const buffer &buffer) {
-  return try_decode(object, codec, buffer.data(), buffer.size());
-}
-
 template <typename Value>
 bool try_decode(Value &object, const std::string &string) {
   return try_decode(object, default_codec<Value>(), string);
@@ -129,8 +104,8 @@ bool try_decode_partial(
     typename Codec::object_type &object,
     const Codec &codec,
     const decoding_context &context) {
-  decoding_context c(context);
   try {
+    decoding_context c(context);
     detail::advance_past_whitespace(c);
     object = codec.decode(c);
     return true;

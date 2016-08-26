@@ -23,8 +23,8 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/encoding_helpers.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/writer.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -59,19 +59,9 @@ class enumeration_t final {
     return it->first;
   }
 
-  void encode(const object_type &value, detail::writer &w) const {
-    const auto it = find(value);
-    if (json_unlikely(it == _mapping.end())) {
-      throw std::invalid_argument("Encoding unknown enumeration value");
-    }
-    _inner_codec.encode(it->second, w);
-  }
-
   void encode(encoding_context &context, const object_type &value) const {
     const auto it = find(value);
-    if (json_unlikely(it == _mapping.end())) {
-      throw std::invalid_argument("Encoding unknown enumeration value");
-    }
+    detail::fail_if(context, it == _mapping.end(), "Encoding unknown enumeration value");
     _inner_codec.encode(context, (*it).second);
   }
 

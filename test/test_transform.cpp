@@ -38,14 +38,6 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
   return obj;
 }
 
-template <typename Codec>
-std::string test_encode(const Codec &codec, const typename Codec::object_type &value) {
-  encoding_context c;
-  codec.encode(c, value);
-  const auto data = c.data();
-  return std::string(data, data + c.size());
-}
-
 struct my_type {
   std::string value;
 };
@@ -104,7 +96,6 @@ BOOST_AUTO_TEST_CASE(json_codec_transform_should_provide_position_to_decode) {
 BOOST_AUTO_TEST_CASE(json_codec_transforms_should_encode) {
   const auto codec = transform(&encodeTransform, &decodeTransform);
   BOOST_CHECK_EQUAL(encode(codec, my_type{ "A" }), "\"A\"");
-  BOOST_CHECK_EQUAL(test_encode(codec, my_type{ "A" }), "\"A\"");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
