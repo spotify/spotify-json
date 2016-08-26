@@ -268,7 +268,7 @@ using my_type = std::map<std::string,std::unique_ptr<std::string>>;
 // it is treated as an empty string instead of failing the parse.
 const auto my_codec =
     map<my_type>(unique_ptr(one_of(string(), ignore<std::string>())));
-const my_type value = decode(my_codec, "{\"a\":null,\"b\":\"hey\"}");
+const my_type value = decode(my_codec, R"({ "a": null, "b": "hey" })");
 ```
 
 `default_codec_t`

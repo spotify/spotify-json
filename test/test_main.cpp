@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_map_with_boost_optional) 
 
   std::string json(buffer.data(), buffer.size());
 
-  BOOST_CHECK_EQUAL("{\"a\":1,\"b\":2}", json);
+  BOOST_CHECK_EQUAL(R"({"a":1,"b":2})", json);
 }
 
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector) {
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_vector) {
 
   std::string json(buffer.data(), buffer.size());
 
-  BOOST_CHECK_EQUAL("[\"a\",\"b\",\"c\"]", json);
+  BOOST_CHECK_EQUAL(R"(["a","b","c"])", json);
 }
 
 BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_deque) {
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(json_overload_stream_operator_std_deque) {
 
   std::string json(buffer.data(), buffer.size());
 
-  BOOST_CHECK_EQUAL("[\"a\",\"b\",\"c\"]", json);
+  BOOST_CHECK_EQUAL(R"(["a","b","c"])", json);
 }
 
 struct test_options {

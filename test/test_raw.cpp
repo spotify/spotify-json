@@ -58,10 +58,10 @@ foobar_t decode_foobar(const char *data) {
 
 void verify_decode_raw(const std::string &raw_value) {
   std::string data;
-  data += "{\"foo\": 123,\"value\": ";
+  data += R"({"foo": 123,"value": )";
   const auto expected_begin = data.size();
   data += raw_value;
-  data += ",\"bar\": 456}";
+  data += R"(,"bar": 456})";
 
   const auto foobar = decode_foobar(data.c_str());
   BOOST_CHECK_EQUAL(expected_begin, foobar.value.data - data.c_str());
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_array) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_object) {
-  verify_decode_raw("{\"hey\":\"yo\"}");
+  verify_decode_raw(R"({"hey":"yo"})");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_boolean) {

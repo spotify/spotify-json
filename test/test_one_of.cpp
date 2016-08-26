@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_first_if_possible) {
   auto second = object<example_t>();
 
   const auto codec = one_of(first, second);
-  const auto example = test_decode(codec, "{\"a\":\"first\"}");
+  const auto example = test_decode(codec, R"({"a":"first"})");
   BOOST_CHECK_EQUAL(example.value, "first");
 }
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_decode_with_second_if_needed) {
   second.required("b", &example_t::value);
 
   const auto codec = one_of(first, second);
-  const auto example = test_decode(codec, "{\"b\":\"second\"}");
+  const auto example = test_decode(codec, R"({"b":"second"})");
   BOOST_CHECK_EQUAL(example.value, "second");
 }
 
@@ -144,8 +144,8 @@ BOOST_AUTO_TEST_CASE(json_codec_one_of_should_encode_with_first) {
   example_t value;
   value.value = "val";
 
-  BOOST_CHECK_EQUAL(encode(codec, value), "{\"a\":\"val\"}");
-  BOOST_CHECK_EQUAL(test_encode(codec, value), "{\"a\":\"val\"}");
+  BOOST_CHECK_EQUAL(encode(codec, value), R"({"a":"val"})");
+  BOOST_CHECK_EQUAL(test_encode(codec, value), R"({"a":"val"})");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_should_forward_should_encode) {

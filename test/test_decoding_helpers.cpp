@@ -526,11 +526,11 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_invalid_character
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape) {
-  verify_advance(&advance_past_string, "\"\\\"\"");
+  verify_advance(&advance_past_string, R"("\"")");
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_invalid_escape) {
-  verify_advance_fail(&advance_past_string, "\"\\a\"");
+  verify_advance_fail(&advance_past_string, R"("\a")");
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_utf8) {
@@ -661,7 +661,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_array) {
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_object) {
   verify_advance(&advance_past_value, "{}");
-  verify_advance(&advance_past_value, "{\"a\":3}");
+  verify_advance(&advance_past_value, R"({"a":3})");
   verify_advance_fail(&advance_past_value, "{true:false}");
 }
 
@@ -671,9 +671,9 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_nested_array) {
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_nested_object) {
-  verify_advance(&advance_past_value, "{\"a\":{}}");
-  verify_advance(&advance_past_value, "{\"a\":[]}");
-  verify_advance(&advance_past_value, "{\"a\":[{},[]]}");
+  verify_advance(&advance_past_value, R"({"a":{}})");
+  verify_advance(&advance_past_value, R"({"a":[]})");
+  verify_advance(&advance_past_value, R"({"a":[{},[]]})");
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_should_encode_by_default) {

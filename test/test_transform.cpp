@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(json_codec_transform_should_provide_position_to_decode) {
 
   const auto codec = array<std::vector<my_type>>(
       transform(&encodeTransform, decode_transform));
-  BOOST_CHECK_EQUAL(test_decode(codec, "[  \"A\"]")[0].value, "3");
+  BOOST_CHECK_EQUAL(test_decode(codec, R"([  "A"])")[0].value, "3");
 }
 
 /*

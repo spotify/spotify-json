@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(json_writer_add_pair) {
 
   std::string json(buffer.data(), buffer.size());
 
-  BOOST_CHECK_EQUAL("{\"a\":0}", json);
+  BOOST_CHECK_EQUAL(R"({"a":0})", json);
 }
 
 BOOST_AUTO_TEST_CASE(json_writer_add_key) {
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(json_writer_add_key) {
 
   std::string json(buffer.data(), buffer.size());
 
-  BOOST_CHECK_EQUAL("{\"a\":0}", json);
+  BOOST_CHECK_EQUAL(R"({"a":0})", json);
 }
 
 BOOST_AUTO_TEST_CASE(json_writer_write_buffer) {

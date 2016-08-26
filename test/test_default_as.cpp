@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(json_codec_default_as_with_object_and_omit) {
   auto codec = object<Val>();
   codec.optional("a", &Val::a);
   codec.optional("b", &Val::b, default_as_omit(string()));
-  BOOST_CHECK_EQUAL(encode(codec, Val()), "{\"a\":\"\"}");  // no "b"
-  BOOST_CHECK_EQUAL(test_encode(codec, Val()), "{\"a\":\"\"}");  // no "b"
+  BOOST_CHECK_EQUAL(encode(codec, Val()), R"({"a":""})");  // no "b"
+  BOOST_CHECK_EQUAL(test_encode(codec, Val()), R"({"a":""})");  // no "b"
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec
