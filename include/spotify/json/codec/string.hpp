@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include <spotify/json/decode_exception.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
@@ -49,18 +51,32 @@ class string_t final {
     return decode_string(context);
   }
 
-  void encode(const object_type &value, detail::writer &writer) const {
+  json_never_inline void encode(const object_type &value, detail::writer &writer) const {
     writer << value;
   }
 
-  void encode(encoding_context &context, const object_type value) const {
-    const auto max_escaped_size = value.size() * 6;  // 6 is length of \u00xx
-    const auto ptr = context.reserve(max_escaped_size + 2);  // 2 is for the "s
-    auto pos = ptr + 1;
-    detail::write_escaped(pos, value.begin(), value.end());
-    ptr[0] = '"';  // leading "
-    pos[0] = '"';  // trailing "
-    context.advance(pos - ptr + 1);
+  json_never_inline void encode(encoding_context &context, const object_type value) const {
+    context.append('"');
+
+    // Write the strings in 1024 byte chunks, so that we do not have to reserve
+    // a potentially very large buffer for the escaped string. It is possible
+    // that the chunking will happen in the middle of a UTF-8 multi-byte
+    // character, but that is ok since write_escaped will not escape characters
+    // with the high bit set, so the combined escaped string will contain the
+    // correct UTF-8 characters in the end.
+    auto chunk_begin = reinterpret_cast<const char *>(value.data());
+    const auto string_end = chunk_begin + value.size();
+
+    while (chunk_begin != string_end) {
+      const auto chunk_end = std::min(chunk_begin + 1024, string_end);
+      const auto ptr = context.reserve(6 * 1024);  // 6 is the length of \u00xx
+      auto pos = ptr;  // pos will point to the end of the written escaped chunk
+      detail::write_escaped(pos, chunk_begin, chunk_end);
+      context.advance(pos - ptr);
+      chunk_begin = chunk_end;
+    }
+
+    context.append('"');
   }
 
  private:

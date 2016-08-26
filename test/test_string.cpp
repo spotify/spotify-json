@@ -98,6 +98,14 @@ std::string generate_simple_string(size_t size) {
   return string;
 }
 
+std::string generate_simple_string_answer(size_t size) {
+  std::string string;
+  for (size_t i = 0; i < size; i++) {
+    string.append(random_simple_character(i));
+  }
+  return string;
+}
+
 std::string generate_escaped_string(size_t approximate_size) {
   std::string string("\"");
   for (size_t i = 0; i < approximate_size; i++) {
@@ -116,6 +124,18 @@ std::string generate_escaped_string_answer(size_t approximate_size) {
 }
 
 }  // namespace
+
+/*
+ * Constructing
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_helper) {
+  string();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_default_codec) {
+  default_codec<std::string>();
+}
 
 /*
  * Decoding Simple Strings
@@ -208,12 +228,11 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_single_character) {
   BOOST_CHECK_EQUAL(test_encode("a"), "\"a\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_helper) {
-  string();
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_string_should_construct_with_default_codec) {
-  default_codec<std::string>();
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_string) {
+  const auto string = generate_simple_string_answer(4097);
+  const auto answer = generate_simple_string(4097);
+  BOOST_CHECK_EQUAL(encode(string), answer);
+  BOOST_CHECK_EQUAL(test_encode(string), answer);
 }
 
 /*
