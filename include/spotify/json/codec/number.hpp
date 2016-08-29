@@ -76,7 +76,7 @@ class floating_point_t {
     const auto result = decode_floating_point<object_type>(
         converter,
         context.position,
-        context.end - context.position,
+        static_cast<int>(context.end - context.position),
         &bytes_read);
     fail_if(context, std::isnan(result), "Invalid floating point number");
     skip(context, bytes_read);
