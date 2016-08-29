@@ -39,7 +39,7 @@ class decode_exception : public std::runtime_error {
   }
 
  private:
-  const off_t _offset;
+  const size_t _offset;
 };
 
 }  // namespace json
