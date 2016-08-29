@@ -214,6 +214,7 @@ player.name = "Daniel";
 player.instrument = "guitar";
 encode(player_codec, player) ==
     R"({"name":"Daniel","instrument":"guitar","position":{"x":0,"y":0}})";
+```
 
 Since codecs are just normal objects, it is possible to create and use
 several different codecs for any given data type. This makes it possibile to
@@ -272,7 +273,7 @@ The examples above cover the most commonly used parts of spotify-json. The
 library supports more things that sometimes come in handy:
 
 * Most STL containers, including
-  [`vector`, `deque`, `list`, `set`, `unordered_set`](doc/api.md#array_t),
+  [`array`, `vector`, `deque`, `list`, `set`, `unordered_set`](doc/api.md#array_t),
   [`map` and `unordered_map`](doc/api.md#map_t)
 * [C++ `enum`s and similar types](doc/api.md#enumeration_t)
 * [Arbitrary conversion logic](doc/api.md#transform_t), for example when a
@@ -284,7 +285,7 @@ library supports more things that sometimes come in handy:
 * [`boost::optional`](doc/api.md#optional)
 * [`boost::chrono` and `std::chrono` types](doc/api.md#chrono)
 * [Dealing with virtual classes / type erasure](doc/api.md#cast_t)
-* [Floating point numbers with lossless serialize/parse roundtrip](doc/api.md#map_t)
+* [Floating point numbers with lossless serialize/parse roundtrip](doc/api.md#number_t)
 
 
 [Detailed API documentation](doc/api.md)

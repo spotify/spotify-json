@@ -18,6 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/encode_decode.hpp>
 
@@ -65,6 +66,12 @@ BOOST_AUTO_TEST_CASE(json_decode_should_decode_from_bytes_with_custom_codec) {
   BOOST_CHECK_EQUAL(obj.val, "e");
 }
 
+BOOST_AUTO_TEST_CASE(json_decode_should_decode_from_bytes) {
+  static const char * const kData = "53";
+  const auto val = decode<int>(kData, strlen(kData));
+  BOOST_CHECK_EQUAL(val, 53);
+}
+
 BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_string_with_custom_codec) {
   const auto obj = decode(custom_codec(), R"({"a":"g"})");
   BOOST_CHECK_EQUAL(obj.val, "g");
@@ -106,6 +113,20 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_decode_from_bytes_with_custom_codec)
   custom_obj obj;
   BOOST_CHECK(try_decode(obj, custom_codec(), kData, strlen(kData)));
   BOOST_CHECK_EQUAL(obj.val, "e");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_decode_from_bytes) {
+  static const char * const kData = "78";
+  int val = 12;
+  BOOST_CHECK(try_decode<int>(val, kData, strlen(kData)));
+  BOOST_CHECK_EQUAL(val, 78);
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_not_decode_from_invalid_bytes) {
+  static const char * const kData = "d78";
+  int val = 12;
+  BOOST_CHECK(!try_decode<int>(val, kData, strlen(kData)));
+  BOOST_CHECK_EQUAL(val, 12);
 }
 
 BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_string_with_custom_codec) {

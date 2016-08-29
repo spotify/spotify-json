@@ -64,6 +64,11 @@ typename Codec::object_type decode(const Codec &codec, const std::string &string
 }
 
 template <typename Value>
+Value decode(const char *data, size_t size) {
+  return decode(default_codec<Value>(), data, size);
+}
+
+template <typename Value>
 Value decode(const std::string &string) {
   return decode(default_codec<Value>(), string);
 }
@@ -97,6 +102,11 @@ bool try_decode(
 template <typename Value>
 bool try_decode(Value &object, const std::string &string) {
   return try_decode(object, default_codec<Value>(), string);
+}
+
+template <typename Value>
+bool try_decode(Value &object, const char *data, size_t size) {
+  return try_decode(object, default_codec<Value>(), data, size);
 }
 
 template <typename Codec>

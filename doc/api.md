@@ -52,7 +52,7 @@ std::string encode(const Value &value);
 template <typename Codec>
 typename Codec::object_type decode(
     const Codec &codec,
-    const std::string &string) throw(decode_exception);
+    const std::string &string);
 
 /**
  * Using a specified codec, decode the JSON in the C style char array data that
@@ -65,7 +65,7 @@ template <typename Codec>
 typename Codec::object_type decode(
     const Codec &codec,
     const char *data,
-    size_t size) throw(decode_exception);
+    size_t size);
 
 /**
  * Using the default_codec<Value>() codec, decode the JSON in string.
@@ -74,7 +74,17 @@ typename Codec::object_type decode(
  * @return The parsed object.
  */
 template <typename Value>
-Value decode(const std::string &string) throw(decode_exception);
+Value decode(const std::string &string);
+
+/**
+ * Using the default_codec<Value>() codec, decode the JSON in the C style char
+ * array data that is size bytes long (not including a \0 at the end).
+ *
+ * @throws decode_exception if the JSON parsing fails.
+ * @return The parsed object.
+ */
+template <typename Value>
+Value decode(const char *data, size_t size);
 ```
 
 ### `try_decode`
@@ -119,6 +129,17 @@ template <typename Value>
 bool try_decode(Value &object, const std::string &string);
 
 /**
+ * Using the default_codec<Value>() codec, decode the JSON in the C style char
+ * array data that is size bytes long (not including a \0 at the end).
+ *
+ * If the parsing succeeds, the result is assigned to object.
+ *
+ * @return true if the parsing succeeds.
+ */
+template <typename Value>
+bool try_decode(Value &object, const char *data, size_t size);
+
+/**
  * Using a specified codec, decode the JSON in context. Unlike try_decode, this
  * function allows stray characters after the end of the parsed JSON object.
  *
@@ -139,11 +160,13 @@ bool try_decode_partial(
 Exception that is thrown when encoding fails. For more info, see 
 [decode_exception.hpp](../include/spotify/json/encode_exception.hpp)
 
-`decode_exception`
+`encode_exception`
 ==================
 
-Exception that is thrown when parsing fails. For more info, see 
-[decode_exception.hpp](../include/spotify/json/decode_exception.hpp)
+Exception that is thrown when serialization fails, for example when serializing
+a value that has no JSON representation, like NaN floating point numbers. For
+more info, see
+[encode_exception.hpp](../include/spotify/json/encode_exception.hpp)
 
 Handling missing, empty, `null` and invalid values
 ==================================================
