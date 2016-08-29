@@ -52,7 +52,7 @@ std::string encode(const Value &value);
 template <typename Codec>
 typename Codec::object_type decode(
     const Codec &codec,
-    const std::string &string) throw(decode_exception);
+    const std::string &string);
 
 /**
  * Using a specified codec, decode the JSON in the C style char array data that
@@ -65,7 +65,7 @@ template <typename Codec>
 typename Codec::object_type decode(
     const Codec &codec,
     const char *data,
-    size_t size) throw(decode_exception);
+    size_t size);
 
 /**
  * Using the default_codec<Value>() codec, decode the JSON in string.
@@ -74,7 +74,7 @@ typename Codec::object_type decode(
  * @return The parsed object.
  */
 template <typename Value>
-Value decode(const std::string &string) throw(decode_exception);
+Value decode(const std::string &string);
 
 /**
  * Using the default_codec<Value>() codec, decode the JSON in the C style char
@@ -84,7 +84,7 @@ Value decode(const std::string &string) throw(decode_exception);
  * @return The parsed object.
  */
 template <typename Value>
-Value decode(const char *data, size_t size) throw(decode_exception);
+Value decode(const char *data, size_t size);
 ```
 
 ### `try_decode`
