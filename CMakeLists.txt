@@ -17,6 +17,7 @@ project(spotify-json)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(json_test_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
@@ -70,43 +71,43 @@ set(json_all_HEADERS
   )
 
 set(json_test_HEADERS
-  test/only_true.hpp
+  test/include/spotify/json/test/only_true.hpp
   )
 
 set(json_test_SOURCES
-  test/test_any.cpp
-  test/test_array.cpp
-  test/test_bitset.cpp
-  test/test_boolean.cpp
-  test/test_boost.cpp
-  test/test_cast.cpp
-  test/test_char_traits.cpp
-  test/test_chrono.cpp
-  test/test_codec_interface.cpp
-  test/test_decoding_context.cpp
-  test/test_decoding_helpers.cpp
-  test/test_empty_as.cpp
-  test/test_encode_decode.cpp
-  test/test_encoding_context.cpp
-  test/test_encoding_helpers.cpp
-  test/test_enumeration.cpp
-  test/test_eq.cpp
-  test/test_escape.cpp
-  test/test_ignore.cpp
-  test/test_main.cpp
-  test/test_map.cpp
-  test/test_null.cpp
-  test/test_number.cpp
-  test/test_object.cpp
-  test/test_omit.cpp
-  test/test_one_of.cpp
-  test/test_raw.cpp
-  test/test_smart_ptr.cpp
-  test/test_stack.cpp
-  test/test_string.cpp
-  test/test_transform.cpp
-  test/test_tuple.cpp
-  test/test_umbrella.cpp
+  test/src/test_any.cpp
+  test/src/test_array.cpp
+  test/src/test_bitset.cpp
+  test/src/test_boolean.cpp
+  test/src/test_boost.cpp
+  test/src/test_cast.cpp
+  test/src/test_char_traits.cpp
+  test/src/test_chrono.cpp
+  test/src/test_codec_interface.cpp
+  test/src/test_decoding_context.cpp
+  test/src/test_decoding_helpers.cpp
+  test/src/test_empty_as.cpp
+  test/src/test_encode_decode.cpp
+  test/src/test_encoding_context.cpp
+  test/src/test_encoding_helpers.cpp
+  test/src/test_enumeration.cpp
+  test/src/test_eq.cpp
+  test/src/test_escape.cpp
+  test/src/test_ignore.cpp
+  test/src/test_main.cpp
+  test/src/test_map.cpp
+  test/src/test_null.cpp
+  test/src/test_number.cpp
+  test/src/test_object.cpp
+  test/src/test_omit.cpp
+  test/src/test_one_of.cpp
+  test/src/test_raw.cpp
+  test/src/test_smart_ptr.cpp
+  test/src/test_stack.cpp
+  test/src/test_string.cpp
+  test/src/test_transform.cpp
+  test/src/test_tuple.cpp
+  test/src/test_umbrella.cpp
   )
 
 set(json_benchmark_SOURCES
@@ -137,7 +138,7 @@ if(Boost_FOUND)
   add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS} ${json_all_HEADERS})
   add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_all_HEADERS})
 
-  target_include_directories(${json_test_TARGET} PUBLIC ${json_INCLUDE_DIR})
+  target_include_directories(${json_test_TARGET} PUBLIC ${json_INCLUDE_DIR} ${json_test_INCLUDE_DIR})
   target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
   target_include_directories(${json_benchmark_TARGET} PUBLIC ${json_INCLUDE_DIR})
   target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
