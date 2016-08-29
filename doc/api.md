@@ -160,11 +160,13 @@ bool try_decode_partial(
 Exception that is thrown when encoding fails. For more info, see 
 [decode_exception.hpp](../include/spotify/json/encode_exception.hpp)
 
-`decode_exception`
+`encode_exception`
 ==================
 
-Exception that is thrown when parsing fails. For more info, see 
-[decode_exception.hpp](../include/spotify/json/decode_exception.hpp)
+Exception that is thrown when serialization fails, for example when serializing
+a value that has no JSON representation, like NaN floating point numbers. For
+more info, see
+[encode_exception.hpp](../include/spotify/json/encode_exception.hpp)
 
 Handling missing, empty, `null` and invalid values
 ==================================================
