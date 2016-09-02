@@ -120,13 +120,13 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_empty_array) {
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_single_element_array) {
   const auto res = array_parse<std::array<bool, 1>>("[true]");
-  const auto expected = std::array<bool, 1>({ true });
+  const auto expected = std::array<bool, 1>{{ true }};
   BOOST_CHECK(res == expected);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_two_elements_array) {
   const auto res = array_parse<std::array<bool, 2>>("[true,false]");
-  const auto expected = std::array<bool, 2>({ true, false });
+  const auto expected = std::array<bool, 2>{{ true, false }};
   BOOST_CHECK(res == expected);
 }
 
@@ -189,17 +189,17 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_empty_array) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element_array) {
-  const std::array<int, 1> arr = { 7 };
+  const std::array<int, 1> arr{{ 7 }};
   BOOST_CHECK_EQUAL(encode(arr), "[7]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements_array) {
-  const std::array<int, 2> arr = { 4, 9 };
+  const std::array<int, 2> arr{{ 4, 9 }};
   BOOST_CHECK_EQUAL(encode(arr), "[4,9]");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_not_encode_omitted_elements_array) {
-  const std::array<bool, 2> arr = { false, true };
+  const std::array<bool, 2> arr{{ false, true }};
   const auto codec = array<std::array<bool, 2>>(omit<bool>());
   BOOST_CHECK_EQUAL(encode(codec, arr), "[]");
 }

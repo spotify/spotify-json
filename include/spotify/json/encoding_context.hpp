@@ -21,39 +21,43 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <limits>
 
 #include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
 namespace json {
+namespace detail {
 
 /**
  * An encoding_context has the information that is kept while encoding JSON with
  * codecs. It keeps a buffer of data that can be expanded and written to.
  */
-struct encoding_context final {
-  encoding_context(const size_t capacity = 4096)
+template <typename size_type = std::size_t>
+struct base_encoding_context final {
+  base_encoding_context(const size_type capacity = 4096)
       : _buf(static_cast<uint8_t *>(capacity ? std::malloc(capacity) : nullptr)),
         _ptr(_buf),
         _end(_buf + capacity),
         _capacity(capacity) {
-    if (!_buf && _capacity > 0) {
+    if (json_unlikely(!_buf && _capacity > 0)) {
       throw std::bad_alloc();
     }
   }
 
-  ~encoding_context() {
+  ~base_encoding_context() {
     std::free(_buf);
   }
 
-  json_force_inline uint8_t *reserve(const size_t num_bytes) {
-    if (json_unlikely(_ptr + num_bytes >= _end)) {
+  json_force_inline uint8_t *reserve(const size_type num_bytes) {
+    const auto remaining_bytes = (_end - _ptr);  // _end is always >= _ptr
+    if (json_unlikely(remaining_bytes < num_bytes)) {
       grow_buffer(num_bytes);
     }
     return _ptr;
   }
 
-  json_force_inline void advance(const size_t num_bytes) {
+  json_force_inline void advance(const size_type num_bytes) {
     _ptr += num_bytes;
   }
 
@@ -72,7 +76,7 @@ struct encoding_context final {
     }
   }
 
-  json_force_inline void append(const void *data, const size_t size) {
+  json_force_inline void append(const void *data, const size_type size) {
     std::memcpy(reserve(size), data, size);
     advance(size);
   }
@@ -81,11 +85,11 @@ struct encoding_context final {
     return _buf;
   }
 
-  json_force_inline size_t size() const {
+  json_force_inline size_type size() const {
     return (_ptr - _buf);
   }
 
-  json_force_inline size_t capacity() const {
+  json_force_inline size_type capacity() const {
     return _capacity;
   }
 
@@ -94,25 +98,49 @@ struct encoding_context final {
   }
 
  private:
-  json_never_inline void grow_buffer(const size_t num_bytes) {
+  json_never_inline void grow_buffer(const size_type num_bytes) {
     const auto old_size = size();
-    const auto new_size = (old_size + num_bytes);
-    const auto new_capacity = std::max(new_size, _capacity * 2);
+    const auto new_size = size_type(old_size + num_bytes);
+    if (json_unlikely(new_size <= old_size)) {
+      // If we overflow the size integer, it means that we need more memory than
+      // we can provide, so we should throw an allocation exception. Note that
+      // we check for <= instead of < to catch the case of adding SIZE_MAX to
+      // SIZE_MAX, which equals SIZE_MAX. We already know that num_bytes will
+      // not be equal to zero (no need to grow the buffer in that case).
+      throw std::bad_alloc();
+    }
 
-    if (!(_buf = static_cast<uint8_t *>(std::realloc(_buf, new_capacity)))) {
+    auto new_capacity = size_type(_capacity * 2);
+    if (json_unlikely(new_capacity <= _capacity && _capacity)) {
+      // If we overflow the capacity integer, set the new capacity to the max
+      // value of the size type, so that we can handle the case of having say
+      // 3 GB of memory allocated, growing to 4 GB instead of failing to grow.
+      new_capacity = std::numeric_limits<size_type>::max();
+    }
+
+    // Regardless of what capacity we think we want, we need to ensure that it
+    // is at least as large as the reserved size. We avoid doing any arithmetics
+    // here to not have to check for overflow yet again.
+    const auto actual_capacity = std::max(new_size, new_capacity);
+    _buf = static_cast<uint8_t *>(std::realloc(_buf, actual_capacity));
+    if (json_unlikely(!_buf)) {
       throw std::bad_alloc();
     }
 
     _ptr = _buf + old_size;
-    _end = _buf + new_capacity;
-    _capacity = new_capacity;
-   }
+    _end = _buf + actual_capacity;
+    _capacity = actual_capacity;
+  }
 
   uint8_t *_buf;
   uint8_t *_ptr;
   const uint8_t *_end;
-  size_t _capacity;
+  size_type _capacity;
 };
+
+}  // namespace detail
+
+using encoding_context = detail::base_encoding_context<>;
 
 }  // namespace json
 }  // namespace spotify
