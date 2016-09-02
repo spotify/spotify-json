@@ -134,6 +134,19 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_number) {
   verify_decode_raw("-123.456e+45");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_deep_json) {
+  // This is deep enough to blow the stack if the raw codec is implemented using
+  // simple recursion. The failure case of this unit test is that it crashes.
+  const auto depth = 1000000;
+
+  std::string str;
+  str.reserve(depth * 2);
+  for (auto i = 0; i < depth; i++) { str += '['; }
+  for (auto i = 0; i < depth; i++) { str += ']'; }
+
+  verify_decode_raw(str);
+}
+
 /*
  * Encoding
  */

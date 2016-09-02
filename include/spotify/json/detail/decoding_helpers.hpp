@@ -19,10 +19,12 @@
 #include <cstddef>
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
+#include <spotify/json/detail/stack.hpp>
 
 namespace spotify {
 namespace json {
@@ -243,8 +245,7 @@ inline void advance_past_string(decoding_context &context) {
   advance_past(context, '"');
   for (;;) {
     const char c = next(context, "Unterminated string");
-    fail_if(context, static_cast<unsigned char>(c) < 0x20,
-        "Encountered invalid string character");
+    fail_if(context, static_cast<unsigned char>(c) < 0x20, "Encountered invalid string character");
     switch (c) {
       case '"': return;
       case '\\': advance_past_string_escape_after_slash(context); break;
@@ -302,6 +303,27 @@ inline void advance_past_number(decoding_context &context) {
 }
 
 /**
+ * Advance past one simple JSON value, that is any value that is not an object
+ * {} or an array []. If parsing fails, context will be set to that it has
+ * failed. If parsing suceeds, context.position will point to the character
+ * after the last character of the JSON object that was parsed.
+ *
+ * context.has_failed() must be false when this function is called.
+ */
+inline void advance_past_simple_value(decoding_context &context) {
+  switch (peek(context)) {
+    case '-':  // fallthrough
+    case '0': case '1': case '2': case '3': case '4':  // fallthrough
+    case '5': case '6': case '7': case '8': case '9': advance_past_number(context); break;
+    case '"': advance_past_string(context); break;
+    case 'f': advance_past_false(context); break;
+    case 't': advance_past_true(context); break;
+    case 'n': advance_past_null(context); break;
+    default: fail(context, std::string("Encountered token '") + peek(context) + "'");
+  }
+}
+
+/**
  * Advance past one JSON value. If parsing fails, context will be set to that
  * it has failed. If parsing suceeds, context.position will point to the
  * character after the last character of the JSON object that was parsed.
@@ -309,33 +331,80 @@ inline void advance_past_number(decoding_context &context) {
  * context.has_failed() must be false when this function is called.
  */
 inline void advance_past_value(decoding_context &context) {
-  require_bytes<1>(context);
-  const char c = *context.position;
-  if (c == '[') {
-    advance_past_comma_separated(context, '[', ']', [&]{
-      advance_past_value(context);
-    });
-  } else if (c == '{') {
-    advance_past_object(context, [](decoding_context &context) {
-          advance_past_string(context);
-          return 0;
-        },
-        [&](int &&) {
-          advance_past_value(context);
-        });
-  } else if (c == 't') {
-    advance_past_true(context);
-  } else if (c == 'f') {
-    advance_past_false(context);
-  } else if (c == 'n') {
-    advance_past_null(context);
-  } else if (c == '"') {
-    advance_past_string(context);
-  } else if (c == '-' || char_traits<char>::is_digit(c)) {
-    advance_past_number(context);
-  } else {
-    fail(context, std::string("Encountered unexpected character '") + c + "'");
+  enum state {
+    done = 0,
+    want = 1 << 0,
+    need = 1 << 1,
+    read_sep = 1 << 2,
+    read_key = 1 << 3,
+    read_val = 1 << 4,
+
+    want_sep = want | read_sep,
+    want_key = want | read_key,
+    need_key = need | read_key,
+    want_val = want | read_val,
+    need_val = need | read_val
+  };
+
+  // We can deal with the first 64 nesting levels {[[{[[ ... ]]}]]} without heap
+  // allocations. Most reasonable JSON will have way less than this, but in case
+  // we encounter an unusual JSON file (perhaps one designed to stack overflow),
+  // the nesting stack will be moved over to the heap.
+  detail::stack<char, 64> stack;
+
+  auto inside = 0;
+  auto closer = int_fast16_t(INT16_MAX);  // a value outside the range of a 'char'
+  auto pstate = need_val;
+
+  while (json_likely(context.remaining() && pstate != done)) {
+    const auto c = peek_unchecked(context);
+
+    if (c == ',' && (pstate & read_sep)) {
+      skip(context);
+      advance_past_whitespace(context);
+      pstate = (inside == '{' ? need_key : need_val);
+      continue;
+    }
+
+    if (c == '"' && (pstate & read_key)) {
+      advance_past_string(context);
+      advance_past_whitespace(context);
+      advance_past(context, ':');
+      advance_past_whitespace(context);
+      pstate = need_val;
+      continue;
+    }
+
+    if (c == closer && !(pstate & need)) {
+      skip(context);
+      inside = stack.pop();
+      closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'
+      pstate = (inside ? want_sep : done);
+      continue;
+    }
+
+    fail_if(context, pstate & read_key, "Expected '\"'");
+    fail_if(context, pstate & read_sep, inside == '{' ?
+        "Expected ',' or '}'" :
+        "Expected ',' or ']");
+
+    if (c == '{' || c == '[') {
+      skip(context);
+      advance_past_whitespace(context);
+      stack.push(inside);
+      inside = c;
+      closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'
+      pstate = (inside == '{' ? want_key : want_val);
+      continue;
+    }
+
+    advance_past_simple_value(context);
+    pstate = (inside ? want_sep : done);
   }
+
+  fail_if(context, inside == '{', "Expected '}'");
+  fail_if(context, inside == '[', "Expected ']'");
+  fail_if(context, pstate, "Unexpected EOF");
 }
 
 template <typename T>

@@ -58,6 +58,7 @@ set(json_detail_HEADERS
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
   include/spotify/json/detail/macros.hpp
+  include/spotify/json/detail/stack.hpp
   )
 
 set(json_all_HEADERS
@@ -97,6 +98,7 @@ set(json_test_SOURCES
   test/test_one_of.cpp
   test/test_raw.cpp
   test/test_smart_ptr.cpp
+  test/test_stack.cpp
   test/test_string.cpp
   test/test_transform.cpp
   test/test_umbrella.cpp
