@@ -24,6 +24,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
+#include <spotify/json/detail/stack.hpp>
 
 namespace spotify {
 namespace json {
@@ -345,8 +346,13 @@ inline void advance_past_value(decoding_context &context) {
     need_val = need | read_val
   };
 
-  std::vector<char> stack = { 0 };  // 0 is neither '{' nor '['
-  auto inside = stack.back();
+  // We can deal with the first 64 nesting levels {[[{[[ ... ]]}]]} without heap
+  // allocations. Most reasonable JSON will have way less than this, but in case
+  // we encounter an unusual JSON file (perhaps one designed to stack overflow),
+  // the nesting stack will be moved over to the heap.
+  detail::stack<char, 64> stack;
+
+  auto inside = 0;
   auto closer = int_fast16_t(INT16_MAX);  // a value outside the range of a 'char'
   auto pstate = need_val;
 
@@ -371,8 +377,7 @@ inline void advance_past_value(decoding_context &context) {
 
     if (c == closer && !(pstate & need)) {
       skip(context);
-      stack.pop_back();
-      inside = stack.back();
+      inside = stack.pop();
       closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'
       pstate = (inside ? want_sep : done);
       continue;
@@ -386,10 +391,10 @@ inline void advance_past_value(decoding_context &context) {
     if (c == '{' || c == '[') {
       skip(context);
       advance_past_whitespace(context);
+      stack.push(inside);
       inside = c;
       closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'
       pstate = (inside == '{' ? want_key : want_val);
-      stack.push_back(inside);
       continue;
     }
 
