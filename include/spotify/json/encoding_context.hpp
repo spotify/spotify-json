@@ -47,7 +47,8 @@ struct encoding_context final {
   }
 
   json_force_inline uint8_t *reserve(const size_t num_bytes) {
-    if (json_unlikely(_ptr + num_bytes >= _end)) {
+    const auto remaining_bytes = (_end - _ptr);  // _end is always >= _ptr
+    if (json_unlikely(remaining_bytes < num_bytes)) {
       grow_buffer(num_bytes);
     }
     return _ptr;
