@@ -101,12 +101,9 @@ struct base_encoding_context final {
   json_never_inline void grow_buffer(const size_type num_bytes) {
     const auto old_size = size();
     const auto new_size = size_type(old_size + num_bytes);
-    if (json_unlikely(new_size <= old_size)) {
+    if (json_unlikely(new_size < old_size)) {
       // If we overflow the size integer, it means that we need more memory than
-      // we can provide, so we should throw an allocation exception. Note that
-      // we check for <= instead of < to catch the case of adding SIZE_MAX to
-      // SIZE_MAX, which equals SIZE_MAX. We already know that num_bytes will
-      // not be equal to zero (no need to grow the buffer in that case).
+      // we can possibly provide, so we should throw an allocation exception.
       throw std::bad_alloc();
     }
 
