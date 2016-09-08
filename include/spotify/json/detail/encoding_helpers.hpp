@@ -31,10 +31,10 @@ json_never_inline json_noreturn void fail(
   throw encode_exception(error);
 }
 
-template <typename string_type>
+template <typename string_type, typename condition_type>
 json_force_inline void fail_if(
     const encoding_context &context,
-    const bool condition,
+    const condition_type condition,
     const string_type &error) {
   if (json_unlikely(condition)) {
     fail(context, error);

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -38,10 +39,10 @@ json_never_inline json_noreturn void fail(
   throw decode_exception(error, context.offset(d));
 }
 
-template <typename string_type>
+template <typename string_type, typename condition_type>
 json_force_inline void fail_if(
     const decoding_context &context,
-    const bool condition,
+    const condition_type condition,
     const string_type &error,
     const ptrdiff_t d = 0) {
   if (json_unlikely(condition)) {
@@ -404,7 +405,7 @@ inline void advance_past_value(decoding_context &context) {
 
   fail_if(context, inside == '{', "Expected '}'");
   fail_if(context, inside == '[', "Expected ']'");
-  fail_if(context, pstate, "Unexpected EOF");
+  fail_if(context, pstate != done, "Unexpected EOF");
 }
 
 template <typename T>
