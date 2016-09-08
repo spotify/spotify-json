@@ -354,7 +354,7 @@ inline void advance_past_value(decoding_context &context) {
   detail::stack<char, 64> stack;
 
   auto inside = 0;
-  auto closer = int_fast16_t(INT16_MAX);  // a value outside the range of a 'char'
+  auto closer = int_fast16_t(std::numeric_limits<int16_t>::max());  // a value outside the range of a 'char'
   auto pstate = need_val;
 
   while (json_likely(context.remaining() && pstate != done)) {
