@@ -34,19 +34,25 @@ class null_t final {
  public:
   using object_type = T;
 
+  explicit null_t(object_type value = object_type())
+      : _value(std::move(value)) {}
+
   object_type decode(decoding_context &context) const {
     detail::advance_past_null(context);
-    return object_type();
+    return _value;
   }
 
   void encode(encoding_context &context, const object_type value) const {
     context.append("null", 4);
   }
+
+ private:
+  object_type _value;
 };
 
 template <typename T = null_type>
-inline null_t<T> null() {
-  return null_t<T>();
+inline null_t<T> null(T value = T()) {
+  return null_t<T>(std::move(value));
 }
 
 }  // namespace codec
