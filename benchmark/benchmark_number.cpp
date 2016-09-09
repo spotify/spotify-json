@@ -28,7 +28,40 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_number_encode_positive_64bit_integer) {
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_number_encode_positive_int32_t) {
+  const auto codec = number<int32_t>();
+  JSON_BENCHMARK(1e5, [=]{
+    auto context = encoding_context();
+    for (int32_t i = 0; i < 10000000; i += 48071) {
+      codec.encode(context, i);
+      context.clear();
+    }
+  });
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_number_encode_positive_uint32_t) {
+  const auto codec = number<uint32_t>();
+  JSON_BENCHMARK(1e5, [=]{
+    auto context = encoding_context();
+    for (uint32_t i = 0; i < 10000000; i += 48071) {
+      codec.encode(context, i);
+      context.clear();
+    }
+  });
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_number_encode_positive_int64_t) {
+  const auto codec = number<int64_t>();
+  JSON_BENCHMARK(1e5, [=]{
+    auto context = encoding_context();
+    for (int64_t i = 0; i < 10000000; i += 48071) {
+      codec.encode(context, i);
+      context.clear();
+    }
+  });
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_number_encode_positive_uint64_t) {
   const auto codec = number<uint64_t>();
   JSON_BENCHMARK(1e5, [=]{
     auto context = encoding_context();
