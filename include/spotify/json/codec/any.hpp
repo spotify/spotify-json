@@ -21,6 +21,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/encoding_helpers.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
@@ -53,7 +54,7 @@ class any_t final {
    public:
     virtual ~erased_codec() = default;
 
-    virtual T decode(decoding_context &context) const = 0;
+    virtual object_type decode(decoding_context &context) const = 0;
     virtual void encode(encoding_context &context, const object_type &value) const = 0;
     virtual bool should_encode(const object_type &value) const = 0;
   };
@@ -64,7 +65,7 @@ class any_t final {
     explicit erased_codec_impl(Codec codec)
       : _codec(std::move(codec)) {}
 
-    T decode(decoding_context &context) const override {
+    object_type decode(decoding_context &context) const override {
       return _codec.decode(context);
     }
 

@@ -85,6 +85,7 @@ set(json_test_SOURCES
   test/test_empty_as.cpp
   test/test_encode_decode.cpp
   test/test_encoding_context.cpp
+  test/test_encoding_helpers.cpp
   test/test_enumeration.cpp
   test/test_eq.cpp
   test/test_escape.cpp

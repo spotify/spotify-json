@@ -34,7 +34,7 @@ class ignore_t final {
 
   object_type decode(decoding_context &context) const {
     detail::advance_past_value(context);
-    return T();
+    return object_type();
   }
 
   void encode(encoding_context &context, const object_type &value) const {

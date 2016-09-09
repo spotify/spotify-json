@@ -49,14 +49,14 @@ class empty_as_t final {
     const auto original_position = context.position;
     try {
       return _inner_codec.decode(context);
-    } catch (const decode_exception &exc) {
-      context.position = original_position;
+    } catch (const decode_exception &exception) {
       try {
+        context.position = original_position;
         return _default_codec.decode(context);
-      } catch (const decode_exception &) {
-        // The error of the inner codec is more interested than saying for
-        // example that the object is not a valid null.
-        throw exc;
+      } catch (const decode_exception &ignored_exception) {
+        // The error of the inner codec is more interesting than saying, for
+        // example, that the object is not a valid null.
+        throw exception;
       }
     }
   }
