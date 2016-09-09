@@ -21,6 +21,7 @@
 
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/encoding_helpers.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
