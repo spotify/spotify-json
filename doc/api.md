@@ -635,8 +635,9 @@ initialized object always fails decoding, while `omit_t` always fails decoding.
 
 * **Complete class name**: `spotify::json::codec::ignore_t<T>`, where `T` is the
   type that is default constructed and returned on decoding.
-* **Supported types**: Any default constructible type.
-* **Convenience builder**: `spotify::json::codec::ignore<T>()`
+* **Supported types**: Any copyable type.
+* **Convenience builder**: `spotify::json::codec::ignore<T>()`,
+  `spotify::json::codec::ignore(value)`.
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
 
@@ -678,10 +679,11 @@ in order to encode `nullptr` smart pointers or other empty objects (empty
 
 * **Complete class name**: `spotify::json::codec::null_t<T>` where `T` is the
   type that is created when the codec successfully decodes a JSON `null`.
-* **Supported types**: Any default constructible type.
-  `spotify::json::null_type` is used by default.
-* **Convenience builder**: `spotify::json::codec::null()`, or
-  `spotify::json::codec::null<T>()` to use a type other than `null_type`.
+* **Supported types**: Any copyable type. `spotify::json::null_type` is used by
+  default.
+* **Convenience builder**: `spotify::json::codec::null()`,
+  `spotify::json::codec::null(value)`; or `spotify::json::codec::null<T>()` to
+  use a type other than `null_type`.
 * **`default_codec` support**: `default_codec<null_type>()`
 
 ### `number_t`
