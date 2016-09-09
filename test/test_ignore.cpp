@@ -56,13 +56,19 @@ BOOST_AUTO_TEST_CASE(json_codec_ignore_should_construct_with_helper) {
 }
 
 /*
- * Encoding
+ * Decoding
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_ignore_should_decode_successfully) {
   const auto codec = ignore<std::string>();
   BOOST_CHECK_EQUAL(test_decode(codec, "\"hello\""), "");
   BOOST_CHECK_EQUAL(test_decode(codec, "[{},true]"), "");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_ignore_should_decode_with_custom_value) {
+  const auto codec = ignore<std::string>("world");
+  BOOST_CHECK_EQUAL(test_decode(codec, "\"hello\""), "world");
+  BOOST_CHECK_EQUAL(test_decode(codec, "[{},true]"), "world");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_ignore_should_fail_on_invalid_input) {

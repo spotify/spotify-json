@@ -68,6 +68,13 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_integer_null) {
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_custom_value) {
+  const auto codec = null<int>(17);
+  const char *null = "null ";
+  auto ctx = decoding_context(null, null + 5);
+  BOOST_CHECK_EQUAL(codec.decode(ctx), 17);
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_null_should_construct_with_helper) {
   null();
 }

@@ -39,7 +39,8 @@ class eq_t final {
   using object_type = typename InnerCodec::object_type;
 
   eq_t(InnerCodec inner_codec, object_type value)
-      : _inner_codec(std::move(inner_codec)), _value(value) {}
+      : _inner_codec(std::move(inner_codec)),
+        _value(std::move(value)) {}
 
   object_type decode(decoding_context &context) const {
     object_type result = _inner_codec.decode(context);
