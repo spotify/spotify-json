@@ -32,9 +32,12 @@ class ignore_t final {
  public:
   using object_type = T;
 
+  explicit ignore_t(object_type value = object_type())
+      : _value(std::move(value)) {}
+
   object_type decode(decoding_context &context) const {
     detail::advance_past_value(context);
-    return object_type();
+    return _value;
   }
 
   void encode(encoding_context &context, const object_type &value) const {
@@ -44,11 +47,14 @@ class ignore_t final {
   bool should_encode(const object_type &value) const {
     return false;
   }
+
+ private:
+  object_type _value;
 };
 
 template <typename T>
-ignore_t<T> ignore() {
-  return ignore_t<T>();
+ignore_t<T> ignore(T value = T()) {
+  return ignore_t<T>(std::move(value));
 }
 
 }  // namespace codec
