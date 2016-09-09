@@ -34,10 +34,8 @@ namespace codec {
 #define JSON_STRING_SKIP_N(n, n_plus_one, type, control, goto_label) \
   control ((end - position) >= n && json_unaligned_ ## n_plus_one(position)) { \
     const auto cc = *reinterpret_cast<const type *>(position); \
-    const auto has_rquote = json_haschar_ ## n(cc, '"'); \
-    const auto has_escape = json_haschar_ ## n(cc, '\\'); \
-    const auto is_complex = (has_rquote || has_escape); \
-    if (is_complex) { goto goto_label; } \
+    if (json_haschar_ ## n(cc, '"')) { goto goto_label; } \
+    if (json_haschar_ ## n(cc, '\\')) { goto goto_label; } \
     position += n; \
   }
 
