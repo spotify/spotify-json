@@ -229,6 +229,7 @@ a number of codecs that are available to the user of the library:
 * [`unique_ptr_t`](#unique_ptr_t): For `unique_ptr`s
 * [`transform_t`](#transform_t): For types that the library doesn't have built
   in support for.
+* [`tuple_t`](#tuple_t): For `std::pair` and `std::tuple`.
 * [`optional_t`](#optional): For `boost::optional`
 * [Chrono codecs](#chrono): spotify-json provides support for `std::chrono` and
   `boost::chrono` types.
@@ -845,7 +846,7 @@ val.allow_anything == "";
 
 * **Complete class name**: `spotify::json::codec::one_of_t<Codec...>`,
   where `Codec...` is a list of the codec types that will be used for encoding
-  attempting to decode. All provided codec types must have the same
+  and decoding. All provided codec types must have the same
   `object_type`. (It is for example illegal to create a
   `one_of_t<string_t, boolean_t>`).
 * **Supported types**: Any type that the underlying codecs support.
@@ -959,6 +960,54 @@ const auto codec = transform(
   uses the default codec for the inner type.
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly.
+
+
+### `tuple_t`
+
+`tuple_t` is a codec for `std::pair` and `std::tuple`. It encodes the object as
+fixed-size JSON arrays. It can be used for JSON arrays where the type of all the
+objects are not the same.
+
+Examples:
+
+```cpp
+const auto coord = decode<std::tuple<int, int, int>>("[1,3,2]");
+```
+
+```cpp
+struct Command {
+  // ...
+};
+
+const auto command_with_sequence_number =
+    decode<std::pair<size_t, Command>>("[1337,{}]");
+```
+
+```cpp
+struct Point {
+  Point() = default;
+  Point(int x, int y) : x(x), y(y) {}
+
+  int x = 0;
+  int y = 0;
+};
+
+auto codec = transform(
+    pair(int(), int()),
+    [](const Point &p) { return make_pair(p.x, p.y); },
+    [](const std::pair<int, int> &p) { return Point(p.first, p.second); });
+
+const auto point = decode(codec, "[1,3]");
+```
+
+* **Complete class name**: `spotify::json::codec::tuple_t<
+  T, Codec...>`, where `T` is the type of the encoded pair or tuple, `Codec...`
+  is a list of the codec types that will be used for encoding and decoding.
+* **Supported types**: `std::pair` and `std::tuple`
+* **Convenience builder**: `spotify::json::codec::pair(CodecA, CodecB)` and
+  `spotify::json::codec::tuple(Codec...)`.
+* **`default_codec` support**: `default_codec<std::pair<A, B>>()` and
+  `default_codec<std::tuple<T...>>()`
 
 
 ### `optional_t`

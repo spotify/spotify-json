@@ -49,6 +49,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
   include/spotify/json/codec/transform.hpp
+  include/spotify/json/codec/tuple.hpp
   )
 
 set(json_detail_HEADERS
@@ -102,6 +103,7 @@ set(json_test_SOURCES
   test/test_stack.cpp
   test/test_string.cpp
   test/test_transform.cpp
+  test/test_tuple.cpp
   test/test_umbrella.cpp
   )
 

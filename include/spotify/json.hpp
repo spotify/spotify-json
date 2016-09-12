@@ -35,6 +35,7 @@
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/transform.hpp>
+#include <spotify/json/codec/tuple.hpp>
 #include <spotify/json/decode_exception.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
