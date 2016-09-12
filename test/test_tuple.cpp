@@ -79,14 +79,11 @@ BOOST_AUTO_TEST_CASE(json_codec_tuple_should_construct_tuple_with_default_codec)
 BOOST_AUTO_TEST_CASE(json_codec_tuple_should_decode_tuple_success) {
   tuple_parse<std::tuple<>>("[]");
   tuple_parse<std::tuple<>>("[ ]");
-  tuple_parse<std::tuple<>>("[] ");
-  tuple_parse<std::tuple<>>("[ ] ");
 
   BOOST_CHECK((tuple_parse<std::tuple<int>>("[1]")) == std::make_tuple(1));
   BOOST_CHECK((tuple_parse<std::tuple<int>>("[ 1]")) == std::make_tuple(1));
   BOOST_CHECK((tuple_parse<std::tuple<int>>("[1 ]")) == std::make_tuple(1));
   BOOST_CHECK((tuple_parse<std::tuple<int>>("[ 1 ]")) == std::make_tuple(1));
-  BOOST_CHECK((tuple_parse<std::tuple<int>>("[ 1 ] ")) == std::make_tuple(1));
 
   BOOST_CHECK((tuple_parse<std::tuple<int, bool>>("[1,false]")) == std::make_tuple(1, false));
   BOOST_CHECK((tuple_parse<std::tuple<int, bool>>("[1 ,false]")) == std::make_tuple(1, false));
@@ -96,8 +93,16 @@ BOOST_AUTO_TEST_CASE(json_codec_tuple_should_decode_tuple_success) {
   BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1,false,\"a\"]")) == std::make_tuple(1, false, std::string("a")));
   BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1 ,false,\"a\"]")) == std::make_tuple(1, false, std::string("a")));
   BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1, false,\"a\"]")) == std::make_tuple(1, false, std::string("a")));
-  BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1,false  , \"a\" ]  ")) == std::make_tuple(1, false, std::string("a")));
-  BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1 , false , \"a\" ] ")) == std::make_tuple(1, false, std::string("a")));
+  BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1,false  , \"a\" ]")) == std::make_tuple(1, false, std::string("a")));
+  BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1 , false , \"a\" ]")) == std::make_tuple(1, false, std::string("a")));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_advance_past_whitespace_at_end) {
+  const auto codec = default_codec<std::tuple<>>();
+  const auto json = "[] ";
+  auto ctx = decoding_context(json, json + strlen(json));
+  const auto result = codec.decode(ctx);
+  BOOST_CHECK_EQUAL(ctx.position + 1, ctx.end);
 }
 
 

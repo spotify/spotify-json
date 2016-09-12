@@ -85,7 +85,6 @@ class tuple_t final {
     detail::tuple_field<object_type, element_count, Codecs...>::decode(
         _codecs, context, output);
     detail::advance_past(context, ']');
-    detail::advance_past_whitespace(context);
     return output;
   }
 
