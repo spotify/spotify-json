@@ -267,7 +267,7 @@ encode(player) ==
 ```
 
 
-### Advanced uses
+### Advanced usage
 
 The examples above cover the most commonly used parts of spotify-json. The
 library supports more things that sometimes come in handy:
