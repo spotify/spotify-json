@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Spotify AB
+ * Copyright (c) 2014-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -31,7 +31,8 @@ using namespace boost;
 
 static void check_escaped(const std::string &expected, const std::string &input) {
   string output;
-  write_escaped(output, input.data(), input.data() + input.size());
+  const auto input_begin = reinterpret_cast<const uint8_t *>(input.data());
+  write_escaped(output, input_begin, input_begin + input.size());
   BOOST_CHECK_EQUAL(expected, output);
 }
 

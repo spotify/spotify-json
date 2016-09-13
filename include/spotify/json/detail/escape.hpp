@@ -16,9 +16,7 @@
 
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <string>
 
 #include <spotify/json/detail/macros.hpp>
@@ -26,16 +24,6 @@
 namespace spotify {
 namespace json {
 namespace detail {
-
-/**
- * \brief Simple end iterator for null-terminated strings.
- */
-class null_terminated_end_iterator {
- public:
-  bool operator !=(const char *it) const {
-    return *it != '\0';
-  }
-};
 
 template <typename OutputType>
 struct escape_traits {
@@ -62,11 +50,8 @@ inline void escape_traits<uint8_t *>::put(uint8_t *&out, const char c) {
   *
   * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
   */
-template <typename OutputType, typename InputIterator, typename InputEndIterator>
-inline OutputType &write_escaped(
-    OutputType &out,
-    const InputIterator &begin,
-    const InputEndIterator &end) {
+template <typename OutputType>
+inline OutputType &write_escaped(OutputType &out, const uint8_t *begin, const uint8_t *end) {
   using traits = escape_traits<OutputType>;
 
   static const char *HEX = "0123456789ABCDEF";
@@ -78,7 +63,7 @@ inline OutputType &write_escaped(
   };
 
   for (auto it = begin; json_likely(end != it); ++it) {
-    const auto c = static_cast<unsigned char>(*it);
+    const auto c = (*it);
 
     if (json_unlikely(c == '\\' || c == '"' || c == '/')) {
       traits::put(out, '\\');

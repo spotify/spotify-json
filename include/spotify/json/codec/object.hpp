@@ -109,7 +109,8 @@ class object_t final {
   static std::string escape_key(const std::string &key) {
     std::string escaped_key;
     escaped_key += "\"";
-    detail::write_escaped(escaped_key, key.begin(), key.end());
+    const auto key_begin = reinterpret_cast<const uint8_t *>(key.data());
+    detail::write_escaped(escaped_key, key_begin, key_begin + key.size());
     escaped_key += "\":";
     return escaped_key;
   }
