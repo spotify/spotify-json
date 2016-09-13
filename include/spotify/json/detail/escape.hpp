@@ -56,10 +56,10 @@ inline OutputType &write_escaped(OutputType &out, const uint8_t *begin, const ui
 
   static const char *HEX = "0123456789ABCDEF";
   static const char POPULAR_CONTROL_CHARACTERS[] = {
-    0, 0, 0, 0, 0, 0, 0, 0,
-    'b', 't', 'n', 0, 'f', 'r', 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
+    'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u',
+    'b', 't', 'n', 'u', 'f', 'r', 'u', 'u',
+    'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u',
+    'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u'
   };
 
   for (auto it = begin; json_likely(end != it); ++it) {
@@ -77,18 +77,15 @@ inline OutputType &write_escaped(OutputType &out, const uint8_t *begin, const ui
     }
 
     const auto control_character = POPULAR_CONTROL_CHARACTERS[c];
-    if (json_likely(control_character)) {
-      traits::put(out, '\\');
-      traits::put(out, control_character);
-      continue;
-    }
-
     traits::put(out, '\\');
-    traits::put(out, 'u');
-    traits::put(out, '0');
-    traits::put(out, '0');
-    traits::put(out, HEX[(c >> 4)]);
-    traits::put(out, HEX[(c & 0x0F)]);
+    traits::put(out, control_character);
+
+    if (json_unlikely(control_character == 'u')) {
+      traits::put(out, '0');
+      traits::put(out, '0');
+      traits::put(out, HEX[(c >> 4)]);
+      traits::put(out, HEX[(c & 0x0F)]);
+    }
   }
 
   return out;
