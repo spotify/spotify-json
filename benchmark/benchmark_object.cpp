@@ -63,7 +63,7 @@ std::string make_json(size_t n) {
   return json_ss.str();
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_object_with_required_fields) {
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_object_with_required_fields) {
   const auto codec = required_codec(1000);
   const auto json = make_json(1000);
 

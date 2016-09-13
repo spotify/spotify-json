@@ -43,7 +43,7 @@ std::string generate_simple_string(size_t size) {
   return string;
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_long_string) {
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_simple_long_string) {
   const auto codec = default_codec<std::string>();
   const auto json = generate_simple_string(10000);
   JSON_BENCHMARK(1e5, [=]{
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_long_string) {
   });
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_parse_simple_tiny_string) {
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_simple_tiny_string) {
   const auto codec = default_codec<std::string>();
   const auto json = std::string("\"spotify:track:05341EWu6uHUg2BojF3Cyw\"");
   const auto json_begin = json.data();
