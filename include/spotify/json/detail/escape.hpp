@@ -34,19 +34,29 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
     'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u'
   };
 
-  if (json_unlikely(c == '\\' || c == '"' || c == '/')) {
-    out[0] = '\\';
-    out[1] = c;
-    out += 2;
+  // All characters above 0x20 can be writen as is, except for ", / and \. The
+  // first two are below 0x30 and the last one is at 0x5C. As an optimization,
+  // for most simple strings (letters, numbers, some punctuation), check for
+  // this first before doing more complicated checks (more expensive checks).
+  if (json_likely(c >= 0x30)) {
+    if (json_unlikely(c == '\\')) { *(out++) = '\\'; }
+    *(out++) = c;
     return;
   }
 
+  // In the next step, consider the characters between 0x20 and 0x30, which are
+  // different punctuation and special characters. We will write most of them as
+  // is, except for " and /, which are trivially escaped.
   if (json_likely(c >= 0x20)) {
-    out[0] = c;
-    out += 1;
+    if (json_unlikely(c == '"' || c == '/')) { *(out++) = '\\'; }
+    *(out++) = c;
     return;
   }
 
+  // Finally handle all control characters (below 0x20). These all need escaping
+  // to some degree. There are some "popular" control characters, such as tabs,
+  // newline, and carriage return, with simple escape codes. All other control
+  // characters get an escape code on the form \u00xx. Six bytes. Isch.
   const auto control_character = POPULAR_CONTROL_CHARACTERS[c];
   out[0] = '\\';
   out[1] = control_character;
