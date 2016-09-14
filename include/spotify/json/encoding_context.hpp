@@ -85,7 +85,7 @@ struct base_encoding_context final {
     _ptr = _buf;
   }
 
-  json_force_inline const uint8_t *data() const {
+  json_force_inline const void *data() const {
     return _buf;
   }
 

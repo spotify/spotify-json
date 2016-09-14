@@ -15,6 +15,7 @@
  */
 
 #include <string>
+#include <vector>
 
 #include <boost/range/irange.hpp>
 #include <boost/range/join.hpp>
@@ -30,10 +31,11 @@ using namespace std;
 using namespace boost;
 
 static void check_escaped(const std::string &expected, const std::string &input) {
-  string output;
+  std::vector<uint8_t> output(input.size() * 6);
   const auto input_begin = reinterpret_cast<const uint8_t *>(input.data());
-  write_escaped(output, input_begin, input_begin + input.size());
-  BOOST_CHECK_EQUAL(expected, output);
+  const auto out_b = static_cast<uint8_t *>(output.data());
+  const auto out_e = write_escaped(out_b, input_begin, input_begin + input.size());
+  BOOST_CHECK_EQUAL(expected, std::string(reinterpret_cast<const char *>(out_b), size_t(out_e - out_b)));
 }
 
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_characters) {

@@ -63,9 +63,8 @@ class string_t final {
     while (chunk_begin != string_end) {
       const auto chunk_end = std::min(chunk_begin + 1024, string_end);
       const auto ptr = context.reserve(6 * 1024);  // 6 is the length of \u00xx
-      auto pos = ptr;  // pos will point to the end of the written escaped chunk
-      detail::write_escaped(pos, chunk_begin, chunk_end);
-      context.advance(pos - ptr);
+      const auto end = detail::write_escaped(ptr, chunk_begin, chunk_end);
+      context.advance(end - ptr);
       chunk_begin = chunk_end;
     }
 

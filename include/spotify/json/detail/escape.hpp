@@ -25,27 +25,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename OutputType>
-struct escape_traits {
-  static void put(OutputType &out, char c) {
-    out.put(c);
-  }
-};
-
-template <>
-json_force_inline void escape_traits<std::string>::put(std::string &out, const char c) {
-  out.push_back(c);
-}
-
-template <>
-json_force_inline void escape_traits<uint8_t *>::put(uint8_t *&out, const char c) {
-  *(out++) = c;
-}
-
-template <typename OutputType>
-json_force_inline void write_escaped_c(OutputType &out, const uint8_t c) {
-  using traits = escape_traits<OutputType>;
-
+json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
   static const char *HEX = "0123456789ABCDEF";
   static const char POPULAR_CONTROL_CHARACTERS[] = {
     'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u',
@@ -55,38 +35,36 @@ json_force_inline void write_escaped_c(OutputType &out, const uint8_t c) {
   };
 
   if (json_unlikely(c == '\\' || c == '"' || c == '/')) {
-    traits::put(out, '\\');
-    traits::put(out, c);
+    *(out++) = '\\';
+    *(out++) = c;
     return;
   }
 
   if (json_likely(c >= 0x20)) {
-    traits::put(out, c);
+    *(out++) = c;
     return;
   }
 
   const auto control_character = POPULAR_CONTROL_CHARACTERS[c];
-  traits::put(out, '\\');
-  traits::put(out, control_character);
+  *(out++) = '\\';
+  *(out++) = control_character;
 
   if (json_unlikely(control_character == 'u')) {
-    traits::put(out, '0');
-    traits::put(out, '0');
-    traits::put(out, HEX[(c >> 4)]);
-    traits::put(out, HEX[(c & 0x0F)]);
+    *(out++) = '0';
+    *(out++) = '0';
+    *(out++) = HEX[(c >> 4)];
+    *(out++) = HEX[(c & 0x0F)];
   }
 }
 
-template <typename OutputType>
-json_force_inline void write_escaped_1(OutputType &out, const uint8_t *&begin) {
+json_force_inline void write_escaped_1(uint8_t *&out, const uint8_t *&begin) {
   struct blob_1_t { uint8_t a; };
   const auto b = *reinterpret_cast<const blob_1_t *>(begin);
   write_escaped_c(out, b.a);
   begin += sizeof(blob_1_t);
 }
 
-template <typename OutputType>
-json_force_inline void write_escaped_2(OutputType &out, const uint8_t *&begin) {
+json_force_inline void write_escaped_2(uint8_t *&out, const uint8_t *&begin) {
   struct blob_2_t { uint8_t a, b; };
   const auto b = *reinterpret_cast<const blob_2_t *>(begin);
   write_escaped_c(out, b.a);
@@ -94,8 +72,7 @@ json_force_inline void write_escaped_2(OutputType &out, const uint8_t *&begin) {
   begin += sizeof(blob_2_t);
 }
 
-template <typename OutputType>
-json_force_inline void write_escaped_4(OutputType &out, const uint8_t *&begin) {
+json_force_inline void write_escaped_4(uint8_t *&out, const uint8_t *&begin) {
   struct blob_4_t { uint8_t a, b, c, d; };
   const auto b = *reinterpret_cast<const blob_4_t *>(begin);
   write_escaped_c(out, b.a);
@@ -105,8 +82,7 @@ json_force_inline void write_escaped_4(OutputType &out, const uint8_t *&begin) {
   begin += sizeof(blob_4_t);
 }
 
-template <typename OutputType>
-json_force_inline void write_escaped_8(OutputType &out, const uint8_t *&begin) {
+json_force_inline void write_escaped_8(uint8_t *&out, const uint8_t *&begin) {
   struct blob_8_t { uint8_t a, b, c, d, e, f, g, h; };
   const auto b = *reinterpret_cast<const blob_8_t *>(begin);
   write_escaped_c(out, b.a);
@@ -121,18 +97,14 @@ json_force_inline void write_escaped_8(OutputType &out, const uint8_t *&begin) {
 }
 
 /**
-  * \brief Escape a string for use in a JSON string as per RFC 4627.
-  *
-  * This escapes control characters (0x00 through 0x1F), as well as
-  * backslashes and quotation marks.
-  *
-  * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
-  */
-template <typename OutputType>
-json_never_inline inline void write_escaped(
-    OutputType &out,
-    const uint8_t *begin,
-    const uint8_t *end) {
+ * \brief Escape a string for use in a JSON string as per RFC 4627.
+ *
+ * This escapes control characters (0x00 through 0x1F), as well as
+ * backslashes and quotation marks.
+ *
+ * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
+ */
+json_never_inline inline uint8_t *write_escaped(uint8_t *out, const uint8_t *begin, const uint8_t *end) {
   if (json_unaligned_2(begin) && (end - begin) >= 1) { write_escaped_1(out, begin); }
   if (json_unaligned_4(begin) && (end - begin) >= 2) { write_escaped_2(out, begin); }
   if (json_unaligned_8(begin) && (end - begin) >= 4) { write_escaped_4(out, begin); }
@@ -140,6 +112,7 @@ json_never_inline inline void write_escaped(
   if ((end - begin) >= 4) { write_escaped_4(out, begin); }
   if ((end - begin) >= 2) { write_escaped_2(out, begin); }
   if ((end - begin) >= 1) { write_escaped_1(out, begin); }
+  return out;
 }
 
 }  // namespace detail
