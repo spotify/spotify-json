@@ -26,7 +26,7 @@ namespace json {
 namespace detail {
 
 json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
-  static const char *HEX = "0123456789ABCDEF";
+  static const char HEX[] = "0123456789ABCDEF";
   static const char POPULAR_CONTROL_CHARACTERS[] = {
     'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u',
     'b', 't', 'n', 'u', 'f', 'r', 'u', 'u',
@@ -35,25 +35,29 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
   };
 
   if (json_unlikely(c == '\\' || c == '"' || c == '/')) {
-    *(out++) = '\\';
-    *(out++) = c;
+    out[0] = '\\';
+    out[1] = c;
+    out += 2;
     return;
   }
 
   if (json_likely(c >= 0x20)) {
-    *(out++) = c;
+    out[0] = c;
+    out += 1;
     return;
   }
 
   const auto control_character = POPULAR_CONTROL_CHARACTERS[c];
-  *(out++) = '\\';
-  *(out++) = control_character;
+  out[0] = '\\';
+  out[1] = control_character;
+  out += 2;
 
   if (json_unlikely(control_character == 'u')) {
-    *(out++) = '0';
-    *(out++) = '0';
-    *(out++) = HEX[(c >> 4)];
-    *(out++) = HEX[(c & 0x0F)];
+    out[0] = '0';
+    out[1] = '0';
+    out[2] = HEX[(c >> 4)];
+    out[3] = HEX[(c & 0x0F)];
+    out += 4;
   }
 }
 
