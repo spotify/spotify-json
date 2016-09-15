@@ -164,11 +164,11 @@ void advance_past_comma_separated(decoding_context &context, char intro, char ou
   advance_past(context, intro);
   advance_past_whitespace(context);
 
-  if (peek(context) != outro) {
+  if (json_likely(peek(context) != outro)) {
     parse();
     advance_past_whitespace(context);
 
-    while (peek(context) != outro) {
+    while (json_likely(peek(context) != outro)) {
       advance_past(context, ',');
       advance_past_whitespace(context);
       parse();
@@ -185,13 +185,11 @@ void advance_past_comma_separated(decoding_context &context, char intro, char ou
  * and store it away as needed. The callback may be invoked a few times even if
  * parsing fails later on.
  */
-template <typename DecodeKey, typename Callback>
-void advance_past_object(
-    decoding_context &context,
-    const DecodeKey &decode_key,
-    const Callback &callback) {
+template <typename KeyCodec, typename Callback>
+void advance_past_object(decoding_context &context, const Callback &callback) {
+  auto codec = KeyCodec();
   advance_past_comma_separated(context, '{', '}', [&]{
-    auto key = decode_key(context);
+    auto key = codec.decode(context);
     advance_past_whitespace(context);
     advance_past(context, ':');
     advance_past_whitespace(context);
@@ -255,7 +253,7 @@ inline void advance_past_string(decoding_context &context) {
 }
 
 inline void advance_past_number(decoding_context &context) {
-  require_bytes<1>(context);
+  using traits = char_traits<char>;
 
   // Parse negative sign
   if (peek(context) == '-') {
@@ -265,23 +263,16 @@ inline void advance_past_number(decoding_context &context) {
   // Parse integer part
   if (peek(context) == '0') {
     ++context.position;
-  } else if (char_traits<char>::is_digit(peek(context))) {
-    do {
-      ++context.position;
-    } while (char_traits<char>::is_digit(peek(context)));
   } else {
-    fail(context, "Expected digit");
+    fail_if(context, !traits::is_digit(peek(context)), "Expected digit");
+    do { ++context.position; } while (traits::is_digit(peek(context)));
   }
 
   // Parse fractional part
   if (peek(context) == '.') {
     ++context.position;
-    if (!char_traits<char>::is_digit(peek(context))) {
-      fail(context, "Expected digit after decimal point");
-    }
-    do {
-      ++context.position;
-    } while (char_traits<char>::is_digit(peek(context)));
+    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after decimal point");
+    do { ++context.position; } while (traits::is_digit(peek(context)));
   }
 
   // Parse exp part
@@ -293,13 +284,8 @@ inline void advance_past_number(decoding_context &context) {
       ++context.position;
     }
 
-    const char first_digit = peek(context);
-    if (!char_traits<char>::is_digit(first_digit)) {
-      fail(context, "Expected digit after exponent sign");
-    }
-    do {
-      ++context.position;
-    } while (char_traits<char>::is_digit(peek(context)));
+    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after exponent sign");
+    do { ++context.position; } while (char_traits<char>::is_digit(peek(context)));
   }
 }
 

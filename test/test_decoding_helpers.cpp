@@ -19,6 +19,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/boolean.hpp>
+#include <spotify/json/codec/omit.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
@@ -376,7 +377,7 @@ bool decode_boolean(decoding_context &context) {
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_empty_object) {
   auto ctx = make_context("{}");
   const auto original_ctx = ctx;
-  advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  advance_past_object<codec::omit_t<bool>>(ctx, [&](bool &&key) {
     BOOST_CHECK(!"Should not be called");
   });
   BOOST_CHECK(ctx.position == original_ctx.end);
@@ -387,7 +388,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_single_value
   auto ctx = make_context("{true:false}");
   const auto original_ctx = ctx;
   bool has_been_called_already = false;
-  advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     const auto value = decode_boolean(ctx);
     BOOST_CHECK(!has_been_called_already);
     has_been_called_already = true;
@@ -402,7 +403,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_two_values) 
   auto ctx = make_context("{true:false,false:true}");
   const auto original_ctx = ctx;
   size_t times_called = 0;
-  advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     const auto value = decode_boolean(ctx);
     BOOST_CHECK_EQUAL(key, !times_called);
     BOOST_CHECK_EQUAL(value, !!times_called);
@@ -415,28 +416,28 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_two_values) 
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_broken_key) {
   auto ctx = make_context("{tru:false}");
-  BOOST_CHECK_THROW(advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     BOOST_CHECK(!"Should not be called");
   }), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_broken_value) {
   auto ctx = make_context("{true:fals}");
-  BOOST_CHECK_THROW(advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     decode_boolean(ctx);
   }), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_without_colon) {
   auto ctx = make_context("{truefalse}");
-  BOOST_CHECK_THROW(advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     BOOST_CHECK(!"Should not be called");
   }), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_without_ending_brace) {
   auto ctx = make_context("{true:false");
-  BOOST_CHECK_THROW(advance_past_object(ctx, &decode_boolean, [&](bool &&key) {
+  BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     decode_boolean(ctx);
   }), decode_exception);
 }
