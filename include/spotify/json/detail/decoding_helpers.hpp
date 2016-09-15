@@ -164,11 +164,11 @@ void advance_past_comma_separated(decoding_context &context, char intro, char ou
   advance_past(context, intro);
   advance_past_whitespace(context);
 
-  if (peek(context) != outro) {
+  if (json_likely(peek(context) != outro)) {
     parse();
     advance_past_whitespace(context);
 
-    while (peek(context) != outro) {
+    while (json_likely(peek(context) != outro)) {
       advance_past(context, ',');
       advance_past_whitespace(context);
       parse();
