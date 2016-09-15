@@ -253,7 +253,7 @@ inline void advance_past_string(decoding_context &context) {
 }
 
 inline void advance_past_number(decoding_context &context) {
-  require_bytes<1>(context);
+  using traits = char_traits<char>;
 
   // Parse negative sign
   if (peek(context) == '-') {
@@ -263,23 +263,16 @@ inline void advance_past_number(decoding_context &context) {
   // Parse integer part
   if (peek(context) == '0') {
     ++context.position;
-  } else if (char_traits<char>::is_digit(peek(context))) {
-    do {
-      ++context.position;
-    } while (char_traits<char>::is_digit(peek(context)));
   } else {
-    fail(context, "Expected digit");
+    fail_if(context, !traits::is_digit(peek(context)), "Expected digit");
+    do { ++context.position; } while (traits::is_digit(peek(context)));
   }
 
   // Parse fractional part
   if (peek(context) == '.') {
     ++context.position;
-    if (!char_traits<char>::is_digit(peek(context))) {
-      fail(context, "Expected digit after decimal point");
-    }
-    do {
-      ++context.position;
-    } while (char_traits<char>::is_digit(peek(context)));
+    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after decimal point");
+    do { ++context.position; } while (traits::is_digit(peek(context)));
   }
 
   // Parse exp part
@@ -291,13 +284,8 @@ inline void advance_past_number(decoding_context &context) {
       ++context.position;
     }
 
-    const char first_digit = peek(context);
-    if (!char_traits<char>::is_digit(first_digit)) {
-      fail(context, "Expected digit after exponent sign");
-    }
-    do {
-      ++context.position;
-    } while (char_traits<char>::is_digit(peek(context)));
+    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after exponent sign");
+    do { ++context.position; } while (char_traits<char>::is_digit(peek(context)));
   }
 }
 
