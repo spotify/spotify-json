@@ -68,30 +68,24 @@ class object_t final {
     add_field(name, true, std::forward<Args>(args)...);
   }
 
-  object_type decode(decoding_context &context) const {
+  json_never_inline object_type decode(decoding_context &context) const {
     uint_fast32_t uniq_seen_required = 0;
     detail::bitset<64> seen_required(_num_required_fields);
 
     object_type output = construct(std::is_default_constructible<T>());
-    detail::advance_past_object(
-        context,
-        [](decoding_context &context) {
-          static string_t string_decoder;
-          return string_decoder.decode(context);
-        },
-        [&](const std::string &key) {
-          const auto field_it = _fields.find(key);
-          if (json_unlikely(field_it == _fields.end())) {
-            return detail::advance_past_value(context);
-          }
+    detail::advance_past_object<string_t>(context, [&](const std::string &key) {
+      const auto field_it = _fields.find(key);
+      if (json_unlikely(field_it == _fields.end())) {
+        return detail::advance_past_value(context);
+      }
 
-          const auto &field = *(*field_it).second;
-          field.decode(output, context);
-          if (field.required) {
-            const auto seen = seen_required.test_and_set(field.required_field_id);
-            uniq_seen_required += (1 - seen);  // 'seen' is 1 when the field is a duplicate; 0 otherwise
-          }
-        });
+      const auto &field = *(*field_it).second;
+      field.decode(output, context);
+      if (field.required) {
+        const auto seen = seen_required.test_and_set(field.required_field_id);
+        uniq_seen_required += (1 - seen);  // 'seen' is 1 when the field is a duplicate; 0 otherwise
+      }
+    });
 
     const auto is_missing_req_fields = (uniq_seen_required != _num_required_fields);
     detail::fail_if(context, is_missing_req_fields, "Missing required field(s)");

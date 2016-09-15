@@ -50,12 +50,8 @@ class map_t final {
   object_type decode(decoding_context &context) const {
     using value_type = typename object_type::value_type;
     object_type output;
-    const auto string_c = string();
-    detail::advance_past_object(
+    detail::advance_past_object<string_t>(
         context,
-        [string_c](decoding_context &context) {
-          return string_c.decode(context);
-        },
         [&](std::string &&key) {
           output.insert(value_type(std::move(key), _inner_codec.decode(context)));
         });

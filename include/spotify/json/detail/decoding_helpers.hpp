@@ -185,13 +185,11 @@ void advance_past_comma_separated(decoding_context &context, char intro, char ou
  * and store it away as needed. The callback may be invoked a few times even if
  * parsing fails later on.
  */
-template <typename DecodeKey, typename Callback>
-void advance_past_object(
-    decoding_context &context,
-    const DecodeKey &decode_key,
-    const Callback &callback) {
+template <typename KeyCodec, typename Callback>
+void advance_past_object(decoding_context &context, const Callback &callback) {
+  auto codec = KeyCodec();
   advance_past_comma_separated(context, '{', '}', [&]{
-    auto key = decode_key(context);
+    auto key = codec.decode(context);
     advance_past_whitespace(context);
     advance_past(context, ':');
     advance_past_whitespace(context);
