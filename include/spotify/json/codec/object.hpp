@@ -107,11 +107,10 @@ class object_t final {
 
  private:
   static std::string escape_key(const std::string &key) {
-    std::string escaped_key;
-    escaped_key += "\"";
-    detail::write_escaped(escaped_key, key.begin(), key.end());
-    escaped_key += "\":";
-    return escaped_key;
+    encoding_context context;
+    string().encode(context, key);
+    context.append(':');
+    return std::string(static_cast<const char *>(context.data()), context.size());
   }
 
   json_force_inline static void append_key_to_context(

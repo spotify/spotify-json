@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Spotify AB
+ * Copyright (c) 2014-2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,6 +15,7 @@
  */
 
 #include <string>
+#include <vector>
 
 #include <boost/range/irange.hpp>
 #include <boost/range/join.hpp>
@@ -30,15 +31,20 @@ using namespace std;
 using namespace boost;
 
 static void check_escaped(const std::string &expected, const std::string &input) {
-  string output;
-  write_escaped(output, input.data(), input.data() + input.size());
-  BOOST_CHECK_EQUAL(expected, output);
+  std::vector<uint8_t> output(input.size() * 6);
+  const auto input_begin = reinterpret_cast<const uint8_t *>(input.data());
+  const auto out_b = static_cast<uint8_t *>(output.data());
+  const auto out_e = write_escaped(out_b, input_begin, input_begin + input.size());
+  BOOST_CHECK_EQUAL(expected, std::string(reinterpret_cast<const char *>(out_b), size_t(out_e - out_b)));
 }
 
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_characters) {
   check_escaped("\\\\", "\\");  //  quotation mark
   check_escaped("\\\"", "\"");  // reverse solidus
-  check_escaped("\\/", "/");  // solidus
+}
+
+BOOST_AUTO_TEST_CASE(json_write_escaped_should_not_escape_solidus) {
+  check_escaped("/", "/");  // solidus
 }
 
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_control_characters) {

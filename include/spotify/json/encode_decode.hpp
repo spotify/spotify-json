@@ -40,7 +40,7 @@ template <typename Codec>
 json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
   encoding_context context;
   codec.encode(context, object);
-  return std::string(reinterpret_cast<const char *>(context.data()), context.size());
+  return std::string(static_cast<const char *>(context.data()), context.size());
 }
 
 template <typename Value>
