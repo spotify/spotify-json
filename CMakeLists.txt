@@ -53,6 +53,7 @@ set(json_codec_HEADERS
   )
 
 set(json_detail_HEADERS
+  include/spotify/json/detail/bitset.hpp
   include/spotify/json/detail/char_traits.hpp
   include/spotify/json/detail/decoding_helpers.hpp
   include/spotify/json/detail/encoding_helpers.hpp
@@ -75,6 +76,7 @@ set(json_test_HEADERS
 set(json_test_SOURCES
   test/test_any.cpp
   test/test_array.cpp
+  test/test_bitset.cpp
   test/test_boolean.cpp
   test/test_boost.cpp
   test/test_cast.cpp
