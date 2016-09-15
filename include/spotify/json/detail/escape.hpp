@@ -34,22 +34,31 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
     'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u'
   };
 
-  // All characters above 0x20 can be writen as is, except for ", / and \. The
-  // first two are below 0x30 and the last one is at 0x5C. As an optimization,
-  // for most simple strings (letters, numbers, some punctuation), check for
-  // this first before doing more complicated checks (more expensive checks).
+  // All characters above 0x20 can be writen as is, except for ", /. The former
+  // is below 0x30 and the latter is at 0x5C. As an optimization, for most
+  // simple strings (letters, numbers, some punctuation), check for this first
+  // before doing more complicated checks (more expensive checks).
   if (json_likely(c >= 0x30)) {
-    if (json_unlikely(c == '\\')) { *(out++) = '\\'; }
-    *(out++) = c;
+    if (json_unlikely(c == '\\')) {
+      *(out++) = '\\';
+      *(out++) = c;
+    } else {
+      *(out++) = c;
+    }
     return;
   }
 
   // In the next step, consider the characters between 0x20 and 0x30, which are
   // different punctuation and special characters. We will write most of them as
-  // is, except for " and /, which are trivially escaped.
+  // is, except for ", which is trivially escaped. Note that JSON allows for /
+  // to be escaped as well, but most JSON serializers do not.
   if (json_likely(c >= 0x20)) {
-    if (json_unlikely(c == '"' || c == '/')) { *(out++) = '\\'; }
-    *(out++) = c;
+    if (json_unlikely(c == '"')) {
+      *(out++) = '\\';
+      *(out++) = c;
+    } else {
+      *(out++) = c;
+    }
     return;
   }
 

@@ -41,7 +41,10 @@ static void check_escaped(const std::string &expected, const std::string &input)
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_characters) {
   check_escaped("\\\\", "\\");  //  quotation mark
   check_escaped("\\\"", "\"");  // reverse solidus
-  check_escaped("\\/", "/");  // solidus
+}
+
+BOOST_AUTO_TEST_CASE(json_write_escaped_should_not_escape_solidus) {
+  check_escaped("/", "/");  // solidus
 }
 
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_control_characters) {
