@@ -63,7 +63,17 @@ std::string make_json(size_t n) {
   return json_ss.str();
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_object_with_required_fields) {
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_object_decode_with_few_required_fields) {
+  const auto codec = required_codec(50);
+  const auto json = make_json(50);
+
+  JSON_BENCHMARK(1e5, [=]{
+    auto context = decoding_context(json.data(), json.data() + json.size());
+    codec.decode(context);
+  });
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_object_decode_with_many_required_fields) {
   const auto codec = required_codec(1000);
   const auto json = make_json(1000);
 
