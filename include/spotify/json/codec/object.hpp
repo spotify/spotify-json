@@ -29,6 +29,7 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
+#include <spotify/json/detail/bitset.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/encoding_context.hpp>
 
@@ -68,8 +69,8 @@ class object_t final {
   }
 
   object_type decode(decoding_context &context) const {
-    uint_fast32_t num_seen_req_fields = 0;
-    std::vector<bool> seen_req_fields(_fields.size());
+    uint_fast32_t uniq_seen_required = 0;
+    detail::bitset<64> seen_required(_num_required_fields);
 
     object_type output = construct(std::is_default_constructible<T>());
     detail::advance_past_object(
@@ -78,7 +79,7 @@ class object_t final {
           static string_t string_decoder;
           return string_decoder.decode(context);
         },
-        [&](std::string &&key) {
+        [&](const std::string &key) {
           const auto field_it = _fields.find(key);
           if (json_unlikely(field_it == _fields.end())) {
             return detail::advance_past_value(context);
@@ -86,13 +87,13 @@ class object_t final {
 
           const auto &field = *(*field_it).second;
           field.decode(output, context);
-          if (field.required && !seen_req_fields[field.field_id]) {
-            seen_req_fields[field.field_id] = true;
-            num_seen_req_fields++;
+          if (field.required) {
+            const auto seen = seen_required.test_and_set(field.required_field_id);
+            uniq_seen_required += (1 - seen);  // 'seen' is 1 when the field is a duplicate; 0 otherwise
           }
         });
 
-    const auto is_missing_req_fields = (num_seen_req_fields != _num_required_fields);
+    const auto is_missing_req_fields = (uniq_seen_required != _num_required_fields);
     detail::fail_if(context, is_missing_req_fields, "Missing required field(s)");
     return output;
   }
@@ -141,9 +142,9 @@ class object_t final {
   }
 
   struct field {
-    field(bool required, size_t field_id)
+    field(bool required, size_t required_field_id)
         : required(required),
-          field_id(field_id) {}
+          required_field_id(required_field_id) {}
     virtual ~field() = default;
 
     virtual void decode(
@@ -155,13 +156,13 @@ class object_t final {
         const object_type &object) const = 0;
 
     const bool required;
-    const size_t field_id;
+    const size_t required_field_id;
   };
 
   template <typename Codec>
   struct dummy_field final : public field {
-    dummy_field(bool required, size_t field_id, Codec codec)
-        : field(required, field_id),
+    dummy_field(bool required, size_t required_field_id, Codec codec)
+        : field(required, required_field_id),
           codec(std::move(codec)) {}
 
     void decode(object_type &object, decoding_context &context) const override {
@@ -184,8 +185,8 @@ class object_t final {
 
   template <typename MemberPtr, typename Codec>
   struct member_var_field final : public field {
-    member_var_field(bool required, size_t field_id, Codec codec, MemberPtr member_pointer)
-        : field(required, field_id),
+    member_var_field(bool required, size_t required_field_id, Codec codec, MemberPtr member_pointer)
+        : field(required, required_field_id),
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
@@ -211,8 +212,8 @@ class object_t final {
   template <typename GetterPtr, typename SetterPtr, typename Codec>
   struct member_fn_field final : public field {
     member_fn_field(
-        bool required, size_t field_id, Codec codec, GetterPtr getter_ptr, SetterPtr setter_ptr)
-        : field(required, field_id),
+        bool required, size_t required_field_id, Codec codec, GetterPtr getter_ptr, SetterPtr setter_ptr)
+        : field(required, required_field_id),
           codec(std::move(codec)),
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
@@ -241,8 +242,8 @@ class object_t final {
   struct custom_field final : public field {
     template <typename GetterArg, typename SetterArg>
     custom_field(
-        bool required, size_t field_id, Codec codec, GetterArg &&get, SetterArg &&set)
-        : field(required, field_id),
+        bool required, size_t required_field_id, Codec codec, GetterArg &&get, SetterArg &&set)
+        : field(required, required_field_id),
           codec(std::move(codec)),
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
@@ -282,7 +283,7 @@ class object_t final {
     save_field(
         name,
         required,
-        std::make_shared<Field>(required, _fields.size(), std::forward<Codec>(codec), member));
+        std::make_shared<Field>(required, _num_required_fields, std::forward<Codec>(codec), member));
   }
 
   template <typename GetType, typename SetType, typename GetObjectType, typename SetObjectType>
@@ -309,7 +310,7 @@ class object_t final {
     save_field(name,
                required,
                std::make_shared<Field>(
-                   required, _fields.size(), std::forward<Codec>(codec), getter, setter));
+                   required, _num_required_fields, std::forward<Codec>(codec), getter, setter));
   }
 
   template <typename Getter, typename Setter>
@@ -330,7 +331,7 @@ class object_t final {
     save_field(name,
                required,
                std::make_shared<Field>(required,
-                                       _fields.size(),
+                                       _num_required_fields,
                                        std::forward<Codec>(codec),
                                        std::forward<Getter>(getter),
                                        std::forward<Setter>(setter)));
@@ -342,16 +343,14 @@ class object_t final {
     using Field = dummy_field<typename std::decay<Codec>::type>;
     save_field(name,
                required,
-               std::make_shared<Field>(required, _fields.size(), std::forward<Codec>(codec)));
+               std::make_shared<Field>(required, _num_required_fields, std::forward<Codec>(codec)));
   }
 
   void save_field(const std::string &name, bool required, const std::shared_ptr<field> &f) {
     const auto was_saved = _fields.insert(typename field_map::value_type(name, f)).second;
     if (was_saved) {
       _field_list.push_back(std::make_pair(escape_key(name), f));
-      if (required) {
-        _num_required_fields++;
-      }
+      _num_required_fields += size_t(required);
     }
   }
 
