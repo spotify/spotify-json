@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+
 #include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
