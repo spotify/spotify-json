@@ -243,9 +243,7 @@ inline void advance_past_string_escape(decoding_context &context) {
 inline void advance_past_string(decoding_context &context) {
   advance_past(context, '"');
   for (;;) {
-    const char c = next(context, "Unterminated string");
-    fail_if(context, static_cast<unsigned char>(c) < 0x20, "Encountered invalid string character");
-    switch (c) {
+    switch (next(context, "Unterminated string")) {
       case '"': return;
       case '\\': advance_past_string_escape_after_slash(context); break;
     }
