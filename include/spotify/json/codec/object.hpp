@@ -81,8 +81,8 @@ class object_t final {
 
       const auto &field = *(*field_it).second;
       field.decode(output, context);
-      if (field.required) {
-        const auto seen = seen_required.test_and_set(field.required_field_id);
+      if (field.is_required()) {
+        const auto seen = seen_required.test_and_set(field.required_field_idx());
         uniq_seen_required += (1 - seen);  // 'seen' is 1 when the field is a duplicate; 0 otherwise
       }
     });
@@ -136,27 +136,27 @@ class object_t final {
   }
 
   struct field {
-    field(bool required, size_t required_field_id)
-        : required(required),
-          required_field_id(required_field_id) {}
+    field(bool required, size_t required_field_idx)
+        : _data(required ? required_field_idx : SIZE_T_MAX) {}
     virtual ~field() = default;
 
-    virtual void decode(
-        object_type &object,
-        decoding_context &context) const = 0;
+    virtual void decode(object_type &object, decoding_context &context) const = 0;
     virtual void encode(
         encoding_context &context,
         const std::string &escaped_key,
         const object_type &object) const = 0;
 
-    const bool required;
-    const size_t required_field_id;
+    json_force_inline bool is_required() const { return (_data != SIZE_T_MAX); }
+    json_force_inline size_t required_field_idx() const { return _data; }
+
+   private:
+    size_t _data;
   };
 
   template <typename Codec>
   struct dummy_field final : public field {
-    dummy_field(bool required, size_t required_field_id, Codec codec)
-        : field(required, required_field_id),
+    dummy_field(bool required, size_t required_field_idx, Codec codec)
+        : field(required, required_field_idx),
           codec(std::move(codec)) {}
 
     void decode(object_type &object, decoding_context &context) const override {
@@ -179,8 +179,8 @@ class object_t final {
 
   template <typename MemberPtr, typename Codec>
   struct member_var_field final : public field {
-    member_var_field(bool required, size_t required_field_id, Codec codec, MemberPtr member_pointer)
-        : field(required, required_field_id),
+    member_var_field(bool required, size_t required_field_idx, Codec codec, MemberPtr member_pointer)
+        : field(required, required_field_idx),
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
@@ -206,8 +206,8 @@ class object_t final {
   template <typename GetterPtr, typename SetterPtr, typename Codec>
   struct member_fn_field final : public field {
     member_fn_field(
-        bool required, size_t required_field_id, Codec codec, GetterPtr getter_ptr, SetterPtr setter_ptr)
-        : field(required, required_field_id),
+        bool required, size_t required_field_idx, Codec codec, GetterPtr getter_ptr, SetterPtr setter_ptr)
+        : field(required, required_field_idx),
           codec(std::move(codec)),
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
@@ -236,8 +236,8 @@ class object_t final {
   struct custom_field final : public field {
     template <typename GetterArg, typename SetterArg>
     custom_field(
-        bool required, size_t required_field_id, Codec codec, GetterArg &&get, SetterArg &&set)
-        : field(required, required_field_id),
+        bool required, size_t required_field_idx, Codec codec, GetterArg &&get, SetterArg &&set)
+        : field(required, required_field_idx),
           codec(std::move(codec)),
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
