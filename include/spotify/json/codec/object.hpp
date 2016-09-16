@@ -80,7 +80,7 @@ class object_t final {
       }
 
       const auto &field = *(*field_it).second;
-      field.decode(output, context);
+      field.decode(context, output);
       if (field.is_required()) {
         const auto seen = seen_required.test_and_set(field.required_field_idx());
         uniq_seen_required += (1 - seen);  // 'seen' is 1 when the field is a duplicate; 0 otherwise
@@ -140,7 +140,7 @@ class object_t final {
         : _data(required ? required_field_idx : SIZE_T_MAX) {}
     virtual ~field() = default;
 
-    virtual void decode(object_type &object, decoding_context &context) const = 0;
+    virtual void decode(decoding_context &context, object_type &object) const = 0;
     virtual void encode(
         encoding_context &context,
         const std::string &escaped_key,
@@ -159,7 +159,7 @@ class object_t final {
         : field(required, required_field_idx),
           codec(std::move(codec)) {}
 
-    void decode(object_type &object, decoding_context &context) const override {
+    void decode(decoding_context &context, object_type &object) const override {
       codec.decode(context);
     }
 
@@ -184,7 +184,7 @@ class object_t final {
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
-    void decode(object_type &object, decoding_context &context) const override {
+    void decode(decoding_context &context, object_type &object) const override {
       object.*member_pointer = codec.decode(context);
     }
 
@@ -212,7 +212,7 @@ class object_t final {
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
 
-    void decode(object_type &object, decoding_context &context) const override {
+    void decode(decoding_context &context, object_type &object) const override {
       (object.*setter_ptr)(codec.decode(context));
     }
 
@@ -242,7 +242,7 @@ class object_t final {
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
 
-    void decode(object_type &object, decoding_context &context) const override {
+    void decode(decoding_context &context, object_type &object) const override {
       set(object, codec.decode(context));
     }
 
