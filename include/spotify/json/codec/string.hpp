@@ -96,14 +96,12 @@ class string_t final {
     const auto begin_simple = context.position;
     skip_past_simple_characters(context);
 
-    while (json_likely(context.remaining())) {
-      switch (detail::next_unchecked(context)) {
+    for (;;) {
+      switch (detail::next(context, "Unterminated string")) {
         case '"': return std::string(begin_simple, context.position - 1);
         case '\\': return decode_escaped_string(context, begin_simple);
       }
     }
-
-    detail::fail(context, "Unterminated string");
   }
 
   json_never_inline static object_type decode_escaped_string(decoding_context &context, const char *begin) {
