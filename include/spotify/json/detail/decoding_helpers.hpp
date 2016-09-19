@@ -342,11 +342,14 @@ inline void advance_past_value(decoding_context &context) {
   auto pstate = need_val;
 
   while (json_likely(context.remaining() && pstate != done)) {
+    if (json_likely(inside)) {
+      advance_past_whitespace(context);
+    }
+
     const auto c = peek_unchecked(context);
 
     if (c == ',' && (pstate & read_sep)) {
       skip(context);
-      advance_past_whitespace(context);
       pstate = (inside == '{' ? need_key : need_val);
       continue;
     }
@@ -355,7 +358,6 @@ inline void advance_past_value(decoding_context &context) {
       advance_past_string(context);
       advance_past_whitespace(context);
       advance_past(context, ':');
-      advance_past_whitespace(context);
       pstate = need_val;
       continue;
     }
@@ -375,7 +377,6 @@ inline void advance_past_value(decoding_context &context) {
 
     if (c == '{' || c == '[') {
       skip(context);
-      advance_past_whitespace(context);
       stack.push(inside);
       inside = c;
       closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'

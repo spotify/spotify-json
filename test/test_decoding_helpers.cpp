@@ -414,6 +414,21 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_two_values) 
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_whitespace) {
+  auto ctx = make_context("{ true : false , false : true }");
+  const auto original_ctx = ctx;
+  size_t times_called = 0;
+  advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
+    const auto value = decode_boolean(ctx);
+    BOOST_CHECK_EQUAL(key, !times_called);
+    BOOST_CHECK_EQUAL(value, !!times_called);
+    times_called++;
+  });
+  BOOST_CHECK_EQUAL(times_called, 2);
+  BOOST_CHECK(ctx.position == original_ctx.end);
+  BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
+}
+
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_broken_key) {
   auto ctx = make_context("{tru:false}");
   BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
@@ -656,11 +671,14 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_null) {
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_array) {
   verify_advance(&advance_past_value, "[]");
   verify_advance(&advance_past_value, "[1,null,true]");
+  verify_advance(&advance_past_value, "[ 1 , null , true ]");
 }
 
 BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_object) {
   verify_advance(&advance_past_value, "{}");
   verify_advance(&advance_past_value, R"({"a":3})");
+  verify_advance(&advance_past_value, R"({"a":3,"b":4})");
+  verify_advance(&advance_past_value, R"({ "a" : 3 , "b" : 4 })");
   verify_advance_fail(&advance_past_value, "{true:false}");
 }
 
