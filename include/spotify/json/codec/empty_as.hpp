@@ -53,7 +53,7 @@ class empty_as_t final {
       try {
         context.position = original_position;
         return _default_codec.decode(context);
-      } catch (const decode_exception &ignored_exception) {
+      } catch (const decode_exception &) {
         // The error of the inner codec is more interesting than saying, for
         // example, that the object is not a valid null.
         throw exception;
