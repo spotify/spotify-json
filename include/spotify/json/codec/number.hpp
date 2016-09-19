@@ -445,7 +445,7 @@ json_force_inline void encode_negative_integer(encoding_context &context, T valu
   const auto p = context.reserve(n + 1);  // + 1 for the '-' sign character
   p[0] = '-';
   switch (n) {
-    #define C(m) case m: { const auto v = value; value /= 10; p[m] = ('0' - (v - value * 10)); }
+    #define C(m) case m: { const auto v = value; value /= 10; p[m] = ('0' + uint8_t(value * 10 - v)); }
     /*20*/ C(19); C(18); C(17); C(16); C(15); C(14); C(13); C(12); C(11);
     C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
     #undef C
@@ -458,7 +458,7 @@ json_force_inline void encode_positive_integer(encoding_context &context, T valu
   const auto n = count_digits_positive(value);
   const auto p = context.reserve(n) - 1;  // - 1 to avoid doing in the switch cases
   switch (n) {
-    #define C(m) case m: { const auto v = value; value /= 10; p[m] = ('0' + (v - value * 10)); }
+    #define C(m) case m: { const auto v = value; value /= 10; p[m] = ('0' + uint8_t(v - value * 10)); }
     C(20); C(19); C(18); C(17); C(16); C(15); C(14); C(13); C(12); C(11);
     C(10); C( 9); C( 8); C( 7); C( 6); C( 5); C( 4); C( 3); C( 2); C( 1);
     #undef C
