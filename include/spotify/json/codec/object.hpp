@@ -137,7 +137,7 @@ class object_t final {
 
   struct field {
     field(bool required, size_t required_field_idx)
-        : _data(required ? required_field_idx : SIZE_T_MAX) {}
+        : _data(required ? required_field_idx : json_size_t_max) {}
     virtual ~field() = default;
 
     virtual void decode(decoding_context &context, object_type &object) const = 0;
@@ -146,7 +146,7 @@ class object_t final {
         const std::string &escaped_key,
         const object_type &object) const = 0;
 
-    json_force_inline bool is_required() const { return (_data != SIZE_T_MAX); }
+    json_force_inline bool is_required() const { return (_data != json_size_t_max); }
     json_force_inline size_t required_field_idx() const { return _data; }
 
    private:

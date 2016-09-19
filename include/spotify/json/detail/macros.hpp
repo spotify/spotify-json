@@ -44,6 +44,8 @@
   #undef min
 #endif  // min
 
+#define json_size_t_max static_cast<size_t>(-1)
+
 // http://graphics.stanford.edu/~seander/bithacks.html
 #define json_haszero_1(v) (v)
 #define json_haszero_2(v) uint16_t(((v) - 0x0101U) & ~(v) & 0x8080U)
