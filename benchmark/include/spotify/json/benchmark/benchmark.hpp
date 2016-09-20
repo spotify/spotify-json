@@ -29,9 +29,14 @@ void benchmark(const char *name, const size_t count, const test_fn &test) {
   const auto after = high_resolution_clock::now();
 
   const auto duration = (after - before);
+  const auto duration_ms = duration_cast<milliseconds>(duration).count();
   const auto duration_us = duration_cast<microseconds>(duration).count();
   const auto duration_us_avg = (duration_us / static_cast<double>(count));
-  std::cerr << name << ": " << duration_us_avg << " us avg (" << count << " runs)" << std::endl;
+  std::cerr
+      << name << ": "
+      << duration_us_avg << " us avg (" << count << " runs), "
+      << duration_ms << " ms total"
+      << std::endl;
 }
 
 #define JSON_BENCHMARK(n, test) \

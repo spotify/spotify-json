@@ -116,7 +116,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework system)
+find_package(Boost REQUIRED COMPONENTS chrono unit_test_framework system)
 
 if(Boost_FOUND)
   enable_testing()

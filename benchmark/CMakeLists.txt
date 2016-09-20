@@ -23,6 +23,7 @@ set(json_benchmark_SOURCES
   src/benchmark_main.cpp
   src/benchmark_number.cpp
   src/benchmark_object.cpp
+  src/benchmark_skip.cpp
   src/benchmark_string.cpp
   )
 
@@ -32,18 +33,15 @@ source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES} ${json_ben
 
 add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_benchmark_HEADERS})
 
+if(WIN32)
+  target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
 target_include_directories(${json_benchmark_TARGET} PUBLIC ${json_benchmark_INCLUDE_DIR})
 target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(${json_benchmark_TARGET} ${json_library_TARGET})
-
-if(WIN32)
-  link_directories(${Boost_LIBRARY_DIRS})
-
-  target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-else()
-  target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
-endif()
+target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
 
 include("AddBoostTests")
 
