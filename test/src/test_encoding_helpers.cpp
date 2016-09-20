@@ -21,7 +21,7 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/detail/encoding_helpers.hpp>
 
-#include "only_true.hpp"
+#include <spotify/json/test/only_true.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

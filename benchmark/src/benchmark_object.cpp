@@ -24,7 +24,7 @@
 #include <spotify/json/decode_exception.hpp>
 #include <spotify/json/encode_decode.hpp>
 
-#include "benchmark.hpp"
+#include <spotify/json/benchmark/benchmark.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
