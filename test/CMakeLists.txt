@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Spotify AB
+# Copyright (c) 2014-2016 Spotify AB
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -38,6 +38,7 @@ set(json_test_SOURCES
   src/test_eq.cpp
   src/test_escape.cpp
   src/test_ignore.cpp
+  src/test_macros.cpp
   src/test_main.cpp
   src/test_map.cpp
   src/test_null.cpp
