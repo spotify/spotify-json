@@ -122,5 +122,53 @@ BOOST_AUTO_TEST_CASE(json_haschar_8_should_only_only_find_character) {
   BOOST_CHECK(!json_haschar_8(0x117788FF22334455, 0x56));
 }
 
+/*
+ * json_unaligned_n
+ */
+
+BOOST_AUTO_TEST_CASE(json_unaligned_1) {
+  BOOST_CHECK(!json_unaligned_1(intptr_t(0)));
+  BOOST_CHECK(!json_unaligned_1(intptr_t(1)));
+  BOOST_CHECK(!json_unaligned_1(intptr_t(2)));
+  BOOST_CHECK(!json_unaligned_1(intptr_t(3)));
+}
+
+BOOST_AUTO_TEST_CASE(json_unaligned_2) {
+  BOOST_CHECK(!json_unaligned_2(intptr_t(0)));
+  BOOST_CHECK( json_unaligned_2(intptr_t(1)));
+  BOOST_CHECK(!json_unaligned_2(intptr_t(2)));
+  BOOST_CHECK( json_unaligned_2(intptr_t(3)));
+}
+
+BOOST_AUTO_TEST_CASE(json_unaligned_4) {
+  BOOST_CHECK(!json_unaligned_4(intptr_t(0)));
+  BOOST_CHECK( json_unaligned_4(intptr_t(1)));
+  BOOST_CHECK( json_unaligned_4(intptr_t(2)));
+  BOOST_CHECK( json_unaligned_4(intptr_t(3)));
+  BOOST_CHECK(!json_unaligned_4(intptr_t(4)));
+  BOOST_CHECK( json_unaligned_4(intptr_t(5)));
+  BOOST_CHECK( json_unaligned_4(intptr_t(6)));
+  BOOST_CHECK( json_unaligned_4(intptr_t(7)));
+}
+
+BOOST_AUTO_TEST_CASE(json_unaligned_8) {
+  BOOST_CHECK(!json_unaligned_8(intptr_t(0x0)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x1)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x2)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x3)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x4)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x5)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x6)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x7)));
+  BOOST_CHECK(!json_unaligned_8(intptr_t(0x8)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0x9)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0xA)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0xB)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0xC)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0xD)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0xE)));
+  BOOST_CHECK( json_unaligned_8(intptr_t(0xF)));
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
