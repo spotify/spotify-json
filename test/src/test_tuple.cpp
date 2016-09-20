@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(json_codec_tuple_should_decode_tuple_success) {
   BOOST_CHECK((tuple_parse<std::tuple<int, bool, std::string>>("[1 , false , \"a\" ]")) == std::make_tuple(1, false, std::string("a")));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_advance_past_whitespace_at_end) {
+BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_skip_past_whitespace_at_end) {
   const auto codec = default_codec<std::tuple<>>();
   const auto json = "[] ";
   auto ctx = decoding_context(json, json + strlen(json));

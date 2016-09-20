@@ -26,6 +26,7 @@
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
+#include <spotify/json/detail/skip.hpp>
 #include <spotify/json/detail/stack.hpp>
 
 #if _MSC_VER
@@ -114,16 +115,6 @@ json_force_inline void skip(decoding_context &context) {
 }
 
 /**
- * If position points to whitespace, move it forward until it reaches end or
- * non-whitespace.
- */
-inline void advance_past_whitespace(decoding_context &context) {
-  while (char_traits<char>::is_space(peek(context))) {
-    skip(context);
-  }
-}
-
-/**
  * Advance past a specific character. If the context position does not point to
  * a matching character, a decode_exception is thrown.
  */
@@ -157,17 +148,17 @@ inline void advance_past_four(decoding_context &context, const char *characters)
 template <typename Parse>
 void advance_past_comma_separated(decoding_context &context, char intro, char outro, Parse parse) {
   advance_past(context, intro);
-  advance_past_whitespace(context);
+  skip_past_whitespace(context);
 
   if (json_likely(peek(context) != outro)) {
     parse();
-    advance_past_whitespace(context);
+    skip_past_whitespace(context);
 
     while (json_likely(peek(context) != outro)) {
       advance_past(context, ',');
-      advance_past_whitespace(context);
+      skip_past_whitespace(context);
       parse();
-      advance_past_whitespace(context);
+      skip_past_whitespace(context);
     }
   }
 
@@ -185,9 +176,9 @@ void advance_past_object(decoding_context &context, const Callback &callback) {
   auto codec = KeyCodec();
   advance_past_comma_separated(context, '{', '}', [&]{
     auto key = codec.decode(context);
-    advance_past_whitespace(context);
+    skip_past_whitespace(context);
     advance_past(context, ':');
-    advance_past_whitespace(context);
+    skip_past_whitespace(context);
     callback(std::move(key));
   });
 }
@@ -338,7 +329,7 @@ inline void advance_past_value(decoding_context &context) {
 
   while (json_likely(context.remaining() && pstate != done)) {
     if (json_likely(inside)) {
-      advance_past_whitespace(context);
+      skip_past_whitespace(context);
     }
 
     const auto c = peek_unchecked(context);
@@ -351,7 +342,7 @@ inline void advance_past_value(decoding_context &context) {
 
     if (c == '"' && (pstate & read_key)) {
       advance_past_string(context);
-      advance_past_whitespace(context);
+      skip_past_whitespace(context);
       advance_past(context, ':');
       pstate = need_val;
       continue;

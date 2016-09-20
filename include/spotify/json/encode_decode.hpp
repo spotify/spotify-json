@@ -51,9 +51,9 @@ json_never_inline std::string encode(const Value &value) {
 template <typename Codec>
 typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
   decoding_context c(data, data + size);
-  detail::advance_past_whitespace(c);
+  detail::skip_past_whitespace(c);
   const auto result = codec.decode(c);
-  detail::advance_past_whitespace(c);
+  detail::skip_past_whitespace(c);
   detail::require_at_end(c);
   return result;
 }
@@ -81,9 +81,9 @@ bool try_decode(
     size_t size) {
   try {
     decoding_context c(data, data + size);
-    detail::advance_past_whitespace(c);
+    detail::skip_past_whitespace(c);
     object = codec.decode(c);
-    detail::advance_past_whitespace(c);
+    detail::skip_past_whitespace(c);
     detail::require_at_end(c);
     return true;
   } catch (const decode_exception &) {
@@ -116,7 +116,7 @@ bool try_decode_partial(
     const decoding_context &context) {
   try {
     decoding_context c(context);
-    detail::advance_past_whitespace(c);
+    detail::skip_past_whitespace(c);
     object = codec.decode(c);
     return true;
   } catch (const decode_exception &) {
