@@ -36,16 +36,10 @@ class boolean_t final {
   using object_type = bool;
 
   object_type decode(decoding_context &context) const {
-    const char first = detail::peek(context);
-    if (first == 'f') {
-      detail::advance_past_false(context);
-      return false;
-    } else if (first == 't') {
-      detail::advance_past_true(context);
-      return true;
-    } else {
-      detail::fail(context, "Unexpected input, expected boolean");
-      return false;
+    switch (detail::peek(context)) {
+      case 'f': detail::advance_past_false(context); return false;
+      case 't': detail::advance_past_true(context); return true;
+      default: detail::fail(context, "Unexpected input, expected boolean");
     }
   }
 
