@@ -127,47 +127,82 @@ BOOST_AUTO_TEST_CASE(json_haschar_8_should_only_only_find_character) {
  */
 
 BOOST_AUTO_TEST_CASE(json_unaligned_1) {
-  BOOST_CHECK(!json_unaligned_1(intptr_t(0)));
-  BOOST_CHECK(!json_unaligned_1(intptr_t(1)));
-  BOOST_CHECK(!json_unaligned_1(intptr_t(2)));
-  BOOST_CHECK(!json_unaligned_1(intptr_t(3)));
+  BOOST_CHECK(!json_unaligned_1(reinterpret_cast<void *>(&0)));
+  BOOST_CHECK(!json_unaligned_1(reinterpret_cast<void *>(1)));
+  BOOST_CHECK(!json_unaligned_1(reinterpret_cast<void *>(2)));
+  BOOST_CHECK(!json_unaligned_1(reinterpret_cast<void *>(3)));
 }
 
 BOOST_AUTO_TEST_CASE(json_unaligned_2) {
-  BOOST_CHECK(!json_unaligned_2(intptr_t(0)));
-  BOOST_CHECK( json_unaligned_2(intptr_t(1)));
-  BOOST_CHECK(!json_unaligned_2(intptr_t(2)));
-  BOOST_CHECK( json_unaligned_2(intptr_t(3)));
+  BOOST_CHECK(!json_unaligned_2(reinterpret_cast<void *>(0)));
+  BOOST_CHECK( json_unaligned_2(reinterpret_cast<void *>(1)));
+  BOOST_CHECK(!json_unaligned_2(reinterpret_cast<void *>(2)));
+  BOOST_CHECK( json_unaligned_2(reinterpret_cast<void *>(3)));
 }
 
 BOOST_AUTO_TEST_CASE(json_unaligned_4) {
-  BOOST_CHECK(!json_unaligned_4(intptr_t(0)));
-  BOOST_CHECK( json_unaligned_4(intptr_t(1)));
-  BOOST_CHECK( json_unaligned_4(intptr_t(2)));
-  BOOST_CHECK( json_unaligned_4(intptr_t(3)));
-  BOOST_CHECK(!json_unaligned_4(intptr_t(4)));
-  BOOST_CHECK( json_unaligned_4(intptr_t(5)));
-  BOOST_CHECK( json_unaligned_4(intptr_t(6)));
-  BOOST_CHECK( json_unaligned_4(intptr_t(7)));
+  BOOST_CHECK(!json_unaligned_4(reinterpret_cast<void *>(0)));
+  BOOST_CHECK( json_unaligned_4(reinterpret_cast<void *>(1)));
+  BOOST_CHECK( json_unaligned_4(reinterpret_cast<void *>(2)));
+  BOOST_CHECK( json_unaligned_4(reinterpret_cast<void *>(3)));
+  BOOST_CHECK(!json_unaligned_4(reinterpret_cast<void *>(4)));
+  BOOST_CHECK( json_unaligned_4(reinterpret_cast<void *>(5)));
+  BOOST_CHECK( json_unaligned_4(reinterpret_cast<void *>(6)));
+  BOOST_CHECK( json_unaligned_4(reinterpret_cast<void *>(7)));
 }
 
 BOOST_AUTO_TEST_CASE(json_unaligned_8) {
-  BOOST_CHECK(!json_unaligned_8(intptr_t(0x0)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x1)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x2)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x3)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x4)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x5)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x6)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x7)));
-  BOOST_CHECK(!json_unaligned_8(intptr_t(0x8)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0x9)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0xA)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0xB)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0xC)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0xD)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0xE)));
-  BOOST_CHECK( json_unaligned_8(intptr_t(0xF)));
+  BOOST_CHECK(!json_unaligned_8(reinterpret_cast<void *>(0x0)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x1)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x2)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x3)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x4)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x5)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x6)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x7)));
+  BOOST_CHECK(!json_unaligned_8(reinterpret_cast<void *>(0x8)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0x9)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0xA)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0xB)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0xC)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0xD)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0xE)));
+  BOOST_CHECK( json_unaligned_8(reinterpret_cast<void *>(0xF)));
+}
+
+BOOST_AUTO_TEST_CASE(json_unaligned_16) {
+  BOOST_CHECK(!json_unaligned_16(reinterpret_cast<void *>(0x00)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x01)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x02)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x03)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x04)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x05)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x06)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x07)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x08)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x09)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x0A)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x0B)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x0C)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x0D)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x0E)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x0F)));
+  BOOST_CHECK(!json_unaligned_16(reinterpret_cast<void *>(0x10)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x11)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x12)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x13)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x14)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x15)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x16)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x17)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x18)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x19)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x1A)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x1B)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x1C)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x1D)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x1E)));
+  BOOST_CHECK( json_unaligned_16(reinterpret_cast<void *>(0x1F)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json
