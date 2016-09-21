@@ -135,37 +135,37 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip) {
  * Advance past whitespace
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_whitespace_with_empty_input) {
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_empty_input) {
   auto ctx = make_context("");
   const auto original_ctx = ctx;
-  advance_past_whitespace(ctx);
+  skip_past_whitespace(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_whitespace_with_non_whitespace_input) {
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_non_whitespace_input) {
   auto ctx = make_context("a");
   const auto original_ctx = ctx;
-  advance_past_whitespace(ctx);
+  skip_past_whitespace(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_whitespace_with_whitespace_input_to_end) {
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_whitespace_input_to_end) {
   auto ctx = make_context(" \t\r\n");
   const auto original_ctx = ctx;
-  advance_past_whitespace(ctx);
+  skip_past_whitespace(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.end);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_whitespace_with_whitespace_input) {
+BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_whitespace_input) {
   auto ctx = make_context(" a\t\r\n");
   const auto original_ctx = ctx;
-  advance_past_whitespace(ctx);
+  skip_past_whitespace(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, original_ctx.position + 1);
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);

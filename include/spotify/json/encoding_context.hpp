@@ -50,7 +50,7 @@ struct base_encoding_context final {
   }
 
   json_force_inline uint8_t *reserve(const size_type num_bytes) {
-    const auto remaining_bytes = (_end - _ptr);  // _end is always >= _ptr
+    const auto remaining_bytes = static_cast<size_type>(_end - _ptr);  // _end is always >= _ptr
     if (json_unlikely(remaining_bytes < num_bytes)) {
       grow_buffer(num_bytes);
     }
@@ -90,7 +90,7 @@ struct base_encoding_context final {
   }
 
   json_force_inline size_type size() const {
-    return (_ptr - _buf);
+    return static_cast<size_type>(_ptr - _buf);
   }
 
   json_force_inline size_type capacity() const {

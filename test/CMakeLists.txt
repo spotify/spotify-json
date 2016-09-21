@@ -62,18 +62,15 @@ source_group(spotify\\json\\test FILES ${json_test_HEADERS})
 
 add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS})
 
+if(WIN32)
+  target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
 target_include_directories(${json_test_TARGET} PUBLIC ${json_test_INCLUDE_DIR})
 target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(${json_test_TARGET} ${json_library_TARGET})
-
-if(WIN32)
-  link_directories(${Boost_LIBRARY_DIRS})
-
-  target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-else()
-  target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
-endif()
+target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
 
 include("AddBoostTests")
 

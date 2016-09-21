@@ -24,20 +24,12 @@
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/escape.hpp>
 #include <spotify/json/detail/macros.hpp>
+#include <spotify/json/detail/skip.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
 namespace codec {
-
-#define json_unaligned_x(ignore) true
-#define JSON_STRING_SKIP_N(n, n_plus_one, type, control, goto_label) \
-  control ((end - position) >= n && json_unaligned_ ## n_plus_one(position)) { \
-    const auto cc = *reinterpret_cast<const type *>(position); \
-    if (json_haschar_ ## n(cc, '"')) { goto goto_label; } \
-    if (json_haschar_ ## n(cc, '\\')) { goto goto_label; } \
-    position += n; \
-  }
 
 class string_t final {
  public:
@@ -72,29 +64,10 @@ class string_t final {
   }
 
  private:
-  /**
-   * Skip past the bytes of the string until either a " or a \ character is
-   * found. This method attempts to skip as large chunks of memory as possible
-   * at each step, by making sure that the context position is aligned to the
-   * appropriate address and then reading and comparing several bytes in a
-   * single read operation. Upon returning, the context position will have been
-   * updated to point "nearby" the stopping characters (" or \). The caller can
-   * then switch to a slower algorithm to figure out what to do next.
-   */
-  static void skip_past_simple_characters(decoding_context &context) {
-    const auto end = context.end;
-    auto position = context.position;
-    JSON_STRING_SKIP_N(1, 2, uint8_t,  if, done_x)
-    JSON_STRING_SKIP_N(2, 4, uint16_t, if, done_x)
-    JSON_STRING_SKIP_N(4, 8, uint32_t, if, done_x)
-    JSON_STRING_SKIP_N(8, x, uint64_t, while, done_8)
-    done_8: JSON_STRING_SKIP_N(4, x, uint32_t, if, done_x)
-    done_x: context.position = position;
-  }
-
   json_force_inline static object_type decode_string(decoding_context &context) {
     const auto begin_simple = context.position;
-    skip_past_simple_characters(context);
+
+    detail::skip_past_simple_characters(context);
 
     for (;;) {
       switch (detail::next(context, "Unterminated string")) {
@@ -111,7 +84,9 @@ class string_t final {
     while (json_likely(context.remaining())) {
     decode_simple:
       const auto begin_simple = context.position;
-      skip_past_simple_characters(context);
+
+      detail::skip_past_simple_characters(context);
+
       unescaped.append(begin_simple, context.position);
 
       while (json_likely(context.remaining())) {

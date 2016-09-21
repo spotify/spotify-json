@@ -34,12 +34,12 @@ struct tuple_field {
       T &object) {
     if (element_idx != 0) {
       advance_past(context, ',');
-      advance_past_whitespace(context);
+      skip_past_whitespace(context);
     }
 
     const auto &codec = std::get<element_idx>(codecs);
     std::get<element_idx>(object) = codec.decode(context);
-    advance_past_whitespace(context);
+    skip_past_whitespace(context);
     tuple_field<T, RemainingObjects - 1, Codecs...>::decode(codecs, context, object);
   }
 
@@ -81,7 +81,7 @@ class tuple_t final {
   object_type decode(decoding_context &context) const {
     object_type output;
     detail::advance_past(context, '[');
-    detail::advance_past_whitespace(context);
+    detail::skip_past_whitespace(context);
     detail::tuple_field<object_type, element_count, Codecs...>::decode(
         _codecs, context, output);
     detail::advance_past(context, ']');

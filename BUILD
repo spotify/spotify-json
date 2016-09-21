@@ -6,9 +6,11 @@ cc_library(
   deps = [
     "//external:double-conversion",
   ],
+  srcs = glob(["src/**/*.cpp"]),
   hdrs = glob(["include/spotify/json/**/*.hpp"]),
   includes = ["include"],
   visibility = ["//visibility:public"],
+  copts = ["-msse4.2"]
 )
 
 cc_test(
@@ -19,10 +21,10 @@ cc_test(
     "@boost//:unit_test_framework",
   ],
   srcs = glob([
-    "benchmark/*.hpp",
-    "benchmark/*.cpp",
+    "benchmark/src/*.cpp",
+    "benchmark/include/spotify/json/benchmark/**/*.hpp"
   ]),
-  includes = ["benchmark"],
+  includes = ["benchmark/include"],
   visibility = ["//visibility:private"]
 )
 
@@ -34,9 +36,9 @@ cc_test(
     "@boost//:unit_test_framework",
   ],
   srcs = glob([
-    "test/*.hpp",
-    "test/*.cpp",
+    "test/src/*.cpp",
+    "test/include/spotify/json/test/**/*.hpp"
   ]),
-  includes = ["test"],
+  includes = ["test/include"],
   visibility = ["//visibility:private"]
 )

@@ -5,14 +5,13 @@ A C++11 JSON writer and parser library. It
 
 * parses and serializes directly to and from statically typed C++ objects,
 * requires very little boilerplate code,
-* is fast,
+* is fast and makes use of vectorization,
 * supports UTF-8,
 * comes with [a good suite of tests](test),
 * is deployed and in active use on well over 100 million devices,
 * and [has API documentation](doc/api.md).
 
-spotify-json itself is a header-only library, but it depends on
-[Google's double-conversion library](https://github.com/google/double-conversion),
+spotify-json depends on [Google's double-conversion library](https://github.com/google/double-conversion),
 which must be linked in to the code that uses spotify-json.
 
 Example

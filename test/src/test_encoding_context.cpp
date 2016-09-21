@@ -52,9 +52,9 @@ BOOST_AUTO_TEST_CASE(json_encoding_context_should_reserve_bytes) {
 
 BOOST_AUTO_TEST_CASE(json_encoding_context_should_return_same_address_for_multiple_reservations) {
   encoding_context ctx(0);
-  const auto address_0 = ctx.reserve(1);
-  const auto address_1 = ctx.reserve(9);
-  const auto address_2 = ctx.reserve(5);
+  const auto address_0 = ctx.reserve(9);
+  const auto address_1 = ctx.reserve(5);
+  const auto address_2 = ctx.reserve(1);
   BOOST_CHECK(address_0 == address_1);
   BOOST_CHECK(address_0 == address_2);
 }
