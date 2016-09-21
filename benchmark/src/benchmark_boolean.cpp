@@ -27,6 +27,40 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
+/*
+ * Decoding
+ */
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_false) {
+  const auto codec = default_codec<bool>();
+  const auto json = std::string("false");
+  const auto json_begin = json.data();
+  const auto json_end = json.data() + json.size();
+  JSON_BENCHMARK(1e5, [=]{
+    for (int i = 0; i < 1000; i++) {
+      auto context = decoding_context(json_begin, json_end);
+      codec.decode(context);
+    }
+  });
+}
+
+BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_true) {
+  const auto codec = default_codec<bool>();
+  const auto json = std::string("true");
+  const auto json_begin = json.data();
+  const auto json_end = json.data() + json.size();
+  JSON_BENCHMARK(1e5, [=]{
+    for (int i = 0; i < 1000; i++) {
+      auto context = decoding_context(json_begin, json_end);
+      codec.decode(context);
+    }
+  });
+}
+
+/*
+ * Encoding
+ */
+
 BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_encode_false) {
   const auto codec = boolean();
   JSON_BENCHMARK(1e5, [=]{
