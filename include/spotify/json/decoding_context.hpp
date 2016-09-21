@@ -32,17 +32,16 @@ namespace json {
  */
 struct decoding_context final {
   decoding_context(const char *begin, const char *end)
-      : position(begin),
+      : has_sse42(detail::cpuid().has_sse42()),
+        position(begin),
         begin(begin),
-        end(end),
-        has_sse42(detail::cpuid().has_sse42()) {
-  }
+        end(end) {}
 
   decoding_context(const char *data, size_t size)
-      : position(data),
+      : has_sse42(detail::cpuid().has_sse42()),
+        position(data),
         begin(data),
-        end(data + size),
-        has_sse42(detail::cpuid().has_sse42()) {}
+        end(data + size) {}
 
   json_force_inline size_t offset() const {
     return (position - begin);
