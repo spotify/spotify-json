@@ -80,26 +80,26 @@ const char *skip_past_whitespace_sse42(const char *begin, const char *const end)
  */
 inline void skip_past_whitespace(decoding_context &context) {
   const auto end = context.end;
-  auto position = context.position;
+  auto pos = context.position;
 
 #if defined(json_arch_x86)
   if (json_likely(context.has_sse42)) {
-    while (position < end &&
-           json_unaligned_16(position) &&
-           char_traits<char>::is_space(*position)) {
-      position++;
+    for (; pos < end && json_unaligned_16(pos); ++pos) {
+      if (!char_traits<char>::is_space(*pos)) {
+        context.position = pos;
+        return;
+      }
     }
 
-    position = skip_past_whitespace_sse42(position, end);
+    pos = skip_past_whitespace_sse42(pos, end);
   }
 #endif  // defined(json_arch_x86)
 
-  while (position < end &&
-         char_traits<char>::is_space(*position)) {
-    position++;
+  while (pos < end && char_traits<char>::is_space(*pos)) {
+    ++pos;
   }
 
-  context.position = position;
+  context.position = pos;
 }
 
 }  // detail
