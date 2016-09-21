@@ -67,6 +67,8 @@ BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_false) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_not_decode_otherwise) {
+  boolean_parse_should_fail("");
+  boolean_parse_should_fail("TRUE");
   boolean_parse_should_fail("tru");
   boolean_parse_should_fail("fals");
 }

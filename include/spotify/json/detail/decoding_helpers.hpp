@@ -18,6 +18,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -26,6 +27,10 @@
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/stack.hpp>
+
+#if _MSC_VER
+#pragma intrinsic (memcmp)
+#endif
 
 namespace spotify {
 namespace json {
@@ -133,18 +138,8 @@ inline void advance_past(decoding_context &context, char character) {
  */
 inline void advance_past_four(decoding_context &context, const char *characters) {
   require_bytes<4>(context);
-  const char c0 = *(context.position++);
-  const char c1 = *(context.position++);
-  const char c2 = *(context.position++);
-  const char c3 = *(context.position++);
-  fail_if(
-      context,
-      c0 != characters[0] ||
-      c1 != characters[1] ||
-      c2 != characters[2] ||
-      c3 != characters[3],
-      "Unexpected input",
-      -4);
+  fail_if(context, memcmp(characters, context.position, 4), "Unexpected input");
+  context.position += 4;
 }
 
 /**

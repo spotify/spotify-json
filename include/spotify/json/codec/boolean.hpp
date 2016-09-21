@@ -23,6 +23,10 @@
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/encoding_context.hpp>
 
+#if _MSC_VER
+#pragma intrinsic (memcpy)
+#endif
+
 namespace spotify {
 namespace json {
 namespace codec {
@@ -32,23 +36,19 @@ class boolean_t final {
   using object_type = bool;
 
   object_type decode(decoding_context &context) const {
-    const char first = detail::peek(context);
-    if (first == 'f') {
-      detail::advance_past_false(context);
-      return false;
-    } else if (first == 't') {
-      detail::advance_past_true(context);
-      return true;
-    } else {
-      detail::fail(context, "Unexpected input, expected boolean");
-      return false;
+    switch (detail::peek(context)) {
+      case 'f': detail::advance_past_false(context); return false;
+      case 't': detail::advance_past_true(context); return true;
+      default: detail::fail(context, "Unexpected input, expected boolean");
     }
   }
 
   void encode(encoding_context &context, const object_type value) const {
-    const auto size = value ? 4 : 5;
-    std::memcpy(context.reserve(size), value ? "true" : "false", size);
-    context.advance(size);
+    const auto needed = 5 - size_t(value);  // true: 4, false: 5
+    const auto buffer = context.reserve(needed);
+    memcpy(buffer, value ? "true" : "fals", 4);  // 4 byte writes optimize well on x86
+    buffer[needed - 1] = 'e'; // write the missing 'e' in 'false' (or overwrite it in 'true')
+    context.advance(needed);
   }
 };
 
