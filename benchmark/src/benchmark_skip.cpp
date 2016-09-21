@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_whitespace_sse42) {
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
     auto context = decoding_context(json.data(), json.data() + json.size());
-    detail::skip_past_simple_characters(context);
+    detail::skip_past_whitespace(context);
     n += context.offset();
   });
 }
