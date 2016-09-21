@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_false) {
   const auto json_begin = json.data();
   const auto json_end = json.data() + json.size();
   JSON_BENCHMARK(1e5, [=]{
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 100; i++) {
       auto context = decoding_context(json_begin, json_end);
       codec.decode(context);
     }
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_true) {
   const auto json_begin = json.data();
   const auto json_end = json.data() + json.size();
   JSON_BENCHMARK(1e5, [=]{
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 100; i++) {
       auto context = decoding_context(json_begin, json_end);
       codec.decode(context);
     }
