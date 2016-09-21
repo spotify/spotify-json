@@ -23,6 +23,10 @@
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/encoding_context.hpp>
 
+#if _MSC_VER
+#pragma intrinsic (memcpy)
+#endif
+
 namespace spotify {
 namespace json {
 namespace codec {
@@ -46,9 +50,11 @@ class boolean_t final {
   }
 
   void encode(encoding_context &context, const object_type value) const {
-    const auto size = value ? 4 : 5;
-    std::memcpy(context.reserve(size), value ? "true" : "false", size);
-    context.advance(size);
+    const auto needed = 5 - size_t(value);  // true: 4, false: 5
+    const auto buffer = context.reserve(needed);
+    memcpy(buffer, value ? "true" : "fals", 4);  // 4 byte writes optimize well on x86
+    buffer[needed - 1] = 'e'; // write the missing 'e' in 'false' (or overwrite it in 'true')
+    context.advance(needed);
   }
 };
 
