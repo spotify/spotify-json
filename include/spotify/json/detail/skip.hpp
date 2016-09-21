@@ -54,7 +54,7 @@ inline void skip_past_simple_characters(decoding_context &context) {
   JSON_STRING_SKIP_N_SIMPLE(4,  8, uint32_t, if, done_4)
 
 #if defined(json_arch_x86)
-  if (context.has_sse42) {
+  if (json_likely(context.has_sse42)) {
     JSON_STRING_SKIP_N_SIMPLE(8, 16, uint64_t, if, done_8)
     position = skip_past_simple_characters_sse42(position, end);
   }
@@ -83,7 +83,7 @@ inline void skip_past_whitespace(decoding_context &context) {
   auto position = context.position;
 
 #if defined(json_arch_x86)
-  if (context.has_sse42) {
+  if (json_likely(context.has_sse42)) {
     while (position < end &&
            json_unaligned_16(position) &&
            char_traits<char>::is_space(*position)) {
