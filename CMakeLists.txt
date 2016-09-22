@@ -27,6 +27,7 @@ set(json_HEADERS
   include/spotify/json/encode.hpp
   include/spotify/json/encode_context.hpp
   include/spotify/json/encode_exception.hpp
+  include/spotify/json/json.hpp
   )
 
 set(json_SOURCES

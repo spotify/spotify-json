@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2016 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,30 +16,4 @@
 
 #pragma once
 
-#include <spotify/json/codec/any.hpp>
-#include <spotify/json/codec/array.hpp>
-#include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/codec/cast.hpp>
-#include <spotify/json/codec/chrono.hpp>
-#include <spotify/json/codec/empty_as.hpp>
-#include <spotify/json/codec/enumeration.hpp>
-#include <spotify/json/codec/eq.hpp>
-#include <spotify/json/codec/ignore.hpp>
-#include <spotify/json/codec/map.hpp>
-#include <spotify/json/codec/null.hpp>
-#include <spotify/json/codec/number.hpp>
-#include <spotify/json/codec/object.hpp>
-#include <spotify/json/codec/omit.hpp>
-#include <spotify/json/codec/one_of.hpp>
-#include <spotify/json/codec/raw.hpp>
-#include <spotify/json/codec/smart_ptr.hpp>
-#include <spotify/json/codec/string.hpp>
-#include <spotify/json/codec/transform.hpp>
-#include <spotify/json/codec/tuple.hpp>
-#include <spotify/json/decode.hpp>
-#include <spotify/json/decode_exception.hpp>
-#include <spotify/json/decode_context.hpp>
-#include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode.hpp>
-#include <spotify/json/encode_exception.hpp>
-#include <spotify/json/encode_context.hpp>
+#include <spotify/json/json.hpp>
