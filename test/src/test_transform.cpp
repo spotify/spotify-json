@@ -22,7 +22,8 @@
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/transform.hpp>
 #include <spotify/json/codec/string.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

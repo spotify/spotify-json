@@ -21,8 +21,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/object.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/decode_exception.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 #include <spotify/json/benchmark/benchmark.hpp>
 

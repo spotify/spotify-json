@@ -19,7 +19,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/number.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 #include <spotify/json/encoding_context.hpp>
 
 #include <spotify/json/benchmark/benchmark.hpp>

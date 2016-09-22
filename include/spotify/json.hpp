@@ -36,9 +36,10 @@
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/transform.hpp>
 #include <spotify/json/codec/tuple.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/decode_exception.hpp>
 #include <spotify/json/decoding_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 #include <spotify/json/encode_exception.hpp>
 #include <spotify/json/encoding_context.hpp>

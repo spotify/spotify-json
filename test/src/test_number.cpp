@@ -21,8 +21,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/number.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 #include <spotify/json/encode_exception.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)

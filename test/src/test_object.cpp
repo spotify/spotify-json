@@ -22,8 +22,9 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/string.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 #include <spotify/json/test/only_true.hpp>
 

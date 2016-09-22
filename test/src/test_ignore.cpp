@@ -19,7 +19,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/ignore.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

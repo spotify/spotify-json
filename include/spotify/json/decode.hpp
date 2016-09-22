@@ -22,31 +22,9 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decoding_helpers.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/encoding_context.hpp>
 
 namespace spotify {
 namespace json {
-namespace detail {
-
-inline void require_at_end(const decoding_context &context) {
-  if (json_unlikely(context.position != context.end)) {
-    detail::fail(context, "Unexpected trailing input");
-  }
-}
-
-}  // namespace detail
-
-template <typename Codec>
-json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
-  encoding_context context;
-  codec.encode(context, object);
-  return std::string(static_cast<const char *>(context.data()), context.size());
-}
-
-template <typename Value>
-json_never_inline std::string encode(const Value &value) {
-  return encode(default_codec<Value>(), value);
-}
 
 template <typename Codec>
 typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
@@ -54,7 +32,7 @@ typename Codec::object_type decode(const Codec &codec, const char *data, size_t 
   detail::skip_past_whitespace(c);
   const auto result = codec.decode(c);
   detail::skip_past_whitespace(c);
-  detail::require_at_end(c);
+  detail::fail_if(c, c.position != c.end, "Unexpected trailing input");
   return result;
 }
 
@@ -80,11 +58,7 @@ bool try_decode(
     const char *data,
     size_t size) {
   try {
-    decoding_context c(data, data + size);
-    detail::skip_past_whitespace(c);
-    object = codec.decode(c);
-    detail::skip_past_whitespace(c);
-    detail::require_at_end(c);
+    object = decode(codec, data, size);
     return true;
   } catch (const decode_exception &) {
     return false;

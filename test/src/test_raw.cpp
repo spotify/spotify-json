@@ -19,8 +19,9 @@
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/raw.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 namespace {
 

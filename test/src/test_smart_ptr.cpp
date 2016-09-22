@@ -20,7 +20,8 @@
 
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)

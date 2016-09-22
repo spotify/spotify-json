@@ -21,9 +21,10 @@ set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(json_HEADERS
   include/spotify/json.hpp
   include/spotify/json/default_codec.hpp
-  include/spotify/json/decoding_context.hpp
+  include/spotify/json/decode.hpp
   include/spotify/json/decode_exception.hpp
-  include/spotify/json/encode_decode.hpp
+  include/spotify/json/decoding_context.hpp
+  include/spotify/json/encode.hpp
   include/spotify/json/encoding_context.hpp
   include/spotify/json/encode_exception.hpp
   )
