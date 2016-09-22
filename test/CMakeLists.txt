@@ -28,10 +28,11 @@ set(json_test_SOURCES
   src/test_char_traits.cpp
   src/test_chrono.cpp
   src/test_codec_interface.cpp
+  src/test_decode.cpp
   src/test_decode_context.cpp
   src/test_decode_helpers.cpp
   src/test_empty_as.cpp
-  src/test_encode_decode.cpp
+  src/test_encode.cpp
   src/test_encode_context.cpp
   src/test_encode_helpers.cpp
   src/test_enumeration.cpp
