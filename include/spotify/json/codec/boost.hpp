@@ -26,8 +26,8 @@
 #include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
 
 namespace spotify {
 namespace json {
@@ -67,11 +67,11 @@ class optional_t final {
   explicit optional_t(InnerCodec inner_codec)
       : _inner_codec(inner_codec) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return _inner_codec.decode(context);
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     detail::fail_if(context, !value, "Cannot encode uninitialized optional");
     _inner_codec.encode(context, *value);
   }

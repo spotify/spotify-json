@@ -31,7 +31,7 @@ namespace {
 
 void boolean_parse_should_fail(const char *not_boolean) {
   const auto codec = boolean_t();
-  auto ctx = decoding_context(not_boolean, not_boolean + strlen(not_boolean));
+  auto ctx = decode_context(not_boolean, not_boolean + strlen(not_boolean));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boolean_should_encode_false) {
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_true) {
   const auto codec = boolean_t();
   const char *boolean = "true ";
-  auto ctx = decoding_context(boolean, boolean + 5);
+  auto ctx = decode_context(boolean, boolean + 5);
   const auto original_ctx = ctx;
   BOOST_CHECK_EQUAL(codec.decode(ctx), true);
 
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_true) {
 BOOST_AUTO_TEST_CASE(json_codec_boolean_should_decode_false) {
   const auto codec = boolean_t();
   const char *boolean = "false ";
-  auto ctx = decoding_context(boolean, boolean + 6);
+  auto ctx = decode_context(boolean, boolean + 6);
   const auto original_ctx = ctx;
   BOOST_CHECK_EQUAL(codec.decode(ctx), false);
 

@@ -33,7 +33,7 @@ namespace {
 
 std::map<std::string, bool> map_parse(const char *not_map) {
   const auto codec = default_codec<std::map<std::string, bool>>();
-  auto ctx = decoding_context(not_map, not_map + strlen(not_map));
+  auto ctx = decode_context(not_map, not_map + strlen(not_map));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);;
   return result;
@@ -41,7 +41,7 @@ std::map<std::string, bool> map_parse(const char *not_map) {
 
 void map_parse_should_fail(const char *not_map) {
   const auto codec = default_codec<std::map<std::string, bool>>();
-  auto ctx = decoding_context(not_map, not_map + strlen(not_map));
+  auto ctx = decode_context(not_map, not_map + strlen(not_map));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 

@@ -18,9 +18,9 @@
 
 #include <string>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
@@ -28,7 +28,7 @@ namespace json {
 
 template <typename Codec>
 typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
-  decoding_context c(data, data + size);
+  decode_context c(data, data + size);
   detail::skip_past_whitespace(c);
   const auto result = codec.decode(c);
   detail::skip_past_whitespace(c);
@@ -87,9 +87,9 @@ template <typename Codec>
 bool try_decode_partial(
     typename Codec::object_type &object,
     const Codec &codec,
-    const decoding_context &context) {
+    const decode_context &context) {
   try {
-    decoding_context c(context);
+    decode_context c(context);
     detail::skip_past_whitespace(c);
     object = codec.decode(c);
     return true;

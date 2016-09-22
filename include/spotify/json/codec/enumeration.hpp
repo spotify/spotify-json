@@ -20,12 +20,12 @@
 #include <stdexcept>
 #include <vector>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -47,7 +47,7 @@ class enumeration_t final {
       : _inner_codec(std::move(inner_codec)),
         _mapping(std::move(mapping)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     const auto result = _inner_codec.decode(context);
     const auto it = std::find_if(
         _mapping.begin(),
@@ -59,7 +59,7 @@ class enumeration_t final {
     return it->first;
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     const auto it = find(value);
     detail::fail_if(context, it == _mapping.end(), "Encoding unknown enumeration value");
     _inner_codec.encode(context, (*it).second);

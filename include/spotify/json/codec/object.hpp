@@ -27,11 +27,11 @@
 
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/string.hpp>
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/bitset.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -68,7 +68,7 @@ class object_t final {
     add_field(name, true, std::forward<Args>(args)...);
   }
 
-  json_never_inline object_type decode(decoding_context &context) const {
+  json_never_inline object_type decode(decode_context &context) const {
     uint_fast32_t uniq_seen_required = 0;
     detail::bitset<64> seen_required(_num_required_fields);
 
@@ -92,7 +92,7 @@ class object_t final {
     return output;
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     context.append('{');
     for (const auto &field : _field_list) {
       field.second->encode(context, field.first, value);
@@ -102,21 +102,21 @@ class object_t final {
 
  private:
   static std::string escape_key(const std::string &key) {
-    encoding_context context;
+    encode_context context;
     string().encode(context, key);
     context.append(':');
     return std::string(static_cast<const char *>(context.data()), context.size());
   }
 
   json_force_inline static void append_key_to_context(
-      encoding_context &context,
+      encode_context &context,
       const std::string &escaped_key) {
     context.append(escaped_key.data(), escaped_key.size());
   }
 
   template <typename Codec>
   json_force_inline static void append_val_to_context(
-      encoding_context &context,
+      encode_context &context,
       const Codec &codec,
       const typename Codec::object_type &value) {
     codec.encode(context, value);
@@ -140,9 +140,9 @@ class object_t final {
         : _data(required ? required_field_idx : json_size_t_max) {}
     virtual ~field() = default;
 
-    virtual void decode(decoding_context &context, object_type &object) const = 0;
+    virtual void decode(decode_context &context, object_type &object) const = 0;
     virtual void encode(
-        encoding_context &context,
+        encode_context &context,
         const std::string &escaped_key,
         const object_type &object) const = 0;
 
@@ -159,12 +159,12 @@ class object_t final {
         : field(required, required_field_idx),
           codec(std::move(codec)) {}
 
-    void decode(decoding_context &context, object_type &object) const override {
+    void decode(decode_context &context, object_type &object) const override {
       codec.decode(context);
     }
 
     void encode(
-        encoding_context &context,
+        encode_context &context,
         const std::string &escaped_key,
         const object_type &object) const override {
       const auto &value = typename Codec::object_type();
@@ -184,12 +184,12 @@ class object_t final {
           codec(std::move(codec)),
           member_pointer(member_pointer) {}
 
-    void decode(decoding_context &context, object_type &object) const override {
+    void decode(decode_context &context, object_type &object) const override {
       object.*member_pointer = codec.decode(context);
     }
 
     void encode(
-        encoding_context &context,
+        encode_context &context,
         const std::string &escaped_key,
         const object_type &object) const override {
       const auto &value = object.*member_pointer;
@@ -212,12 +212,12 @@ class object_t final {
           getter_ptr(getter_ptr),
           setter_ptr(setter_ptr) {}
 
-    void decode(decoding_context &context, object_type &object) const override {
+    void decode(decode_context &context, object_type &object) const override {
       (object.*setter_ptr)(codec.decode(context));
     }
 
     void encode(
-        encoding_context &context,
+        encode_context &context,
         const std::string &escaped_key,
         const object_type &object) const override {
       const auto &value = (object.*getter_ptr)();
@@ -242,12 +242,12 @@ class object_t final {
           get(std::forward<GetterArg>(get)),
           set(std::forward<SetterArg>(set)) {}
 
-    void decode(decoding_context &context, object_type &object) const override {
+    void decode(decode_context &context, object_type &object) const override {
       set(object, codec.decode(context));
     }
 
     void encode(
-        encoding_context &context,
+        encode_context &context,
         const std::string &escaped_key,
         const object_type &object) const override {
       const auto &value = get(object);

@@ -86,7 +86,7 @@ const char *skip_past_whitespace_sse42(const char *begin, const char *const end)
 
 }  // namespace
 
-void skip_past_simple_characters(decoding_context &context) {
+void skip_past_simple_characters(decode_context &context) {
   const auto end = context.end;
   auto position = context.position;
 
@@ -108,7 +108,7 @@ void skip_past_simple_characters(decoding_context &context) {
   done_x: context.position = position;
 }
 
-void skip_past_whitespace(decoding_context &context) {
+void skip_past_whitespace(decode_context &context) {
   const auto end = context.end;
   auto pos = context.position;
 

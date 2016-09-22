@@ -32,14 +32,14 @@ namespace {
 
 std::string string_parse(const char *string) {
   const auto codec = default_codec<std::string>();
-  auto ctx = decoding_context(string, string + strlen(string));
+  auto ctx = decode_context(string, string + strlen(string));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
   return result;
 }
 
 void string_parse_fail(const char *string) {
-  auto ctx = decoding_context(string, string + strlen(string));
+  auto ctx = decode_context(string, string + strlen(string));
   BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
 }
 

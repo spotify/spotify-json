@@ -19,13 +19,13 @@
 #include <algorithm>
 
 #include <spotify/json/decode_exception.hpp>
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/escape.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/skip.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -35,12 +35,12 @@ class string_t final {
  public:
   using object_type = std::string;
 
-  json_never_inline object_type decode(decoding_context &context) const {
+  json_never_inline object_type decode(decode_context &context) const {
     detail::advance_past(context, '"');
     return decode_string(context);
   }
 
-  json_never_inline void encode(encoding_context &context, const object_type value) const {
+  json_never_inline void encode(encode_context &context, const object_type value) const {
     context.append('"');
 
     // Write the strings in 1024 byte chunks, so that we do not have to reserve
@@ -64,7 +64,7 @@ class string_t final {
   }
 
  private:
-  json_force_inline static object_type decode_string(decoding_context &context) {
+  json_force_inline static object_type decode_string(decode_context &context) {
     const auto begin_simple = context.position;
 
     detail::skip_past_simple_characters(context);
@@ -77,7 +77,7 @@ class string_t final {
     }
   }
 
-  json_never_inline static object_type decode_escaped_string(decoding_context &context, const char *begin) {
+  json_never_inline static object_type decode_escaped_string(decode_context &context, const char *begin) {
     std::string unescaped(begin, context.position - 1);
     decode_escape(context, unescaped);
 
@@ -102,7 +102,7 @@ class string_t final {
     detail::fail(context, "Unterminated string");
   }
 
-  static void decode_escape(decoding_context &context, std::string &out) {
+  static void decode_escape(decode_context &context, std::string &out) {
     const auto escape_character = detail::next(context, "Unterminated string");
     switch (escape_character) {
       case '"':  out.push_back('"');  break;
@@ -118,14 +118,14 @@ class string_t final {
     }
   }
 
-  static uint8_t decode_hex_nibble(decoding_context &context, const char c) {
+  static uint8_t decode_hex_nibble(decode_context &context, const char c) {
     if (c >= '0' && c <= '9') { return c - '0'; }
     if (c >= 'a' && c <= 'f') { return c - 'a' + 0xA; }
     if (c >= 'A' && c <= 'F') { return c - 'A' + 0xA; }
     detail::fail(context, "\\u must be followed by 4 hex digits");
   }
 
-  static void decode_unicode_escape(decoding_context &context, std::string &out) {
+  static void decode_unicode_escape(decode_context &context, std::string &out) {
     detail::require_bytes<4>(context, "\\u must be followed by 4 hex digits");
     const auto a = decode_hex_nibble(context, *(context.position++));
     const auto b = decode_hex_nibble(context, *(context.position++));
@@ -135,7 +135,7 @@ class string_t final {
     encode_utf8(context, out, p);
   }
 
-  static void encode_utf8(decoding_context &context, std::string &out, unsigned p) {
+  static void encode_utf8(decode_context &context, std::string &out, unsigned p) {
     if (json_likely(p <= 0x7F)) {
       encode_utf8_1(out, p);
     } else if (json_likely(p <= 0x07FF)) {

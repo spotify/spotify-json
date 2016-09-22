@@ -30,7 +30,7 @@ namespace {
 
 template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 

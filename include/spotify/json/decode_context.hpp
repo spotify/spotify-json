@@ -26,18 +26,18 @@ namespace spotify {
 namespace json {
 
 /**
- * A decoding_context has the information that is kept while decoding JSON with
+ * A decode_context has the information that is kept while decoding JSON with
  * codecs. It has information about the data to read and whether the decoding
  * has failed.
  */
-struct decoding_context final {
-  decoding_context(const char *begin, const char *end)
+struct decode_context final {
+  decode_context(const char *begin, const char *end)
       : has_sse42(detail::cpuid().has_sse42()),
         position(begin),
         begin(begin),
         end(end) {}
 
-  decoding_context(const char *data, size_t size)
+  decode_context(const char *data, size_t size)
       : has_sse42(detail::cpuid().has_sse42()),
         position(data),
         begin(data),

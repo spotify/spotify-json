@@ -17,7 +17,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -30,11 +30,11 @@ class only_true_t final {
  public:
   using object_type = bool;
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return object_type();
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     _bool_codec.encode(context, true);
   }
 

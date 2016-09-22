@@ -19,7 +19,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
 
 #include <spotify/json/test/only_true.hpp>
 
@@ -27,11 +27,11 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(detail)
 
-BOOST_AUTO_TEST_CASE(json_encoding_helpers_should_encode_by_default) {
+BOOST_AUTO_TEST_CASE(json_encode_helpers_should_encode_by_default) {
   BOOST_CHECK(should_encode(codec::boolean(), true));
 }
 
-BOOST_AUTO_TEST_CASE(json_encoding_helpers_should_encode_should_respect_should_encode) {
+BOOST_AUTO_TEST_CASE(json_encode_helpers_should_encode_should_respect_should_encode) {
   BOOST_CHECK(should_encode(codec::only_true_t(), true));
   BOOST_CHECK(!should_encode(codec::only_true_t(), false));
 }

@@ -19,8 +19,8 @@
 #include <memory>
 #include <utility>
 
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -44,11 +44,11 @@ class cast_t {
   explicit cast_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return _inner_codec.decode(context);
   }
 
-  void encode(encoding_context &context, object_type value) const {
+  void encode(encode_context &context, object_type value) const {
     using inner_type = typename InnerCodec::object_type;
     _inner_codec.encode(context, codec_cast<inner_type, PointerType>::cast(value));
   }

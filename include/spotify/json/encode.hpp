@@ -20,14 +20,14 @@
 
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
 
 template <typename Codec>
 json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
-  encoding_context context;
+  encode_context context;
   codec.encode(context, object);
   return std::string(static_cast<const char *>(context.data()), context.size());
 }

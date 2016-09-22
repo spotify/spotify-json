@@ -33,7 +33,7 @@ namespace {
 
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
   BOOST_CHECK_EQUAL(c.position, c.end);
   return obj;

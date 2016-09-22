@@ -23,7 +23,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/skip.hpp>
@@ -39,7 +39,7 @@ namespace detail {
 
 template <typename string_type>
 json_never_inline json_noreturn void fail(
-    const decoding_context &context,
+    const decode_context &context,
     const string_type &error,
     const ptrdiff_t d = 0) {
   throw decode_exception(error, context.offset(d));
@@ -47,7 +47,7 @@ json_never_inline json_noreturn void fail(
 
 template <typename string_type, typename condition_type>
 json_force_inline void fail_if(
-    const decoding_context &context,
+    const decode_context &context,
     const condition_type condition,
     const string_type &error,
     const ptrdiff_t d = 0) {
@@ -58,58 +58,58 @@ json_force_inline void fail_if(
 
 template <size_t num_required_bytes, typename string_type>
 json_force_inline void require_bytes(
-    const decoding_context &context,
+    const decode_context &context,
     const string_type &error = "Unexpected end of input") {
   fail_if(context, context.remaining() < num_required_bytes, error);
 }
 
 template <size_t num_required_bytes>
-json_force_inline void require_bytes(const decoding_context &context) {
+json_force_inline void require_bytes(const decode_context &context) {
   require_bytes<num_required_bytes>(context, "Unexpected end of input");
 }
 
-json_force_inline char peek_unchecked(const decoding_context &context) {
+json_force_inline char peek_unchecked(const decode_context &context) {
   return *context.position;
 }
 
 /**
- * Peek at the current character that a decoding_context refers to. If the
- * decoding_context has ended, '\0' is returned. This is a useful helper when
+ * Peek at the current character that a decode_context refers to. If the
+ * decode_context has ended, '\0' is returned. This is a useful helper when
  * while decoding it is necessary to ensure that the current character is a
  * specific one, for example '['.
  */
-json_force_inline char peek(const decoding_context &context) {
+json_force_inline char peek(const decode_context &context) {
   return (context.remaining() ? peek_unchecked(context) : 0);
 }
 
-json_force_inline char next_unchecked(decoding_context &context) {
+json_force_inline char next_unchecked(decode_context &context) {
   return *(context.position++);
 }
 
 template <typename string_type>
-json_force_inline char next(decoding_context &context, const string_type &error) {
+json_force_inline char next(decode_context &context, const string_type &error) {
   require_bytes<1>(context, error);
   return next_unchecked(context);
 }
 
-json_force_inline char next(decoding_context &context) {
+json_force_inline char next(decode_context &context) {
   return next(context, "Unexpected end of input");
 }
 
-json_force_inline void skip_unchecked(decoding_context &context, const size_t num_bytes) {
+json_force_inline void skip_unchecked(decode_context &context, const size_t num_bytes) {
   context.position += num_bytes;
 }
 
-json_force_inline void skip_unchecked(decoding_context &context) {
+json_force_inline void skip_unchecked(decode_context &context) {
   context.position++;
 }
 
-json_force_inline void skip(decoding_context &context, const size_t num_bytes) {
+json_force_inline void skip(decode_context &context, const size_t num_bytes) {
   fail_if(context, context.remaining() < num_bytes, "Unexpected end of input");
   skip_unchecked(context, num_bytes);
 }
 
-json_force_inline void skip(decoding_context &context) {
+json_force_inline void skip(decode_context &context) {
   require_bytes<1>(context, "Unexpected end of input");
   context.position++;
 }
@@ -118,7 +118,7 @@ json_force_inline void skip(decoding_context &context) {
  * Advance past a specific character. If the context position does not point to
  * a matching character, a decode_exception is thrown.
  */
-inline void advance_past(decoding_context &context, char character) {
+inline void advance_past(decode_context &context, char character) {
   fail_if(context, next(context) != character, "Unexpected input", -1);
 }
 
@@ -127,7 +127,7 @@ inline void advance_past(decoding_context &context, char character) {
  * matching characters, a decode_exception is thrown. 'characters' must be a C
  * string of at least length 4. Only the first four characters will be read.
  */
-inline void advance_past_four(decoding_context &context, const char *characters) {
+inline void advance_past_four(decode_context &context, const char *characters) {
   require_bytes<4>(context);
   fail_if(context, memcmp(characters, context.position, 4), "Unexpected input");
   context.position += 4;
@@ -146,7 +146,7 @@ inline void advance_past_four(decoding_context &context, const char *characters)
  * context.has_failed() must be false when this function is called.
  */
 template <typename Parse>
-void advance_past_comma_separated(decoding_context &context, char intro, char outro, Parse parse) {
+void advance_past_comma_separated(decode_context &context, char intro, char outro, Parse parse) {
   advance_past(context, intro);
   skip_past_whitespace(context);
 
@@ -172,7 +172,7 @@ void advance_past_comma_separated(decoding_context &context, char intro, char ou
  * parsing fails later on.
  */
 template <typename KeyCodec, typename Callback>
-void advance_past_object(decoding_context &context, const Callback &callback) {
+void advance_past_object(decode_context &context, const Callback &callback) {
   auto codec = KeyCodec();
   advance_past_comma_separated(context, '{', '}', [&]{
     auto key = codec.decode(context);
@@ -183,20 +183,20 @@ void advance_past_object(decoding_context &context, const Callback &callback) {
   });
 }
 
-inline void advance_past_true(decoding_context &context) {
+inline void advance_past_true(decode_context &context) {
   advance_past_four(context, "true");
 }
 
-inline void advance_past_false(decoding_context &context) {
+inline void advance_past_false(decode_context &context) {
   context.position++;  // skip past the 'f' in 'false', we know it is there
   advance_past_four(context, "alse");
 }
 
-inline void advance_past_null(decoding_context &context) {
+inline void advance_past_null(decode_context &context) {
   advance_past_four(context, "null");
 }
 
-inline void advance_past_string_escape_after_slash(decoding_context &context) {
+inline void advance_past_string_escape_after_slash(decode_context &context) {
   switch (next(context, "Unterminated string")) {
     case '"':
     case '\\':
@@ -221,12 +221,12 @@ inline void advance_past_string_escape_after_slash(decoding_context &context) {
   }
 }
 
-inline void advance_past_string_escape(decoding_context &context) {
+inline void advance_past_string_escape(decode_context &context) {
   advance_past(context, '\\');
   advance_past_string_escape_after_slash(context);
 }
 
-inline void advance_past_string(decoding_context &context) {
+inline void advance_past_string(decode_context &context) {
   advance_past(context, '"');
   for (;;) {
     switch (next(context, "Unterminated string")) {
@@ -236,7 +236,7 @@ inline void advance_past_string(decoding_context &context) {
   }
 }
 
-inline void advance_past_number(decoding_context &context) {
+inline void advance_past_number(decode_context &context) {
   using traits = char_traits<char>;
 
   // Parse negative sign
@@ -281,7 +281,7 @@ inline void advance_past_number(decoding_context &context) {
  *
  * context.has_failed() must be false when this function is called.
  */
-inline void advance_past_simple_value(decoding_context &context) {
+inline void advance_past_simple_value(decode_context &context) {
   switch (peek(context)) {
     case '-':  // fallthrough
     case '0': case '1': case '2': case '3': case '4':  // fallthrough
@@ -301,7 +301,7 @@ inline void advance_past_simple_value(decoding_context &context) {
  *
  * context.has_failed() must be false when this function is called.
  */
-inline void advance_past_value(decoding_context &context) {
+inline void advance_past_value(decode_context &context) {
   enum state {
     done = 0,
     want = 1 << 0,

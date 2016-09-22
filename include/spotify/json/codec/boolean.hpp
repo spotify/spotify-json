@@ -18,10 +18,10 @@
 
 #include <cstring>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 #if _MSC_VER
 #pragma intrinsic (memcpy)
@@ -35,7 +35,7 @@ class boolean_t final {
  public:
   using object_type = bool;
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     switch (detail::peek(context)) {
       case 'f': detail::advance_past_false(context); return false;
       case 't': detail::advance_past_true(context); return true;
@@ -43,7 +43,7 @@ class boolean_t final {
     }
   }
 
-  void encode(encoding_context &context, const object_type value) const {
+  void encode(encode_context &context, const object_type value) const {
     const auto needed = 5 - size_t(value);  // true: 4, false: 5
     const auto buffer = context.reserve(needed);
     memcpy(buffer, value ? "true" : "fals", 4);  // 4 byte writes optimize well on x86

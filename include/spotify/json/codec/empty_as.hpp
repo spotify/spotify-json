@@ -20,9 +20,9 @@
 
 #include <spotify/json/codec/null.hpp>
 #include <spotify/json/codec/omit.hpp>
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -45,7 +45,7 @@ class empty_as_t final {
       : _default_codec(std::move(default_codec)),
         _inner_codec(std::move(inner_codec)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     const auto original_position = context.position;
     try {
       return _inner_codec.decode(context);
@@ -61,7 +61,7 @@ class empty_as_t final {
     }
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     if (value == _default) {
       _default_codec.encode(context, value);
     } else {

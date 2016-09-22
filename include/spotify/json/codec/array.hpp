@@ -24,11 +24,11 @@
 #include <unordered_set>
 #include <vector>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -40,13 +40,13 @@ struct sequence_inserter {
 
   template <typename Container, typename Value>
   static state insert(
-      decoding_context &, state, Container &container, Value &&value) {
+      decode_context &, state, Container &container, Value &&value) {
     container.push_back(std::forward<Value>(value));
     return init_state;
   }
 
   template <typename Container>
-  static void validate(decoding_context &, state, Container &) {
+  static void validate(decode_context &, state, Container &) {
     // Nothing to validate
   }
 };
@@ -57,14 +57,14 @@ struct fixed_size_sequence_inserter {
 
   template <typename Container, typename Value>
   static state insert(
-      decoding_context &context, state pos, Container &container, Value &&value) {
+      decode_context &context, state pos, Container &container, Value &&value) {
     fail_if(context, pos >= container.size(), "Too many elements in array");
     container[pos] = value;
     return pos + 1;
   }
 
   template <typename Container>
-  static void validate(decoding_context &context, state pos, Container &container) {
+  static void validate(decode_context &context, state pos, Container &container) {
     fail_if(context, pos != container.size(), "Too few elements in array");
   }
 };
@@ -75,13 +75,13 @@ struct associative_inserter {
 
   template <typename Container, typename Value>
   static state insert(
-      decoding_context &, state, Container &container, Value &&value) {
+      decode_context &, state, Container &container, Value &&value) {
     container.insert(std::forward<Value>(value));
     return init_state;
   }
 
   template <typename Container>
-  static void validate(decoding_context &, state, Container &) {
+  static void validate(decode_context &, state, Container &) {
     // Nothing to validate
   }
 };
@@ -124,7 +124,7 @@ class array_t final {
   explicit array_t(InnerCodec inner_codec)
       : _inner_codec(inner_codec) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     using inserter = detail::container_inserter<T>;
     object_type output;
     typename inserter::state state = inserter::init_state;
@@ -136,7 +136,7 @@ class array_t final {
     return output;
   }
 
-  void encode(encoding_context &context, const object_type &array) const {
+  void encode(encode_context &context, const object_type &array) const {
     context.append('[');
     for (const auto &element : array) {
       if (json_likely(detail::should_encode(_inner_codec, element))) {

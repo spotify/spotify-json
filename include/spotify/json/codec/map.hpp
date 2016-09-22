@@ -21,10 +21,10 @@
 #include <unordered_map>
 
 #include <spotify/json/codec/string.hpp>
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
 
 namespace spotify {
 namespace json {
@@ -47,7 +47,7 @@ class map_t final {
   explicit map_t(InnerCodec inner_codec)
       : _inner_codec(inner_codec) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     using value_type = typename object_type::value_type;
     object_type output;
     detail::advance_past_object<string_t>(
@@ -58,7 +58,7 @@ class map_t final {
     return output;
   }
 
-  void encode(encoding_context &context, const object_type &map) const {
+  void encode(encode_context &context, const object_type &map) const {
     context.append('{');
     for (const auto &element : map) {
       if (json_likely(detail::should_encode(_inner_codec, element.second))) {

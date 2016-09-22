@@ -23,11 +23,11 @@
 
 #include <double-conversion/double-conversion.h>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -63,7 +63,7 @@ class floating_point_t {
  public:
   using object_type = T;
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     using atod_converter = double_conversion::StringToDoubleConverter;
     static const atod_converter converter(
         atod_converter::ALLOW_TRAILING_JUNK,
@@ -83,7 +83,7 @@ class floating_point_t {
     return result;
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     // The maximum buffer size required to emit a double in base 10, for decimal
     // and exponential representations, is 25 bytes; based on the settings used
     // below for the DoubleToStringConverter. We add another byte for the null
@@ -145,7 +145,7 @@ json_force_inline bool is_invalid_digit(T digit) {
  */
 template <typename T, bool is_positive>
 json_force_inline T exp_10(
-    decoding_context &context,
+    decode_context &context,
     const unsigned exponent,
     const T initial_value) {
   T value = initial_value;
@@ -168,7 +168,7 @@ json_force_inline T exp_10(
  */
 template <typename T, bool is_positive>
 json_never_inline T decode_integer_range_with_overflow(
-    decoding_context &context,
+    decode_context &context,
     const char *begin,
     const char *end,
     const T initial_value,
@@ -198,7 +198,7 @@ json_never_inline T decode_integer_range_with_overflow(
  */
 template <typename T, bool is_positive>
 json_never_inline T decode_integer_range(
-    decoding_context &context,
+    decode_context &context,
     const char *begin,
     const char *end,
     const T initial_value = 0) {
@@ -222,7 +222,7 @@ json_never_inline T decode_integer_range(
  */
 template <typename T, bool is_positive>
 json_never_inline T decode_with_negative_exponent(
-    decoding_context &context,
+    decode_context &context,
     const unsigned exponent,
     const char *int_beg,
     const char *int_end) {
@@ -243,7 +243,7 @@ json_never_inline T decode_with_negative_exponent(
  */
 template <typename T, bool is_positive>
 json_never_inline T decode_with_positive_exponent(
-    decoding_context &context,
+    decode_context &context,
     const unsigned exponent,
     const char *int_beg,
     const char *int_end,
@@ -271,7 +271,7 @@ json_never_inline T decode_with_positive_exponent(
  */
 template <typename T>
 json_never_inline T handle_overflowing_exponent(
-    decoding_context &context,
+    decode_context &context,
     const bool exp_is_positive,
     const char *int_beg,
     const char *int_end,
@@ -294,7 +294,7 @@ json_never_inline T handle_overflowing_exponent(
  * fit in the given integer type, a decode_exception is thrown.
  */
 template <typename T, bool is_positive>
-json_never_inline T decode_integer_tricky(decoding_context &context, const char *int_beg) {
+json_never_inline T decode_integer_tricky(decode_context &context, const char *int_beg) {
   // Find [xxxx].yyyyE±zzzz
   auto int_end = std::find_if_not(int_beg, context.end, char_traits<char>::is_digit);
   context.position = int_end;
@@ -352,7 +352,7 @@ json_never_inline T decode_integer_tricky(decoding_context &context, const char 
  * not used, i.e., if there is no positive exponent.
  */
 template <typename T, bool is_positive>
-json_never_inline T decode_integer(decoding_context &context) {
+json_never_inline T decode_integer(decode_context &context) {
   using intops = integer_ops<T, is_positive>;
   const auto b = context.position;
   const auto c = next(context);
@@ -380,13 +380,13 @@ json_never_inline T decode_integer(decoding_context &context) {
 }
 
 template <typename T>
-json_force_inline T decode_negative_integer(decoding_context &context) {
+json_force_inline T decode_negative_integer(decode_context &context) {
   skip(context);  // Skip past leading '-' character (checked in decode(...)).
   return decode_integer<T, false>(context);
 }
 
 template <typename T>
-json_force_inline T decode_positive_integer(decoding_context &context) {
+json_force_inline T decode_positive_integer(decode_context &context) {
   return decode_integer<T, true>(context);
 }
 
@@ -440,7 +440,7 @@ size_t count_digits_positive(const T value) {
 }
 
 template <typename T>
-json_force_inline void encode_negative_integer(encoding_context &context, T value) {
+json_force_inline void encode_negative_integer(encode_context &context, T value) {
   const auto n = count_digits_negative(value);
   const auto p = context.reserve(n + 1);  // + 1 for the '-' sign character
   p[0] = '-';
@@ -454,7 +454,7 @@ json_force_inline void encode_negative_integer(encoding_context &context, T valu
 }
 
 template <typename T>
-json_force_inline void encode_positive_integer(encoding_context &context, T value) {
+json_force_inline void encode_positive_integer(encode_context &context, T value) {
   const auto n = count_digits_positive(value);
   const auto p = context.reserve(n) - 1;  // - 1 to avoid doing in the switch cases
   switch (n) {
@@ -474,11 +474,11 @@ class integer_t<T, true, false> {
  public:
   using object_type = T;
 
-  json_force_inline object_type decode(decoding_context &context) const {
+  json_force_inline object_type decode(decode_context &context) const {
     return decode_positive_integer<object_type>(context);
   }
 
-  json_force_inline void encode(encoding_context &context, const object_type value) const {
+  json_force_inline void encode(encode_context &context, const object_type value) const {
     encode_positive_integer(context, value);
   }
 };
@@ -488,13 +488,13 @@ class integer_t<T, true, true> {
  public:
   using object_type = T;
 
-  json_force_inline object_type decode(decoding_context &context) const {
+  json_force_inline object_type decode(decode_context &context) const {
     return (peek(context) == '-' ?
         decode_negative_integer<object_type>(context) :
         decode_positive_integer<object_type>(context));
   }
 
-  json_force_inline void encode(encoding_context &context, const object_type value) const {
+  json_force_inline void encode(encode_context &context, const object_type value) const {
     if (value < 0) {
       encode_negative_integer(context, value);
     } else {

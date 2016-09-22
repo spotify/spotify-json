@@ -19,7 +19,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 #include <spotify/json/benchmark/benchmark.hpp>
 
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_false) {
   const auto json_end = json.data() + json.size();
   JSON_BENCHMARK(1e5, [=]{
     for (int i = 0; i < 100; i++) {
-      auto context = decoding_context(json_begin, json_end);
+      auto context = decode_context(json_begin, json_end);
       codec.decode(context);
     }
   });
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_true) {
   const auto json_end = json.data() + json.size();
   JSON_BENCHMARK(1e5, [=]{
     for (int i = 0; i < 100; i++) {
-      auto context = decoding_context(json_begin, json_end);
+      auto context = decode_context(json_begin, json_end);
       codec.decode(context);
     }
   });
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_decode_true) {
 BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_encode_false) {
   const auto codec = boolean();
   JSON_BENCHMARK(1e5, [=]{
-    auto context = encoding_context();
+    auto context = encode_context();
     for (auto i = 0; i < 1000; i++) {
       codec.encode(context, false);
       context.clear();
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_encode_false) {
 BOOST_AUTO_TEST_CASE(benchmark_json_codec_boolean_encode_true) {
   const auto codec = boolean();
   JSON_BENCHMARK(1e5, [=]{
-    auto context = encoding_context();
+    auto context = encode_context();
     for (auto i = 0; i < 1000; i++) {
       codec.encode(context, true);
       context.clear();

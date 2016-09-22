@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_accept_utf8) {
 BOOST_AUTO_TEST_CASE(json_try_decode_partial_should_succeed_even_with_trailing_input) {
   custom_obj obj;
   std::string input = R"({"x":"hey"}, "foobar")";
-  json::decoding_context ctx(input.data(), input.size());
+  json::decode_context ctx(input.data(), input.size());
   BOOST_CHECK(try_decode_partial(obj, json::default_codec<custom_obj>(), ctx));
   BOOST_CHECK_EQUAL("hey", obj.val);
 }
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(json_try_decode_partial_should_succeed_even_with_trailing_i
 BOOST_AUTO_TEST_CASE(json_try_decode_partial_should_skip_preceding_whitespace) {
   custom_obj obj;
   std::string input = R"(          {"x":"hey"})";
-  json::decoding_context ctx(input.data(), input.size());
+  json::decode_context ctx(input.data(), input.size());
   BOOST_CHECK(try_decode_partial(obj, json::default_codec<custom_obj>(), ctx));
   BOOST_CHECK_EQUAL("hey", obj.val);
 }

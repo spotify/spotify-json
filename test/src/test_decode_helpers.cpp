@@ -20,7 +20,7 @@
 
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/omit.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -28,8 +28,8 @@ BOOST_AUTO_TEST_SUITE(detail)
 
 namespace {
 
-decoding_context make_context(const char *str) {
-  return decoding_context(str, str + strlen(str));
+decode_context make_context(const char *str) {
+  return decode_context(str, str + strlen(str));
 }
 
 template <typename Advance>
@@ -62,15 +62,15 @@ void verify_advance_partial(const Advance &advance, const char *str, size_t len)
  * Peek
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_peek_with_empty_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_peek_with_empty_input) {
   BOOST_CHECK_EQUAL(peek(make_context("")), '\0');
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_peek_at_last_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_peek_at_last_character) {
   BOOST_CHECK_EQUAL(peek(make_context("a")), 'a');
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_peek) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_peek) {
   BOOST_CHECK_EQUAL(peek(make_context("ab")), 'a');
 }
 
@@ -78,31 +78,31 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_peek) {
  * Next
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_with_empty_input_should_fail) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_next_with_empty_input_should_fail) {
   auto ctx = make_context("");
   BOOST_CHECK_THROW(next(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_at_last_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_next_at_last_character) {
   auto ctx = make_context("a");
   BOOST_CHECK_EQUAL(next(ctx), 'a');
   BOOST_CHECK(!ctx.remaining());
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_next) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_next) {
   auto ctx = make_context("ab");
   BOOST_CHECK_EQUAL(next(ctx), 'a');
   BOOST_CHECK_EQUAL(next(ctx), 'b');
   BOOST_CHECK(!ctx.remaining());
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_unchecked_at_last_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_next_unchecked_at_last_character) {
   auto ctx = make_context("a");
   BOOST_CHECK_EQUAL(next_unchecked(ctx), 'a');
   BOOST_CHECK(!ctx.remaining());
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_unchecked) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_next_unchecked) {
   auto ctx = make_context("ab");
   BOOST_CHECK_EQUAL(next_unchecked(ctx), 'a');
   BOOST_CHECK_EQUAL(next_unchecked(ctx), 'b');
@@ -113,18 +113,18 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_next_unchecked) {
  * Skip
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_with_empty_input_should_fail) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip_with_empty_input_should_fail) {
   auto ctx = make_context("");
   BOOST_CHECK_THROW(skip(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_at_last_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip_at_last_character) {
   auto ctx = make_context("a");
   skip(ctx);
   BOOST_CHECK(!ctx.remaining());
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip) {
   auto ctx = make_context("ab");
   skip(ctx);
   skip(ctx);
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip) {
  * Advance past whitespace
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_empty_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip_past_whitespace_with_empty_input) {
   auto ctx = make_context("");
   const auto original_ctx = ctx;
   skip_past_whitespace(ctx);
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_empty_input
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_non_whitespace_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip_past_whitespace_with_non_whitespace_input) {
   auto ctx = make_context("a");
   const auto original_ctx = ctx;
   skip_past_whitespace(ctx);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_non_whitesp
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_whitespace_input_to_end) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip_past_whitespace_with_whitespace_input_to_end) {
   auto ctx = make_context(" \t\r\n");
   const auto original_ctx = ctx;
   skip_past_whitespace(ctx);
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_whitespace_
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_whitespace_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_skip_past_whitespace_with_whitespace_input) {
   auto ctx = make_context(" a\t\r\n");
   const auto original_ctx = ctx;
   skip_past_whitespace(ctx);
@@ -175,12 +175,12 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_skip_past_whitespace_with_whitespace_
  * Advance past single character
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_empty_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_with_empty_input) {
   auto ctx = make_context("");
   BOOST_CHECK_THROW(advance_past(ctx, 'a'), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_matching_input_to_end) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_with_matching_input_to_end) {
   auto ctx = make_context("a");
   const auto original_ctx = ctx;
   advance_past(ctx, 'a');
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_matching_input_to_e
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_matching_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_with_matching_input) {
   auto ctx = make_context("aaa");
   const auto original_ctx = ctx;
   advance_past(ctx, 'a');
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_matching_input) {
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_nonmatching_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_with_nonmatching_input) {
   auto ctx = make_context("b");
   BOOST_CHECK_THROW(advance_past(ctx, 'a'), decode_exception);
 }
@@ -207,17 +207,17 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_with_nonmatching_input) 
  * Advance past four characters
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_empty_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_word_with_empty_input) {
   auto ctx = make_context("");
   BOOST_CHECK_THROW(advance_past_four(ctx, "aaaa"), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_too_short_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_word_with_too_short_input) {
   auto ctx = make_context("abc");
   BOOST_CHECK_THROW(advance_past_four(ctx, "abcd"), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_matching_input_to_end) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_word_with_matching_input_to_end) {
   auto ctx = make_context("abcd");
   const auto original_ctx = ctx;
   advance_past_four(ctx, "abcd");
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_matching_input
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_matching_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_word_with_matching_input) {
   auto ctx = make_context("abcde");
   const auto original_ctx = ctx;
   advance_past_four(ctx, "abcd");
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_matching_input
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_word_with_nonmatching_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_word_with_nonmatching_input) {
   auto ctx = make_context("abcD");
   BOOST_CHECK_THROW(advance_past_four(ctx, "abcd"), decode_exception);
 }
@@ -269,17 +269,17 @@ void parse(const char *string) {
 
 }  // namespace
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_empty_input) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_empty_input) {
   auto ctx = make_context("");
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &dont_call), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_wrong_first_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_wrong_first_character) {
   auto ctx = make_context(">");
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &dont_call), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_immediate_end) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_immediate_end) {
   auto ctx = make_context("<>");
   const auto original_ctx = ctx;
   advance_past_comma_separated(ctx, '<', '>', &dont_call);
@@ -288,12 +288,12 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_immediate_end) {
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_before_first) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_before_first) {
   auto ctx = make_context(" <>");
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', &dont_call), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after_first) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_after_first) {
   auto ctx = make_context("< >");
   const auto original_ctx = ctx;
   advance_past_comma_separated(ctx, '<', '>', &dont_call);
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after_last) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_after_last) {
   auto ctx = make_context("<> ");
   const auto original_ctx = ctx;
   advance_past_comma_separated(ctx, '<', '>', &dont_call);
@@ -311,48 +311,48 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_single_element) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_single_element) {
   parse("<a>");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_two_elements) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_two_elements) {
   parse("<a,b>");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_before_first_element) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_before_first_element) {
   parse("< a,b>");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_before_comma) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_before_comma) {
   parse("<a ,b>");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_after_comma) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_after_comma) {
   parse("<a, b>");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_whitespace_before_last) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_whitespace_before_last) {
   parse("<a,b >");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_wrong_last_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_wrong_last_character) {
   auto ctx = make_context("<<");
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', [&]{}), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_missing_last_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_missing_last_character) {
   auto ctx = make_context("<");
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', [&]{}), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_trailing_comma) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_trailing_comma) {
   auto ctx = make_context("<a,>");
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', [&]{
     advance_past(ctx, 'a');
   }), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_failing_inner_parse) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_comma_separated_with_failing_inner_parse) {
   auto ctx = make_context("<a,a>");
   bool was_called_already = false;
   BOOST_CHECK_THROW(advance_past_comma_separated(ctx, '<', '>', [&]{
@@ -368,13 +368,13 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_comma_separated_with_failing_inner_pa
 
 namespace {
 
-bool decode_boolean(decoding_context &context) {
+bool decode_boolean(decode_context &context) {
   return codec::boolean().decode(context);
 }
 
 }  // namespace
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_empty_object) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_empty_object) {
   auto ctx = make_context("{}");
   const auto original_ctx = ctx;
   advance_past_object<codec::omit_t<bool>>(ctx, [&](bool &&key) {
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_empty_object) {
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_single_value) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_with_single_value) {
   auto ctx = make_context("{true:false}");
   const auto original_ctx = ctx;
   bool has_been_called_already = false;
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_single_value
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_two_values) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_with_two_values) {
   auto ctx = make_context("{true:false,false:true}");
   const auto original_ctx = ctx;
   size_t times_called = 0;
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_two_values) 
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_whitespace) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_with_whitespace) {
   auto ctx = make_context("{ true : false , false : true }");
   const auto original_ctx = ctx;
   size_t times_called = 0;
@@ -429,28 +429,28 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_whitespace) 
   BOOST_CHECK_EQUAL(ctx.end, original_ctx.end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_broken_key) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_with_broken_key) {
   auto ctx = make_context("{tru:false}");
   BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     BOOST_CHECK(!"Should not be called");
   }), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_with_broken_value) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_with_broken_value) {
   auto ctx = make_context("{true:fals}");
   BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     decode_boolean(ctx);
   }), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_without_colon) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_without_colon) {
   auto ctx = make_context("{truefalse}");
   BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     BOOST_CHECK(!"Should not be called");
   }), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_without_ending_brace) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_without_ending_brace) {
   auto ctx = make_context("{true:false");
   BOOST_CHECK_THROW(advance_past_object<codec::boolean_t>(ctx, [&](bool &&key) {
     decode_boolean(ctx);
@@ -466,27 +466,27 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_object_without_ending_br
  * Advance past string escape
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_empty) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_empty) {
   auto ctx = make_context("");
   BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_non_escape) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_non_escape) {
   auto ctx = make_context("\"");
   BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_just_backslash) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_just_backslash) {
   auto ctx = make_context("\\");
   BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_invalid_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_invalid_character) {
   auto ctx = make_context("\\a");
   BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_single_character_escape) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_single_character_escape) {
   verify_advance(&advance_past_string_escape, "\\\"");
   verify_advance(&advance_past_string_escape, "\\\\");
   verify_advance(&advance_past_string_escape, "\\b");
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_single_cha
   verify_advance(&advance_past_string_escape, "\\t");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_unicode_escape) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_unicode_escape) {
   verify_advance(&advance_past_string_escape, "\\u0000");
   verify_advance(&advance_past_string_escape, "\\u1234");
   verify_advance(&advance_past_string_escape, "\\uffff");
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_unicode_es
   verify_advance(&advance_past_string_escape, "\\u0F0f");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_invalid_unicode_escape) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_invalid_unicode_escape) {
   verify_advance_fail(&advance_past_string_escape, "\\u0");
   verify_advance_fail(&advance_past_string_escape, "\\u000");
   verify_advance_fail(&advance_past_string_escape, "\\ug000");
@@ -515,39 +515,39 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape_invalid_un
  * Advance past string
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_empty) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_empty) {
   verify_advance_fail(&advance_past_string, "");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_invalid_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_invalid_character) {
   verify_advance_fail(&advance_past_string, "a");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_only_opening) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_only_opening) {
   verify_advance_fail(&advance_past_string, "\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_no_characters) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_no_characters) {
   verify_advance(&advance_past_string, "\"\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_some_characters) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_some_characters) {
   verify_advance(&advance_past_string, "\"abc\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_invalid_characters) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_invalid_characters) {
   verify_advance_fail(&advance_past_string, "\a");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_escape) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape) {
   verify_advance(&advance_past_string, R"("\"")");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_invalid_escape) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_invalid_escape) {
   verify_advance_fail(&advance_past_string, R"("\a")");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_utf8) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_utf8) {
   verify_advance(&advance_past_string, u8"\"\u9E21\"");
 }
 
@@ -555,86 +555,86 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_string_utf8) {
  * Advance past number
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_empty) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_empty) {
   verify_advance_fail(&advance_past_number, "");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_invalid_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_invalid_character) {
   verify_advance_fail(&advance_past_number, "a");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_just_negative_sign) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_just_negative_sign) {
   verify_advance_fail(&advance_past_number, "-");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_zero) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_zero) {
   verify_advance(&advance_past_number, "0");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_negative_zero) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_negative_zero) {
   verify_advance(&advance_past_number, "-0");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_one) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_one) {
   verify_advance(&advance_past_number, "1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_zero_with_trailing_digit) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_zero_with_trailing_digit) {
   verify_advance_partial(&advance_past_number, "01", 1);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_just_decimal_dot) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_just_decimal_dot) {
   verify_advance_fail(&advance_past_number, ".");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_decimal_dot_before_int) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_decimal_dot_before_int) {
   verify_advance_fail(&advance_past_number, ".1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_decimal_dot_last) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_decimal_dot_last) {
   verify_advance_fail(&advance_past_number, "1.");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_decimal_dot) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_decimal_dot) {
   verify_advance(&advance_past_number, "1.0");
   verify_advance(&advance_past_number, "1.1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_two_decimal_dots) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_two_decimal_dots) {
   verify_advance_fail(&advance_past_number, "1..1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_just_exp_e) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_just_exp_e) {
   verify_advance_fail(&advance_past_number, "e");
   verify_advance_fail(&advance_past_number, "E");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_number_then_exp_e) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_number_then_exp_e) {
   verify_advance_fail(&advance_past_number, "1e");
   verify_advance_fail(&advance_past_number, "1E");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_exp_e_then_number) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp_e_then_number) {
   verify_advance_fail(&advance_past_number, "e1");
   verify_advance_fail(&advance_past_number, "E1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_exp) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp) {
   verify_advance(&advance_past_number, "1e1");
   verify_advance(&advance_past_number, "1E1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_exp_with_plus) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp_with_plus) {
   verify_advance(&advance_past_number, "1e+1");
   verify_advance(&advance_past_number, "1E+1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_exp_with_minus) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp_with_minus) {
   verify_advance(&advance_past_number, "1e-1");
   verify_advance(&advance_past_number, "1E-1");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_nonint_exp) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_nonint_exp) {
   verify_advance_partial(&advance_past_number, "1e-1.1", 4);
   verify_advance_partial(&advance_past_number, "1E-1.1", 4);
 }
@@ -643,38 +643,38 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_number_nonint_exp) {
  * Advance past value
  */
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_empty) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_empty) {
   verify_advance_fail(&advance_past_value, "");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_invalid_character) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_invalid_character) {
   verify_advance_fail(&advance_past_value, "a");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_string) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_string) {
   verify_advance(&advance_past_value, "\"hello\"");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_number) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_number) {
   verify_advance(&advance_past_value, "-1.3e+2");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_boolean) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_boolean) {
   verify_advance(&advance_past_value, "true");
   verify_advance(&advance_past_value, "false");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_null) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_null) {
   verify_advance(&advance_past_value, "null");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_array) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_array) {
   verify_advance(&advance_past_value, "[]");
   verify_advance(&advance_past_value, "[1,null,true]");
   verify_advance(&advance_past_value, "[ 1 , null , true ]");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_object) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_object) {
   verify_advance(&advance_past_value, "{}");
   verify_advance(&advance_past_value, R"({"a":3})");
   verify_advance(&advance_past_value, R"({"a":3,"b":4})");
@@ -682,12 +682,12 @@ BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_object) {
   verify_advance_fail(&advance_past_value, "{true:false}");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_nested_array) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_nested_array) {
   verify_advance(&advance_past_value, "[{},[1],[[1]]]");
   verify_advance(&advance_past_value, "[1,[1],[[1]]]");
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_helpers_advance_past_value_nested_object) {
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_nested_object) {
   verify_advance(&advance_past_value, R"({"a":{}})");
   verify_advance(&advance_past_value, R"({"a":[]})");
   verify_advance(&advance_past_value, R"({"a":[{},[]]})");

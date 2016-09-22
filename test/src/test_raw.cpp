@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 namespace {
 
 foobar_t decode_foobar(const char *data) {
-  decoding_context ctx(data, data + std::strlen(data));
+  decode_context ctx(data, data + std::strlen(data));
   return default_codec<foobar_t>().decode(ctx);
 }
 
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
   BOOST_CHECK_EQUAL(ref.size, raw.size());
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decoding_context) {
+BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decode_context) {
   std::string raw = "true";
   raw_ref ref(raw.data(), raw.size());
-  decoding_context context(ref);
+  decode_context context(ref);
 
   const auto begin = raw.data();
   const auto end = begin + raw.size();

@@ -19,10 +19,10 @@
 #include <memory>
 #include <utility>
 
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -37,11 +37,11 @@ class any_t final {
   explicit any_t(Codec codec)
       : _codec(std::make_shared<erased_codec_impl<Codec>>(std::move(codec))) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return _codec->decode(context);
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     _codec->encode(context, value);
   }
 
@@ -54,8 +54,8 @@ class any_t final {
    public:
     virtual ~erased_codec() = default;
 
-    virtual object_type decode(decoding_context &context) const = 0;
-    virtual void encode(encoding_context &context, const object_type &value) const = 0;
+    virtual object_type decode(decode_context &context) const = 0;
+    virtual void encode(encode_context &context, const object_type &value) const = 0;
     virtual bool should_encode(const object_type &value) const = 0;
   };
 
@@ -65,11 +65,11 @@ class any_t final {
     explicit erased_codec_impl(Codec codec)
       : _codec(std::move(codec)) {}
 
-    object_type decode(decoding_context &context) const override {
+    object_type decode(decode_context &context) const override {
       return _codec.decode(context);
     }
 
-    void encode(encoding_context &context, const object_type &value) const override {
+    void encode(encode_context &context, const object_type &value) const override {
       _codec.encode(context, value);
     }
 

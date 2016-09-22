@@ -18,10 +18,10 @@
 
 #include <stdexcept>
 
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -32,11 +32,11 @@ class omit_t final {
  public:
   using object_type = T;
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     detail::fail(context, "omit_t codec cannot decode");
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     detail::fail(context, "omit_t codec cannot encode");
   }
 

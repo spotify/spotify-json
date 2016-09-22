@@ -30,12 +30,12 @@ namespace json {
 namespace detail {
 
 /**
- * An encoding_context has the information that is kept while encoding JSON with
+ * An encode_context has the information that is kept while encoding JSON with
  * codecs. It keeps a buffer of data that can be expanded and written to.
  */
 template <typename size_type = std::size_t>
-struct base_encoding_context final {
-  base_encoding_context(const size_type capacity = 4096)
+struct base_encode_context final {
+  base_encode_context(const size_type capacity = 4096)
       : _buf(static_cast<uint8_t *>(capacity ? std::malloc(capacity) : nullptr)),
         _ptr(_buf),
         _end(_buf + capacity),
@@ -45,7 +45,7 @@ struct base_encoding_context final {
     }
   }
 
-  ~base_encoding_context() {
+  ~base_encode_context() {
     std::free(_buf);
   }
 
@@ -141,7 +141,7 @@ struct base_encoding_context final {
 
 }  // namespace detail
 
-using encoding_context = detail::base_encoding_context<>;
+using encode_context = detail::base_encode_context<>;
 
 }  // namespace json
 }  // namespace spotify
