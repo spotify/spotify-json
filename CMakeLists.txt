@@ -72,10 +72,13 @@ set(json_detail_HEADERS
   )
 
 set(json_detail_SOURCES
+  src/detail/escape.cpp
+  src/detail/escape_common.hpp
   src/detail/skip.cpp
   )
 
 set(json_detail_SSE42_SOURCES
+  src/detail/escape_sse42.cpp
   src/detail/skip_sse42.cpp
   )
 

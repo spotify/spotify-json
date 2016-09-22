@@ -30,16 +30,15 @@ BOOST_AUTO_TEST_SUITE(detail)
 using namespace std;
 using namespace boost;
 
-static void check_escaped(const std::string &expected, const std::string &input) {
-  std::vector<uint8_t> output(input.size() * 6);
-  const auto input_begin = reinterpret_cast<const uint8_t *>(input.data());
-  const auto out_b = static_cast<uint8_t *>(output.data());
-  const auto out_e = write_escaped(out_b, input_begin, input_begin + input.size());
-  BOOST_CHECK_EQUAL(expected, std::string(reinterpret_cast<const char *>(out_b), size_t(out_e - out_b)));
+void check_escaped(const std::string &expected, const std::string &input) {
+  encode_context context;
+  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
+  write_escaped(context, begin, begin + input.size());
+  BOOST_CHECK_EQUAL(expected, std::string(reinterpret_cast<const char *>(context.data()), context.size()));
 }
 
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_characters) {
-  check_escaped("\\\\", "\\");  //  quotation mark
+  check_escaped("\\\\", "\\");  // quotation mark
   check_escaped("\\\"", "\"");  // reverse solidus
 }
 

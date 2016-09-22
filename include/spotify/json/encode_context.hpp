@@ -23,6 +23,7 @@
 #include <cstring>
 #include <limits>
 
+#include <spotify/json/detail/cpuid.hpp>
 #include <spotify/json/detail/macros.hpp>
 
 namespace spotify {
@@ -36,7 +37,8 @@ namespace detail {
 template <typename size_type = std::size_t>
 struct base_encode_context final {
   base_encode_context(const size_type capacity = 4096)
-      : _buf(static_cast<uint8_t *>(capacity ? std::malloc(capacity) : nullptr)),
+      : has_sse42(detail::cpuid().has_sse42()),
+        _buf(static_cast<uint8_t *>(capacity ? std::malloc(capacity) : nullptr)),
         _ptr(_buf),
         _end(_buf + capacity),
         _capacity(capacity) {
@@ -100,6 +102,8 @@ struct base_encode_context final {
   json_force_inline bool empty() const {
     return (_ptr == _buf);
   }
+
+  const bool has_sse42;
 
  private:
   json_never_inline void grow_buffer(const size_type num_bytes) {
