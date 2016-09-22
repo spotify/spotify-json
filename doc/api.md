@@ -151,7 +151,7 @@ template <typename Codec>
 bool try_decode_partial(
     typename Codec::object_type &object,
     const Codec &codec,
-    const decoding_context &context);
+    const decode_context &context);
 ```
 
 `decode_exception`
