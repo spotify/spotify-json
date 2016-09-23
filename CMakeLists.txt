@@ -71,8 +71,15 @@ set(json_detail_HEADERS
   include/spotify/json/detail/stack.hpp
   )
 
-set(json_detail_skip_SOURCES
+set(json_detail_SOURCES
+  src/detail/escape.cpp
+  src/detail/escape_common.hpp
   src/detail/skip.cpp
+  )
+
+set(json_detail_SSE42_SOURCES
+  src/detail/escape_sse42.cpp
+  src/detail/skip_sse42.cpp
   )
 
 set(json_all_HEADERS
@@ -83,7 +90,8 @@ set(json_all_HEADERS
 
 set(json_all_SOURCES
   ${json_SOURCES}
-  ${json_detail_skip_SOURCES}
+  ${json_detail_SOURCES}
+  ${json_detail_SSE42_SOURCES}
   )
 
 set(json_library_TARGET "json")
@@ -101,7 +109,7 @@ if(WIN32)
 else()
   target_compile_options(${json_library_TARGET} PUBLIC "-std=c++11")
 
-  set_source_files_properties(${json_detail_skip_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
+  set_source_files_properties(${json_detail_SSE42_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
 endif()
 
 add_subdirectory(vendor/double-conversion)

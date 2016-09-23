@@ -20,6 +20,7 @@ set(json_benchmark_HEADERS
 
 set(json_benchmark_SOURCES
   src/benchmark_boolean.cpp
+  src/benchmark_escape.cpp
   src/benchmark_main.cpp
   src/benchmark_number.cpp
   src/benchmark_object.cpp
