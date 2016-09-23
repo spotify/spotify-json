@@ -22,6 +22,8 @@
 
 #include <spotify/json/detail/char_traits.hpp>
 
+#include "skip_common.hpp"
+
 namespace spotify {
 namespace json {
 namespace detail {
