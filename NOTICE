@@ -1,0 +1,8 @@
+spotify-json
+Copyright (c) 2014-2016 Spotify AB
+
+This product includes software developed at Spotify
+AB (https://www.spotify.com/).
+
+This product bundles the double-conversion library, which is available under a
+"3-clause BSD" license. For details, see vendor/double-conversion.
