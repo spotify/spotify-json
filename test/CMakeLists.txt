@@ -73,6 +73,4 @@ target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIR
 target_link_libraries(${json_test_TARGET} ${json_library_TARGET})
 target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
 
-include("AddBoostTests")
-
-ADD_BOOST_TESTS(${json_test_TARGET} ${json_test_SOURCES})
+add_test(${json_test_TARGET} ${json_test_TARGET})
