@@ -21,8 +21,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/object.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/decode_exception.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 #include <spotify/json/benchmark/benchmark.hpp>
 
@@ -68,7 +69,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_object_decode_with_few_required_fields
   const auto json = make_json(50);
 
   JSON_BENCHMARK(1e5, [=]{
-    auto context = decoding_context(json.data(), json.data() + json.size());
+    auto context = decode_context(json.data(), json.data() + json.size());
     codec.decode(context);
   });
 }
@@ -78,7 +79,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_object_decode_with_many_required_field
   const auto json = make_json(1000);
 
   JSON_BENCHMARK(1e4, [=]{
-    auto context = decoding_context(json.data(), json.data() + json.size());
+    auto context = decode_context(json.data(), json.data() + json.size());
     codec.decode(context);
   });
 }

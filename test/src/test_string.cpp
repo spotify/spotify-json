@@ -20,8 +20,9 @@
 
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/boolean.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/decode_exception.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -31,14 +32,14 @@ namespace {
 
 std::string string_parse(const char *string) {
   const auto codec = default_codec<std::string>();
-  auto ctx = decoding_context(string, string + strlen(string));
+  auto ctx = decode_context(string, string + strlen(string));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
   return result;
 }
 
 void string_parse_fail(const char *string) {
-  auto ctx = decoding_context(string, string + strlen(string));
+  auto ctx = decode_context(string, string + strlen(string));
   BOOST_CHECK_THROW(default_codec<std::string>().decode(ctx), decode_exception);
 }
 

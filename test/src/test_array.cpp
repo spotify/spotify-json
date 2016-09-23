@@ -23,7 +23,8 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/omit.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -34,7 +35,7 @@ namespace {
 template <typename Parsed = std::vector<bool>>
 Parsed array_parse(const char *not_array) {
   const auto codec = default_codec<Parsed>();
-  auto ctx = decoding_context(not_array, not_array + strlen(not_array));
+  auto ctx = decode_context(not_array, not_array + strlen(not_array));
   const auto result = codec.decode(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
@@ -44,7 +45,7 @@ Parsed array_parse(const char *not_array) {
 template <typename Parsed = std::vector<bool>>
 void array_parse_should_fail(const char *not_array) {
   const auto codec = default_codec<Parsed>();
-  auto ctx = decoding_context(not_array, not_array + strlen(not_array));
+  auto ctx = decode_context(not_array, not_array + strlen(not_array));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 

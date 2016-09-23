@@ -20,7 +20,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/null.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -42,7 +43,7 @@ BOOST_AUTO_TEST_CASE(json_codec_integer_null_should_encode_non_default_value) {
 BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_null) {
   const auto codec = null();
   const char *null = "null ";
-  auto ctx = decoding_context(null, null + 5);
+  auto ctx = decode_context(null, null + 5);
   const auto original_ctx = ctx;
   codec.decode(ctx);
 
@@ -53,14 +54,14 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_null) {
 BOOST_AUTO_TEST_CASE(json_codec_null_should_not_decode_otherwise) {
   const auto codec = null();
   const char *not_null = "nul";
-  auto ctx = decoding_context(not_null, not_null + 3);
+  auto ctx = decode_context(not_null, not_null + 3);
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_integer_null) {
   const auto codec = null<int>();
   const char *null = "null ";
-  auto ctx = decoding_context(null, null + 5);
+  auto ctx = decode_context(null, null + 5);
   const auto original_ctx = ctx;
   BOOST_CHECK_EQUAL(codec.decode(ctx), 0);
 
@@ -71,7 +72,7 @@ BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_integer_null) {
 BOOST_AUTO_TEST_CASE(json_codec_null_should_decode_custom_value) {
   const auto codec = null<int>(17);
   const char *null = "null ";
-  auto ctx = decoding_context(null, null + 5);
+  auto ctx = decode_context(null, null + 5);
   BOOST_CHECK_EQUAL(codec.decode(ctx), 17);
 }
 

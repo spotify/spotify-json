@@ -24,7 +24,8 @@
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/tuple.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -35,7 +36,7 @@ namespace {
 template <typename Parsed = std::tuple<>>
 Parsed tuple_parse(const char *not_array) {
   const auto codec = default_codec<Parsed>();
-  auto ctx = decoding_context(not_array, not_array + strlen(not_array));
+  auto ctx = decode_context(not_array, not_array + strlen(not_array));
   const auto result = codec.decode(ctx);
 
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);
@@ -45,7 +46,7 @@ Parsed tuple_parse(const char *not_array) {
 template <typename Parsed = std::tuple<>>
 void tuple_parse_should_fail(const char *not_array) {
   const auto codec = default_codec<Parsed>();
-  auto ctx = decoding_context(not_array, not_array + strlen(not_array));
+  auto ctx = decode_context(not_array, not_array + strlen(not_array));
   BOOST_CHECK_THROW(codec.decode(ctx), decode_exception);
 }
 
@@ -100,7 +101,7 @@ BOOST_AUTO_TEST_CASE(json_codec_tuple_should_decode_tuple_success) {
 BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_skip_past_whitespace_at_end) {
   const auto codec = default_codec<std::tuple<>>();
   const auto json = "[] ";
-  auto ctx = decoding_context(json, json + strlen(json));
+  auto ctx = decode_context(json, json + strlen(json));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position + 1, ctx.end);
 }

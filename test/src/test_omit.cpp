@@ -19,7 +19,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/omit.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -29,7 +30,7 @@ namespace {
 
 template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 

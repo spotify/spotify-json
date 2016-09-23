@@ -19,7 +19,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/ignore.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -29,7 +30,7 @@ namespace {
 
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
   BOOST_CHECK_EQUAL(c.position, c.end);
   return obj;
@@ -37,7 +38,7 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
 
 template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 

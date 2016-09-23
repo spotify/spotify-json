@@ -18,10 +18,10 @@
 
 #include <stdexcept>
 
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -35,12 +35,12 @@ class ignore_t final {
   explicit ignore_t(object_type value = object_type())
       : _value(std::move(value)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     detail::advance_past_value(context);
     return _value;
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     detail::fail(context, "ignore_t codec cannot encode");
   }
 

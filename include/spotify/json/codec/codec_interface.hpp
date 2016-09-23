@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -55,12 +55,12 @@ class codec_interface final {
    *
    * decode will never be called with a contest that has_failed().
    */
-  object_type decode(decoding_context &context) const;
+  object_type decode(decode_context &context) const;
 
   /**
    * Write an object to an encoding context.
    */
-  void encode(encoding_context &context, const object_type &value) const;
+  void encode(encode_context &context, const object_type &value) const;
 
   /**
    * This method is optional.

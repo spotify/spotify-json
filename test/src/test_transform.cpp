@@ -22,7 +22,8 @@
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/transform.hpp>
 #include <spotify/json/codec/string.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -32,7 +33,7 @@ namespace {
 
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
   BOOST_CHECK_EQUAL(c.position, c.end);
   return obj;

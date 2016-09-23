@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -29,7 +29,7 @@ namespace detail {
  * appropriate address and then reading and comparing several bytes in a
  * single read operation.
  */
-void skip_past_simple_characters(decoding_context &context);
+void skip_past_simple_characters(decode_context &context);
 
 /**
  * Skip past the bytes of the string until a non-whitespace character is
@@ -38,7 +38,7 @@ void skip_past_simple_characters(decoding_context &context);
  * appropriate address and then reading and comparing several bytes in a
  * single read operation.
  */
-void skip_past_whitespace(decoding_context &context);
+void skip_past_whitespace(decode_context &context);
 
 }  // detail
 }  // json

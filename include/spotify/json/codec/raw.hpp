@@ -18,10 +18,10 @@
 
 #include <cstring>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -32,7 +32,7 @@ struct raw_ref {
   raw_ref(const char *d, size_t s) : data(d), size(s) {}
   raw_ref(const char *begin, const char *end) : data(begin), size(end - begin) {}
 
-  explicit operator decoding_context() const { return decoding_context(data, size); }
+  explicit operator decode_context() const { return decode_context(data, size); }
 
   const char *data;
   size_t size;
@@ -42,13 +42,13 @@ class raw_t final {
  public:
   using object_type = raw_ref;
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     const auto begin = context.position;
     detail::advance_past_value(context);
     return raw_ref(begin, context.position - begin);
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     std::memcpy(context.reserve(value.size), value.data, value.size);
     context.advance(value.size);
   }

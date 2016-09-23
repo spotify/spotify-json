@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
 
 namespace spotify {
 namespace json {
@@ -42,13 +42,13 @@ class eq_t final {
       : _inner_codec(std::move(inner_codec)),
         _value(std::move(value)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     object_type result = _inner_codec.decode(context);
     detail::fail_if(context, result != _value, "Encountered unexpected value");
     return result;
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     _inner_codec.encode(context, _value);
   }
 

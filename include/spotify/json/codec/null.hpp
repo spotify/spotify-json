@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -37,12 +37,12 @@ class null_t final {
   explicit null_t(object_type value = object_type())
       : _value(std::move(value)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     detail::advance_past_null(context);
     return _value;
   }
 
-  void encode(encoding_context &context, const object_type value) const {
+  void encode(encode_context &context, const object_type value) const {
     context.append("null", 4);
   }
 

@@ -21,11 +21,13 @@ set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(json_HEADERS
   include/spotify/json.hpp
   include/spotify/json/default_codec.hpp
-  include/spotify/json/decoding_context.hpp
+  include/spotify/json/decode.hpp
   include/spotify/json/decode_exception.hpp
-  include/spotify/json/encode_decode.hpp
-  include/spotify/json/encoding_context.hpp
+  include/spotify/json/decode_context.hpp
+  include/spotify/json/encode.hpp
+  include/spotify/json/encode_context.hpp
   include/spotify/json/encode_exception.hpp
+  include/spotify/json/json.hpp
   )
 
 set(json_SOURCES
@@ -49,6 +51,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/object.hpp
   include/spotify/json/codec/omit.hpp
   include/spotify/json/codec/one_of.hpp
+  include/spotify/json/codec/raw.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
   include/spotify/json/codec/transform.hpp
@@ -59,8 +62,8 @@ set(json_detail_HEADERS
   include/spotify/json/detail/bitset.hpp
   include/spotify/json/detail/char_traits.hpp
   include/spotify/json/detail/cpuid.hpp
-  include/spotify/json/detail/decoding_helpers.hpp
-  include/spotify/json/detail/encoding_helpers.hpp
+  include/spotify/json/detail/decode_helpers.hpp
+  include/spotify/json/detail/encode_helpers.hpp
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
   include/spotify/json/detail/macros.hpp

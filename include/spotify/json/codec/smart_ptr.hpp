@@ -18,10 +18,10 @@
 
 #include <utility>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/encoding_helpers.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -60,11 +60,11 @@ class smart_ptr_t {
   explicit smart_ptr_t(InnerCodec inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return codec::make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     detail::fail_if(context, !value, "Cannot encode null smart pointer");
     _inner_codec.encode(context, *value);
   }

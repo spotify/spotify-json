@@ -18,7 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/skip.hpp>
 
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_simple_characters) {
   const auto json = generate_simple_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
-    auto context = decoding_context(json.data(), json.data() + json.size());
+    auto context = decode_context(json.data(), json.data() + json.size());
     *const_cast<bool *>(&context.has_sse42) = false;
     detail::skip_past_simple_characters(context);
     n += context.offset();
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_simple_characters_sse42) {
   const auto json = generate_simple_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
-    auto context = decoding_context(json.data(), json.data() + json.size());
+    auto context = decode_context(json.data(), json.data() + json.size());
     detail::skip_past_simple_characters(context);
     n += context.offset();
   });
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_whitespace) {
   const auto json = generate_whitespace_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
-    auto context = decoding_context(json.data(), json.data() + json.size());
+    auto context = decode_context(json.data(), json.data() + json.size());
     *const_cast<bool *>(&context.has_sse42) = false;
     detail::skip_past_whitespace(context);
     n += context.offset();
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_whitespace_sse42) {
   const auto json = generate_whitespace_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
-    auto context = decoding_context(json.data(), json.data() + json.size());
+    auto context = decode_context(json.data(), json.data() + json.size());
     detail::skip_past_whitespace(context);
     n += context.offset();
   });

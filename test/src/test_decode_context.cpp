@@ -19,26 +19,26 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/decoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(detail)
 
-BOOST_AUTO_TEST_CASE(json_decoding_context_should_construct_with_begin_end) {
+BOOST_AUTO_TEST_CASE(json_decode_context_should_construct_with_begin_end) {
   static const char string[] = "abc";
   const char * const end = string + sizeof(string);
-  const decoding_context ctx(string, end);
+  const decode_context ctx(string, end);
 
   BOOST_CHECK_EQUAL(ctx.begin, string);
   BOOST_CHECK_EQUAL(ctx.position, string);
   BOOST_CHECK_EQUAL(ctx.end, end);
 }
 
-BOOST_AUTO_TEST_CASE(json_decoding_context_should_construct_with_data_size) {
+BOOST_AUTO_TEST_CASE(json_decode_context_should_construct_with_data_size) {
   static const char string[] = "abc";
   const char * const end = string + sizeof(string);
-  const decoding_context ctx(string, sizeof(string));
+  const decode_context ctx(string, sizeof(string));
 
   BOOST_CHECK_EQUAL(ctx.begin, string);
   BOOST_CHECK_EQUAL(ctx.position, string);

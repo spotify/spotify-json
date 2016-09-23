@@ -19,8 +19,8 @@
 #include <tuple>
 #include <type_traits>
 
-#include <spotify/json/decoding_context.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/decode_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -46,7 +46,7 @@ struct try_each_codec {
   using object_type = typename std::tuple_element<
       std::tuple_size<Tuple>::value - N, Tuple>::type::object_type;
 
-  static object_type decode(const Tuple &tuple, decoding_context &context) {
+  static object_type decode(const Tuple &tuple, decode_context &context) {
     const auto original_position = context.position;
     try {
       return std::get<std::tuple_size<Tuple>::value - N>(tuple).decode(context);
@@ -61,7 +61,7 @@ template <typename Tuple>
 struct try_each_codec<Tuple, 0> {
   using object_type = typename std::tuple_element<0, Tuple>::type::object_type;
 
-  static object_type decode(const Tuple &tuple, decoding_context &context) {
+  static object_type decode(const Tuple &tuple, decode_context &context) {
     return std::get<std::tuple_size<Tuple>::value - 1>(tuple).decode(context);
   }
 };
@@ -89,12 +89,12 @@ class one_of_t final {
   explicit one_of_t(Args&& ...args)
       : _codecs(std::forward<Args>(args)...) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return detail::try_each_codec<
         decltype(_codecs), std::tuple_size<decltype(_codecs)>::value>::decode(_codecs, context);
   }
 
-  void encode(encoding_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type &value) const {
     std::get<0>(_codecs).encode(context, value);
   }
 

@@ -21,7 +21,8 @@
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/decode.hpp>
+#include <spotify/json/encode.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -34,7 +35,7 @@ class dummy_t final {
  public:
   using object_type = T;
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     return new T();
   }
 };
@@ -54,7 +55,7 @@ object_t<sub_class> sub_codec() {
 
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
   BOOST_CHECK_EQUAL(c.position, c.end);
   return obj;

@@ -19,8 +19,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/string.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/decode_exception.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 #include <spotify/json/benchmark/benchmark.hpp>
 
@@ -57,7 +58,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_simple_long_string) {
   const auto json_begin = json.data();
   const auto json_end = json.data() + json.size();
   JSON_BENCHMARK(1e5, [=]{
-    auto context = decoding_context(json_begin, json_end);
+    auto context = decode_context(json_begin, json_end);
     const auto decoded_string = codec.decode(context);
   });
 }
@@ -69,7 +70,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_simple_tiny_string) {
   const auto json_end = json.data() + json.size();
   JSON_BENCHMARK(1e5, [=]{
     for (int i = 0; i < 100; i++) {
-      auto context = decoding_context(json_begin, json_end);
+      auto context = decode_context(json_begin, json_end);
       const auto decoded_string = codec.decode(context);
     }
   });
@@ -82,7 +83,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_decode_simple_tiny_string) {
 BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_encode_simple_long_string) {
   const auto codec = default_codec<std::string>();
   const auto string = generate_simple_string(10000);
-  auto context = encoding_context(string.size() + 2);
+  auto context = encode_context(string.size() + 2);
   JSON_BENCHMARK(1e5, [&]{
     codec.encode(context, string);
     context.clear();
@@ -92,7 +93,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_encode_simple_long_string) {
 BOOST_AUTO_TEST_CASE(benchmark_json_codec_string_encode_simple_tiny_string) {
   const auto codec = default_codec<std::string>();
   const auto string = std::string("spotify:track:05341EWu6uHUg2BojF3Cyw");
-  auto context = encoding_context(string.size() + 2);
+  auto context = encode_context(string.size() + 2);
   JSON_BENCHMARK(1e5, [&]{
     for (int i = 0; i < 100; i++) {
       codec.encode(context, string);

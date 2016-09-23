@@ -30,7 +30,7 @@ struct tuple_field {
 
   static void decode(
       const std::tuple<Codecs...> &codecs,
-      decoding_context &context,
+      decode_context &context,
       T &object) {
     if (element_idx != 0) {
       advance_past(context, ',');
@@ -45,7 +45,7 @@ struct tuple_field {
 
   static void encode(
       const std::tuple<Codecs...> &codecs,
-      encoding_context &context,
+      encode_context &context,
       const T &object) {
     const auto &codec = std::get<element_idx>(codecs);
     const auto &element = std::get<element_idx>(object);
@@ -60,9 +60,9 @@ struct tuple_field {
 template <typename T, typename... Codecs>
 struct tuple_field<T, 0, Codecs...> {
   static void decode(
-      const std::tuple<Codecs...> &codecs, decoding_context &, T &) {}
+      const std::tuple<Codecs...> &codecs, decode_context &, T &) {}
   static void encode(
-      const std::tuple<Codecs...> &codecs, encoding_context &, const T &) {}
+      const std::tuple<Codecs...> &codecs, encode_context &, const T &) {}
 };
 
 }
@@ -78,7 +78,7 @@ class tuple_t final {
   template <typename... Args>
   tuple_t(Args&& ...args) : _codecs(std::forward<Args>(args)...) {}
 
-  object_type decode(decoding_context &context) const {
+  object_type decode(decode_context &context) const {
     object_type output;
     detail::advance_past(context, '[');
     detail::skip_past_whitespace(context);
@@ -88,7 +88,7 @@ class tuple_t final {
     return output;
   }
 
-  void encode(encoding_context &context, const object_type &object) const {
+  void encode(encode_context &context, const object_type &object) const {
     context.append('[');
     detail::tuple_field<object_type, element_count, Codecs...>::encode(
         _codecs, context, object);

@@ -22,8 +22,9 @@
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/string.hpp>
+#include <spotify/json/decode.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_decode.hpp>
+#include <spotify/json/encode.hpp>
 
 #include <spotify/json/test/only_true.hpp>
 
@@ -34,7 +35,7 @@ namespace {
 
 template <typename Codec>
 typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   auto obj = codec.decode(c);
   BOOST_CHECK_EQUAL(c.position, c.end);
   return obj;
@@ -42,7 +43,7 @@ typename Codec::object_type test_decode(const Codec &codec, const std::string &j
 
 template <typename Codec>
 void test_decode_fail(const Codec &codec, const std::string &json) {
-  decoding_context c(json.c_str(), json.c_str() + json.size());
+  decode_context c(json.c_str(), json.c_str() + json.size());
   BOOST_CHECK_THROW(codec.decode(c), decode_exception);
 }
 

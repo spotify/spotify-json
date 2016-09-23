@@ -14,38 +14,28 @@
  * the License.
  */
 
-#include <boost/test/unit_test.hpp>
+#pragma once
 
-#include <spotify/json/codec/boolean.hpp>
-#include <spotify/json/decode_context.hpp>
+#include <string>
+
+#include <spotify/json/default_codec.hpp>
+#include <spotify/json/detail/macros.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
-namespace codec {
 
-/**
- * Codec for booleans that only encodes true.
- */
-class only_true_t final {
- public:
-  using object_type = bool;
+template <typename Codec>
+json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
+  encode_context context;
+  codec.encode(context, object);
+  return std::string(static_cast<const char *>(context.data()), context.size());
+}
 
-  object_type decode(decode_context &context) const {
-    return object_type();
-  }
+template <typename Value>
+json_never_inline std::string encode(const Value &value) {
+  return encode(default_codec<Value>(), value);
+}
 
-  void encode(encode_context &context, const object_type &value) const {
-    _bool_codec.encode(context, true);
-  }
-
-  bool should_encode(const object_type &value) const {
-    return value;
-  }
-
- private:
-  boolean_t _bool_codec;
-};
-
-}  // namespace codec
 }  // namespace json
 }  // namespace spotify

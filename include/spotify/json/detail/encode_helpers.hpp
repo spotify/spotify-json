@@ -18,7 +18,7 @@
 
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/encode_exception.hpp>
-#include <spotify/json/encoding_context.hpp>
+#include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
@@ -26,14 +26,14 @@ namespace detail {
 
 template <typename string_type>
 json_never_inline json_noreturn void fail(
-    const encoding_context &context,
+    const encode_context &context,
     const string_type &error) {
   throw encode_exception(error);
 }
 
 template <typename string_type, typename condition_type>
 json_force_inline void fail_if(
-    const encoding_context &context,
+    const encode_context &context,
     const condition_type condition,
     const string_type &error) {
   if (json_unlikely(condition)) {
