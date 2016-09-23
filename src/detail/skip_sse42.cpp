@@ -46,8 +46,8 @@ void skip_past_simple_characters_sse42(decode_context &context) {
             _SIDD_POSITIVE_POLARITY |
             _SIDD_LEAST_SIGNIFICANT);
     if (index != 16) {
-      pos += index;
-      break;
+      context.position = pos + index;
+      return;
     }
   }
 
@@ -80,8 +80,8 @@ void skip_past_whitespace_sse42(decode_context &context) {
             _SIDD_NEGATIVE_POLARITY |
             _SIDD_LEAST_SIGNIFICANT);
     if (index != 16) {
-      pos += index;
-      break;
+      context.position = pos + index;
+      return;
     }
   }
 
