@@ -56,6 +56,6 @@ def add_external_repos(prefix=None, has_boost=False, boost_url=None):
     native.new_http_archive(
         name = "boost",
         url = DEFAULT_BOOST_URL,
-        build_file = _add_prefix("vendor/boost/boost.BUILD", prefix),
+        build_file = _add_prefix("bazel/boost.BUILD", prefix),
         strip_prefix = "boost_1_61_0",
     )
