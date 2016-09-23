@@ -75,6 +75,7 @@ set(json_detail_SOURCES
   src/detail/escape.cpp
   src/detail/escape_common.hpp
   src/detail/skip.cpp
+  src/detail/skip_common.hpp
   )
 
 set(json_detail_SSE42_SOURCES

@@ -19,26 +19,13 @@
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/macros.hpp>
 
-#define json_unaligned_x(ignore) true
-
-#define JSON_STRING_SKIP_N_SIMPLE(n, n_plus_one, type, control, goto_label) \
-  control ((end - pos) >= n && json_unaligned_ ## n_plus_one(pos)) { \
-    const auto cc = *reinterpret_cast<const type *>(pos); \
-    if (json_haschar_ ## n(cc, '"')) { goto goto_label; } \
-    if (json_haschar_ ## n(cc, '\\')) { goto goto_label; } \
-    pos += n; \
-  }
-
 namespace spotify {
 namespace json {
 namespace detail {
 
 void skip_past_simple_characters_scalar(decode_context &context);
-void skip_past_whitespace_scalar(decode_context &context);
-
 #if defined(json_arch_x86)
 void skip_past_simple_characters_sse42(decode_context &context);
-void skip_past_whitespace_sse42(decode_context &context);
 #endif  // defined(json_arch_x86)
 
 /**
@@ -56,6 +43,11 @@ json_force_inline void skip_past_simple_characters(decode_context &context) {
 #endif  // defined(json_arch_x86)
   return skip_past_simple_characters_scalar(context);
 }
+
+void skip_past_whitespace_scalar(decode_context &context);
+#if defined(json_arch_x86)
+void skip_past_whitespace_sse42(decode_context &context);
+#endif  // defined(json_arch_x86)
 
 /**
  * Skip past the bytes of the string until a non-whitespace character is
