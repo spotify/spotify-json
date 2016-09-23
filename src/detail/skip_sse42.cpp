@@ -35,19 +35,18 @@ void skip_past_simple_characters_sse42(decode_context &context) {
   JSON_STRING_SKIP_N_SIMPLE(4,  8, uint32_t, if, done_4)
   JSON_STRING_SKIP_N_SIMPLE(8, 16, uint64_t, if, done_8)
 
-  alignas(16) static const char CHARS[16] = "\"\\";
-  const __m128i chars = _mm_load_si128(reinterpret_cast<const __m128i *>(&CHARS[0]));
+  {
+    alignas(16) static const char CHARS[16] = "\"\\";
+    const auto chars = _mm_load_si128(reinterpret_cast<const __m128i *>(&CHARS[0]));
 
-  for (; pos <= end - 16; pos += 16) {
-    const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(pos));
-    const int index = _mm_cmpistri(chars, chunk,
-            _SIDD_UBYTE_OPS |
-            _SIDD_CMP_EQUAL_ANY |
-            _SIDD_POSITIVE_POLARITY |
-            _SIDD_LEAST_SIGNIFICANT);
-    if (index != 16) {
-      context.position = pos + index;
-      return;
+    for (; pos <= end - 16; pos += 16) {
+      const auto chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(pos));
+      constexpr auto flags = _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_POSITIVE_POLARITY | _SIDD_LEAST_SIGNIFICANT;
+      const auto index = _mm_cmpistri(chars, chunk, flags);
+      if (index != 16) {
+        context.position = pos + index;
+        return;
+      }
     }
   }
 
@@ -70,15 +69,12 @@ void skip_past_whitespace_sse42(decode_context &context) {
   }
 
   alignas(16) static const char CHARS[16] = " \t\n\r";
-  const __m128i chars = _mm_load_si128(reinterpret_cast<const __m128i *>(&CHARS[0]));
+  const auto chars = _mm_load_si128(reinterpret_cast<const __m128i *>(&CHARS[0]));
 
   for (; pos <= end - 16; pos += 16) {
-    const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(pos));
-    const int index = _mm_cmpistri(chars, chunk,
-            _SIDD_UBYTE_OPS |
-            _SIDD_CMP_EQUAL_ANY |
-            _SIDD_NEGATIVE_POLARITY |
-            _SIDD_LEAST_SIGNIFICANT);
+    const auto chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(pos));
+    constexpr auto flags = _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_NEGATIVE_POLARITY | _SIDD_LEAST_SIGNIFICANT;
+    const auto index = _mm_cmpistri(chars, chunk, flags);
     if (index != 16) {
       context.position = pos + index;
       return;
