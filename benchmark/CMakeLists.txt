@@ -44,6 +44,4 @@ target_include_directories(${json_benchmark_TARGET} SYSTEM PUBLIC ${Boost_INCLUD
 target_link_libraries(${json_benchmark_TARGET} ${json_library_TARGET})
 target_link_libraries(${json_benchmark_TARGET} ${Boost_LIBRARIES})
 
-include("AddBoostTests")
-
-ADD_BOOST_TESTS(${json_benchmark_TARGET} ${json_benchmark_SOURCES})
+add_test(${json_benchmark_TARGET} ${json_benchmark_TARGET})
