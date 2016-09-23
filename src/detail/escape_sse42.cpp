@@ -22,27 +22,33 @@
 
 #include "escape_common.hpp"
 
+#if defined(_MSC_VER)
+  #define as_m128i_u8(v) (v).m128i_u8
+#else
+  #define as_m128i_u8(v) ((__v16qi) v)
+#endif
+
 namespace spotify {
 namespace json {
 namespace detail {
 
 json_force_inline void write_escaped_16_sse42(uint8_t *&out, const __m128i chunk) {
-  write_escaped_c(out, chunk.m128i_u8[0]);
-  write_escaped_c(out, chunk.m128i_u8[1]);
-  write_escaped_c(out, chunk.m128i_u8[2]);
-  write_escaped_c(out, chunk.m128i_u8[3]);
-  write_escaped_c(out, chunk.m128i_u8[4]);
-  write_escaped_c(out, chunk.m128i_u8[5]);
-  write_escaped_c(out, chunk.m128i_u8[6]);
-  write_escaped_c(out, chunk.m128i_u8[7]);
-  write_escaped_c(out, chunk.m128i_u8[8]);
-  write_escaped_c(out, chunk.m128i_u8[9]);
-  write_escaped_c(out, chunk.m128i_u8[10]);
-  write_escaped_c(out, chunk.m128i_u8[11]);
-  write_escaped_c(out, chunk.m128i_u8[12]);
-  write_escaped_c(out, chunk.m128i_u8[13]);
-  write_escaped_c(out, chunk.m128i_u8[14]);
-  write_escaped_c(out, chunk.m128i_u8[15]);
+  write_escaped_c(out, as_m128i_u8(chunk)[0]);
+  write_escaped_c(out, as_m128i_u8(chunk)[1]);
+  write_escaped_c(out, as_m128i_u8(chunk)[2]);
+  write_escaped_c(out, as_m128i_u8(chunk)[3]);
+  write_escaped_c(out, as_m128i_u8(chunk)[4]);
+  write_escaped_c(out, as_m128i_u8(chunk)[5]);
+  write_escaped_c(out, as_m128i_u8(chunk)[6]);
+  write_escaped_c(out, as_m128i_u8(chunk)[7]);
+  write_escaped_c(out, as_m128i_u8(chunk)[8]);
+  write_escaped_c(out, as_m128i_u8(chunk)[9]);
+  write_escaped_c(out, as_m128i_u8(chunk)[10]);
+  write_escaped_c(out, as_m128i_u8(chunk)[11]);
+  write_escaped_c(out, as_m128i_u8(chunk)[12]);
+  write_escaped_c(out, as_m128i_u8(chunk)[13]);
+  write_escaped_c(out, as_m128i_u8(chunk)[14]);
+  write_escaped_c(out, as_m128i_u8(chunk)[15]);
 }
 
 void write_escaped_sse42(
