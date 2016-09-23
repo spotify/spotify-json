@@ -291,6 +291,22 @@ library supports more things that sometimes come in handy:
 [Detailed API documentation](doc/api.md)
 ------------------------------------------
 
+
+Linking against the library in a project
+----------------------------------------
+
+If your project is built with CMake, it is easy to use spotify-json. Here is an
+example of how it can be done:
+
+1. Add spotify-json as a git submodule under `vendor/`
+2. Add the following lines to the `CMakeLists.txt` of your project:
+
+```
+add_subdirectory(vendor/spotify-json)
+target_link_libraries([YOUR TARGET] spotify-json)
+```
+
+
 Building and running tests
 --------------------------
 ### Requirements
