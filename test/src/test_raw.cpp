@@ -14,6 +14,9 @@
  * the License.
  */
 
+#include <cstdlib>
+#include <string>
+
 #include <boost/test/unit_test.hpp>
 
 #include <spotify/json/codec/array.hpp>
@@ -23,50 +26,22 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/encode.hpp>
 
-namespace {
-
-struct foobar_t {
-  spotify::json::codec::raw_ref value;
-};
-
-}  // namespace
-
-namespace spotify {
-namespace json {
-
-template <>
-struct default_codec_t<foobar_t> {
-  static codec::object_t<foobar_t> codec() {
-    auto codec = codec::object<foobar_t>();
-    codec.required("value", &foobar_t::value);
-    return codec;
-  }
-};
-
-}  // namespace json
-}  // namespace spotify
-
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-foobar_t decode_foobar(const char *data) {
-  decode_context ctx(data, data + std::strlen(data));
-  return default_codec<foobar_t>().decode(ctx);
-}
+template <typename value_type>
+struct foobar_t {
+  value_type value;
+};
 
+template <typename value_type = raw_ref>
 void verify_decode_raw(const std::string &raw_value) {
-  std::string data;
-  data += R"({"foo": 123,"value": )";
-  const auto expected_begin = data.size();
-  data += raw_value;
-  data += R"(,"bar": 456})";
-
-  const auto foobar = decode_foobar(data.c_str());
-  BOOST_CHECK_EQUAL(expected_begin, foobar.value.data - data.c_str());
-  BOOST_CHECK_EQUAL(raw_value.size(), foobar.value.size);
+  const auto codec = raw<value_type>();
+  const auto decoded = json::decode(codec, raw_value);
+  BOOST_CHECK_EQUAL(raw_value, std::string(decoded.data(), decoded.size()));
 }
 
 }  // namespace
@@ -79,16 +54,16 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
   std::string raw = "true";
   raw_ref ref(raw.data(), raw.size());
 
-  BOOST_CHECK_EQUAL(ref.data, raw.data());
-  BOOST_CHECK_EQUAL(ref.size, raw.size());
+  BOOST_CHECK_EQUAL(ref.data(), raw.data());
+  BOOST_CHECK_EQUAL(ref.size(), raw.size());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
   std::string raw = "true";
   raw_ref ref(raw.data(), raw.data() + raw.size());
 
-  BOOST_CHECK_EQUAL(ref.data, raw.data());
-  BOOST_CHECK_EQUAL(ref.size, raw.size());
+  BOOST_CHECK_EQUAL(ref.data(), raw.data());
+  BOOST_CHECK_EQUAL(ref.size(), raw.size());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decode_context) {
@@ -146,6 +121,10 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_deep_json) {
   for (auto i = 0; i < depth; i++) { str += ']'; }
 
   verify_decode_raw(str);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_into_string) {
+  verify_decode_raw<std::string>("[1, 2, 3]");
 }
 
 /*
