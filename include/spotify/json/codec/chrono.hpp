@@ -25,49 +25,47 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename Duration>
-typename Duration::rep encodeTransformDuration(Duration duration) {
+template <typename duration_type>
+typename duration_type::rep encodeTransformDuration(duration_type duration) {
   return duration.count();
 }
 
-template <typename Duration>
-Duration decodeTransformDuration(
-    typename Duration::rep duration_rep, size_t offset) {
-  return Duration(duration_rep);
+template <typename duration_type>
+duration_type decodeTransformDuration(typename duration_type::rep duration_rep, size_t offset) {
+  return duration_type(duration_rep);
 }
 
-template <typename TimePoint>
-typename TimePoint::rep encodeTransformTimePoint(TimePoint time_point) {
+template <typename time_point_type>
+typename time_point_type::rep encodeTransformTimePoint(time_point_type time_point) {
   return time_point.time_since_epoch().count();
 }
 
-template <typename TimePoint>
-TimePoint decodeTransformTimePoint(
-    typename TimePoint::rep duration_rep, size_t offset) {
-  return TimePoint(typename TimePoint::duration(duration_rep));
+template <typename time_point_type>
+time_point_type decodeTransformTimePoint(typename time_point_type::rep duration_rep, size_t offset) {
+  return time_point_type(typename time_point_type::duration(duration_rep));
 }
 
 }  // namespace detail
 namespace codec {
 
-template <typename Duration>
+template <typename duration_type>
 decltype(transform(
-    &detail::encodeTransformDuration<Duration>,
-    &detail::decodeTransformDuration<Duration>))
+    &detail::encodeTransformDuration<duration_type>,
+    &detail::decodeTransformDuration<duration_type>))
 duration() {
   return transform(
-      &detail::encodeTransformDuration<Duration>,
-      &detail::decodeTransformDuration<Duration>);
+      &detail::encodeTransformDuration<duration_type>,
+      &detail::decodeTransformDuration<duration_type>);
 }
 
-template <typename TimePoint>
+template <typename time_point_type>
 decltype(transform(
-    &detail::encodeTransformTimePoint<TimePoint>,
-    &detail::decodeTransformTimePoint<TimePoint>))
+    &detail::encodeTransformTimePoint<time_point_type>,
+    &detail::decodeTransformTimePoint<time_point_type>))
 time_point() {
   return transform(
-      &detail::encodeTransformTimePoint<TimePoint>,
-      &detail::decodeTransformTimePoint<TimePoint>);
+      &detail::encodeTransformTimePoint<time_point_type>,
+      &detail::decodeTransformTimePoint<time_point_type>);
 }
 
 }  // namespace codec
@@ -79,10 +77,10 @@ struct default_codec_t<std::chrono::duration<Rep, Period>> {
   }
 };
 
-template <typename Clock, typename Duration>
-struct default_codec_t<std::chrono::time_point<Clock, Duration>> {
-  static decltype(codec::time_point<std::chrono::time_point<Clock, Duration>>()) codec() {
-    return codec::time_point<std::chrono::time_point<Clock, Duration>>();
+template <typename Clock, typename duration_type>
+struct default_codec_t<std::chrono::time_point<Clock, duration_type>> {
+  static decltype(codec::time_point<std::chrono::time_point<Clock, duration_type>>()) codec() {
+    return codec::time_point<std::chrono::time_point<Clock, duration_type>>();
   }
 };
 
