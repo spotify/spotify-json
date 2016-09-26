@@ -55,15 +55,15 @@ struct has_should_encode_method {
   static constexpr bool value = std::is_same<decltype(test<T>(0)), std::true_type>::value;
 };
 
-template <typename Codec>
-typename std::enable_if<!has_should_encode_method<Codec>::value, bool>::type
-json_force_inline should_encode(const Codec &codec, const typename Codec::object_type &value) {
+template <typename codec_type>
+typename std::enable_if<!has_should_encode_method<codec_type>::value, bool>::type
+json_force_inline should_encode(const codec_type &codec, const typename codec_type::object_type &value) {
   return true;
 }
 
-template <typename Codec>
-typename std::enable_if<has_should_encode_method<Codec>::value, bool>::type
-json_force_inline should_encode(const Codec &codec, const typename Codec::object_type &value) {
+template <typename codec_type>
+typename std::enable_if<has_should_encode_method<codec_type>::value, bool>::type
+json_force_inline should_encode(const codec_type &codec, const typename codec_type::object_type &value) {
   return codec.should_encode(value);
 }
 
