@@ -16,11 +16,9 @@
 
 #pragma once
 
-#include <stdexcept>
-
 #include <spotify/json/decode_context.hpp>
-#include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/detail/skip_value.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
@@ -36,7 +34,7 @@ class ignore_t final {
       : _value(std::move(value)) {}
 
   object_type decode(decode_context &context) const {
-    detail::advance_past_value(context);
+    detail::skip_value(context);
     return _value;
   }
 

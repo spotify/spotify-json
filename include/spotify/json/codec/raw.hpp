@@ -21,7 +21,7 @@
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
-#include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/skip_value.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
@@ -50,7 +50,7 @@ class raw_t final {
 
   object_type decode(decode_context &context) const {
     const auto begin = context.position;
-    detail::advance_past_value(context);
+    detail::skip_value(context);
     return object_type(begin, static_cast<std::size_t>(context.position - begin));
   }
 

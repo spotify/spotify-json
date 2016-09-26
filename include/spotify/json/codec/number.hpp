@@ -79,7 +79,7 @@ class floating_point_t {
         static_cast<int>(context.end - context.position),
         &bytes_read);
     fail_if(context, std::isnan(result), "Invalid floating point number");
-    skip(context, bytes_read);
+    skip_unchecked_n(context, bytes_read);
     return result;
   }
 
@@ -303,7 +303,7 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
   decltype(context.position) dec_beg = nullptr;
   decltype(context.position) dec_end = nullptr;
   if (peek(context) == '.') {
-    skip(context);
+    skip_unchecked_1(context);
     dec_beg = context.position;
     dec_end = std::find_if_not(dec_beg, context.end, char_traits<char>::is_digit);
     fail_if(context, dec_beg == dec_end, "Invalid digits after decimal point");
@@ -316,11 +316,11 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
   decltype(context.position) exp_end = nullptr;
   const auto e = peek(context);
   if (e == 'e' || e == 'E') {
-    skip(context);
+    skip_unchecked_1(context);
     const auto sign = peek(context);
     if (sign == '-' || sign == '+') {
       exp_is_positive = (sign == '+');
-      skip(context);
+      skip_unchecked_1(context);
     }
     exp_beg = context.position;
     exp_end = std::find_if_not(exp_beg, context.end, char_traits<char>::is_digit);
@@ -368,7 +368,7 @@ json_never_inline T decode_integer(decode_context &context) {
       return (json_unlikely(is_tricky) ? decode_integer_tricky<T, is_positive>(context, b) : value);
     }
 
-    skip_unchecked(context);
+    skip_unchecked_1(context);
     const auto old_value = value;
     value = intops::accumulate(value * 10, i);
     if (json_unlikely(intops::is_overflow(old_value, value))) {
@@ -381,7 +381,7 @@ json_never_inline T decode_integer(decode_context &context) {
 
 template <typename T>
 json_force_inline T decode_negative_integer(decode_context &context) {
-  skip(context);  // Skip past leading '-' character (checked in decode(...)).
+  skip_unchecked_1(context);  // Skip past leading '-' character (checked in decode(...)).
   return decode_integer<T, false>(context);
 }
 

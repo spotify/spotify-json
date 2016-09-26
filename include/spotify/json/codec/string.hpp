@@ -24,7 +24,7 @@
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/escape.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/skip.hpp>
+#include <spotify/json/detail/skip_chars.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
@@ -36,7 +36,7 @@ class string_t final {
   using object_type = std::string;
 
   json_never_inline object_type decode(decode_context &context) const {
-    detail::advance_past(context, '"');
+    detail::skip_1(context, '"');
     return decode_string(context);
   }
 
@@ -64,14 +64,12 @@ class string_t final {
  private:
   json_force_inline static object_type decode_string(decode_context &context) {
     const auto begin_simple = context.position;
+    detail::skip_any_simple_characters(context);
 
-    detail::skip_past_simple_characters(context);
-
-    for (;;) {
-      switch (detail::next(context, "Unterminated string")) {
-        case '"': return std::string(begin_simple, context.position - 1);
-        case '\\': return decode_escaped_string(context, begin_simple);
-      }
+    switch (detail::next(context, "Unterminated string")) {
+      case '"': return std::string(begin_simple, context.position - 1);
+      case '\\': return decode_escaped_string(context, begin_simple);
+      default: json_unreachable();
     }
   }
 
@@ -80,20 +78,14 @@ class string_t final {
     decode_escape(context, unescaped);
 
     while (json_likely(context.remaining())) {
-    decode_simple:
       const auto begin_simple = context.position;
-
-      detail::skip_past_simple_characters(context);
-
+      detail::skip_any_simple_characters(context);
       unescaped.append(begin_simple, context.position);
 
-      while (json_likely(context.remaining())) {
-        const auto character = detail::next_unchecked(context);
-        switch (character) {
-          case '"': return unescaped;
-          case '\\': decode_escape(context, unescaped); goto decode_simple;
-          default: unescaped.push_back(character); break;
-        }
+      switch (detail::next(context, "Unterminated string")) {
+        case '"': return unescaped;
+        case '\\': decode_escape(context, unescaped); break;
+        default: json_unreachable();
       }
     }
 

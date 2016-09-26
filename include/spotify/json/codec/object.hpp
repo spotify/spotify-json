@@ -31,6 +31,7 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/bitset.hpp>
 #include <spotify/json/detail/macros.hpp>
+#include <spotify/json/detail/skip_value.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
@@ -73,10 +74,10 @@ class object_t final {
     detail::bitset<64> seen_required(_num_required_fields);
 
     object_type output = construct(std::is_default_constructible<T>());
-    detail::advance_past_object<string_t>(context, [&](const std::string &key) {
+    detail::decode_object<string_t>(context, [&](const std::string &key) {
       const auto field_it = _fields.find(key);
       if (json_unlikely(field_it == _fields.end())) {
-        return detail::advance_past_value(context);
+        return detail::skip_value(context);
       }
 
       const auto &field = *(*field_it).second;

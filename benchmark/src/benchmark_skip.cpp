@@ -20,7 +20,7 @@
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/skip.hpp>
+#include <spotify/json/detail/skip_chars.hpp>
 
 #include <spotify/json/benchmark/benchmark.hpp>
 
@@ -42,25 +42,25 @@ std::string generate_simple_string(size_t size) {
   return string;
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_simple_characters) {
+BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_simple_characters) {
   const auto json = generate_simple_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
     auto context = decode_context(json.data(), json.data() + json.size());
     *const_cast<bool *>(&context.has_sse42) = false;
-    detail::skip_past_simple_characters(context);
+    detail::skip_any_simple_characters(context);
     n += context.offset();
   });
 }
 
 #if defined(json_arch_x86)
 
-BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_simple_characters_sse42) {
+BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_simple_characters_sse42) {
   const auto json = generate_simple_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
     auto context = decode_context(json.data(), json.data() + json.size());
-    detail::skip_past_simple_characters(context);
+    detail::skip_any_simple_characters(context);
     n += context.offset();
   });
 }
@@ -82,25 +82,25 @@ std::string generate_whitespace_string(size_t size) {
   return string;
 }
 
-BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_whitespace) {
+BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_whitespace) {
   const auto json = generate_whitespace_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
     auto context = decode_context(json.data(), json.data() + json.size());
     *const_cast<bool *>(&context.has_sse42) = false;
-    detail::skip_past_whitespace(context);
+    detail::skip_any_whitespace(context);
     n += context.offset();
   });
 }
 
 #if defined(json_arch_x86)
 
-BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_past_whitespace_sse42) {
+BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_whitespace_sse42) {
   const auto json = generate_whitespace_string(8192);
   volatile size_t n = 0;
   JSON_BENCHMARK(1e6, [&]{
     auto context = decode_context(json.data(), json.data() + json.size());
-    detail::skip_past_whitespace(context);
+    detail::skip_any_whitespace(context);
     n += context.offset();
   });
 }

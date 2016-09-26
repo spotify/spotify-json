@@ -38,7 +38,7 @@ class null_t final {
       : _value(std::move(value)) {}
 
   object_type decode(decode_context &context) const {
-    detail::advance_past_null(context);
+    detail::skip_null(context);
     return _value;
   }
 

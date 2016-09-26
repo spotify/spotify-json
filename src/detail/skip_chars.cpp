@@ -14,18 +14,18 @@
  * the License.
  */
 
-#include <spotify/json/detail/skip.hpp>
+#include <spotify/json/detail/skip_chars.hpp>
 
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
 
-#include "skip_common.hpp"
+#include "skip_chars_common.hpp"
 
 namespace spotify {
 namespace json {
 namespace detail {
 
-void skip_past_simple_characters_scalar(decode_context &context) {
+void skip_any_simple_characters_scalar(decode_context &context) {
   const auto end = context.end;
   auto pos = context.position;
   JSON_STRING_SKIP_N_SIMPLE(1,  2, uint8_t,  if, done_x)
@@ -38,7 +38,7 @@ void skip_past_simple_characters_scalar(decode_context &context) {
   done_x: context.position = pos;
 }
 
-void skip_past_whitespace_scalar(decode_context &context) {
+void skip_any_whitespace_scalar(decode_context &context) {
   const auto end = context.end;
   auto pos = context.position;
   while (pos < end && char_traits<char>::is_space(*pos)) {

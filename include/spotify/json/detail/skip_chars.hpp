@@ -23,9 +23,9 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-void skip_past_simple_characters_scalar(decode_context &context);
+void skip_any_simple_characters_scalar(decode_context &context);
 #if defined(json_arch_x86)
-void skip_past_simple_characters_sse42(decode_context &context);
+void skip_any_simple_characters_sse42(decode_context &context);
 #endif  // defined(json_arch_x86)
 
 /**
@@ -35,18 +35,18 @@ void skip_past_simple_characters_sse42(decode_context &context);
  * appropriate address and then reading and comparing several bytes in a
  * single read operation.
  */
-json_force_inline void skip_past_simple_characters(decode_context &context) {
+json_force_inline void skip_any_simple_characters(decode_context &context) {
 #if defined(json_arch_x86)
   if (json_likely(context.has_sse42)) {
-    return skip_past_simple_characters_sse42(context);
+    return skip_any_simple_characters_sse42(context);
   }
 #endif  // defined(json_arch_x86)
-  return skip_past_simple_characters_scalar(context);
+  return skip_any_simple_characters_scalar(context);
 }
 
-void skip_past_whitespace_scalar(decode_context &context);
+void skip_any_whitespace_scalar(decode_context &context);
 #if defined(json_arch_x86)
-void skip_past_whitespace_sse42(decode_context &context);
+void skip_any_whitespace_sse42(decode_context &context);
 #endif  // defined(json_arch_x86)
 
 /**
@@ -56,13 +56,13 @@ void skip_past_whitespace_sse42(decode_context &context);
  * appropriate address and then reading and comparing several bytes in a
  * single read operation.
  */
-json_force_inline void skip_past_whitespace(decode_context &context) {
+json_force_inline void skip_any_whitespace(decode_context &context) {
 #if defined(json_arch_x86)
   if (json_likely(context.has_sse42)) {
-    return skip_past_whitespace_sse42(context);
+    return skip_any_whitespace_sse42(context);
   }
 #endif  // defined(json_arch_x86)
-  skip_past_whitespace_scalar(context);
+  skip_any_whitespace_scalar(context);
 }
 
 }  // detail
