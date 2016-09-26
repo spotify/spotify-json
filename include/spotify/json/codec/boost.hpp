@@ -35,37 +35,35 @@ namespace codec {
 
 template <typename T>
 struct make_smart_ptr_t<boost::shared_ptr<T>> {
-  template <typename Obj>
-  static boost::shared_ptr<T> make(Obj &&obj) {
-    using ObjectType = typename std::decay<Obj>::type;
-    return boost::make_shared<ObjectType>(std::forward<Obj>(obj));
+  template <typename O>
+  static boost::shared_ptr<T> make(O &&object) {
+    using object_type = typename std::decay<O>::type;
+    return boost::make_shared<object_type>(std::forward<O>(object));
   }
 };
 
-template <typename InnerCodec>
-using boost_shared_ptr_t = detail::smart_ptr_t<InnerCodec, boost::shared_ptr<typename InnerCodec::object_type>>;
+template <typename codec_type>
+using boost_shared_ptr_t = detail::smart_ptr_t<codec_type, boost::shared_ptr<typename codec_type::object_type>>;
 
-template <typename InnerCodec>
-boost_shared_ptr_t<typename std::decay<InnerCodec>::type> boost_shared_ptr(
-    InnerCodec &&inner_codec) {
-  return boost_shared_ptr_t<typename std::decay<InnerCodec>::type>(
-      std::forward<InnerCodec>(inner_codec));
+template <typename codec_type>
+boost_shared_ptr_t<typename std::decay<codec_type>::type> boost_shared_ptr(codec_type &&inner_codec) {
+  return boost_shared_ptr_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
-template <typename ToType, typename FromType>
-struct codec_cast<boost::shared_ptr<ToType>, boost::shared_ptr<FromType>> {
-  static boost::shared_ptr<ToType> cast(const boost::shared_ptr<FromType> &ptr) {
-    return boost::dynamic_pointer_cast<ToType>(ptr);
+template <typename T, typename F>
+struct codec_cast<boost::shared_ptr<T>, boost::shared_ptr<F>> {
+  static boost::shared_ptr<T> cast(const boost::shared_ptr<F> &ptr) {
+    return boost::dynamic_pointer_cast<T>(ptr);
   }
 };
 
-template <typename InnerCodec>
+template <typename codec_type>
 class optional_t final {
  public:
-  using object_type = boost::optional<typename InnerCodec::object_type>;
+  using object_type = boost::optional<typename codec_type::object_type>;
 
-  explicit optional_t(InnerCodec inner_codec)
-      : _inner_codec(inner_codec) {}
+  explicit optional_t(codec_type inner_codec)
+      : _inner_codec(std::move(inner_codec)) {}
 
   object_type decode(decode_context &context) const {
     return _inner_codec.decode(context);
@@ -81,14 +79,12 @@ class optional_t final {
   }
 
  private:
-  InnerCodec _inner_codec;
+  codec_type _inner_codec;
 };
 
-template <typename InnerCodec, typename... Options>
-optional_t<typename std::decay<InnerCodec>::type> optional(InnerCodec &&inner_codec,
-                                                           Options... options) {
-  return optional_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec),
-                                                           options...);
+template <typename codec_type, typename... options_type>
+optional_t<typename std::decay<codec_type>::type> optional(codec_type &&inner_codec, options_type... options) {
+  return optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec), options...);
 }
 
 }  // namespace codec
@@ -107,17 +103,17 @@ struct default_codec_t<boost::optional<T>> {
   }
 };
 
-template <typename Rep, typename Period>
-struct default_codec_t<boost::chrono::duration<Rep, Period>> {
-  static decltype(codec::duration<boost::chrono::duration<Rep, Period>>()) codec() {
-    return codec::duration<boost::chrono::duration<Rep, Period>>();
+template <typename rep_type, typename period_type>
+struct default_codec_t<boost::chrono::duration<rep_type, period_type>> {
+  static decltype(codec::duration<boost::chrono::duration<rep_type, period_type>>()) codec() {
+    return codec::duration<boost::chrono::duration<rep_type, period_type>>();
   }
 };
 
-template <typename Clock, typename Duration>
-struct default_codec_t<boost::chrono::time_point<Clock, Duration>> {
-  static decltype(codec::time_point<boost::chrono::time_point<Clock, Duration>>()) codec() {
-    return codec::time_point<boost::chrono::time_point<Clock, Duration>>();
+template <typename clock_type, typename duration_type>
+struct default_codec_t<boost::chrono::time_point<clock_type, duration_type>> {
+  static decltype(codec::time_point<boost::chrono::time_point<clock_type, duration_type>>()) codec() {
+    return codec::time_point<boost::chrono::time_point<clock_type, duration_type>>();
   }
 };
 
