@@ -16,24 +16,29 @@
 
 #pragma once
 
+#include <cstdlib>
+
 #if defined(_MSC_VER)
   #define json_force_inline __forceinline
   #define json_never_inline __declspec(noinline)
   #define json_noreturn __declspec(noreturn)
   #define json_likely(expr) (expr)
   #define json_unlikely(expr) (expr)
+  #define json_unreachable() std::abort()
 #elif defined(__GNUC__)
   #define json_force_inline __attribute__((always_inline)) inline
   #define json_never_inline __attribute__((noinline))
   #define json_noreturn __attribute__((noreturn))
   #define json_likely(expr) __builtin_expect(!!(expr), 1)
   #define json_unlikely(expr) __builtin_expect(!!(expr), 0)
+  #define json_unreachable() __builtin_unreachable()
 #else
   #define json_force_inline inline
   #define json_never_inline
   #define json_noreturn
   #define json_likely(expr) (expr)
   #define json_unlikely(expr) (expr)
+  #define json_unreachable() std::abort()
 #endif  // _MSC_VER
 
 #ifdef max
