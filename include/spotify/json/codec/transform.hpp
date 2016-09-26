@@ -30,31 +30,31 @@ template <class F>
 struct function_traits;
  
 // function pointer
-template <class R, class... Args>
-struct function_traits<R(*)(Args...)> : public function_traits<R(Args...)> {
+template <class R, class... args_type>
+struct function_traits<R(*)(args_type...)> : public function_traits<R(args_type...)> {
 };
  
-template <class R, class... Args>
-struct function_traits<R(Args...)> {
+template <class R, class... args_type>
+struct function_traits<R(args_type...)> {
   using return_type = R;
 
-  static constexpr std::size_t arity = sizeof...(Args);
+  static constexpr std::size_t arity = sizeof...(args_type);
 
   template <std::size_t N>
   struct argument {
     static_assert(N < arity, "error: invalid parameter index.");
-    using type = typename std::tuple_element<N,std::tuple<Args...>>::type;
+    using type = typename std::tuple_element<N,std::tuple<args_type...>>::type;
   };
 };
 
 // member function pointer
-template <class C, class R, class... Args>
-struct function_traits<R(C::*)(Args...)> : public function_traits<R(C&,Args...)> {
+template <class C, class R, class... args_type>
+struct function_traits<R(C::*)(args_type...)> : public function_traits<R(C&, args_type...)> {
 };
  
 // const member function pointer
-template <class C, class R, class... Args>
-struct function_traits<R(C::*)(Args...) const> : public function_traits<R(C&,Args...)> {
+template <class C, class R, class... args_type>
+struct function_traits<R(C::*)(args_type...) const> : public function_traits<R(C&, args_type...)> {
 };
  
 // member object pointer
@@ -109,21 +109,20 @@ namespace codec {
  * passed to decode_exception if something goes wrong.
  */
 template <
-    typename InnerCodec,
-    typename EncodeTransform,
-    typename DecodeTransform>
+    typename codec_type,
+    typename encode_transform,
+    typename decode_transform>
 class transform_t final {
  public:
-  using object_type = typename std::result_of<
-      DecodeTransform (typename InnerCodec::object_type, size_t)>::type;
+  using object_type = typename std::result_of<decode_transform(typename codec_type::object_type, size_t)>::type;
 
   transform_t(
-      InnerCodec inner_codec,
-      EncodeTransform encode_transform,
-      DecodeTransform decode_transform)
+      codec_type inner_codec,
+      encode_transform encode,
+      decode_transform decode)
       : _inner_codec(std::move(inner_codec)),
-        _encode_transform(std::move(encode_transform)),
-        _decode_transform(std::move(decode_transform)) {}
+        _encode_transform(std::move(encode)),
+        _decode_transform(std::move(decode)) {}
 
   object_type decode(decode_context &context) const {
     const auto offset = context.offset();  // Capture offset before decoding
@@ -135,42 +134,45 @@ class transform_t final {
   }
 
  private:
-  InnerCodec _inner_codec;
-  EncodeTransform _encode_transform;
-  DecodeTransform _decode_transform;
+  codec_type _inner_codec;
+  encode_transform _encode_transform;
+  decode_transform _decode_transform;
 };
 
-template <typename InnerCodec,
-          typename EncodeTransform,
-          typename DecodeTransform,
-          typename Transform = transform_t<typename std::decay<InnerCodec>::type,
-                                           typename std::decay<EncodeTransform>::type,
-                                           typename std::decay<DecodeTransform>::type>>
-Transform transform(InnerCodec &&inner_codec,
-                    EncodeTransform &&encode_transform,
-                    DecodeTransform &&decode_transform) {
-  return Transform(std::forward<InnerCodec>(inner_codec),
-                   std::forward<EncodeTransform>(encode_transform),
-                   std::forward<DecodeTransform>(decode_transform));
+template <
+    typename codec_type,
+    typename encode_transform,
+    typename decode_transform,
+    typename transform_codec_type = transform_t<
+        typename std::decay<codec_type>::type,
+        typename std::decay<encode_transform>::type,
+        typename std::decay<decode_transform>::type>>
+transform_codec_type transform(codec_type &&inner_codec, encode_transform &&encode, decode_transform &&decode) {
+  return transform_codec_type(
+      std::forward<codec_type>(inner_codec),
+      std::forward<encode_transform>(encode),
+      std::forward<decode_transform>(decode));
 }
 
 /**
  * Variant of transform that uses the default codec for the type that the
- * EncodeTransform function returns. This only works if EncodeTransform is a
+ * encode_transform function returns. This only works if encode_transform is a
  * function-like thing that can only return one type.
  */
-template <typename EncodeTransform,
-          typename DecodeTransform,
-          typename InnerType = typename std::decay<
-              typename detail::function_traits<EncodeTransform>::return_type>::type,
-          typename InnerCodec = decltype(default_codec<InnerType>()),
-          typename Transform = transform_t<InnerCodec,
-                                           typename std::decay<EncodeTransform>::type,
-                                           typename std::decay<DecodeTransform>::type>>
-Transform transform(EncodeTransform &&encode_transform, DecodeTransform &&decode_transform) {
-  return Transform(default_codec<InnerType>(),
-                   std::forward<EncodeTransform>(encode_transform),
-                   std::forward<DecodeTransform>(decode_transform));
+template <
+    typename encode_transform,
+    typename decode_transform,
+    typename inner_type = typename std::decay<typename detail::function_traits<encode_transform>::return_type>::type,
+    typename codec_type = decltype(default_codec<inner_type>()),
+    typename transform_codec_type = transform_t<
+        codec_type,
+        typename std::decay<encode_transform>::type,
+        typename std::decay<decode_transform>::type>>
+transform_codec_type transform(encode_transform &&encode, decode_transform &&decode) {
+  return transform_codec_type(
+      default_codec<inner_type>(),
+      std::forward<encode_transform>(encode),
+      std::forward<decode_transform>(decode));
 }
 
 }  // namespace codec
