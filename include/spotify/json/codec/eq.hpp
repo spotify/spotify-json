@@ -33,12 +33,12 @@ namespace codec {
  * together with one_of, which makes it possible to specify different codecs
  * for different versions.
  */
-template <typename InnerCodec>
+template <typename codec_type>
 class eq_t final {
  public:
-  using object_type = typename InnerCodec::object_type;
+  using object_type = typename codec_type::object_type;
 
-  eq_t(InnerCodec inner_codec, object_type value)
+  eq_t(codec_type inner_codec, object_type value)
       : _inner_codec(std::move(inner_codec)),
         _value(std::move(value)) {}
 
@@ -57,16 +57,16 @@ class eq_t final {
   }
 
  private:
-  InnerCodec _inner_codec;
+  codec_type _inner_codec;
   object_type _value;
 };
 
-template <typename InnerCodec>
-eq_t<typename std::decay<InnerCodec>::type> eq(
-    InnerCodec &&inner_codec,
-    typename InnerCodec::object_type value) {
-  return eq_t<typename std::decay<InnerCodec>::type>(
-      std::forward<InnerCodec>(inner_codec),
+template <typename codec_type>
+eq_t<typename std::decay<codec_type>::type> eq(
+    codec_type &&inner_codec,
+    typename codec_type::object_type value) {
+  return eq_t<typename std::decay<codec_type>::type>(
+      std::forward<codec_type>(inner_codec),
       std::move(value));
 }
 
