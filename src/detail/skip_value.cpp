@@ -25,6 +25,41 @@ namespace json {
 namespace detail {
 namespace {
 
+void skip_string_escape_after_slash(decode_context &context) {
+  switch (next(context, "Unterminated string")) {
+    case '"':
+    case '\\':
+    case '/':
+    case 'b':
+    case 'f':
+    case 'n':
+    case 'r':
+    case 't':
+      break;
+   case 'u': {
+      require_bytes<4>(context, "\\u must be followed by 4 hex digits");
+      const bool h0 = char_traits<char>::is_hex_digit(*(context.position++));
+      const bool h1 = char_traits<char>::is_hex_digit(*(context.position++));
+      const bool h2 = char_traits<char>::is_hex_digit(*(context.position++));
+      const bool h3 = char_traits<char>::is_hex_digit(*(context.position++));
+      fail_if(context, !(h0 && h1 && h2 && h3), "\\u must be followed by 4 hex digits");
+      break;
+    }
+   default:
+    fail(context, "Invalid escape character", -1);
+  }
+}
+
+void skip_string(decode_context &context) {
+  skip_1(context, '"');
+  for (;;) {
+    switch (next(context, "Unterminated string")) {
+      case '"': return;
+      case '\\': skip_string_escape_after_slash(context); break;
+    }
+  }
+}
+
 void skip_number(decode_context &context) {
   using traits = char_traits<char>;
 

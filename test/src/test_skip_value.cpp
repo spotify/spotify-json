@@ -39,6 +39,12 @@ void verify_skip_value(const std::string &json, const size_t extra = 0) {
 
 }  // namespace
 
+BOOST_AUTO_TEST_CASE(json_skip_value_string) {
+  verify_skip_value("\"\"");
+  verify_skip_value("\"abc\"");
+  verify_skip_value(u8"\"\u9E21\"");
+}
+
 BOOST_AUTO_TEST_CASE(json_skip_value_number) {
   verify_skip_value("0");
   verify_skip_value("1");
@@ -96,7 +102,7 @@ BOOST_AUTO_TEST_CASE(json_skip_value_nested_object) {
  * Invalid JSON
  */
 
-BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_empty_string) {
+BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_empty) {
   verify_skip_fail("");
 }
 
@@ -104,9 +110,9 @@ BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_character) {
   verify_skip_fail("a");
 }
 
-BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_boolean) {
-  verify_skip_fail("tru");
-  verify_skip_fail("FALSE");
+BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_string) {
+  verify_skip_fail("\"");
+  verify_skip_fail(R"("\a")");
 }
 
 BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_number) {
@@ -119,6 +125,11 @@ BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_number) {
   verify_skip_fail("E");
   verify_skip_fail("1e");
   verify_skip_fail("1E");
+}
+
+BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_boolean) {
+  verify_skip_fail("tru");
+  verify_skip_fail("FALSE");
 }
 
 BOOST_AUTO_TEST_CASE(json_skip_value_should_not_skip_invalid_object) {

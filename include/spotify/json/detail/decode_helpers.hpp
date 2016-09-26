@@ -117,7 +117,7 @@ json_force_inline void skip_any_1(decode_context &context) {
  * Skip past a specific character. If the context position does not point to a
  * matching character, a decode_exception is thrown.
  */
-inline void skip_1(decode_context &context, char character) {
+json_force_inline void skip_1(decode_context &context, char character) {
   fail_if(context, next(context) != character, "Unexpected input", -1);
 }
 
@@ -126,7 +126,7 @@ inline void skip_1(decode_context &context, char character) {
  * matching characters, a decode_exception is thrown. 'characters' must be a C
  * string of at least length 4. Only the first four characters will be read.
  */
-inline void skip_4(decode_context &context, const char characters[4]) {
+json_force_inline void skip_4(decode_context &context, const char characters[4]) {
   require_bytes<4>(context);
   fail_if(context, memcmp(characters, context.position, 4), "Unexpected input");
   context.position += 4;
@@ -145,7 +145,7 @@ inline void skip_4(decode_context &context, const char characters[4]) {
  * context.has_failed() must be false when this function is called.
  */
 template <typename Parse>
-void decode_comma_separated(decode_context &context, char intro, char outro, Parse parse) {
+json_never_inline void decode_comma_separated(decode_context &context, char intro, char outro, Parse parse) {
   skip_1(context, intro);
   skip_any_whitespace(context);
 
@@ -171,7 +171,7 @@ void decode_comma_separated(decode_context &context, char intro, char outro, Par
  * parsing fails later on.
  */
 template <typename KeyCodec, typename Callback>
-void decode_object(decode_context &context, const Callback &callback) {
+json_force_inline void decode_object(decode_context &context, const Callback &callback) {
   auto codec = KeyCodec();
   decode_comma_separated(context, '{', '}', [&]{
     auto key = codec.decode(context);
@@ -182,52 +182,17 @@ void decode_object(decode_context &context, const Callback &callback) {
   });
 }
 
-inline void skip_true(decode_context &context) {
+json_force_inline void skip_true(decode_context &context) {
   skip_4(context, "true");
 }
 
-inline void skip_false(decode_context &context) {
+json_force_inline void skip_false(decode_context &context) {
   context.position++;  // skip past the 'f' in 'false', we know it is there
   skip_4(context, "alse");
 }
 
-inline void skip_null(decode_context &context) {
+json_force_inline void skip_null(decode_context &context) {
   skip_4(context, "null");
-}
-
-inline void skip_string_escape_after_slash(decode_context &context) {
-  switch (next(context, "Unterminated string")) {
-    case '"':
-    case '\\':
-    case '/':
-    case 'b':
-    case 'f':
-    case 'n':
-    case 'r':
-    case 't':
-      break;
-   case 'u': {
-      require_bytes<4>(context, "\\u must be followed by 4 hex digits");
-      const bool h0 = char_traits<char>::is_hex_digit(*(context.position++));
-      const bool h1 = char_traits<char>::is_hex_digit(*(context.position++));
-      const bool h2 = char_traits<char>::is_hex_digit(*(context.position++));
-      const bool h3 = char_traits<char>::is_hex_digit(*(context.position++));
-      fail_if(context, !(h0 && h1 && h2 && h3), "\\u must be followed by 4 hex digits");
-      break;
-    }
-   default:
-    fail(context, "Invalid escape character", -1);
-  }
-}
-
-inline void skip_string(decode_context &context) {
-  skip_1(context, '"');
-  for (;;) {
-    switch (next(context, "Unterminated string")) {
-      case '"': return;
-      case '\\': skip_string_escape_after_slash(context); break;
-    }
-  }
 }
 
 }  // namespace detail
