@@ -23,13 +23,13 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename T, size_t RemainingObjects, typename... Codecs>
-struct tuple_field {
+template <typename T, size_t remaining_count, typename... codecs_type>
+struct tuple_field final {
   static constexpr size_t element_count = std::tuple_size<T>::value;
-  static constexpr size_t element_idx = element_count - RemainingObjects;
+  static constexpr size_t element_idx = element_count - remaining_count;
 
   static void decode(
-      const std::tuple<Codecs...> &codecs,
+      const std::tuple<codecs_type...> &codecs,
       decode_context &context,
       T &object) {
     if (element_idx != 0) {
@@ -40,11 +40,11 @@ struct tuple_field {
     const auto &codec = std::get<element_idx>(codecs);
     std::get<element_idx>(object) = codec.decode(context);
     skip_any_whitespace(context);
-    tuple_field<T, RemainingObjects - 1, Codecs...>::decode(codecs, context, object);
+    tuple_field<T, remaining_count - 1, codecs_type...>::decode(codecs, context, object);
   }
 
   static void encode(
-      const std::tuple<Codecs...> &codecs,
+      const std::tuple<codecs_type...> &codecs,
       encode_context &context,
       const T &object) {
     const auto &codec = std::get<element_idx>(codecs);
@@ -53,23 +53,21 @@ struct tuple_field {
       codec.encode(context, element);
       context.append(',');
     }
-    tuple_field<T, RemainingObjects - 1, Codecs...>::encode(codecs, context, object);
+    tuple_field<T, remaining_count - 1, codecs_type...>::encode(codecs, context, object);
   }
 };
 
-template <typename T, typename... Codecs>
-struct tuple_field<T, 0, Codecs...> {
-  static void decode(
-      const std::tuple<Codecs...> &codecs, decode_context &, T &) {}
-  static void encode(
-      const std::tuple<Codecs...> &codecs, encode_context &, const T &) {}
+template <typename T, typename... codecs_type>
+struct tuple_field<T, 0, codecs_type...> {
+  static void decode(const std::tuple<codecs_type...> &codecs, decode_context &, T &) {}
+  static void encode(const std::tuple<codecs_type...> &codecs, encode_context &, const T &) {}
 };
 
 }
 
 namespace codec {
 
-template <typename T, typename... Codecs>
+template <typename T, typename... codecs_type>
 class tuple_t final {
   static constexpr size_t element_count = std::tuple_size<T>::value;
  public:
@@ -82,7 +80,7 @@ class tuple_t final {
     object_type output;
     detail::skip_1(context, '[');
     detail::skip_any_whitespace(context);
-    detail::tuple_field<object_type, element_count, Codecs...>::decode(
+    detail::tuple_field<object_type, element_count, codecs_type...>::decode(
         _codecs, context, output);
     detail::skip_1(context, ']');
     return output;
@@ -90,35 +88,35 @@ class tuple_t final {
 
   void encode(encode_context &context, const object_type &object) const {
     context.append('[');
-    detail::tuple_field<object_type, element_count, Codecs...>::encode(
+    detail::tuple_field<object_type, element_count, codecs_type...>::encode(
         _codecs, context, object);
     context.append_or_replace(',', ']');
   }
 
  private:
-  std::tuple<Codecs ...> _codecs;
+  std::tuple<codecs_type ...> _codecs;
 };
 
-template <typename... Codecs>
+template <typename... codecs_type>
 tuple_t<
-    std::tuple<typename std::decay<Codecs>::type::object_type...>,
-    typename std::decay<Codecs>::type...> tuple(Codecs&& ...codecs) {
+    std::tuple<typename std::decay<codecs_type>::type::object_type...>,
+    typename std::decay<codecs_type>::type...> tuple(codecs_type&& ...codecs) {
   return tuple_t<
-      std::tuple<typename std::decay<Codecs>::type::object_type...>,
-      typename std::decay<Codecs>::type...>(std::forward<Codecs>(codecs)...);
+      std::tuple<typename std::decay<codecs_type>::type::object_type...>,
+      typename std::decay<codecs_type>::type...>(std::forward<codecs_type>(codecs)...);
 }
 
-template <typename CodecA, typename CodecB>
+template <typename codec_type_a, typename codec_type_b>
 tuple_t<
-    std::pair<typename CodecA::object_type, typename CodecB::object_type>,
-    typename std::decay<CodecA>::type,
-    typename std::decay<CodecB>::type> pair(CodecA &&a, CodecB &&b) {
+    std::pair<typename codec_type_a::object_type, typename codec_type_b::object_type>,
+    typename std::decay<codec_type_a>::type,
+    typename std::decay<codec_type_b>::type> pair(codec_type_a &&a, codec_type_b &&b) {
   return tuple_t<
-    std::pair<typename CodecA::object_type, typename CodecB::object_type>,
-    typename std::decay<CodecA>::type,
-    typename std::decay<CodecB>::type>(
-        std::forward<CodecA>(a),
-        std::forward<CodecB>(b));
+    std::pair<typename codec_type_a::object_type, typename codec_type_b::object_type>,
+    typename std::decay<codec_type_a>::type,
+    typename std::decay<codec_type_b>::type>(
+        std::forward<codec_type_a>(a),
+        std::forward<codec_type_b>(b));
 }
 
 }  // namespace codec
