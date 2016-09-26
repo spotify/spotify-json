@@ -66,11 +66,10 @@ class string_t final {
     const auto begin_simple = context.position;
     detail::skip_any_simple_characters(context);
 
-    for (;;) {
-      switch (detail::next(context, "Unterminated string")) {
-        case '"': return std::string(begin_simple, context.position - 1);
-        case '\\': return decode_escaped_string(context, begin_simple);
-      }
+    switch (detail::next(context, "Unterminated string")) {
+      case '"': return std::string(begin_simple, context.position - 1);
+      case '\\': return decode_escaped_string(context, begin_simple);
+      default: json_unreachable();
     }
   }
 
@@ -79,18 +78,14 @@ class string_t final {
     decode_escape(context, unescaped);
 
     while (json_likely(context.remaining())) {
-    decode_simple:
       const auto begin_simple = context.position;
       detail::skip_any_simple_characters(context);
       unescaped.append(begin_simple, context.position);
 
-      while (json_likely(context.remaining())) {
-        const auto character = detail::next_unchecked(context);
-        switch (character) {
-          case '"': return unescaped;
-          case '\\': decode_escape(context, unescaped); goto decode_simple;
-          default: unescaped.push_back(character); break;
-        }
+      switch (detail::next(context, "Unterminated string")) {
+        case '"': return unescaped;
+        case '\\': decode_escape(context, unescaped); break;
+        default: json_unreachable();
       }
     }
 
