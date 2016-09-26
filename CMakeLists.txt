@@ -68,6 +68,7 @@ set(json_detail_HEADERS
   include/spotify/json/detail/iterator.hpp
   include/spotify/json/detail/macros.hpp
   include/spotify/json/detail/skip_chars.hpp
+  include/spotify/json/detail/skip_value.hpp
   include/spotify/json/detail/stack.hpp
   )
 
@@ -76,6 +77,7 @@ set(json_detail_SOURCES
   src/detail/escape_common.hpp
   src/detail/skip_chars.cpp
   src/detail/skip_chars_common.hpp
+  src/detail/skip_value.cpp
   )
 
 set(json_detail_SSE42_SOURCES

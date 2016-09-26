@@ -463,55 +463,6 @@ BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_object_without_ending_brac
  */
 
 /*
- * Advance past string escape
- */
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_empty) {
-  auto ctx = make_context("");
-  BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_non_escape) {
-  auto ctx = make_context("\"");
-  BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_just_backslash) {
-  auto ctx = make_context("\\");
-  BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_invalid_character) {
-  auto ctx = make_context("\\a");
-  BOOST_CHECK_THROW(advance_past_string_escape(ctx), decode_exception);
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_single_character_escape) {
-  verify_advance(&advance_past_string_escape, "\\\"");
-  verify_advance(&advance_past_string_escape, "\\\\");
-  verify_advance(&advance_past_string_escape, "\\b");
-  verify_advance(&advance_past_string_escape, "\\f");
-  verify_advance(&advance_past_string_escape, "\\n");
-  verify_advance(&advance_past_string_escape, "\\r");
-  verify_advance(&advance_past_string_escape, "\\t");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_unicode_escape) {
-  verify_advance(&advance_past_string_escape, "\\u0000");
-  verify_advance(&advance_past_string_escape, "\\u1234");
-  verify_advance(&advance_past_string_escape, "\\uffff");
-  verify_advance(&advance_past_string_escape, "\\uABCD");
-  verify_advance(&advance_past_string_escape, "\\u0F0f");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape_invalid_unicode_escape) {
-  verify_advance_fail(&advance_past_string_escape, "\\u0");
-  verify_advance_fail(&advance_past_string_escape, "\\u000");
-  verify_advance_fail(&advance_past_string_escape, "\\ug000");
-  verify_advance_fail(&advance_past_string_escape, "\\u000G");
-}
-
-/*
  * Advance past string
  */
 
@@ -539,10 +490,6 @@ BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_invalid_characters)
   verify_advance_fail(&advance_past_string, "\a");
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_escape) {
-  verify_advance(&advance_past_string, R"("\"")");
-}
-
 BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_invalid_escape) {
   verify_advance_fail(&advance_past_string, R"("\a")");
 }
@@ -552,145 +499,42 @@ BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_string_utf8) {
 }
 
 /*
- * Advance past number
+ * Advance past escaped string
  */
 
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_empty) {
-  verify_advance_fail(&advance_past_number, "");
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_escaped_string_with_only_backslash) {
+  auto ctx = make_context(R"("\")");
+  BOOST_CHECK_THROW(advance_past_string(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_invalid_character) {
-  verify_advance_fail(&advance_past_number, "a");
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_escaped_string_with_invalid_escape) {
+  auto ctx = make_context(R"("\a")");
+  BOOST_CHECK_THROW(advance_past_string(ctx), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_just_negative_sign) {
-  verify_advance_fail(&advance_past_number, "-");
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_escaped_string_with_simple_escape) {
+  verify_advance(&advance_past_string, R"("\"")");
+  verify_advance(&advance_past_string, R"("\\")");
+  verify_advance(&advance_past_string, R"("\b")");
+  verify_advance(&advance_past_string, R"("\f")");
+  verify_advance(&advance_past_string, R"("\n")");
+  verify_advance(&advance_past_string, R"("\r")");
+  verify_advance(&advance_past_string, R"("\t")");
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_zero) {
-  verify_advance(&advance_past_number, "0");
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_escaped_string_with_unicode_escape) {
+  verify_advance(&advance_past_string, R"("\u0000")");
+  verify_advance(&advance_past_string, R"("\u1234")");
+  verify_advance(&advance_past_string, R"("\uffff")");
+  verify_advance(&advance_past_string, R"("\uABCD")");
+  verify_advance(&advance_past_string, R"("\u0F0f")");
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_negative_zero) {
-  verify_advance(&advance_past_number, "-0");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_one) {
-  verify_advance(&advance_past_number, "1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_zero_with_trailing_digit) {
-  verify_advance_partial(&advance_past_number, "01", 1);
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_just_decimal_dot) {
-  verify_advance_fail(&advance_past_number, ".");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_decimal_dot_before_int) {
-  verify_advance_fail(&advance_past_number, ".1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_decimal_dot_last) {
-  verify_advance_fail(&advance_past_number, "1.");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_decimal_dot) {
-  verify_advance(&advance_past_number, "1.0");
-  verify_advance(&advance_past_number, "1.1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_two_decimal_dots) {
-  verify_advance_fail(&advance_past_number, "1..1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_just_exp_e) {
-  verify_advance_fail(&advance_past_number, "e");
-  verify_advance_fail(&advance_past_number, "E");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_number_then_exp_e) {
-  verify_advance_fail(&advance_past_number, "1e");
-  verify_advance_fail(&advance_past_number, "1E");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp_e_then_number) {
-  verify_advance_fail(&advance_past_number, "e1");
-  verify_advance_fail(&advance_past_number, "E1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp) {
-  verify_advance(&advance_past_number, "1e1");
-  verify_advance(&advance_past_number, "1E1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp_with_plus) {
-  verify_advance(&advance_past_number, "1e+1");
-  verify_advance(&advance_past_number, "1E+1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_exp_with_minus) {
-  verify_advance(&advance_past_number, "1e-1");
-  verify_advance(&advance_past_number, "1E-1");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_number_nonint_exp) {
-  verify_advance_partial(&advance_past_number, "1e-1.1", 4);
-  verify_advance_partial(&advance_past_number, "1E-1.1", 4);
-}
-
-/*
- * Advance past value
- */
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_empty) {
-  verify_advance_fail(&advance_past_value, "");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_invalid_character) {
-  verify_advance_fail(&advance_past_value, "a");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_string) {
-  verify_advance(&advance_past_value, "\"hello\"");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_number) {
-  verify_advance(&advance_past_value, "-1.3e+2");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_boolean) {
-  verify_advance(&advance_past_value, "true");
-  verify_advance(&advance_past_value, "false");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_null) {
-  verify_advance(&advance_past_value, "null");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_array) {
-  verify_advance(&advance_past_value, "[]");
-  verify_advance(&advance_past_value, "[1,null,true]");
-  verify_advance(&advance_past_value, "[ 1 , null , true ]");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_object) {
-  verify_advance(&advance_past_value, "{}");
-  verify_advance(&advance_past_value, R"({"a":3})");
-  verify_advance(&advance_past_value, R"({"a":3,"b":4})");
-  verify_advance(&advance_past_value, R"({ "a" : 3 , "b" : 4 })");
-  verify_advance_fail(&advance_past_value, "{true:false}");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_nested_array) {
-  verify_advance(&advance_past_value, "[{},[1],[[1]]]");
-  verify_advance(&advance_past_value, "[1,[1],[[1]]]");
-}
-
-BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_value_nested_object) {
-  verify_advance(&advance_past_value, R"({"a":{}})");
-  verify_advance(&advance_past_value, R"({"a":[]})");
-  verify_advance(&advance_past_value, R"({"a":[{},[]]})");
+BOOST_AUTO_TEST_CASE(json_decode_helpers_advance_past_escaped_string_with_invalid_unicode_escape) {
+  verify_advance_fail(&advance_past_string, R"("\u0")");
+  verify_advance_fail(&advance_past_string, R"("\u000")");
+  verify_advance_fail(&advance_past_string, R"("\ug000")");
+  verify_advance_fail(&advance_past_string, R"("\u000G")");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail
