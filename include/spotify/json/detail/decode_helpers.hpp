@@ -26,8 +26,8 @@
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/skip.hpp>
 #include <spotify/json/detail/stack.hpp>
+#include <spotify/json/detail/skip_chars.hpp>
 
 #if _MSC_VER
 #pragma intrinsic (memcmp)

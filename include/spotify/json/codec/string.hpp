@@ -24,7 +24,7 @@
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/escape.hpp>
 #include <spotify/json/detail/macros.hpp>
-#include <spotify/json/detail/skip.hpp>
+#include <spotify/json/detail/skip_chars.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {

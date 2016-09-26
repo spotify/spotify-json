@@ -67,20 +67,20 @@ set(json_detail_HEADERS
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/iterator.hpp
   include/spotify/json/detail/macros.hpp
-  include/spotify/json/detail/skip.hpp
+  include/spotify/json/detail/skip_chars.hpp
   include/spotify/json/detail/stack.hpp
   )
 
 set(json_detail_SOURCES
   src/detail/escape.cpp
   src/detail/escape_common.hpp
-  src/detail/skip.cpp
-  src/detail/skip_common.hpp
+  src/detail/skip_chars.cpp
+  src/detail/skip_chars_common.hpp
   )
 
 set(json_detail_SSE42_SOURCES
   src/detail/escape_sse42.cpp
-  src/detail/skip_sse42.cpp
+  src/detail/skip_chars_sse42.cpp
   )
 
 set(json_all_HEADERS

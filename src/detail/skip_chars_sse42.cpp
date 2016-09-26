@@ -14,7 +14,7 @@
  * the License.
  */
 
-#include <spotify/json/detail/skip.hpp>
+#include <spotify/json/detail/skip_chars.hpp>
 
 #if defined(json_arch_x86)
 
@@ -22,7 +22,7 @@
 
 #include <spotify/json/detail/char_traits.hpp>
 
-#include "skip_common.hpp"
+#include "skip_chars_common.hpp"
 
 namespace spotify {
 namespace json {
