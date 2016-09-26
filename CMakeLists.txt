@@ -94,7 +94,7 @@ set(json_all_SOURCES
   ${json_detail_SSE42_SOURCES}
   )
 
-set(json_library_TARGET "json")
+set(json_library_TARGET "spotify-json")
 
 source_group(spotify\\json         FILES ${json_HEADERS})
 source_group(spotify\\json\\codec  FILES ${json_codec_HEADERS})
