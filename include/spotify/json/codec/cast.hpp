@@ -26,22 +26,22 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template <typename ToPointerType, typename FromPointerType>
+template <typename to_ptr_type, typename from_ptr_type>
 struct codec_cast;
 
-template <typename ToType, typename FromType>
-struct codec_cast<std::shared_ptr<ToType>, std::shared_ptr<FromType>> {
-  static std::shared_ptr<ToType> cast(const std::shared_ptr<FromType> &ptr) {
-    return std::dynamic_pointer_cast<ToType>(ptr);
+template <typename T, typename F>
+struct codec_cast<std::shared_ptr<T>, std::shared_ptr<F>> {
+  static std::shared_ptr<T> cast(const std::shared_ptr<F> &ptr) {
+    return std::dynamic_pointer_cast<T>(ptr);
   }
 };
 
-template <typename PointerType, typename InnerCodec>
+template <typename T, typename codec_type>
 class cast_t {
  public:
-  using object_type = PointerType;
+  using object_type = T;
 
-  explicit cast_t(InnerCodec inner_codec)
+  explicit cast_t(codec_type inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
   object_type decode(decode_context &context) const {
@@ -49,18 +49,17 @@ class cast_t {
   }
 
   void encode(encode_context &context, object_type value) const {
-    using inner_type = typename InnerCodec::object_type;
-    _inner_codec.encode(context, codec_cast<inner_type, PointerType>::cast(value));
+    using inner_type = typename codec_type::object_type;
+    _inner_codec.encode(context, codec_cast<inner_type, T>::cast(value));
   }
 
  private:
-  InnerCodec _inner_codec;
+  codec_type _inner_codec;
 };
 
-template <typename OuterType, typename InnerCodec>
-cast_t<OuterType, typename std::decay<InnerCodec>::type> cast(InnerCodec &&inner_codec) {
-  return cast_t<OuterType, typename std::decay<InnerCodec>::type>(
-      std::forward<InnerCodec>(inner_codec));
+template <typename OuterType, typename codec_type>
+cast_t<OuterType, typename std::decay<codec_type>::type> cast(codec_type &&inner_codec) {
+  return cast_t<OuterType, typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
 }  // namespace codec
