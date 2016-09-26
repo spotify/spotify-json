@@ -28,7 +28,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-void skip_past_simple_characters_sse42(decode_context &context) {
+void skip_any_simple_characters_sse42(decode_context &context) {
   const auto end = context.end;
   auto pos = context.position;
 
@@ -59,7 +59,7 @@ void skip_past_simple_characters_sse42(decode_context &context) {
   done_x: context.position = pos;
 }
 
-void skip_past_whitespace_sse42(decode_context &context) {
+void skip_any_whitespace_sse42(decode_context &context) {
   const auto end = context.end;
   auto pos = context.position;
 

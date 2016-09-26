@@ -74,7 +74,7 @@ class object_t final {
     detail::bitset<64> seen_required(_num_required_fields);
 
     object_type output = construct(std::is_default_constructible<T>());
-    detail::advance_past_object<string_t>(context, [&](const std::string &key) {
+    detail::decode_object<string_t>(context, [&](const std::string &key) {
       const auto field_it = _fields.find(key);
       if (json_unlikely(field_it == _fields.end())) {
         return detail::skip_value(context);

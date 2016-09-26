@@ -75,10 +75,10 @@ void skip_simple_value(decode_context &context) {
     case '-':  // fallthrough
     case '0': case '1': case '2': case '3': case '4':  // fallthrough
     case '5': case '6': case '7': case '8': case '9': skip_number(context); break;
-    case '"': advance_past_string(context); break;
-    case 'f': advance_past_false(context); break;
-    case 't': advance_past_true(context); break;
-    case 'n': advance_past_null(context); break;
+    case '"': skip_string(context); break;
+    case 'f': skip_false(context); break;
+    case 't': skip_true(context); break;
+    case 'n': skip_null(context); break;
     default: fail(context, std::string("Encountered token '") + peek(context) + "'");
   }
 }
@@ -113,27 +113,27 @@ void skip_value(decode_context &context) {
 
   while (json_likely(context.remaining() && pstate != done)) {
     if (json_likely(inside)) {
-      skip_past_whitespace(context);
+      skip_any_whitespace(context);
     }
 
     const auto c = peek_unchecked(context);
 
     if (c == ',' && (pstate & read_sep)) {
-      skip(context);
+      skip_unchecked_1(context);
       pstate = (inside == '{' ? need_key : need_val);
       continue;
     }
 
     if (c == '"' && (pstate & read_key)) {
-      advance_past_string(context);
-      skip_past_whitespace(context);
-      advance_past(context, ':');
+      skip_string(context);
+      skip_any_whitespace(context);
+      skip_1(context, ':');
       pstate = need_val;
       continue;
     }
 
     if (c == closer && !(pstate & need)) {
-      skip(context);
+      skip_unchecked_1(context);
       inside = stack.pop();
       closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'
       pstate = (inside ? want_sep : done);
@@ -146,7 +146,7 @@ void skip_value(decode_context &context) {
         "Expected ',' or ']");
 
     if (c == '{' || c == '[') {
-      skip(context);
+      skip_unchecked_1(context);
       stack.push(inside);
       inside = c;
       closer = inside + 2;  // '{' + 2 == '}', '[' + 2 == ']'

@@ -128,7 +128,7 @@ class array_t final {
     using inserter = detail::container_inserter<T>;
     object_type output;
     typename inserter::state state = inserter::init_state;
-    detail::advance_past_comma_separated(context, '[', ']', [&]{
+    detail::decode_comma_separated(context, '[', ']', [&]{
       state = inserter::insert(
           context, state, output, _inner_codec.decode(context));
     });

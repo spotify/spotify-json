@@ -95,38 +95,38 @@ json_force_inline char next(decode_context &context) {
   return next(context, "Unexpected end of input");
 }
 
-json_force_inline void skip_unchecked(decode_context &context, const size_t num_bytes) {
-  context.position += num_bytes;
-}
-
-json_force_inline void skip_unchecked(decode_context &context) {
+json_force_inline void skip_unchecked_1(decode_context &context) {
   context.position++;
 }
 
-json_force_inline void skip(decode_context &context, const size_t num_bytes) {
-  fail_if(context, context.remaining() < num_bytes, "Unexpected end of input");
-  skip_unchecked(context, num_bytes);
+json_force_inline void skip_unchecked_n(decode_context &context, const size_t num_bytes) {
+  context.position += num_bytes;
 }
 
-json_force_inline void skip(decode_context &context) {
+json_force_inline void skip_any_n(decode_context &context, const size_t num_bytes) {
+  fail_if(context, context.remaining() < num_bytes, "Unexpected end of input");
+  skip_unchecked_n(context, num_bytes);
+}
+
+json_force_inline void skip_any_1(decode_context &context) {
   require_bytes<1>(context, "Unexpected end of input");
   context.position++;
 }
 
 /**
- * Advance past a specific character. If the context position does not point to
- * a matching character, a decode_exception is thrown.
+ * Skip past a specific character. If the context position does not point to a
+ * matching character, a decode_exception is thrown.
  */
-inline void advance_past(decode_context &context, char character) {
+inline void skip_1(decode_context &context, char character) {
   fail_if(context, next(context) != character, "Unexpected input", -1);
 }
 
 /**
- * Advance past 4 specific characters. If the context position does not point to
+ * Skip past four specific characters. If the context position does not point to
  * matching characters, a decode_exception is thrown. 'characters' must be a C
  * string of at least length 4. Only the first four characters will be read.
  */
-inline void advance_past_four(decode_context &context, const char *characters) {
+inline void skip_4(decode_context &context, const char characters[4]) {
   require_bytes<4>(context);
   fail_if(context, memcmp(characters, context.position, 4), "Unexpected input");
   context.position += 4;
@@ -145,19 +145,19 @@ inline void advance_past_four(decode_context &context, const char *characters) {
  * context.has_failed() must be false when this function is called.
  */
 template <typename Parse>
-void advance_past_comma_separated(decode_context &context, char intro, char outro, Parse parse) {
-  advance_past(context, intro);
-  skip_past_whitespace(context);
+void decode_comma_separated(decode_context &context, char intro, char outro, Parse parse) {
+  skip_1(context, intro);
+  skip_any_whitespace(context);
 
   if (json_likely(peek(context) != outro)) {
     parse();
-    skip_past_whitespace(context);
+    skip_any_whitespace(context);
 
     while (json_likely(peek(context) != outro)) {
-      advance_past(context, ',');
-      skip_past_whitespace(context);
+      skip_1(context, ',');
+      skip_any_whitespace(context);
       parse();
-      skip_past_whitespace(context);
+      skip_any_whitespace(context);
     }
   }
 
@@ -171,31 +171,31 @@ void advance_past_comma_separated(decode_context &context, char intro, char outr
  * parsing fails later on.
  */
 template <typename KeyCodec, typename Callback>
-void advance_past_object(decode_context &context, const Callback &callback) {
+void decode_object(decode_context &context, const Callback &callback) {
   auto codec = KeyCodec();
-  advance_past_comma_separated(context, '{', '}', [&]{
+  decode_comma_separated(context, '{', '}', [&]{
     auto key = codec.decode(context);
-    skip_past_whitespace(context);
-    advance_past(context, ':');
-    skip_past_whitespace(context);
+    skip_any_whitespace(context);
+    skip_1(context, ':');
+    skip_any_whitespace(context);
     callback(std::move(key));
   });
 }
 
-inline void advance_past_true(decode_context &context) {
-  advance_past_four(context, "true");
+inline void skip_true(decode_context &context) {
+  skip_4(context, "true");
 }
 
-inline void advance_past_false(decode_context &context) {
+inline void skip_false(decode_context &context) {
   context.position++;  // skip past the 'f' in 'false', we know it is there
-  advance_past_four(context, "alse");
+  skip_4(context, "alse");
 }
 
-inline void advance_past_null(decode_context &context) {
-  advance_past_four(context, "null");
+inline void skip_null(decode_context &context) {
+  skip_4(context, "null");
 }
 
-inline void advance_past_string_escape_after_slash(decode_context &context) {
+inline void skip_string_escape_after_slash(decode_context &context) {
   switch (next(context, "Unterminated string")) {
     case '"':
     case '\\':
@@ -220,12 +220,12 @@ inline void advance_past_string_escape_after_slash(decode_context &context) {
   }
 }
 
-inline void advance_past_string(decode_context &context) {
-  advance_past(context, '"');
+inline void skip_string(decode_context &context) {
+  skip_1(context, '"');
   for (;;) {
     switch (next(context, "Unterminated string")) {
       case '"': return;
-      case '\\': advance_past_string_escape_after_slash(context); break;
+      case '\\': skip_string_escape_after_slash(context); break;
     }
   }
 }

@@ -37,8 +37,8 @@ class boolean_t final {
 
   object_type decode(decode_context &context) const {
     switch (detail::peek(context)) {
-      case 'f': detail::advance_past_false(context); return false;
-      case 't': detail::advance_past_true(context); return true;
+      case 'f': detail::skip_false(context); return false;
+      case 't': detail::skip_true(context); return true;
       default: detail::fail(context, "Unexpected input, expected boolean");
     }
   }

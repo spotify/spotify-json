@@ -36,7 +36,7 @@ class string_t final {
   using object_type = std::string;
 
   json_never_inline object_type decode(decode_context &context) const {
-    detail::advance_past(context, '"');
+    detail::skip_1(context, '"');
     return decode_string(context);
   }
 
@@ -64,8 +64,7 @@ class string_t final {
  private:
   json_force_inline static object_type decode_string(decode_context &context) {
     const auto begin_simple = context.position;
-
-    detail::skip_past_simple_characters(context);
+    detail::skip_any_simple_characters(context);
 
     for (;;) {
       switch (detail::next(context, "Unterminated string")) {
@@ -82,9 +81,7 @@ class string_t final {
     while (json_likely(context.remaining())) {
     decode_simple:
       const auto begin_simple = context.position;
-
-      detail::skip_past_simple_characters(context);
-
+      detail::skip_any_simple_characters(context);
       unescaped.append(begin_simple, context.position);
 
       while (json_likely(context.remaining())) {

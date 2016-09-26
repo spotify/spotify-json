@@ -29,9 +29,9 @@ namespace json {
 template <typename Codec>
 typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
   decode_context c(data, data + size);
-  detail::skip_past_whitespace(c);
+  detail::skip_any_whitespace(c);
   const auto result = codec.decode(c);
-  detail::skip_past_whitespace(c);
+  detail::skip_any_whitespace(c);
   detail::fail_if(c, c.position != c.end, "Unexpected trailing input");
   return result;
 }
@@ -90,7 +90,7 @@ bool try_decode_partial(
     const decode_context &context) {
   try {
     decode_context c(context);
-    detail::skip_past_whitespace(c);
+    detail::skip_any_whitespace(c);
     object = codec.decode(c);
     return true;
   } catch (const decode_exception &) {
