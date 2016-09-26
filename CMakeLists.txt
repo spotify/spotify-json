@@ -15,7 +15,6 @@
 cmake_minimum_required(VERSION 2.8.0)
 project(spotify-json)
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(json_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 set(json_HEADERS
