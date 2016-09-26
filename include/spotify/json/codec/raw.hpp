@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <cstring>
 
 #include <spotify/json/decode_context.hpp>
@@ -28,42 +29,48 @@ namespace json {
 namespace codec {
 
 struct raw_ref {
-  raw_ref() : data(nullptr), size(0) {}
-  raw_ref(const char *d, size_t s) : data(d), size(s) {}
-  raw_ref(const char *begin, const char *end) : data(begin), size(end - begin) {}
+  raw_ref() : _data(nullptr), _size(0) {}
+  raw_ref(const char *data, std::size_t size) : _data(data), _size(size) {}
+  raw_ref(const char *begin, const char *end) : _data(begin), _size(end - begin) {}
 
-  explicit operator decode_context() const { return decode_context(data, size); }
+  explicit operator decode_context() const { return decode_context(data(), size()); }
 
-  const char *data;
-  size_t size;
+  const char *data() const { return _data; }
+  std::size_t size() const { return _size; }
+
+ private:
+  const char *_data;
+  std::size_t _size;
 };
 
+template <typename T>
 class raw_t final {
  public:
-  using object_type = raw_ref;
+  using object_type = T;
 
   object_type decode(decode_context &context) const {
     const auto begin = context.position;
     detail::advance_past_value(context);
-    return raw_ref(begin, context.position - begin);
+    return object_type(begin, static_cast<std::size_t>(context.position - begin));
   }
 
   void encode(encode_context &context, const object_type &value) const {
-    std::memcpy(context.reserve(value.size), value.data, value.size);
-    context.advance(value.size);
+    std::memcpy(context.reserve(value.size()), value.data(), value.size());
+    context.advance(value.size());
   }
 };
 
-inline raw_t raw() {
-  return raw_t();
+template <typename T>
+inline raw_t<T> raw() {
+  return raw_t<T>();
 }
 
 }  // namespace codec
 
 template <>
 struct default_codec_t<codec::raw_ref> {
-  static codec::raw_t codec() {
-    return codec::raw();
+  static codec::raw_t<codec::raw_ref> codec() {
+    return codec::raw<codec::raw_ref>();
   }
 };
 
