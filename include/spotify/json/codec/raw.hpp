@@ -51,7 +51,8 @@ class raw_t final {
   object_type decode(decode_context &context) const {
     const auto begin = context.position;
     detail::skip_value(context);
-    return object_type(begin, static_cast<std::size_t>(context.position - begin));
+    const auto end = context.position;
+    return object_type(begin, end);
   }
 
   void encode(encode_context &context, const object_type &value) const {
