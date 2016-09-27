@@ -64,7 +64,7 @@ void skip_any_whitespace_sse42(decode_context &context) {
   auto pos = context.position;
 
   for (; pos < end && json_unaligned_16(pos); ++pos) {
-    if (!char_traits<char>::is_space(*pos)) {
+    if (!char_traits::is_space(*pos)) {
       context.position = pos;
       return;
     }
@@ -83,7 +83,7 @@ void skip_any_whitespace_sse42(decode_context &context) {
     }
   }
 
-  while (pos < end && char_traits<char>::is_space(*pos)) {
+  while (pos < end && char_traits::is_space(*pos)) {
     ++pos;
   }
 

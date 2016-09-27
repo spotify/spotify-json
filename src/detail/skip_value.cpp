@@ -29,10 +29,10 @@ namespace {
 
 void skip_unicode_escape(decode_context &context) {
   require_bytes<4>(context, "\\u must be followed by 4 hex digits");
-  const bool h0 = char_traits<char>::is_hex_digit(*(context.position++));
-  const bool h1 = char_traits<char>::is_hex_digit(*(context.position++));
-  const bool h2 = char_traits<char>::is_hex_digit(*(context.position++));
-  const bool h3 = char_traits<char>::is_hex_digit(*(context.position++));
+  const bool h0 = char_traits::is_hex_digit(*(context.position++));
+  const bool h1 = char_traits::is_hex_digit(*(context.position++));
+  const bool h2 = char_traits::is_hex_digit(*(context.position++));
+  const bool h3 = char_traits::is_hex_digit(*(context.position++));
   fail_if(context, !(h0 && h1 && h2 && h3), "\\u must be followed by 4 hex digits");
 }
 
@@ -67,7 +67,7 @@ void skip_string(decode_context &context) {
 }
 
 void skip_number(decode_context &context) {
-  using traits = char_traits<char>;
+  using traits = char_traits;
 
   // Parse negative sign
   if (peek(context) == '-') {
@@ -99,7 +99,7 @@ void skip_number(decode_context &context) {
     }
 
     fail_if(context, !traits::is_digit(peek(context)), "Expected digit after exponent sign");
-    do { ++context.position; } while (char_traits<char>::is_digit(peek(context)));
+    do { ++context.position; } while (char_traits::is_digit(peek(context)));
   }
 }
 

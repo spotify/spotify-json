@@ -22,21 +22,20 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename char_type>
 struct char_traits {
-  json_force_inline static bool is_space(const char_type c) {
+  json_force_inline static bool is_space(const char c) {
     return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
   }
 
-  json_force_inline static bool is_digit(const char_type c) {
+  json_force_inline static bool is_digit(const char c) {
     return (c >= '0' && c <= '9');
   }
 
-  json_force_inline static bool is_hex_digit(const char_type c) {
+  json_force_inline static bool is_hex_digit(const char c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
   }
 
-  json_force_inline static int to_integer(const char_type c) {
+  json_force_inline static int to_integer(const char c) {
     return (c - '0');
   }
 };

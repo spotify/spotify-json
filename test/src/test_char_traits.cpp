@@ -46,38 +46,38 @@ void check(const Fn &fn, bool should_be_true, const Range &range) {
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_char_traits_is_space_should_detect_the_right_characters) {
-  check(char_traits<char>::is_space, true, whitespace);
-  check(char_traits<char>::is_space, false, digits);
-  check(char_traits<char>::is_space, false, hex_letters);
-  check(char_traits<char>::is_space, false, zero);
+  check(char_traits::is_space, true, whitespace);
+  check(char_traits::is_space, false, digits);
+  check(char_traits::is_space, false, hex_letters);
+  check(char_traits::is_space, false, zero);
 }
 
 BOOST_AUTO_TEST_CASE(json_char_traits_is_digit_should_detect_the_right_characters) {
-  check(char_traits<char>::is_digit, true, digits);
-  check(char_traits<char>::is_digit, false, hex_letters);
-  check(char_traits<char>::is_digit, false, whitespace);
-  check(char_traits<char>::is_digit, false, zero);
+  check(char_traits::is_digit, true, digits);
+  check(char_traits::is_digit, false, hex_letters);
+  check(char_traits::is_digit, false, whitespace);
+  check(char_traits::is_digit, false, zero);
 }
 
 BOOST_AUTO_TEST_CASE(json_char_traits_is_hex_digit_should_detect_the_right_characters) {
-  check(char_traits<char>::is_hex_digit, true, digits);
-  check(char_traits<char>::is_hex_digit, true, hex_letters);
-  check(char_traits<char>::is_hex_digit, false, non_hex_letters);
-  check(char_traits<char>::is_hex_digit, false, whitespace);
-  check(char_traits<char>::is_hex_digit, false, zero);
+  check(char_traits::is_hex_digit, true, digits);
+  check(char_traits::is_hex_digit, true, hex_letters);
+  check(char_traits::is_hex_digit, false, non_hex_letters);
+  check(char_traits::is_hex_digit, false, whitespace);
+  check(char_traits::is_hex_digit, false, zero);
 }
 
 BOOST_AUTO_TEST_CASE(json_char_traits_to_integer_should_work_for_digits) {
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('0'), 0);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('1'), 1);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('2'), 2);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('3'), 3);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('4'), 4);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('5'), 5);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('6'), 6);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('7'), 7);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('8'), 8);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer('9'), 9);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('0'), 0);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('1'), 1);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('2'), 2);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('3'), 3);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('4'), 4);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('5'), 5);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('6'), 6);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('7'), 7);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('8'), 8);
+  BOOST_CHECK_EQUAL(char_traits::to_integer('9'), 9);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail
