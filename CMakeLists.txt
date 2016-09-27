@@ -117,6 +117,9 @@ add_subdirectory(vendor/double-conversion)
 
 if(WIN32)
   target_compile_options(double-conversion PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+  target_compile_options(double-conversion PRIVATE "/w")
+else()
+  target_compile_options(double-conversion PRIVATE "-w")
 endif()
 
 set(double_conversion_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/vendor/double-conversion)
