@@ -113,6 +113,12 @@ else()
   set_source_files_properties(${json_detail_SSE42_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
 endif()
 
+# Disable building double-conversion tests, since they fail on
+# Windows due to the use of "/fp:fast" and bugs in the compiler.
+if(WIN32)
+  set(BUILD_TESTING OFF)
+endif()
+
 add_subdirectory(vendor/double-conversion)
 
 if(WIN32)
