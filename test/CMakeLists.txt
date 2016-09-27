@@ -47,6 +47,7 @@ set(json_test_SOURCES
   src/test_omit.cpp
   src/test_one_of.cpp
   src/test_raw.cpp
+  src/test_skip_chars.cpp
   src/test_skip_value.cpp
   src/test_smart_ptr.cpp
   src/test_stack.cpp
