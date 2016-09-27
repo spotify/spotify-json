@@ -20,8 +20,6 @@
 
 #include <nmmintrin.h>
 
-#include <spotify/json/detail/char_traits.hpp>
-
 #include "skip_chars_common.hpp"
 
 namespace spotify {

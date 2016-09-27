@@ -25,7 +25,6 @@ set(json_test_SOURCES
   src/test_boolean.cpp
   src/test_boost.cpp
   src/test_cast.cpp
-  src/test_char_traits.cpp
   src/test_chrono.cpp
   src/test_codec_interface.cpp
   src/test_decode.cpp

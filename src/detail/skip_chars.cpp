@@ -16,7 +16,6 @@
 
 #include <spotify/json/detail/skip_chars.hpp>
 
-#include <spotify/json/detail/char_traits.hpp>
 #include <spotify/json/detail/macros.hpp>
 
 #include "skip_chars_common.hpp"
