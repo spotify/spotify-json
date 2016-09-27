@@ -29,18 +29,18 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-template <typename Codec>
-typename Codec::object_type test_decode(const Codec &codec, const std::string &json) {
-  decode_context c(json.c_str(), json.c_str() + json.size());
-  auto obj = codec.decode(c);
-  BOOST_CHECK_EQUAL(c.position, c.end);
-  return obj;
+template <typename codec_type>
+typename codec_type::object_type test_decode(const codec_type &codec, const std::string &json) {
+  decode_context context(json.c_str(), json.c_str() + json.size());
+  auto object = codec.decode(context);
+  BOOST_CHECK_EQUAL(context.position, context.end);
+  return object;
 }
 
 }  // namespace
 
 /*
- * Unique Pointer
+ * std::unique_ptr
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_construct) {
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(json_codec_unique_ptr_should_not_encode_null) {
 }
 
 /*
- * Shared Pointer
+ * std::shared_ptr
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_shared_ptr_should_construct) {
