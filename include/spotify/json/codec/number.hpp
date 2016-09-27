@@ -139,8 +139,11 @@ json_force_inline T to_integer(const char c) {
   return T(c - '0');
 }
 
-json_force_inline bool is_digit(const char c) {
-  return (c >= '0' && c <= '9');
+template <typename iterator_type>
+json_force_inline iterator_type find_non_digit(const iterator_type begin, const iterator_type end) {
+  return std::find_if_not(begin, end, [](const char c) {
+    return (c >= '0' && c <= '9');
+  });
 }
 
 /**
@@ -305,7 +308,7 @@ json_never_inline T handle_overflowing_exponent(
 template <typename T, bool is_positive>
 json_never_inline T decode_integer_tricky(decode_context &context, const char *int_beg) {
   // Find [xxxx].yyyyE±zzzz
-  auto int_end = std::find_if_not(int_beg, context.end, &is_digit);
+  auto int_end = find_non_digit(int_beg, context.end);
   context.position = int_end;
 
   // Find xxxx.[yyyy]E±zzzz
@@ -314,7 +317,7 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
   if (peek(context) == '.') {
     skip_unchecked_1(context);
     dec_beg = context.position;
-    dec_end = std::find_if_not(dec_beg, context.end, &is_digit);
+    dec_end = find_non_digit(dec_beg, context.end);
     fail_if(context, dec_beg == dec_end, "Invalid digits after decimal point");
     context.position = dec_end;
   }
@@ -332,7 +335,7 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
       skip_unchecked_1(context);
     }
     exp_beg = context.position;
-    exp_end = std::find_if_not(exp_beg, context.end, &is_digit);
+    exp_end = find_non_digit(exp_beg, context.end);
     fail_if(context, exp_beg == exp_end, "Exponent symbols should be followed by an optional '+' or '-' and then by at least one number");
     context.position = exp_end;
   }
