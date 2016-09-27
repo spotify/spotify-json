@@ -104,11 +104,12 @@ add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES
 
 target_include_directories(${json_library_TARGET} PUBLIC ${json_INCLUDE_DIR})
 
+set_property(TARGET ${json_library_TARGET} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${json_library_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
+
 if(WIN32)
   target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 else()
-  target_compile_options(${json_library_TARGET} PUBLIC "-std=c++11")
-
   set_source_files_properties(${json_detail_SSE42_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
 endif()
 
