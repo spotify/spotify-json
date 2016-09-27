@@ -78,6 +78,6 @@ class cpuid {
   std::array<uint32_t, 4> _registers;
 };
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

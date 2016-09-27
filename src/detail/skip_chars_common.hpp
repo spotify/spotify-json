@@ -25,3 +25,15 @@
     if (json_haschar_ ## n(cc, '\\')) { goto goto_label; } \
     pos += n; \
   }
+
+namespace spotify {
+namespace json {
+namespace detail {
+
+json_force_inline bool is_space(const char c) {
+  return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+}
+
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

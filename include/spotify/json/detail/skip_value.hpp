@@ -31,6 +31,6 @@ namespace detail {
  */
 void skip_value(decode_context &context);
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

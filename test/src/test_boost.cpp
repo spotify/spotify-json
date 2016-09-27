@@ -17,6 +17,8 @@
 #include <string>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <spotify/json/codec/boost.hpp>
 #include <spotify/json/codec/object.hpp>
@@ -29,6 +31,7 @@
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
+BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
@@ -46,8 +49,27 @@ codec::object_t<sub_class> sub_codec() {
 
 }  // namespace
 
+/*
+ * boost::shared_ptr
+ */
 
-/// boost::shared_ptr
+BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_construct) {
+  boost_shared_ptr_t<string_t> codec(string());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_construct_with_helper) {
+  boost_shared_ptr(string());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_construct_with_default_codec) {
+  default_codec_t<boost::shared_ptr<std::string>>();
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_encode) {
+  const auto codec = boost_shared_ptr(string());
+  const auto input = boost::make_shared<std::string>("hello");
+  BOOST_CHECK_EQUAL(encode(codec, input), "\"hello\"");
+}
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_decode) {
   const auto obj = decode<boost::shared_ptr<std::string>>("\"hello\"");
@@ -67,7 +89,9 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_not_encode_null) {
   BOOST_CHECK(!detail::should_encode(codec, obj));
 }
 
-/// boost::optional
+/*
+ * boost::optional
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct) {
   const auto c = codec::optional_t<codec::string_t>(codec::string());
@@ -110,55 +134,59 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_forward_should_encode) {
   BOOST_CHECK(!codec.should_encode(boost::make_optional(std::string(""))));
 }
 
-/// boost::chrono
+/*
+ * boost::chrono
+ */
 
-BOOST_AUTO_TEST_CASE(json_codec_duration_should_construct) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_duration_should_construct) {
   codec::duration<boost::chrono::system_clock::duration>();
   codec::duration<boost::chrono::steady_clock::duration>();
   codec::duration<boost::chrono::high_resolution_clock::duration>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_duration_should_construct_with_default_codec) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_duration_should_construct_with_default_codec) {
   default_codec<boost::chrono::system_clock::duration>();
   default_codec<boost::chrono::steady_clock::duration>();
   default_codec<boost::chrono::high_resolution_clock::duration>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_duration_should_encode) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_duration_should_encode) {
   BOOST_CHECK_EQUAL(encode(boost::chrono::system_clock::duration(5)), "5");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_duration_should_decode) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_duration_should_decode) {
   BOOST_CHECK(
       decode<boost::chrono::system_clock::duration>("5") ==
       boost::chrono::system_clock::duration(5));
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_time_point_should_construct) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_time_point_should_construct) {
   codec::time_point<boost::chrono::system_clock::time_point>();
   codec::time_point<boost::chrono::steady_clock::time_point>();
   codec::time_point<boost::chrono::high_resolution_clock::time_point>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_time_point_should_construct_with_default_codec) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_time_point_should_construct_with_default_codec) {
   default_codec<boost::chrono::system_clock::time_point>();
   default_codec<boost::chrono::steady_clock::time_point>();
   default_codec<boost::chrono::high_resolution_clock::time_point>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_time_point_should_encode) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_time_point_should_encode) {
   using boost::chrono::system_clock;
   BOOST_CHECK_EQUAL(encode(system_clock::time_point(system_clock::duration(5))), "5");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_time_point_should_decode) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_time_point_should_decode) {
   using boost::chrono::system_clock;
   BOOST_CHECK(
       decode<system_clock::time_point>("5") ==
       system_clock::time_point(system_clock::duration(5)));
 }
 
-/// boost::container::flat_map
+/*
+ * boost::flat_map
+ */
 
 BOOST_AUTO_TEST_CASE(json_codec_flat_map_should_decode) {
   BOOST_CHECK((decode<boost::container::flat_map<std::string, int>>("{\"foo\":1234}")) ==
@@ -170,5 +198,6 @@ BOOST_AUTO_TEST_CASE(json_codec_flat_map_should_encode) {
                     "{\"foo\":1234}");
 }
 
+BOOST_AUTO_TEST_SUITE_END()  // codec
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

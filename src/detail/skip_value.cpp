@@ -27,12 +27,20 @@ namespace json {
 namespace detail {
 namespace {
 
+json_force_inline bool is_digit(const char c) {
+  return (c >= '0' && c <= '9');
+}
+
+json_force_inline bool is_hex_digit(const char c) {
+  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+}
+
 void skip_unicode_escape(decode_context &context) {
   require_bytes<4>(context, "\\u must be followed by 4 hex digits");
-  const bool h0 = char_traits<char>::is_hex_digit(*(context.position++));
-  const bool h1 = char_traits<char>::is_hex_digit(*(context.position++));
-  const bool h2 = char_traits<char>::is_hex_digit(*(context.position++));
-  const bool h3 = char_traits<char>::is_hex_digit(*(context.position++));
+  const bool h0 = is_hex_digit(*(context.position++));
+  const bool h1 = is_hex_digit(*(context.position++));
+  const bool h2 = is_hex_digit(*(context.position++));
+  const bool h3 = is_hex_digit(*(context.position++));
   fail_if(context, !(h0 && h1 && h2 && h3), "\\u must be followed by 4 hex digits");
 }
 
@@ -67,8 +75,6 @@ void skip_string(decode_context &context) {
 }
 
 void skip_number(decode_context &context) {
-  using traits = char_traits<char>;
-
   // Parse negative sign
   if (peek(context) == '-') {
     ++context.position;
@@ -78,15 +84,15 @@ void skip_number(decode_context &context) {
   if (peek(context) == '0') {
     ++context.position;
   } else {
-    fail_if(context, !traits::is_digit(peek(context)), "Expected digit");
-    do { ++context.position; } while (traits::is_digit(peek(context)));
+    fail_if(context, !is_digit(peek(context)), "Expected digit");
+    do { ++context.position; } while (is_digit(peek(context)));
   }
 
   // Parse fractional part
   if (peek(context) == '.') {
     ++context.position;
-    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after decimal point");
-    do { ++context.position; } while (traits::is_digit(peek(context)));
+    fail_if(context, !is_digit(peek(context)), "Expected digit after decimal point");
+    do { ++context.position; } while (is_digit(peek(context)));
   }
 
   // Parse exp part
@@ -98,8 +104,8 @@ void skip_number(decode_context &context) {
       ++context.position;
     }
 
-    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after exponent sign");
-    do { ++context.position; } while (char_traits<char>::is_digit(peek(context)));
+    fail_if(context, !is_digit(peek(context)), "Expected digit after exponent sign");
+    do { ++context.position; } while (is_digit(peek(context)));
   }
 }
 
@@ -204,6 +210,6 @@ void skip_value(decode_context &context) {
   fail_if(context, pstate != done, "Unexpected EOF");
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

@@ -20,8 +20,6 @@
 
 #include <nmmintrin.h>
 
-#include <spotify/json/detail/char_traits.hpp>
-
 #include "skip_chars_common.hpp"
 
 namespace spotify {
@@ -64,7 +62,7 @@ void skip_any_whitespace_sse42(decode_context &context) {
   auto pos = context.position;
 
   for (; pos < end && json_unaligned_16(pos); ++pos) {
-    if (!char_traits<char>::is_space(*pos)) {
+    if (!is_space(*pos)) {
       context.position = pos;
       return;
     }
@@ -83,15 +81,15 @@ void skip_any_whitespace_sse42(decode_context &context) {
     }
   }
 
-  while (pos < end && char_traits<char>::is_space(*pos)) {
+  while (pos < end && is_space(*pos)) {
     ++pos;
   }
 
   context.position = pos;
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify
 
 #endif  // defined(json_arch_x86)

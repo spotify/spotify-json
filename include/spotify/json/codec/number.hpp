@@ -134,6 +134,18 @@ json_force_inline bool is_invalid_digit(T digit) {
   return (forced_positive > 9);  // negative number -> very large positive number
 }
 
+template <typename T>
+json_force_inline T to_integer(const char c) {
+  return T(c - '0');
+}
+
+template <typename iterator_type>
+json_force_inline iterator_type find_non_digit(const iterator_type begin, const iterator_type end) {
+  return std::find_if_not(begin, end, [](const char c) {
+    return (c >= '0' && c <= '9');
+  });
+}
+
 /**
  * Calculate 'exp_10(e, v) = v * 10^e', throwing a decode_exception if the value
  * overflows the integer type. This function executes in linear time over the
@@ -178,7 +190,7 @@ json_never_inline T decode_integer_range_with_overflow(
   using intops = integer_ops<T, is_positive>;
   for (auto it = begin; it != end; ++it) {
     const auto c = (*it);
-    const auto i = char_traits<char>::to_integer(c);
+    const auto i = to_integer<T>(c);
     const auto old_value = value;
     value = intops::accumulate(value * 10, i);
     if (json_unlikely(intops::is_overflow(old_value, value))) {
@@ -296,7 +308,7 @@ json_never_inline T handle_overflowing_exponent(
 template <typename T, bool is_positive>
 json_never_inline T decode_integer_tricky(decode_context &context, const char *int_beg) {
   // Find [xxxx].yyyyE±zzzz
-  auto int_end = std::find_if_not(int_beg, context.end, char_traits<char>::is_digit);
+  auto int_end = find_non_digit(int_beg, context.end);
   context.position = int_end;
 
   // Find xxxx.[yyyy]E±zzzz
@@ -305,7 +317,7 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
   if (peek(context) == '.') {
     skip_unchecked_1(context);
     dec_beg = context.position;
-    dec_end = std::find_if_not(dec_beg, context.end, char_traits<char>::is_digit);
+    dec_end = find_non_digit(dec_beg, context.end);
     fail_if(context, dec_beg == dec_end, "Invalid digits after decimal point");
     context.position = dec_end;
   }
@@ -323,7 +335,7 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
       skip_unchecked_1(context);
     }
     exp_beg = context.position;
-    exp_end = std::find_if_not(exp_beg, context.end, char_traits<char>::is_digit);
+    exp_end = find_non_digit(exp_beg, context.end);
     fail_if(context, exp_beg == exp_end, "Exponent symbols should be followed by an optional '+' or '-' and then by at least one number");
     context.position = exp_end;
   }
@@ -356,13 +368,13 @@ json_never_inline T decode_integer(decode_context &context) {
   using intops = integer_ops<T, is_positive>;
   const auto b = context.position;
   const auto c = next(context);
-  const auto i = char_traits<char>::to_integer(c);
+  const auto i = to_integer<T>(c);
   fail_if(context, is_invalid_digit(i), "Invalid integer");
   T value = intops::accumulate(0, i);
 
   while (json_likely(context.remaining())) {
     const auto c = peek_unchecked(context);
-    const auto i = static_cast<T>(char_traits<char>::to_integer(c));
+    const auto i = to_integer<T>(c);
     if (is_invalid_digit(i)) {
       const auto is_tricky = ((c == '.') | (c == 'e') | (c == 'E'));
       return (json_unlikely(is_tricky) ? decode_integer_tricky<T, is_positive>(context, b) : value);

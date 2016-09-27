@@ -42,6 +42,6 @@ void write_escaped_scalar(
   context.advance(ptr - buf);
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

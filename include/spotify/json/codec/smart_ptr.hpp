@@ -34,8 +34,8 @@ template <typename T>
 struct make_smart_ptr_t<std::unique_ptr<T>> {
   template <typename Obj>
   static std::unique_ptr<T> make(Obj &&obj) {
-    using ObjectType = typename std::decay<Obj>::type;
-    return std::unique_ptr<T>(new ObjectType(std::forward<Obj>(obj)));
+    using object_type = typename std::decay<Obj>::type;
+    return std::unique_ptr<T>(new object_type(std::forward<Obj>(obj)));
   }
 };
 
@@ -43,8 +43,8 @@ template <typename T>
 struct make_smart_ptr_t<std::shared_ptr<T>> {
   template <typename Obj>
   static std::shared_ptr<T> make(Obj &&obj) {
-    using ObjectType = typename std::decay<Obj>::type;
-    return std::make_shared<ObjectType>(std::forward<Obj>(obj));
+    using object_type = typename std::decay<Obj>::type;
+    return std::make_shared<object_type>(std::forward<Obj>(obj));
   }
 };
 
