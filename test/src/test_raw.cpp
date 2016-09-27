@@ -14,6 +14,7 @@
  * the License.
  */
 
+#include <cstdint>
 #include <cstdlib>
 #include <string>
 
@@ -41,7 +42,7 @@ template <typename value_type = raw_ref>
 void verify_decode_raw(const std::string &raw_value) {
   const auto codec = raw<value_type>();
   const auto decoded = json::decode(codec, raw_value);
-  BOOST_CHECK_EQUAL(raw_value, std::string(decoded.data(), decoded.size()));
+  BOOST_CHECK_EQUAL(raw_value, std::string(decoded.data(), decoded.data() + decoded.size()));
 }
 
 }  // namespace
@@ -127,6 +128,10 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_into_string) {
   verify_decode_raw<std::string>("[1, 2, 3]");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_raw_should_decode_into_vector) {
+  verify_decode_raw<std::vector<uint8_t>>("[1, 2, 3]");
+}
+
 /*
  * Encoding
  */
@@ -135,6 +140,17 @@ BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_ref_as_is) {
   std::string data = "some junk";
   raw_ref ref(data.data(), data.size());
   BOOST_CHECK_EQUAL(encode(ref), data);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_string_as_is) {
+  std::string data = "some junk";
+  BOOST_CHECK_EQUAL(encode(raw<std::string>(), data), data);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_vector_as_is) {
+  std::string data = "some junk";
+  std::vector<uint8_t> vec(data.data(), data.data() + data.size());
+  BOOST_CHECK_EQUAL(encode(raw<std::vector<uint8_t>>(), vec), data);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_raw_should_encode_with_separators) {
