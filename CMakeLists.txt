@@ -115,9 +115,8 @@ endif()
 
 # Disable building double-conversion tests, since they fail on
 # Windows due to the use of "/fp:fast" and bugs in the compiler.
-if(WIN32)
-  set(BUILD_TESTING OFF)
-endif()
+# They also don't pass ASan at the moment.
+set(BUILD_TESTING OFF)
 
 add_subdirectory(vendor/double-conversion)
 
