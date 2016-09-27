@@ -33,9 +33,9 @@ class any_t final {
  public:
   using object_type = T;
 
-  template <typename Codec>
-  explicit any_t(Codec codec)
-      : _codec(std::make_shared<erased_codec_impl<Codec>>(std::move(codec))) {}
+  template <typename codec_type>
+  explicit any_t(codec_type codec)
+      : _codec(std::make_shared<erased_codec_impl<codec_type>>(std::move(codec))) {}
 
   object_type decode(decode_context &context) const {
     return _codec->decode(context);
@@ -59,10 +59,10 @@ class any_t final {
     virtual bool should_encode(const object_type &value) const = 0;
   };
 
-  template <typename Codec>
+  template <typename codec_type>
   class erased_codec_impl final : public erased_codec {
    public:
-    explicit erased_codec_impl(Codec codec)
+    explicit erased_codec_impl(codec_type codec)
       : _codec(std::move(codec)) {}
 
     object_type decode(decode_context &context) const override {
@@ -78,15 +78,15 @@ class any_t final {
     }
 
    private:
-    const Codec _codec;
+    const codec_type _codec;
   };
 
   std::shared_ptr<const erased_codec> _codec;
 };
 
-template <typename Codec>
-any_t<typename Codec::object_type> any(Codec &&codec) {
-  return any_t<typename Codec::object_type>(std::forward<Codec>(codec));
+template <typename codec_type>
+any_t<typename codec_type::object_type> any(codec_type &&codec) {
+  return any_t<typename codec_type::object_type>(std::forward<codec_type>(codec));
 }
 
 }  // namespace codec

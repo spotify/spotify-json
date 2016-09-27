@@ -35,26 +35,23 @@ namespace codec {
  * Codec that maps values from a set of JSON values to values of another C++
  * type. This is useful for enums.
  */
-template <typename OuterObject, typename InnerCodec>
+template <typename outer_type, typename codec_type>
 class enumeration_t final {
-  using InnerType = typename InnerCodec::object_type;
-  using Mapping = std::vector<std::pair<OuterObject, InnerType>>;
+  using inner_type = typename codec_type::object_type;
+  using mapping_type = std::vector<std::pair<outer_type, inner_type>>;
 
  public:
-  using object_type = OuterObject;
+  using object_type = outer_type;
 
-  enumeration_t(InnerCodec inner_codec, Mapping &&mapping)
+  enumeration_t(codec_type inner_codec, mapping_type &&mapping)
       : _inner_codec(std::move(inner_codec)),
         _mapping(std::move(mapping)) {}
 
   object_type decode(decode_context &context) const {
     const auto result = _inner_codec.decode(context);
-    const auto it = std::find_if(
-        _mapping.begin(),
-        _mapping.end(),
-        [&](const std::pair<OuterObject, InnerType> &pair) {
-          return pair.second == result;
-        });
+    const auto it = std::find_if(_mapping.begin(), _mapping.end(), [&](const std::pair<outer_type, inner_type> &pair) {
+      return pair.second == result;
+    });
     detail::fail_if(context, it == _mapping.end(), "Encountered unknown enumeration value");
     return it->first;
   }
@@ -70,39 +67,36 @@ class enumeration_t final {
   }
 
  private:
-  json_never_inline typename Mapping::const_iterator find(const object_type &value) const {
-    return std::find_if(
-        _mapping.begin(),
-        _mapping.end(),
-        [&](const std::pair<OuterObject, InnerType> &pair) {
-          return pair.first == value;
-        });
+  json_never_inline typename mapping_type::const_iterator find(const object_type &value) const {
+    return std::find_if(_mapping.begin(), _mapping.end(), [&](const std::pair<outer_type, inner_type> &pair) {
+      return pair.first == value;
+    });
   }
 
-  InnerCodec _inner_codec;
-  Mapping _mapping;
+  codec_type _inner_codec;
+  mapping_type _mapping;
 };
 
-template <typename OuterObject, typename InnerCodec>
-enumeration_t<OuterObject, typename std::decay<InnerCodec>::type> enumeration(
-    InnerCodec &&inner_codec,
-    std::initializer_list<std::pair<OuterObject, typename InnerCodec::object_type>> objs) {
-  std::vector<std::pair<OuterObject, typename InnerCodec::object_type>> mapping;
+template <typename outer_type, typename codec_type>
+enumeration_t<outer_type, typename std::decay<codec_type>::type> enumeration(
+    codec_type &&inner_codec,
+    std::initializer_list<std::pair<outer_type, typename codec_type::object_type>> objs) {
+  std::vector<std::pair<outer_type, typename codec_type::object_type>> mapping;
   for (const auto &obj : objs) {
     mapping.push_back(obj);
   }
-  return enumeration_t<OuterObject, typename std::decay<InnerCodec>::type>(
-      std::forward<InnerCodec>(inner_codec), std::move(mapping));
+  return enumeration_t<outer_type, typename std::decay<codec_type>::type>(
+      std::forward<codec_type>(inner_codec), std::move(mapping));
 }
 
-template <typename OuterObject, typename InnerObject>
-enumeration_t<OuterObject, decltype(default_codec<InnerObject>())> enumeration(
-    std::initializer_list<std::pair<OuterObject, InnerObject>> objs) {
-  std::vector<std::pair<OuterObject, InnerObject>> mapping;
+template <typename outer_type, typename InnerObject>
+enumeration_t<outer_type, decltype(default_codec<InnerObject>())> enumeration(
+    std::initializer_list<std::pair<outer_type, InnerObject>> objs) {
+  std::vector<std::pair<outer_type, InnerObject>> mapping;
   for (const auto &obj : objs) {
     mapping.push_back(obj);
   }
-  return enumeration_t<OuterObject, decltype(default_codec<InnerObject>())>(
+  return enumeration_t<outer_type, decltype(default_codec<InnerObject>())>(
       default_codec<InnerObject>(),
       std::move(mapping));
 }

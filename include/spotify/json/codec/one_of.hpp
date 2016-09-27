@@ -26,43 +26,43 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename... Codecs>
+template <typename... codecs_type>
 struct codecs_share_same_object_type;
 
-template <typename Codec>
-struct codecs_share_same_object_type<Codec> : std::true_type {};
+template <typename codec_type>
+struct codecs_share_same_object_type<codec_type> : std::true_type {};
 
-template <typename FirstCodec, typename SecondCodec, typename... Codecs>
-struct codecs_share_same_object_type<FirstCodec, SecondCodec, Codecs...>
+template <typename codec_type_1, typename codec_type_2, typename... codecs_type>
+struct codecs_share_same_object_type<codec_type_1, codec_type_2, codecs_type...>
     : std::integral_constant<
           bool,
           std::is_same<
-              typename FirstCodec::object_type,
-              typename SecondCodec::object_type>::value &&
-          codecs_share_same_object_type<SecondCodec, Codecs...>::value> {};
+              typename codec_type_1::object_type,
+              typename codec_type_2::object_type>::value &&
+          codecs_share_same_object_type<codec_type_2, codecs_type...>::value> {};
 
-template <typename Tuple, size_t N>
+template <typename tuple_type, size_t N>
 struct try_each_codec {
   using object_type = typename std::tuple_element<
-      std::tuple_size<Tuple>::value - N, Tuple>::type::object_type;
+      std::tuple_size<tuple_type>::value - N, tuple_type>::type::object_type;
 
-  static object_type decode(const Tuple &tuple, decode_context &context) {
+  static object_type decode(const tuple_type &tuple, decode_context &context) {
     const auto original_position = context.position;
     try {
-      return std::get<std::tuple_size<Tuple>::value - N>(tuple).decode(context);
+      return std::get<std::tuple_size<tuple_type>::value - N>(tuple).decode(context);
     } catch (const decode_exception &) {
       context.position = original_position;
-      return try_each_codec<Tuple, N-1>::decode(tuple, context);
+      return try_each_codec<tuple_type, N - 1>::decode(tuple, context);
     }
   }
 };
 
-template <typename Tuple>
-struct try_each_codec<Tuple, 0> {
-  using object_type = typename std::tuple_element<0, Tuple>::type::object_type;
+template <typename tuple_type>
+struct try_each_codec<tuple_type, 0> {
+  using object_type = typename std::tuple_element<0, tuple_type>::type::object_type;
 
-  static object_type decode(const Tuple &tuple, decode_context &context) {
-    return std::get<std::tuple_size<Tuple>::value - 1>(tuple).decode(context);
+  static object_type decode(const tuple_type &tuple, decode_context &context) {
+    return std::get<std::tuple_size<tuple_type>::value - 1>(tuple).decode(context);
   }
 };
 
@@ -76,14 +76,14 @@ namespace codec {
  *
  * When encoding, the first codec is always used.
  */
-template <typename Codec, typename... Codecs>
+template <typename codec_type, typename... codecs_type>
 class one_of_t final {
  public:
   static_assert(
-      detail::codecs_share_same_object_type<Codec, Codecs ...>::value,
+      detail::codecs_share_same_object_type<codec_type, codecs_type ...>::value,
       "All of the provided codecs to one_of_t must encode the same type");
 
-  using object_type = typename Codec::object_type;
+  using object_type = typename codec_type::object_type;
 
   template <typename... Args>
   explicit one_of_t(Args&& ...args)
@@ -103,12 +103,12 @@ class one_of_t final {
   }
 
  private:
-  std::tuple<Codec, Codecs ...> _codecs;
+  std::tuple<codec_type, codecs_type ...> _codecs;
 };
 
-template <typename... Codecs>
-one_of_t<typename std::decay<Codecs>::type...> one_of(Codecs&& ...codecs) {
-  return one_of_t<typename std::decay<Codecs>::type...>(std::forward<Codecs>(codecs)...);
+template <typename... codecs_type>
+one_of_t<typename std::decay<codecs_type>::type...> one_of(codecs_type&& ...codecs) {
+  return one_of_t<typename std::decay<codecs_type>::type...>(std::forward<codecs_type>(codecs)...);
 }
 
 }  // namespace codec
