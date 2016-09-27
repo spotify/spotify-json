@@ -134,6 +134,11 @@ json_force_inline bool is_invalid_digit(T digit) {
   return (forced_positive > 9);  // negative number -> very large positive number
 }
 
+template <typename T>
+json_force_inline T to_integer(const char c) {
+  return T(c - '0');
+}
+
 /**
  * Calculate 'exp_10(e, v) = v * 10^e', throwing a decode_exception if the value
  * overflows the integer type. This function executes in linear time over the
@@ -178,7 +183,7 @@ json_never_inline T decode_integer_range_with_overflow(
   using intops = integer_ops<T, is_positive>;
   for (auto it = begin; it != end; ++it) {
     const auto c = (*it);
-    const auto i = char_traits::to_integer(c);
+    const auto i = to_integer<T>(c);
     const auto old_value = value;
     value = intops::accumulate(value * 10, i);
     if (json_unlikely(intops::is_overflow(old_value, value))) {
@@ -356,13 +361,13 @@ json_never_inline T decode_integer(decode_context &context) {
   using intops = integer_ops<T, is_positive>;
   const auto b = context.position;
   const auto c = next(context);
-  const auto i = char_traits::to_integer(c);
+  const auto i = to_integer<T>(c);
   fail_if(context, is_invalid_digit(i), "Invalid integer");
   T value = intops::accumulate(0, i);
 
   while (json_likely(context.remaining())) {
     const auto c = peek_unchecked(context);
-    const auto i = static_cast<T>(char_traits::to_integer(c));
+    const auto i = to_integer<T>(c);
     if (is_invalid_digit(i)) {
       const auto is_tricky = ((c == '.') | (c == 'e') | (c == 'E'));
       return (json_unlikely(is_tricky) ? decode_integer_tricky<T, is_positive>(context, b) : value);

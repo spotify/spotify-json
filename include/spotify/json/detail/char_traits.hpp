@@ -34,10 +34,6 @@ struct char_traits {
   json_force_inline static bool is_hex_digit(const char c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
   }
-
-  json_force_inline static int to_integer(const char c) {
-    return (c - '0');
-  }
 };
 
 }  // namespace detail
