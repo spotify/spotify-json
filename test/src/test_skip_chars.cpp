@@ -36,7 +36,8 @@ std::string generate(const std::string &tpl, const std::size_t count) {
   return ws;
 }
 
-void verify_skip_any_whitespace(
+template <void (*function)(decode_context &)>
+void verify_skip_any(
     const bool use_sse,
     const std::string &json,
     const std::size_t prefix = 0,
@@ -44,7 +45,7 @@ void verify_skip_any_whitespace(
   auto context = decode_context(json.data() + prefix, json.data() + json.size());
   *const_cast<bool *>(&context.has_sse42) &= use_sse;
   const auto original_context = context;
-  skip_any_whitespace(context);
+  function(context);
   BOOST_CHECK_EQUAL(context.position, original_context.end - suffix);
   BOOST_CHECK_EQUAL(context.end, original_context.end);
 }
@@ -53,14 +54,33 @@ using true_false = boost::mpl::list<boost::true_type, boost::false_type>;
 
 }  // namespace
 
+/*
+ * skip_any_simple_characters
+ */
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_simple_characters, use_sse, true_false) {
+  for (auto n = 0; n < 1024; n++) {
+    const auto ws = generate("abcdefghIJKLMNOP:-,;'^¨´`xyz", n);
+    const auto with_prefix = "\\" + ws;
+    const auto with_suffix = ws + "\"abcde";
+    verify_skip_any<skip_any_simple_characters>(use_sse::value, ws);
+    verify_skip_any<skip_any_simple_characters>(use_sse::value, with_prefix, 1);
+    verify_skip_any<skip_any_simple_characters>(use_sse::value, with_suffix, 0, 6);
+  }
+}
+
+/*
+ * skip_any_whitespace
+ */
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_space, use_sse, true_false) {
   for (auto n = 0; n < 1024; n++) {
     const auto ws = generate(" ", n);
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
-    verify_skip_any_whitespace(use_sse::value, ws);
-    verify_skip_any_whitespace(use_sse::value, with_prefix, 2);
-    verify_skip_any_whitespace(use_sse::value, with_suffix, 0, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
 
@@ -69,9 +89,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_tabs, use_sse, true_false) {
     const auto ws = generate("\t", n);
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
-    verify_skip_any_whitespace(use_sse::value, ws);
-    verify_skip_any_whitespace(use_sse::value, with_prefix, 2);
-    verify_skip_any_whitespace(use_sse::value, with_suffix, 0, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
 
@@ -80,9 +100,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_carriage_return, use_sse, true_false
     const auto ws = generate("\r", n);
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
-    verify_skip_any_whitespace(use_sse::value, ws);
-    verify_skip_any_whitespace(use_sse::value, with_prefix, 2);
-    verify_skip_any_whitespace(use_sse::value, with_suffix, 0, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
 
@@ -91,9 +111,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_line_feed, use_sse, true_false) {
     const auto ws = generate("\n", n);
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
-    verify_skip_any_whitespace(use_sse::value, ws);
-    verify_skip_any_whitespace(use_sse::value, with_prefix, 2);
-    verify_skip_any_whitespace(use_sse::value, with_suffix, 0, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
 
@@ -102,9 +122,9 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_whitespace, use_sse, true_false) {
     const auto ws = generate("\n\t\r\n", n);
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
-    verify_skip_any_whitespace(use_sse::value, ws);
-    verify_skip_any_whitespace(use_sse::value, with_prefix, 2);
-    verify_skip_any_whitespace(use_sse::value, with_suffix, 0, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
 
