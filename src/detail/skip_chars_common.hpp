@@ -25,3 +25,7 @@
     if (json_haschar_ ## n(cc, '\\')) { goto goto_label; } \
     pos += n; \
   }
+
+json_force_inline static bool is_space(const char c) {
+  return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
+}

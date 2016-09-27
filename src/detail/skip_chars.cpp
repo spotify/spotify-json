@@ -41,7 +41,7 @@ void skip_any_simple_characters_scalar(decode_context &context) {
 void skip_any_whitespace_scalar(decode_context &context) {
   const auto end = context.end;
   auto pos = context.position;
-  while (pos < end && char_traits::is_space(*pos)) {
+  while (pos < end && is_space(*pos)) {
     ++pos;
   }
   context.position = pos;

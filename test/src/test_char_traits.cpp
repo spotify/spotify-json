@@ -25,33 +25,6 @@ BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
 BOOST_AUTO_TEST_SUITE(detail)
 
-namespace {
-
-const std::vector<char> digits =
-    { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-const std::vector<char> hex_letters =
-    { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F' };
-const std::vector<char> non_hex_letters =
-    { 'g', 'G', 'z', 'Z' };
-const std::vector<char> whitespace = { ' ', '\t', '\n', '\r' };
-const std::vector<char> zero = { '\0' };
-
-template <typename Fn, typename Range>
-void check(const Fn &fn, bool should_be_true, const Range &range) {
-  for (const auto chr : range) {
-    BOOST_CHECK(!should_be_true ^ fn(chr));
-  }
-}
-
-}  // namespace
-
-BOOST_AUTO_TEST_CASE(json_char_traits_is_space_should_detect_the_right_characters) {
-  check(char_traits::is_space, true, whitespace);
-  check(char_traits::is_space, false, digits);
-  check(char_traits::is_space, false, hex_letters);
-  check(char_traits::is_space, false, zero);
-}
-
 BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
