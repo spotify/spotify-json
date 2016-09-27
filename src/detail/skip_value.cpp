@@ -14,7 +14,9 @@
  * the License.
  */
 
-#include <spotify/json/detail/skip_chars.hpp>
+#include <spotify/json/detail/skip_value.hpp>
+
+#include <limits>
 
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/macros.hpp>
