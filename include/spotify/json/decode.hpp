@@ -26,8 +26,8 @@
 namespace spotify {
 namespace json {
 
-template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const char *data, size_t size) {
+template <typename codec_type>
+typename codec_type::object_type decode(const codec_type &codec, const char *data, size_t size) {
   decode_context c(data, data + size);
   detail::skip_any_whitespace(c);
   const auto result = codec.decode(c);
@@ -36,8 +36,8 @@ typename Codec::object_type decode(const Codec &codec, const char *data, size_t 
   return result;
 }
 
-template <typename Codec>
-typename Codec::object_type decode(const Codec &codec, const std::string &string) {
+template <typename codec_type>
+typename codec_type::object_type decode(const codec_type &codec, const std::string &string) {
   return decode(codec, string.data(), string.size());
 }
 
@@ -51,10 +51,10 @@ Value decode(const std::string &string) {
   return decode(default_codec<Value>(), string);
 }
 
-template <typename Codec>
+template <typename codec_type>
 bool try_decode(
-    typename Codec::object_type &object,
-    const Codec &codec,
+    typename codec_type::object_type &object,
+    const codec_type &codec,
     const char *data,
     size_t size) {
   try {
@@ -65,10 +65,10 @@ bool try_decode(
   }
 }
 
-template <typename Codec>
+template <typename codec_type>
 bool try_decode(
-    typename Codec::object_type &object,
-    const Codec &codec,
+    typename codec_type::object_type &object,
+    const codec_type &codec,
     const std::string &string) {
   return try_decode(object, codec, string.data(), string.size());
 }
@@ -83,10 +83,10 @@ bool try_decode(Value &object, const char *data, size_t size) {
   return try_decode(object, default_codec<Value>(), data, size);
 }
 
-template <typename Codec>
+template <typename codec_type>
 bool try_decode_partial(
-    typename Codec::object_type &object,
-    const Codec &codec,
+    typename codec_type::object_type &object,
+    const codec_type &codec,
     const decode_context &context) {
   try {
     decode_context c(context);

@@ -25,16 +25,16 @@
 namespace spotify {
 namespace json {
 
-template <typename Codec>
-json_never_inline std::string encode(const Codec &codec, const typename Codec::object_type &object) {
+template <typename codec_type>
+json_never_inline std::string encode(const codec_type &codec, const typename codec_type::object_type &object) {
   encode_context context;
   codec.encode(context, object);
   return std::string(static_cast<const char *>(context.data()), context.size());
 }
 
-template <typename Value>
-json_never_inline std::string encode(const Value &value) {
-  return encode(default_codec<Value>(), value);
+template <typename value_type>
+json_never_inline std::string encode(const value_type &value) {
+  return encode(default_codec<value_type>(), value);
 }
 
 }  // namespace json

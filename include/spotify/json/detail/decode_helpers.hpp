@@ -144,8 +144,8 @@ json_force_inline void skip_4(decode_context &context, const char characters[4])
  *
  * context.has_failed() must be false when this function is called.
  */
-template <typename Parse>
-json_never_inline void decode_comma_separated(decode_context &context, char intro, char outro, Parse parse) {
+template <typename parse_function>
+json_never_inline void decode_comma_separated(decode_context &context, char intro, char outro, parse_function parse) {
   skip_1(context, intro);
   skip_any_whitespace(context);
 
@@ -170,9 +170,9 @@ json_never_inline void decode_comma_separated(decode_context &context, char intr
  * and store it away as needed. The callback may be invoked a few times even if
  * parsing fails later on.
  */
-template <typename KeyCodec, typename Callback>
-json_force_inline void decode_object(decode_context &context, const Callback &callback) {
-  auto codec = KeyCodec();
+template <typename key_codec_type, typename callback_function>
+json_force_inline void decode_object(decode_context &context, const callback_function &callback) {
+  auto codec = key_codec_type();
   decode_comma_separated(context, '{', '}', [&]{
     auto key = codec.decode(context);
     skip_any_whitespace(context);

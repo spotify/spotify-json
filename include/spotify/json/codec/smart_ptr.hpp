@@ -27,7 +27,7 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template <typename SmartPointer>
+template <typename T>
 struct make_smart_ptr_t;
 
 template <typename T>
@@ -52,12 +52,12 @@ struct make_smart_ptr_t<std::shared_ptr<T>> {
 
 namespace detail {
 
-template <typename InnerCodec, typename SmartPointer>
-class smart_ptr_t {
+template <typename codec_type, typename T>
+class smart_ptr_t final {
  public:
-  using object_type = SmartPointer;
+  using object_type = T;
 
-  explicit smart_ptr_t(InnerCodec inner_codec)
+  explicit smart_ptr_t(codec_type inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
 
   object_type decode(decode_context &context) const {
@@ -74,27 +74,27 @@ class smart_ptr_t {
   }
 
  protected:
-  InnerCodec _inner_codec;
+  codec_type _inner_codec;
 };
 
 }  // namespace detail
 
 namespace codec {
 
-template <typename InnerCodec>
-using unique_ptr_t = detail::smart_ptr_t<InnerCodec, std::unique_ptr<typename InnerCodec::object_type>>;
+template <typename codec_type>
+using unique_ptr_t = detail::smart_ptr_t<codec_type, std::unique_ptr<typename codec_type::object_type>>;
 
-template <typename InnerCodec>
-using shared_ptr_t = detail::smart_ptr_t<InnerCodec, std::shared_ptr<typename InnerCodec::object_type>>;
+template <typename codec_type>
+using shared_ptr_t = detail::smart_ptr_t<codec_type, std::shared_ptr<typename codec_type::object_type>>;
 
-template <typename InnerCodec>
-unique_ptr_t<typename std::decay<InnerCodec>::type> unique_ptr(InnerCodec &&inner_codec) {
-  return unique_ptr_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
+template <typename codec_type>
+unique_ptr_t<typename std::decay<codec_type>::type> unique_ptr(codec_type &&inner_codec) {
+  return unique_ptr_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
-template <typename InnerCodec>
-shared_ptr_t<typename std::decay<InnerCodec>::type> shared_ptr(InnerCodec &&inner_codec) {
-  return shared_ptr_t<typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
+template <typename codec_type>
+shared_ptr_t<typename std::decay<codec_type>::type> shared_ptr(codec_type &&inner_codec) {
+  return shared_ptr_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
 }  // namespace codec

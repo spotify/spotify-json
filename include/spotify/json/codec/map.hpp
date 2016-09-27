@@ -30,7 +30,7 @@ namespace spotify {
 namespace json {
 namespace codec {
 
-template <typename T, typename InnerCodec>
+template <typename T, typename codec_type>
 class map_t final {
  public:
   using object_type = T;
@@ -41,11 +41,11 @@ class map_t final {
   static_assert(
       std::is_same<
           typename T::mapped_type,
-          typename InnerCodec::object_type>::value,
+          typename codec_type::object_type>::value,
       "Map data type must match inner codec type");
 
-  explicit map_t(InnerCodec inner_codec)
-      : _inner_codec(inner_codec) {}
+  explicit map_t(codec_type inner_codec)
+      : _inner_codec(std::move(inner_codec)) {}
 
   object_type decode(decode_context &context) const {
     using value_type = typename object_type::value_type;
@@ -73,12 +73,12 @@ class map_t final {
 
  private:
   string_t _string_codec;
-  InnerCodec _inner_codec;
+  codec_type _inner_codec;
 };
 
-template <typename T, typename InnerCodec>
-map_t<T, typename std::decay<InnerCodec>::type> map(InnerCodec &&inner_codec) {
-  return map_t<T, typename std::decay<InnerCodec>::type>(std::forward<InnerCodec>(inner_codec));
+template <typename T, typename codec_type>
+map_t<T, typename std::decay<codec_type>::type> map(codec_type &&inner_codec) {
+  return map_t<T, typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
 }  // namespace codec
