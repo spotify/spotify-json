@@ -27,7 +27,11 @@ namespace json {
 namespace detail {
 namespace {
 
-bool is_hex_digit(const char c) {
+json_force_inline bool is_digit(const char c) {
+  return (c >= '0' && c <= '9');
+}
+
+json_force_inline bool is_hex_digit(const char c) {
   return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
@@ -71,8 +75,6 @@ void skip_string(decode_context &context) {
 }
 
 void skip_number(decode_context &context) {
-  using traits = char_traits;
-
   // Parse negative sign
   if (peek(context) == '-') {
     ++context.position;
@@ -82,15 +84,15 @@ void skip_number(decode_context &context) {
   if (peek(context) == '0') {
     ++context.position;
   } else {
-    fail_if(context, !traits::is_digit(peek(context)), "Expected digit");
-    do { ++context.position; } while (traits::is_digit(peek(context)));
+    fail_if(context, !is_digit(peek(context)), "Expected digit");
+    do { ++context.position; } while (is_digit(peek(context)));
   }
 
   // Parse fractional part
   if (peek(context) == '.') {
     ++context.position;
-    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after decimal point");
-    do { ++context.position; } while (traits::is_digit(peek(context)));
+    fail_if(context, !is_digit(peek(context)), "Expected digit after decimal point");
+    do { ++context.position; } while (is_digit(peek(context)));
   }
 
   // Parse exp part
@@ -102,8 +104,8 @@ void skip_number(decode_context &context) {
       ++context.position;
     }
 
-    fail_if(context, !traits::is_digit(peek(context)), "Expected digit after exponent sign");
-    do { ++context.position; } while (char_traits::is_digit(peek(context)));
+    fail_if(context, !is_digit(peek(context)), "Expected digit after exponent sign");
+    do { ++context.position; } while (is_digit(peek(context)));
   }
 }
 
