@@ -80,31 +80,6 @@ BOOST_AUTO_TEST_CASE(json_char_traits_to_integer_should_work_for_digits) {
   BOOST_CHECK_EQUAL(char_traits<char>::to_integer('9'), 9);
 }
 
-BOOST_AUTO_TEST_CASE(json_char_traits_to_integer_should_work_for_digits_and_hex_letters) {
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('0'), 0);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('1'), 1);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('2'), 2);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('3'), 3);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('4'), 4);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('5'), 5);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('6'), 6);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('7'), 7);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('8'), 8);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('9'), 9);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('a'), 10);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('A'), 10);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('b'), 11);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('B'), 11);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('c'), 12);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('C'), 12);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('d'), 13);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('D'), 13);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('e'), 14);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('E'), 14);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('f'), 15);
-  BOOST_CHECK_EQUAL(char_traits<char>::to_integer_hex('F'), 15);
-}
-
 BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

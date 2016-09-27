@@ -39,13 +39,6 @@ struct char_traits {
   json_force_inline static int to_integer(const char_type c) {
     return (c - '0');
   }
-
-  json_force_inline static int to_integer_hex(const char_type c) {
-    if (c >= '0' && c <= '9') return (c - '0');
-    if (c >= 'a' && c <= 'f') return (c - 'a') + 0xA;
-    if (c >= 'A' && c <= 'F') return (c - 'A') + 0xA;
-    return 0;
-  }
 };
 
 }  // namespace detail
