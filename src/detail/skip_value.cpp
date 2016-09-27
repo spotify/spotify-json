@@ -27,12 +27,16 @@ namespace json {
 namespace detail {
 namespace {
 
+bool is_hex_digit(const char c) {
+  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+}
+
 void skip_unicode_escape(decode_context &context) {
   require_bytes<4>(context, "\\u must be followed by 4 hex digits");
-  const bool h0 = char_traits::is_hex_digit(*(context.position++));
-  const bool h1 = char_traits::is_hex_digit(*(context.position++));
-  const bool h2 = char_traits::is_hex_digit(*(context.position++));
-  const bool h3 = char_traits::is_hex_digit(*(context.position++));
+  const bool h0 = is_hex_digit(*(context.position++));
+  const bool h1 = is_hex_digit(*(context.position++));
+  const bool h2 = is_hex_digit(*(context.position++));
+  const bool h3 = is_hex_digit(*(context.position++));
   fail_if(context, !(h0 && h1 && h2 && h3), "\\u must be followed by 4 hex digits");
 }
 

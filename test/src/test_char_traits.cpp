@@ -59,14 +59,6 @@ BOOST_AUTO_TEST_CASE(json_char_traits_is_digit_should_detect_the_right_character
   check(char_traits::is_digit, false, zero);
 }
 
-BOOST_AUTO_TEST_CASE(json_char_traits_is_hex_digit_should_detect_the_right_characters) {
-  check(char_traits::is_hex_digit, true, digits);
-  check(char_traits::is_hex_digit, true, hex_letters);
-  check(char_traits::is_hex_digit, false, non_hex_letters);
-  check(char_traits::is_hex_digit, false, whitespace);
-  check(char_traits::is_hex_digit, false, zero);
-}
-
 BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
