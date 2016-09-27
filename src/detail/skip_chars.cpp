@@ -46,6 +46,6 @@ void skip_any_whitespace_scalar(decode_context &context) {
   context.position = pos;
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

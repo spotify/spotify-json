@@ -210,6 +210,6 @@ void skip_value(decode_context &context) {
   fail_if(context, pstate != done, "Unexpected EOF");
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

@@ -83,8 +83,8 @@ void write_escaped_sse42(
   context.advance(out - buf);
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify
 
 #endif  // defined(json_arch_x86)

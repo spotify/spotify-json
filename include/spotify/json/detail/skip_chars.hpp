@@ -65,6 +65,6 @@ json_force_inline void skip_any_whitespace(decode_context &context) {
   skip_any_whitespace_scalar(context);
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify

@@ -88,8 +88,8 @@ void skip_any_whitespace_sse42(decode_context &context) {
   context.position = pos;
 }
 
-}  // detail
-}  // json
-}  // spotify
+}  // namespace detail
+}  // namespace json
+}  // namespace spotify
 
 #endif  // defined(json_arch_x86)
