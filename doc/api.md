@@ -157,7 +157,7 @@ bool try_decode_partial(
 `decode_exception`
 ==================
 
-Exception that is thrown when encoding fails. For more info, see 
+Exception that is thrown when encoding fails. For more info, see
 [decode_exception.hpp](../include/spotify/json/encode_exception.hpp)
 
 `encode_exception`
@@ -858,15 +858,15 @@ val.allow_anything == "";
 `raw_t` is a codec that doesn't actually decode or encode but instead deals with
 the raw data of the JSON value.
 
-When decoding, this codec can yield either a `spotify::json::codec::raw_ref` or
-a `std::string` whose `data()` points to the first character of the value (i.e.
-`{` for a JSON object or `t` for the value `true`) and whose `size()` is the
-size of the entire raw value up to and including the last character (i.e. `}`
+When decoding, this codec can yield either a `spotify::json::codec::raw_ref`, a
+`std::string` or a `std::vector` whose `data()` points to the first character of
+the value (i.e. `{` for a JSON object or `t` for the value `true`) and whose `size()`
+is the size of the entire raw value up to and including the last character (i.e. `}`
 for a JSON object or `e` for the value `true`). When using a `raw_ref`, the
 `data()` points into the original data passed to the code so only use this type
 to decode if you can ensure that the data will outlive the `raw_ref`. When you
 need the decoded value to live even when the original JSON has been deleted,
-decode into an `std::string` instead.
+decode into an `std::string` or `std::vector` instead.
 
 This codec is useful as it allows you to defer the decoding of certain parts of
 your data when decoding.
