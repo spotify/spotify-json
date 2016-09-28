@@ -65,6 +65,7 @@ set(json_detail_HEADERS
   include/spotify/json/detail/cpuid.hpp
   include/spotify/json/detail/decode_helpers.hpp
   include/spotify/json/detail/encode_helpers.hpp
+  include/spotify/json/detail/encode_integer.hpp
   include/spotify/json/detail/escape.hpp
   include/spotify/json/detail/macros.hpp
   include/spotify/json/detail/skip_chars.hpp
@@ -73,6 +74,7 @@ set(json_detail_HEADERS
   )
 
 set(json_detail_SOURCES
+  src/detail/encode_integer.cpp
   src/detail/escape.cpp
   src/detail/escape_common.hpp
   src/detail/skip_chars.cpp
