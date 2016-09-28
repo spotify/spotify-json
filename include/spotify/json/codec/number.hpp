@@ -27,6 +27,7 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/encode_helpers.hpp>
+#include <spotify/json/detail/encode_integer.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
@@ -400,92 +401,6 @@ json_force_inline T decode_negative_integer(decode_context &context) {
 template <typename T>
 json_force_inline T decode_positive_integer(decode_context &context) {
   return decode_integer<T, true>(context);
-}
-
-template <typename T, int num_digits>
-json_force_inline void encode_negative_integer_n(encode_context &context, T value) {
-  constexpr auto num_bytes = num_digits + 1;  // + 1 for the '-' sign character
-  const auto p = context.reserve(num_bytes);
-  p[0] = '-';
-  for (int i = num_digits; i >= 1; i--) {
-    const auto v = value;
-    value /= 10;
-    p[i] = ('0' + uint8_t(value * 10 - v));
-  }
-  context.advance(num_bytes);
-}
-
-template <typename T, int num_digits>
-json_force_inline void encode_positive_integer_n(encode_context &context, T value) {
-  constexpr auto num_bytes = num_digits;
-  const auto p = context.reserve(num_bytes);
-  for (int i = num_digits - 1; i >= 0; i--) {
-    const auto v = value;
-    value /= 10;
-    p[i] = ('0' + uint8_t(v - value * 10));
-  }
-  context.advance(num_bytes);
-}
-
-template <typename T>
-json_force_inline void encode_negative_integer(encode_context &context, T value) {
-  #define ENCODE(bits, digits) do { \
-    using type = int_fast ## bits ## _t; \
-    return encode_negative_integer_n<type, digits>(context, type(value)); \
-  } while (false)
-  #define CUTOFF(bits, digits, cutoff) if (value > cutoff) ENCODE(bits, digits);
-  CUTOFF(32,  1, -10);
-  CUTOFF(32,  2, -100);
-  CUTOFF(32,  3, -1000);
-  CUTOFF(32,  4, -10000);
-  CUTOFF(32,  5, -100000);
-  CUTOFF(32,  6, -1000000);
-  CUTOFF(32,  7, -10000000);
-  CUTOFF(32,  8, -100000000);
-  CUTOFF(32,  9, -1000000000);
-  CUTOFF(64, 10, -10000000000LL);
-  CUTOFF(64, 11, -100000000000LL);
-  CUTOFF(64, 12, -1000000000000LL);
-  CUTOFF(64, 13, -10000000000000LL);
-  CUTOFF(64, 14, -100000000000000LL);
-  CUTOFF(64, 15, -1000000000000000LL);
-  CUTOFF(64, 16, -10000000000000000LL);
-  CUTOFF(64, 17, -100000000000000000LL);
-  CUTOFF(64, 18, -1000000000000000000LL);
-  ENCODE(64, 19);
-  #undef CUTOFF
-  #undef ENCODE
-}
-
-template <typename T>
-json_force_inline void encode_positive_integer(encode_context &context, T value) {
-  #define ENCODE(bits, digits) do { \
-    using type = uint_fast ## bits ## _t; \
-    return encode_positive_integer_n<type, digits>(context, type(value)); \
-  } while (false)
-  #define CUTOFF(bits, digits, cutoff) if (value < cutoff) ENCODE(bits, digits);
-  CUTOFF(32,  1, 10);
-  CUTOFF(32,  2, 100);
-  CUTOFF(32,  3, 1000);
-  CUTOFF(32,  4, 10000);
-  CUTOFF(32,  5, 100000);
-  CUTOFF(32,  6, 1000000);
-  CUTOFF(32,  7, 10000000);
-  CUTOFF(32,  8, 100000000);
-  CUTOFF(32,  9, 1000000000);
-  CUTOFF(64, 10, 10000000000ULL);
-  CUTOFF(64, 11, 100000000000ULL);
-  CUTOFF(64, 12, 1000000000000ULL);
-  CUTOFF(64, 13, 10000000000000ULL);
-  CUTOFF(64, 14, 100000000000000ULL);
-  CUTOFF(64, 15, 1000000000000000ULL);
-  CUTOFF(64, 16, 10000000000000000ULL);
-  CUTOFF(64, 17, 100000000000000000ULL);
-  CUTOFF(64, 18, 1000000000000000000ULL);
-  CUTOFF(64, 19, 10000000000000000000ULL);
-  ENCODE(64, 20);
-  #undef CUTOFF
-  #undef ENCODE
 }
 
 template <typename T, bool is_integer, bool is_signed>
