@@ -15,6 +15,9 @@
 cmake_minimum_required(VERSION 2.8.0)
 project(spotify-json)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(json_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
 set(json_HEADERS
@@ -103,9 +106,6 @@ source_group(spotify\\json\\detail FILES ${json_detail_HEADERS})
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
 
 target_include_directories(${json_library_TARGET} PUBLIC ${json_INCLUDE_DIR})
-
-set_property(TARGET ${json_library_TARGET} PROPERTY CXX_STANDARD 11)
-set_property(TARGET ${json_library_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
   target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
