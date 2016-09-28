@@ -429,49 +429,63 @@ json_force_inline void encode_positive_integer_n(encode_context &context, T valu
 
 template <typename T>
 json_force_inline void encode_negative_integer(encode_context &context, T value) {
-  if (value > -10) { return encode_negative_integer_n<int_fast32_t, 1>(context, value); }
-  if (value > -100) { return encode_negative_integer_n<int_fast32_t, 2>(context, value); }
-  if (value > -1000) { return encode_negative_integer_n<int_fast32_t, 3>(context, value); }
-  if (value > -10000) { return encode_negative_integer_n<int_fast32_t, 4>(context, value); }
-  if (value > -100000) { return encode_negative_integer_n<int_fast32_t, 5>(context, value); }
-  if (value > -1000000) { return encode_negative_integer_n<int_fast32_t, 6>(context, value); }
-  if (value > -10000000) { return encode_negative_integer_n<int_fast32_t, 7>(context, value); }
-  if (value > -100000000) { return encode_negative_integer_n<int_fast32_t, 8>(context, value); }
-  if (value > -1000000000) { return encode_negative_integer_n<int_fast32_t, 9>(context, value); }
-  if (value > -10000000000ULL) { return encode_negative_integer_n<int_fast64_t, 10>(context, value); }
-  if (value > -100000000000ULL) { return encode_negative_integer_n<int_fast64_t, 11>(context, value); }
-  if (value > -1000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 12>(context, value); }
-  if (value > -10000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 13>(context, value); }
-  if (value > -100000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 14>(context, value); }
-  if (value > -1000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 15>(context, value); }
-  if (value > -10000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 16>(context, value); }
-  if (value > -100000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 17>(context, value); }
-  if (value > -1000000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 18>(context, value); }
-  encode_negative_integer_n<int_fast64_t, 19>(context, value);
+  #define ENCODE(bits, digits) do { \
+    using type = int_fast ## bits ## _t; \
+    return encode_negative_integer_n<type, digits>(context, type(value)); \
+  } while (false)
+  #define CUTOFF(bits, digits, cutoff) if (value > cutoff) ENCODE(bits, digits);
+  CUTOFF(32,  1, -10);
+  CUTOFF(32,  2, -100);
+  CUTOFF(32,  3, -1000);
+  CUTOFF(32,  4, -10000);
+  CUTOFF(32,  5, -100000);
+  CUTOFF(32,  6, -1000000);
+  CUTOFF(32,  7, -10000000);
+  CUTOFF(32,  8, -100000000);
+  CUTOFF(32,  9, -1000000000);
+  CUTOFF(64, 10, -10000000000LL);
+  CUTOFF(64, 11, -100000000000LL);
+  CUTOFF(64, 12, -1000000000000LL);
+  CUTOFF(64, 13, -10000000000000LL);
+  CUTOFF(64, 14, -100000000000000LL);
+  CUTOFF(64, 15, -1000000000000000LL);
+  CUTOFF(64, 16, -10000000000000000LL);
+  CUTOFF(64, 17, -100000000000000000LL);
+  CUTOFF(64, 18, -1000000000000000000LL);
+  ENCODE(64, 19);
+  #undef CUTOFF
+  #undef ENCODE
 }
 
 template <typename T>
 json_force_inline void encode_positive_integer(encode_context &context, T value) {
-  if (value < 10) { return encode_positive_integer_n<uint_fast32_t, 1>(context, value); }
-  if (value < 100) { return encode_positive_integer_n<uint_fast32_t, 2>(context, value); }
-  if (value < 1000) { return encode_positive_integer_n<uint_fast32_t, 3>(context, value); }
-  if (value < 10000) { return encode_positive_integer_n<uint_fast32_t, 4>(context, value); }
-  if (value < 100000) { return encode_positive_integer_n<uint_fast32_t, 5>(context, value); }
-  if (value < 1000000) { return encode_positive_integer_n<uint_fast32_t, 6>(context, value); }
-  if (value < 10000000) { return encode_positive_integer_n<uint_fast32_t, 7>(context, value); }
-  if (value < 100000000) { return encode_positive_integer_n<uint_fast32_t, 8>(context, value); }
-  if (value < 1000000000) { return encode_positive_integer_n<uint_fast32_t, 9>(context, value); }
-  if (value < 10000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 10>(context, value); }
-  if (value < 100000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 11>(context, value); }
-  if (value < 1000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 12>(context, value); }
-  if (value < 10000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 13>(context, value); }
-  if (value < 100000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 14>(context, value); }
-  if (value < 1000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 15>(context, value); }
-  if (value < 10000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 16>(context, value); }
-  if (value < 100000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 17>(context, value); }
-  if (value < 1000000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 18>(context, value); }
-  if (value < 10000000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 19>(context, value); }
-  encode_positive_integer_n<uint_fast64_t, 20>(context, value);
+  #define ENCODE(bits, digits) do { \
+    using type = uint_fast ## bits ## _t; \
+    return encode_positive_integer_n<type, digits>(context, type(value)); \
+  } while (false)
+  #define CUTOFF(bits, digits, cutoff) if (value < cutoff) ENCODE(bits, digits);
+  CUTOFF(32,  1, 10);
+  CUTOFF(32,  2, 100);
+  CUTOFF(32,  3, 1000);
+  CUTOFF(32,  4, 10000);
+  CUTOFF(32,  5, 100000);
+  CUTOFF(32,  6, 1000000);
+  CUTOFF(32,  7, 10000000);
+  CUTOFF(32,  8, 100000000);
+  CUTOFF(32,  9, 1000000000);
+  CUTOFF(64, 10, 10000000000ULL);
+  CUTOFF(64, 11, 100000000000ULL);
+  CUTOFF(64, 12, 1000000000000ULL);
+  CUTOFF(64, 13, 10000000000000ULL);
+  CUTOFF(64, 14, 100000000000000ULL);
+  CUTOFF(64, 15, 1000000000000000ULL);
+  CUTOFF(64, 16, 10000000000000000ULL);
+  CUTOFF(64, 17, 100000000000000000ULL);
+  CUTOFF(64, 18, 1000000000000000000ULL);
+  CUTOFF(64, 19, 10000000000000000000ULL);
+  ENCODE(64, 20);
+  #undef CUTOFF
+  #undef ENCODE
 }
 
 template <typename T, bool is_integer, bool is_signed>
