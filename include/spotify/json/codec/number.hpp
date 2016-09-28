@@ -429,49 +429,49 @@ json_force_inline void encode_positive_integer_n(encode_context &context, T valu
 
 template <typename T>
 json_force_inline void encode_negative_integer(encode_context &context, T value) {
-  if (value > -10) { return encode_negative_integer_n<T, 1>(context, value); }
-  if (value > -100) { return encode_negative_integer_n<T, 2>(context, value); }
-  if (value > -1000) { return encode_negative_integer_n<T, 3>(context, value); }
-  if (value > -10000) { return encode_negative_integer_n<T, 4>(context, value); }
-  if (value > -100000) { return encode_negative_integer_n<T, 5>(context, value); }
-  if (value > -1000000) { return encode_negative_integer_n<T, 6>(context, value); }
-  if (value > -10000000) { return encode_negative_integer_n<T, 7>(context, value); }
-  if (value > -100000000) { return encode_negative_integer_n<T, 8>(context, value); }
-  if (value > -1000000000) { return encode_negative_integer_n<T, 9>(context, value); }
-  if (value > -10000000000ULL) { return encode_negative_integer_n<T, 10>(context, value); }
-  if (value > -100000000000ULL) { return encode_negative_integer_n<T, 11>(context, value); }
-  if (value > -1000000000000ULL) { return encode_negative_integer_n<T, 12>(context, value); }
-  if (value > -10000000000000ULL) { return encode_negative_integer_n<T, 13>(context, value); }
-  if (value > -100000000000000ULL) { return encode_negative_integer_n<T, 14>(context, value); }
-  if (value > -1000000000000000ULL) { return encode_negative_integer_n<T, 15>(context, value); }
-  if (value > -10000000000000000ULL) { return encode_negative_integer_n<T, 16>(context, value); }
-  if (value > -100000000000000000ULL) { return encode_negative_integer_n<T, 17>(context, value); }
-  if (value > -1000000000000000000ULL) { return encode_negative_integer_n<T, 18>(context, value); }
-  encode_negative_integer_n<T, 19>(context, value);
+  if (value > -10) { return encode_negative_integer_n<int_fast32_t, 1>(context, value); }
+  if (value > -100) { return encode_negative_integer_n<int_fast32_t, 2>(context, value); }
+  if (value > -1000) { return encode_negative_integer_n<int_fast32_t, 3>(context, value); }
+  if (value > -10000) { return encode_negative_integer_n<int_fast32_t, 4>(context, value); }
+  if (value > -100000) { return encode_negative_integer_n<int_fast32_t, 5>(context, value); }
+  if (value > -1000000) { return encode_negative_integer_n<int_fast32_t, 6>(context, value); }
+  if (value > -10000000) { return encode_negative_integer_n<int_fast32_t, 7>(context, value); }
+  if (value > -100000000) { return encode_negative_integer_n<int_fast32_t, 8>(context, value); }
+  if (value > -1000000000) { return encode_negative_integer_n<int_fast32_t, 9>(context, value); }
+  if (value > -10000000000ULL) { return encode_negative_integer_n<int_fast64_t, 10>(context, value); }
+  if (value > -100000000000ULL) { return encode_negative_integer_n<int_fast64_t, 11>(context, value); }
+  if (value > -1000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 12>(context, value); }
+  if (value > -10000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 13>(context, value); }
+  if (value > -100000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 14>(context, value); }
+  if (value > -1000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 15>(context, value); }
+  if (value > -10000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 16>(context, value); }
+  if (value > -100000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 17>(context, value); }
+  if (value > -1000000000000000000ULL) { return encode_negative_integer_n<int_fast64_t, 18>(context, value); }
+  encode_negative_integer_n<int_fast64_t, 19>(context, value);
 }
 
 template <typename T>
 json_force_inline void encode_positive_integer(encode_context &context, T value) {
-  if (value < 10) { return encode_positive_integer_n<T, 1>(context, value); }
-  if (value < 100) { return encode_positive_integer_n<T, 2>(context, value); }
-  if (value < 1000) { return encode_positive_integer_n<T, 3>(context, value); }
-  if (value < 10000) { return encode_positive_integer_n<T, 4>(context, value); }
-  if (value < 100000) { return encode_positive_integer_n<T, 5>(context, value); }
-  if (value < 1000000) { return encode_positive_integer_n<T, 6>(context, value); }
-  if (value < 10000000) { return encode_positive_integer_n<T, 7>(context, value); }
-  if (value < 100000000) { return encode_positive_integer_n<T, 8>(context, value); }
-  if (value < 1000000000) { return encode_positive_integer_n<T, 9>(context, value); }
-  if (value < 10000000000ULL) { return encode_positive_integer_n<T, 10>(context, value); }
-  if (value < 100000000000ULL) { return encode_positive_integer_n<T, 11>(context, value); }
-  if (value < 1000000000000ULL) { return encode_positive_integer_n<T, 12>(context, value); }
-  if (value < 10000000000000ULL) { return encode_positive_integer_n<T, 13>(context, value); }
-  if (value < 100000000000000ULL) { return encode_positive_integer_n<T, 14>(context, value); }
-  if (value < 1000000000000000ULL) { return encode_positive_integer_n<T, 15>(context, value); }
-  if (value < 10000000000000000ULL) { return encode_positive_integer_n<T, 16>(context, value); }
-  if (value < 100000000000000000ULL) { return encode_positive_integer_n<T, 17>(context, value); }
-  if (value < 1000000000000000000ULL) { return encode_positive_integer_n<T, 18>(context, value); }
-  if (value < 10000000000000000000ULL) { return encode_positive_integer_n<T, 19>(context, value); }
-  encode_positive_integer_n<T, 20>(context, value);
+  if (value < 10) { return encode_positive_integer_n<uint_fast32_t, 1>(context, value); }
+  if (value < 100) { return encode_positive_integer_n<uint_fast32_t, 2>(context, value); }
+  if (value < 1000) { return encode_positive_integer_n<uint_fast32_t, 3>(context, value); }
+  if (value < 10000) { return encode_positive_integer_n<uint_fast32_t, 4>(context, value); }
+  if (value < 100000) { return encode_positive_integer_n<uint_fast32_t, 5>(context, value); }
+  if (value < 1000000) { return encode_positive_integer_n<uint_fast32_t, 6>(context, value); }
+  if (value < 10000000) { return encode_positive_integer_n<uint_fast32_t, 7>(context, value); }
+  if (value < 100000000) { return encode_positive_integer_n<uint_fast32_t, 8>(context, value); }
+  if (value < 1000000000) { return encode_positive_integer_n<uint_fast32_t, 9>(context, value); }
+  if (value < 10000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 10>(context, value); }
+  if (value < 100000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 11>(context, value); }
+  if (value < 1000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 12>(context, value); }
+  if (value < 10000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 13>(context, value); }
+  if (value < 100000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 14>(context, value); }
+  if (value < 1000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 15>(context, value); }
+  if (value < 10000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 16>(context, value); }
+  if (value < 100000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 17>(context, value); }
+  if (value < 1000000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 18>(context, value); }
+  if (value < 10000000000000000000ULL) { return encode_positive_integer_n<uint_fast64_t, 19>(context, value); }
+  encode_positive_integer_n<uint_fast64_t, 20>(context, value);
 }
 
 template <typename T, bool is_integer, bool is_signed>
