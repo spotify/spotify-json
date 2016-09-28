@@ -1,6 +1,8 @@
 spotify-json
 ============
 
+[![License](https://img.shields.io/github/license/spotify/spotify-json.svg)](LICENSE)
+
 A C++11 JSON writer and parser library. It
 
 * parses and serializes directly to and from statically typed C++ objects,
