@@ -34,6 +34,7 @@ set(json_test_SOURCES
   src/test_encode.cpp
   src/test_encode_context.cpp
   src/test_encode_helpers.cpp
+  src/test_encode_integer.cpp
   src/test_enumeration.cpp
   src/test_eq.cpp
   src/test_escape.cpp
