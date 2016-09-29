@@ -30,7 +30,7 @@ struct negative final {
     for (int i = num_digits; i >= 1; i--) {
       const auto v = value;
       value /= 10;
-      p[i] = ('0' + uint8_t(value * 10 - v));
+      p[i] = ('0' + static_cast<uint8_t>(value * 10 - v));
     }
     context.advance(num_bytes);
   }
@@ -44,7 +44,7 @@ struct positive final {
     for (int i = num_digits - 1; i >= 0; i--) {
       const auto v = value;
       value /= 10;
-      p[i] = ('0' + uint8_t(v - value * 10));
+      p[i] = ('0' + static_cast<uint8_t>(v - value * 10));
     }
     context.advance(num_bytes);
   }
