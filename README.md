@@ -2,6 +2,7 @@ spotify-json
 ============
 
 [![License](https://img.shields.io/github/license/spotify/spotify-json.svg)](LICENSE)
+[![Windows Build](https://ci.appveyor.com/api/projects/status/github/spotify/spotify-json?svg=true)](https://ci.appveyor.com/project/fxb/spotify-json)
 
 A C++11 JSON writer and parser library. It
 
