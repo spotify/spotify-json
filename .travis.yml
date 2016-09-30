@@ -1,0 +1,25 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      compiler: clang
+      sudo: required
+    - os: linux
+      dist: trusty
+      compiler: gcc
+      sudo: required
+    - os: osx
+      compiler: clang
+    - os: osx
+      compiler: gcc
+
+install: source .travis/install_${TRAVIS_OS_NAME}.sh
+
+script:
+  - BUILD_DIR="${TRAVIS_BUILD_DIR}/build_cmake"
+  - mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR}
+  - cmake .. && make
+  - ./test/json_test
+
