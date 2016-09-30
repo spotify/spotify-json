@@ -384,6 +384,56 @@ BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_unsigned_positive_integer) 
   BOOST_CHECK_EQUAL(encode(number<uint64_t>(), UINT64_MAX), "18446744073709551615");
 }
 
+/*
+ * Decoding size_t
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_size_t) {
+  BOOST_CHECK_EQUAL(test_decode(number<size_t>(), "255"), 255);
+  BOOST_CHECK_EQUAL(test_decode(number<size_t>(), "65535"), 65535);
+  BOOST_CHECK_EQUAL(test_decode(number<size_t>(), "4294967295"), 4294967295);
+
+  if (sizeof(size_t) >= sizeof(uint64_t)) {
+    BOOST_CHECK_EQUAL(encode(number<size_t>(), UINT64_MAX), "18446744073709551615");
+  }
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_decode_size_t_with_default_codec) {
+  BOOST_CHECK_EQUAL(test_decode(default_codec<size_t>(), "255"), 255);
+  BOOST_CHECK_EQUAL(test_decode(default_codec<size_t>(), "65535"), 65535);
+  BOOST_CHECK_EQUAL(test_decode(default_codec<size_t>(), "4294967295"), 4294967295);
+
+  if (sizeof(size_t) >= sizeof(uint64_t)) {
+    BOOST_CHECK_EQUAL(encode(default_codec<size_t>(), UINT64_MAX), "18446744073709551615");
+  }
+}
+
+/*
+ * Encoding size_t
+ */
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_size_t) {
+  BOOST_CHECK_EQUAL(encode(number<size_t>(), 0), "0");
+  BOOST_CHECK_EQUAL(encode(number<size_t>(), 255), "255");
+  BOOST_CHECK_EQUAL(encode(number<size_t>(), 65535), "65535");
+  BOOST_CHECK_EQUAL(encode(number<size_t>(), 4294967295), "4294967295");
+
+  if (sizeof(size_t) >= sizeof(uint64_t)) {
+    BOOST_CHECK_EQUAL(encode(number<size_t>(), UINT64_MAX), "18446744073709551615");
+  }
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_number_should_encode_size_t_with_default_codec) {
+  BOOST_CHECK_EQUAL(encode(default_codec<size_t>(), 0), "0");
+  BOOST_CHECK_EQUAL(encode(default_codec<size_t>(), 255), "255");
+  BOOST_CHECK_EQUAL(encode(default_codec<size_t>(), 65535), "65535");
+  BOOST_CHECK_EQUAL(encode(default_codec<size_t>(), 4294967295), "4294967295");
+
+  if (sizeof(size_t) >= sizeof(uint64_t)) {
+    BOOST_CHECK_EQUAL(encode(default_codec<size_t>(), UINT64_MAX), "18446744073709551615");
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // codec
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

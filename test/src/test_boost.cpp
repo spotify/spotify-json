@@ -107,9 +107,14 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_default_cod
   default_codec<boost::optional<std::string>>();
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode) {
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode_string) {
   const auto codec = default_codec<boost::optional<std::string>>();
   BOOST_CHECK_EQUAL(encode(codec, boost::make_optional(std::string("hi"))), "\"hi\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_encode_size_t) {
+  const auto codec = default_codec<boost::optional<size_t>>();
+  BOOST_CHECK_EQUAL(encode(codec, boost::make_optional(size_t(123456))), "123456");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_decode) {
