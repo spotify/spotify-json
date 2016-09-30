@@ -39,6 +39,7 @@ std::string encode(
  */
 template <typename Value>
 std::string encode(const Value &value);
+```
 
 ### `decode`
 
