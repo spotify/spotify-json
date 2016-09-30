@@ -48,6 +48,7 @@ void test_decode_fail(const Codec &codec, const std::string &json) {
 }
 
 struct simple_t {
+  size_t size = 0;
   std::string value;
 };
 
@@ -100,6 +101,7 @@ template <>
 struct default_codec_t<simple_t> {
   static codec::object_t<simple_t> codec() {
     codec::object_t<simple_t> codec;
+    codec.optional("size", &simple_t::size);
     codec.optional("value", &simple_t::value);
     return codec;
   }
@@ -126,13 +128,9 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_construct_with_custom_creator) {
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_decode_fields) {
-  const auto simple = test_decode(default_codec<simple_t>(), R"({"value":"hey"})");
+  const auto simple = test_decode(default_codec<simple_t>(), R"({"value":"hey","size":123456})");
   BOOST_CHECK_EQUAL(simple.value, "hey");
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_object_should_support_omitting_optional_fields) {
-  const auto example = test_decode(example_codec(), R"({"value":"hey"})");
-  BOOST_CHECK_EQUAL(example.value, "hey");
+  BOOST_CHECK_EQUAL(simple.size, 123456);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_require_required_fields) {
@@ -210,7 +208,8 @@ BOOST_AUTO_TEST_CASE(json_codec_object_should_work_with_base_class_member_ptr) {
 BOOST_AUTO_TEST_CASE(json_codec_object_should_encode_fields) {
   simple_t simple;
   simple.value = "hey";
-  BOOST_CHECK_EQUAL(encode(simple), R"({"value":"hey"})");
+  simple.size = 123456789;
+  BOOST_CHECK_EQUAL(encode(simple), R"({"size":123456789,"value":"hey"})");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_object_should_respect_should_encode) {
