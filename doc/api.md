@@ -718,16 +718,16 @@ fields that exist in `T`.
 For example:
 
 ```cpp
-struct point {
+struct Point {
   int x;
   int y;
 }
 
 ...
 
-auto codec = object<point>();
-codec.required("x", &point::x);
-codec.required("y", &point::y);
+auto codec = object<Point>();
+codec.required("x", &Point::x);
+codec.required("y", &Point::y);
 ```
 
 `object_t<T>` objects have two methods: `required` and `optional`. They have the
@@ -767,17 +767,17 @@ hand. For that, pass in a functor that constructs an object for use in
 decoding.
 
 ```cpp
-struct point {
-  point(int x, int y) : x(x), y(y) {}
+struct Point {
+  Point(int x, int y) : x(x), y(y) {}
   int x;
   int y;
 }
 
 ...
 
-auto codec = object<point>([]{ return point(0, 0); });
-codec.required("x", &point::x);
-codec.required("y", &point::y);
+auto codec = object<Point>([]{ return point(0, 0); });
+codec.required("x", &Point::x);
+codec.required("y", &Point::y);
 ```
 
 * **Complete class name**: `spotify::json::codec::object_t`
