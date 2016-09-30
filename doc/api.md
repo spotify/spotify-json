@@ -865,9 +865,9 @@ the value (i.e. `{` for a JSON object or `t` for the value `true`) and whose `si
 is the size of the entire raw value up to and including the last character (i.e. `}`
 for a JSON object or `e` for the value `true`). When using a `raw_ref`, the
 `data()` points into the original data passed to the code so only use this type
-to decode if you can ensure that the data will outlive the `raw_ref`. When you
-need the decoded value to live even when the original JSON has been deleted,
-decode into an `std::string` or `std::vector` instead.
+to decode if you can ensure that the data will outlive the `raw_ref`. If you need
+the decoded value to live even when the original JSON has been deleted, decode into
+a `std::string` or `std::vector` instead.
 
 This codec is useful as it allows you to defer the decoding of certain parts of
 your data when decoding.
