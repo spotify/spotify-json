@@ -306,7 +306,7 @@ In order to add support for custom types to `default_codec`, the template
 what it usually looks like:
 
 ```cpp
-struct point {
+struct Point {
   int x;
   int y;
 }
@@ -318,8 +318,8 @@ template <>
 struct default_codec_t<Point> {
   static object_t<Point> codec() {
     auto codec = object<Point>();
-    codec.required("x", &point::x);
-    codec.required("y", &point::y);
+    codec.required("x", &Point::x);
+    codec.required("y", &Point::y);
     return codec;
   }
 };
