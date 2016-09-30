@@ -33,15 +33,15 @@ void encode_positive_integer_64(encode_context &context, uint64_t value);
 template <typename T>
 json_force_inline void encode_negative_integer(encode_context &context, T value) {
   return (sizeof(T) <= sizeof(int32_t)) ?
-    encode_negative_integer_32(context, value) :
-    encode_negative_integer_64(context, value);
+    encode_negative_integer_32(context, static_cast<int32_t>(value)) :
+    encode_negative_integer_64(context, static_cast<int64_t>(value));
 }
 
 template <typename T>
 json_force_inline void encode_positive_integer(encode_context &context, T value) {
   return (sizeof(T) <= sizeof(uint32_t)) ?
-    encode_positive_integer_32(context, value) :
-    encode_positive_integer_64(context, value);
+    encode_positive_integer_32(context, static_cast<uint32_t>(value)) :
+    encode_positive_integer_64(context, static_cast<uint64_t>(value));
 }
 
 }  // namespace detail

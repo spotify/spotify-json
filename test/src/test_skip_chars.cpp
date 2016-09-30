@@ -46,8 +46,12 @@ void verify_skip_any(
   *const_cast<bool *>(&context.has_sse42) &= use_sse;
   const auto original_context = context;
   function(context);
-  BOOST_CHECK_EQUAL(context.position, original_context.end - suffix);
-  BOOST_CHECK_EQUAL(context.end, original_context.end);
+  BOOST_CHECK_EQUAL(
+      reinterpret_cast<intptr_t>(context.position),
+      reinterpret_cast<intptr_t>(original_context.end - suffix));
+  BOOST_CHECK_EQUAL(
+      reinterpret_cast<intptr_t>(context.end),
+      reinterpret_cast<intptr_t>(original_context.end));
 }
 
 using true_false = boost::mpl::list<boost::true_type, boost::false_type>;
@@ -79,7 +83,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_space, use_sse, true_false) {
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
     verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
-    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 1);
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
@@ -90,7 +94,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_tabs, use_sse, true_false) {
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
     verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
-    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 1);
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
@@ -101,7 +105,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_carriage_return, use_sse, true_false
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
     verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
-    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 1);
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
@@ -112,7 +116,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_line_feed, use_sse, true_false) {
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
     verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
-    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 1);
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
@@ -123,7 +127,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_whitespace, use_sse, true_false) {
     const auto with_prefix = "}" + ws;
     const auto with_suffix = ws + "{ ";
     verify_skip_any<skip_any_whitespace>(use_sse::value, ws);
-    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
+    verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 1);
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
 }
