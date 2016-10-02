@@ -101,11 +101,10 @@ BOOST_AUTO_TEST_CASE(json_codec_tuple_should_decode_tuple_success) {
 BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_skip_any_whitespace_at_end) {
   const auto codec = default_codec<std::tuple<>>();
   const auto json = "[] ";
-  auto ctx = decode_context(json, json + strlen(json));
-  const auto result = codec.decode(ctx);
-  BOOST_CHECK_EQUAL(ctx.position + 1, ctx.end);
+  auto context = decode_context(json, json + strlen(json));
+  codec.decode(context);
+  BOOST_CHECK_EQUAL(context.position + 1, context.end);
 }
-
 
 BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_decode_tuple_failure) {
   tuple_parse_should_fail<std::tuple<>>("");
