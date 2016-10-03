@@ -51,12 +51,14 @@ struct base_encode_context final {
     std::free(_buf);
   }
 
-  json_force_inline uint8_t *reserve(const size_type num_bytes) {
+  json_force_inline uint8_t *reserve(const size_type reserved_bytes) {
     const auto remaining_bytes = static_cast<size_type>(_end - _ptr);  // _end is always >= _ptr
-    if (json_unlikely(remaining_bytes < num_bytes)) {
-      grow_buffer(num_bytes);
+    if (json_likely(remaining_bytes >= reserved_bytes)) {
+      return _ptr;
+    } else {
+      grow_buffer(reserved_bytes);
+      return _ptr;
     }
-    return _ptr;
   }
 
   json_force_inline void advance(const size_type num_bytes) {
@@ -68,13 +70,11 @@ struct base_encode_context final {
     advance(1);
   }
 
-  json_force_inline void append_or_replace(
-      const uint8_t replacing,
-      const uint8_t with) {
-    if (json_unlikely(empty() || _ptr[-1] != replacing)) {
-      append(with);
-    } else {
+  json_force_inline void append_or_replace(const uint8_t replacing, const uint8_t with) {
+    if (json_likely(!empty() && _ptr[-1] == replacing)) {
       _ptr[-1] = with;
+    } else {
+      append(with);
     }
   }
 
