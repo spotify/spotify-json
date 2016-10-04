@@ -30,10 +30,10 @@ namespace detail {
 template <std::size_t inline_size>
 struct bitset {
   bitset(const std::size_t size) {
-    if (json_unlikely(size > inline_size)) {
-      _vector.reset(new std::vector<uint8_t>((size + 7) / 8));
-    } else {
+    if (json_likely(size <= inline_size)) {
       _array.fill(0x00);
+    } else {
+      _vector.reset(new std::vector<uint8_t>((size + 7) / 8));
     }
   }
 
@@ -41,13 +41,13 @@ struct bitset {
     const auto byte = (index / 8);
     const auto bidx = (index & 7);
     const auto mask = (1 << bidx);
-    if (json_unlikely(_vector)) {
-      const auto byte_before = (*_vector)[byte];
-      (*_vector)[byte] = (byte_before | mask);
-      return (byte_before & mask) >> bidx;
-    } else {
+    if (json_likely(!_vector)) {
       const auto byte_before = _array[byte];
       _array[byte] = (byte_before | mask);
+      return (byte_before & mask) >> bidx;
+    } else {
+      const auto byte_before = (*_vector)[byte];
+      (*_vector)[byte] = (byte_before | mask);
       return (byte_before & mask) >> bidx;
     }
   }
