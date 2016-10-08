@@ -56,8 +56,7 @@ struct default_codec_t<Track> {
 }  // namespace spotify
 
 int main() {
-  const auto parsed_track = decode<Track>(
-      R"({ "uri": "spotify:track:xyz", "metadata": { "a": "b" } })");
+  const auto parsed_track = decode<Track>(R"({ "uri": "spotify:track:xyz", "metadata": { "a": "b" } })");
   std::cout << "Parsed track with uri " << parsed_track.uri << std::endl;
 
   Track track;
@@ -215,8 +214,7 @@ player_codec.required("position", &Player::position, coordinate_codec);
 Player player;
 player.name = "Daniel";
 player.instrument = "guitar";
-encode(player_codec, player) ==
-    R"({"name":"Daniel","instrument":"guitar","position":{"x":0,"y":0}})";
+encode(player_codec, player) == R"({"name":"Daniel","instrument":"guitar","position":{"x":0,"y":0}})";
 ```
 
 Since codecs are just normal objects, it is possible to create and use
@@ -259,14 +257,12 @@ supports out of the box:
 
 ```cpp
 encode(Coordinate(10, 0)) == R"({"x":10,"y":0})";
-
 decode<std::vector<Coordinate>>(R"([{ "x": 1, "y": -1 }])") == std::vector<Coordinate>{ Coordinate(1, -1) };
 
 Player player;
 player.name = "Martin";
 player.instrument = "drums";
-encode(player) ==
-    R"({"name":"Martin","instrument":"drums","position":{"x":0,"y":0}})";
+encode(player) == R"({"name":"Martin","instrument":"drums","position":{"x":0,"y":0}})";
 ```
 
 
