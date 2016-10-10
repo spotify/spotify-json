@@ -34,6 +34,9 @@ source_group(spotify\\json\\benchmark FILES ${json_benchmark_SOURCES} ${json_ben
 
 add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_benchmark_HEADERS})
 
+set_property(TARGET ${json_benchmark_TARGET} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${json_benchmark_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
+
 if(WIN32)
   target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()

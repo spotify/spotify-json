@@ -64,6 +64,9 @@ source_group(spotify\\json\\test FILES ${json_test_HEADERS})
 
 add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS})
 
+set_property(TARGET ${json_test_TARGET} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${json_test_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
+
 if(WIN32)
   target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
