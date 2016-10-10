@@ -64,7 +64,7 @@ void write_escaped_sse42(
   if (json_unaligned_8(begin) && (end - begin) >= 4) { write_escaped_4(out, begin); }
   if (json_unaligned_16(begin) && (end - begin) >= 8) { write_escaped_8(out, begin); }
 
-  for (; begin <= end - 16; begin += 16) {
+  for (; end - begin >= 16; begin += 16) {
     const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(begin));
     const unsigned has_character_in_ranges = _mm_cmpistrc(ranges, chunk, _SIDD_CMP_RANGES);
     if (json_likely(!has_character_in_ranges)) {

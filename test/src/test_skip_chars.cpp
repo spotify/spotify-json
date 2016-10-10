@@ -50,6 +50,15 @@ void verify_skip_any(
   BOOST_CHECK_EQUAL(context.end, original_context.end);
 }
 
+template <void (*function)(decode_context &)>
+void verify_skip_empty_nullptr(const bool use_sse) {
+  auto context = decode_context(nullptr, nullptr);
+  *const_cast<bool *>(&context.has_sse42) &= use_sse;
+  function(context);
+  BOOST_CHECK(context.position == nullptr);
+  BOOST_CHECK(context.end == nullptr);
+}
+
 using true_false = boost::mpl::list<boost::true_type, boost::false_type>;
 
 }  // namespace
@@ -67,6 +76,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_simple_characters, use_sse, true_fal
     verify_skip_any<skip_any_simple_characters>(use_sse::value, with_prefix, 1);
     verify_skip_any<skip_any_simple_characters>(use_sse::value, with_suffix, 0, 6);
   }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_simple_characters_with_empty_string,
+                              use_sse,
+                              true_false) {
+  verify_skip_empty_nullptr<skip_any_simple_characters>(use_sse::value);
 }
 
 /*
@@ -126,6 +141,10 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_whitespace, use_sse, true_false) {
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_prefix, 2);
     verify_skip_any<skip_any_whitespace>(use_sse::value, with_suffix, 0, 2);
   }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_whitespace_with_empty_string, use_sse, true_false) {
+  verify_skip_empty_nullptr<skip_any_whitespace>(use_sse::value);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail
