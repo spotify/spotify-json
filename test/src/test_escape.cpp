@@ -65,6 +65,12 @@ BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_other_control_characters) 
   }
 }
 
+BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_zero_sized_nullptr) {
+  encode_context context;
+  write_escaped(context, nullptr, 0);
+  BOOST_CHECK_EQUAL(0, context.size());
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
