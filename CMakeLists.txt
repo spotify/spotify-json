@@ -37,6 +37,7 @@ set(json_SOURCES
 
 set(json_codec_HEADERS
   include/spotify/json/codec/any_codec.hpp
+  include/spotify/json/codec/any_value.hpp
   include/spotify/json/codec/array.hpp
   include/spotify/json/codec/boolean.hpp
   include/spotify/json/codec/boost.hpp
@@ -53,7 +54,6 @@ set(json_codec_HEADERS
   include/spotify/json/codec/object.hpp
   include/spotify/json/codec/omit.hpp
   include/spotify/json/codec/one_of.hpp
-  include/spotify/json/codec/raw.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
   include/spotify/json/codec/transform.hpp

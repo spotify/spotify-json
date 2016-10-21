@@ -44,7 +44,7 @@ struct raw_ref {
 };
 
 template <typename T>
-class raw_t final {
+class any_value_t final {
  public:
   using object_type = T;
 
@@ -62,16 +62,16 @@ class raw_t final {
 };
 
 template <typename T>
-inline raw_t<T> raw() {
-  return raw_t<T>();
+inline any_value_t<T> any_value() {
+  return any_value_t<T>();
 }
 
 }  // namespace codec
 
 template <>
 struct default_codec_t<codec::raw_ref> {
-  static codec::raw_t<codec::raw_ref> codec() {
-    return codec::raw<codec::raw_ref>();
+  static codec::any_value_t<codec::raw_ref> codec() {
+    return codec::any_value<codec::raw_ref>();
   }
 };
 
