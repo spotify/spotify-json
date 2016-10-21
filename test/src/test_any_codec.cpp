@@ -16,7 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <spotify/json/codec/any.hpp>
+#include <spotify/json/codec/any_codec.hpp>
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/encode.hpp>
 
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE(codec)
 namespace {
 
 bool any_parse(const char *str) {
-  any_t<bool> codec = any_t<bool>(boolean());
+  any_codec_t<bool> codec = any_codec_t<bool>(boolean());
   auto ctx = decode_context(str, str + strlen(str));
   const auto result = codec.decode(ctx);
 
@@ -40,7 +40,7 @@ bool any_parse(const char *str) {
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(json_any_should_encode) {
-  any_t<bool> codec = any_t<bool>(boolean());
+  any_codec_t<bool> codec = any_codec_t<bool>(boolean());
   BOOST_CHECK_EQUAL(encode(codec, true), "true");
   BOOST_CHECK_EQUAL(encode(codec, false), "false");
 }
@@ -51,11 +51,11 @@ BOOST_AUTO_TEST_CASE(json_any_should_decode) {
 }
 
 BOOST_AUTO_TEST_CASE(json_any_should_construct_with_helper) {
-  any(boolean());
+  any_codec(boolean());
 }
 
 BOOST_AUTO_TEST_CASE(json_any_should_respect_should_encode) {
-  auto codec = any(only_true_t());
+  auto codec = any_codec(only_true_t());
   BOOST_CHECK(codec.should_encode(true));
   BOOST_CHECK(!codec.should_encode(false));
 }

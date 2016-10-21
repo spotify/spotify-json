@@ -19,7 +19,7 @@ set(json_test_HEADERS
   )
 
 set(json_test_SOURCES
-  src/test_any.cpp
+  src/test_any_codec.cpp
   src/test_array.cpp
   src/test_bitset.cpp
   src/test_boolean.cpp

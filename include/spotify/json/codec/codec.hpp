@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <spotify/json/codec/any.hpp>
+#include <spotify/json/codec/any_codec.hpp>
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/cast.hpp>

@@ -29,12 +29,12 @@ namespace json {
 namespace codec {
 
 template <typename T>
-class any_t final {
+class any_codec_t final {
  public:
   using object_type = T;
 
   template <typename codec_type>
-  explicit any_t(codec_type codec)
+  explicit any_codec_t(codec_type codec)
       : _codec(std::make_shared<erased_codec_impl<codec_type>>(std::move(codec))) {}
 
   object_type decode(decode_context &context) const {
@@ -85,8 +85,8 @@ class any_t final {
 };
 
 template <typename codec_type>
-any_t<typename codec_type::object_type> any(codec_type &&codec) {
-  return any_t<typename codec_type::object_type>(std::forward<codec_type>(codec));
+any_codec_t<typename codec_type::object_type> any_codec(codec_type &&codec) {
+  return any_codec_t<typename codec_type::object_type>(std::forward<codec_type>(codec));
 }
 
 }  // namespace codec

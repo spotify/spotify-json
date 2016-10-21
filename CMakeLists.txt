@@ -36,7 +36,7 @@ set(json_SOURCES
   )
 
 set(json_codec_HEADERS
-  include/spotify/json/codec/any.hpp
+  include/spotify/json/codec/any_codec.hpp
   include/spotify/json/codec/array.hpp
   include/spotify/json/codec/boolean.hpp
   include/spotify/json/codec/boost.hpp
