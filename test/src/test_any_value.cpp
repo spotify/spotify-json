@@ -38,46 +38,14 @@ struct foobar_t {
   value_type value;
 };
 
-template <typename value_type = raw_ref>
-void verify_decode_any_value(const std::string &raw_value) {
+template <typename value_type = ref>
+void verify_decode_any_value(const std::string &json) {
   const auto codec = any_value<value_type>();
-  const auto decoded = json::decode(codec, raw_value);
-  BOOST_CHECK_EQUAL(raw_value, std::string(decoded.data(), decoded.data() + decoded.size()));
+  const auto decoded = json::decode(codec, json);
+  BOOST_CHECK_EQUAL(json, std::string(decoded.data(), decoded.data() + decoded.size()));
 }
 
 }  // namespace
-
-/*
- * Constructing
- */
-
-BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_data_size) {
-  std::string raw = "true";
-  raw_ref ref(raw.data(), raw.size());
-
-  BOOST_CHECK_EQUAL(ref.data(), raw.data());
-  BOOST_CHECK_EQUAL(ref.size(), raw.size());
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_construct_from_begin_end) {
-  std::string raw = "true";
-  raw_ref ref(raw.data(), raw.data() + raw.size());
-
-  BOOST_CHECK_EQUAL(ref.data(), raw.data());
-  BOOST_CHECK_EQUAL(ref.size(), raw.size());
-}
-
-BOOST_AUTO_TEST_CASE(json_codec_raw_ref_should_convert_to_decode_context) {
-  std::string raw = "true";
-  raw_ref ref(raw.data(), raw.size());
-  decode_context context(ref);
-
-  const auto begin = raw.data();
-  const auto end = begin + raw.size();
-  BOOST_CHECK_EQUAL(context.begin, begin);
-  BOOST_CHECK_EQUAL(context.position, begin);
-  BOOST_CHECK_EQUAL(context.end, end);
-}
 
 /*
  * Decoding
@@ -137,26 +105,26 @@ BOOST_AUTO_TEST_CASE(json_codec_any_value_should_decode_into_vector) {
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_ref_as_is) {
-  std::string data = "some junk";
-  raw_ref ref(data.data(), data.size());
-  BOOST_CHECK_EQUAL(encode(ref), data);
+  std::string data = "1234";
+  ref data_ref(data.data(), data.size());
+  BOOST_CHECK_EQUAL(encode(data_ref), data);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_string_as_is) {
-  std::string data = "some junk";
+  std::string data = "1234";
   BOOST_CHECK_EQUAL(encode(any_value<std::string>(), data), data);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_vector_as_is) {
-  std::string data = "some junk";
+  std::string data = "1234";
   std::vector<uint8_t> vec(data.data(), data.data() + data.size());
   BOOST_CHECK_EQUAL(encode(any_value<std::vector<uint8_t>>(), vec), data);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_with_separators) {
   std::string raw = "{}";
-  raw_ref ref(raw.data(), raw.size());
-  std::vector<raw_ref> refs{ref, ref, ref};
+  ref data_ref(raw.data(), raw.size());
+  std::vector<ref> refs{data_ref, data_ref, data_ref};
   BOOST_CHECK_EQUAL(encode(refs), "[{},{},{}]");
 }
 

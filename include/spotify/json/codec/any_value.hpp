@@ -23,25 +23,11 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/skip_value.hpp>
 #include <spotify/json/encode_context.hpp>
+#include <spotify/json/encoded_value.hpp>
 
 namespace spotify {
 namespace json {
 namespace codec {
-
-struct raw_ref {
-  raw_ref() : _data(nullptr), _size(0) {}
-  raw_ref(const char *data, std::size_t size) : _data(data), _size(size) {}
-  raw_ref(const char *begin, const char *end) : _data(begin), _size(end - begin) {}
-
-  explicit operator decode_context() const { return decode_context(data(), size()); }
-
-  const char *data() const { return _data; }
-  std::size_t size() const { return _size; }
-
- private:
-  const char *_data;
-  std::size_t _size;
-};
 
 template <typename T>
 class any_value_t final {
@@ -69,9 +55,9 @@ inline any_value_t<T> any_value() {
 }  // namespace codec
 
 template <>
-struct default_codec_t<codec::raw_ref> {
-  static codec::any_value_t<codec::raw_ref> codec() {
-    return codec::any_value<codec::raw_ref>();
+struct default_codec_t<ref> {
+  static codec::any_value_t<ref> codec() {
+    return codec::any_value<ref>();
   }
 };
 
