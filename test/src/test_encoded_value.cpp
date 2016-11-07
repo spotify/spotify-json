@@ -28,9 +28,8 @@ BOOST_AUTO_TEST_SUITE(json)
 
 namespace {
 
-template <typename value_type>
-std::vector<value_type> string_to_vector(const std::string &string) {
-  return std::vector<value_type>(string.begin(), string.end());
+std::vector<char> string_to_vector(const std::string &string) {
+  return std::vector<char>(string.begin(), string.end());
 }
 
 ref string_to_ref(const char *string_in_memory) {
@@ -53,14 +52,9 @@ BOOST_AUTO_TEST_CASE(json_encoded_value_should_default_construct_string) {
   BOOST_CHECK_EQUAL(std::string(value), "null");
 }
 
-BOOST_AUTO_TEST_CASE(json_encoded_value_should_default_construct_uint_vector) {
-  encoded_value<std::vector<uint8_t>> value;
-  BOOST_CHECK(std::vector<uint8_t>(value) == string_to_vector<uint8_t>("null"));
-}
-
-BOOST_AUTO_TEST_CASE(json_encoded_value_should_default_construct_char_vector) {
+BOOST_AUTO_TEST_CASE(json_encoded_value_should_default_construct_vector) {
   encoded_value<std::vector<char>> value;
-  BOOST_CHECK(std::vector<char>(value) == string_to_vector<char>("null"));
+  BOOST_CHECK(std::vector<char>(value) == string_to_vector("null"));
 }
 
 BOOST_AUTO_TEST_CASE(json_encoded_value_should_default_construct_ref) {
@@ -74,18 +68,11 @@ BOOST_AUTO_TEST_CASE(json_encoded_value_should_validate_string) {
   BOOST_CHECK_THROW(encoded_value<>("[ null, 123 ] "), decode_exception);
 }
 
-BOOST_AUTO_TEST_CASE(json_encoded_value_should_validate_uint_vector) {
-  using vector_value = encoded_value<std::vector<uint8_t>>;
-  vector_value(string_to_vector<uint8_t>("[ null, 1234 ]"));
-  BOOST_CHECK_THROW(vector_value(string_to_vector<uint8_t>("{ null, 1234 }")), decode_exception);
-  BOOST_CHECK_THROW(vector_value(string_to_vector<uint8_t>("[ null, 123 ] ")), decode_exception);
-}
-
-BOOST_AUTO_TEST_CASE(json_encoded_value_should_validate_char_vector) {
+BOOST_AUTO_TEST_CASE(json_encoded_value_should_validate_vector) {
   using vector_value = encoded_value<std::vector<char>>;
-  vector_value(string_to_vector<char>("[ null, 1234 ]"));
-  BOOST_CHECK_THROW(vector_value(string_to_vector<char>("{ null, 1234 }")), decode_exception);
-  BOOST_CHECK_THROW(vector_value(string_to_vector<char>("[ null, 123 ] ")), decode_exception);
+  vector_value(string_to_vector("[ null, 1234 ]"));
+  BOOST_CHECK_THROW(vector_value(string_to_vector("{ null, 1234 }")), decode_exception);
+  BOOST_CHECK_THROW(vector_value(string_to_vector("[ null, 123 ] ")), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_encoded_value_should_validate_ref) {
@@ -107,15 +94,8 @@ BOOST_AUTO_TEST_CASE(json_encoded_value_should_implicitly_cast_to_string) {
   BOOST_CHECK_EQUAL(string, json);
 }
 
-BOOST_AUTO_TEST_CASE(json_encoded_value_should_implicitly_cast_to_uint_vector) {
-  const auto json = string_to_vector<uint8_t>("[ null, 1234 ]");
-  const encoded_value<std::vector<uint8_t>> value(json);
-  const std::vector<uint8_t> vector = value;
-  BOOST_CHECK(vector == json);
-}
-
-BOOST_AUTO_TEST_CASE(json_encoded_value_should_implicitly_cast_to_char_vector) {
-  const auto json = string_to_vector<char>("[ null, 1234 ]");
+BOOST_AUTO_TEST_CASE(json_encoded_value_should_implicitly_cast_to_vector) {
+  const auto json = string_to_vector("[ null, 1234 ]");
   const encoded_value<std::vector<char>> value(json);
   const std::vector<char> vector = value;
   BOOST_CHECK(vector == json);

@@ -38,7 +38,7 @@ template <typename size_type = std::size_t>
 struct base_encode_context final {
   base_encode_context(const size_type capacity = 4096)
       : has_sse42(detail::cpuid().has_sse42()),
-        _buf(static_cast<uint8_t *>(capacity ? std::malloc(capacity) : nullptr)),
+        _buf(static_cast<char *>(capacity ? std::malloc(capacity) : nullptr)),
         _ptr(_buf),
         _end(_buf + capacity),
         _capacity(capacity) {
@@ -51,7 +51,7 @@ struct base_encode_context final {
     std::free(_buf);
   }
 
-  json_force_inline uint8_t *reserve(const size_type reserved_bytes) {
+  json_force_inline char *reserve(const size_type reserved_bytes) {
     const auto remaining_bytes = static_cast<size_type>(_end - _ptr);  // _end is always >= _ptr
     if (json_likely(remaining_bytes >= reserved_bytes)) {
       return _ptr;
@@ -65,12 +65,12 @@ struct base_encode_context final {
     _ptr += num_bytes;
   }
 
-  json_force_inline void append(const uint8_t c) {
+  json_force_inline void append(const char c) {
     reserve(1)[0] = c;
     advance(1);
   }
 
-  json_force_inline void append_or_replace(const uint8_t replacing, const uint8_t with) {
+  json_force_inline void append_or_replace(const char replacing, const char with) {
     if (json_likely(!empty() && _ptr[-1] == replacing)) {
       _ptr[-1] = with;
     } else {
@@ -87,7 +87,7 @@ struct base_encode_context final {
     _ptr = _buf;
   }
 
-  json_force_inline const void *data() const {
+  json_force_inline const char *data() const {
     return _buf;
   }
 
@@ -127,7 +127,7 @@ struct base_encode_context final {
     // is at least as large as the reserved size. We avoid doing any arithmetics
     // here to not have to check for overflow yet again.
     const auto actual_capacity = std::max(new_size, new_capacity);
-    _buf = static_cast<uint8_t *>(std::realloc(_buf, actual_capacity));
+    _buf = static_cast<char *>(std::realloc(_buf, actual_capacity));
     if (json_unlikely(!_buf)) {
       throw std::bad_alloc();
     }
@@ -137,9 +137,9 @@ struct base_encode_context final {
     _capacity = actual_capacity;
   }
 
-  uint8_t *_buf;
-  uint8_t *_ptr;
-  const uint8_t *_end;
+  char *_buf;
+  char *_ptr;
+  const char *_end;
   size_type _capacity;
 };
 

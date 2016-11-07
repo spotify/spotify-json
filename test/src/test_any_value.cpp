@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(json_codec_any_value_should_decode_into_string) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_decode_into_vector) {
-  verify_decode_any_value<std::vector<uint8_t>>("[1, 2, 3]");
+  verify_decode_any_value<std::vector<char>>("[1, 2, 3]");
 }
 
 /*
@@ -119,9 +119,9 @@ BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_string_as_is) {
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_vector_as_is) {
   const auto sdata = std::string("1234");
-  const auto vdata = std::vector<uint8_t>(sdata.data(), sdata.data() + sdata.size());
-  const auto value = encoded_value<std::vector<uint8_t>>(vdata);
-  BOOST_CHECK_EQUAL(encode(any_value<std::vector<uint8_t>>(), value), sdata);
+  const auto vdata = std::vector<char>(sdata.data(), sdata.data() + sdata.size());
+  const auto value = encoded_value<std::vector<char>>(vdata);
+  BOOST_CHECK_EQUAL(encode(any_value<std::vector<char>>(), value), sdata);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_with_separators) {

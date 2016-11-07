@@ -49,32 +49,29 @@ struct ref {
 
 template <typename storage_type = std::string>
 struct encoded_value {
-  using value_type = typename storage_type::value_type;
   struct unsafe_unchecked {};
 
   explicit encoded_value(storage_type json)
       : _json(std::move(json)) {
-    decode_context ctx(reinterpret_cast<const char *>(_json.data()), _json.size());
-    detail::skip_value(ctx);  // validate provided JSON string
-    detail::fail_if(ctx, ctx.position != ctx.end, "Unexpected trailing input");
+    decode_context context(_json.data(), _json.size());
+    detail::skip_value(context);  // validate provided JSON string
+    detail::fail_if(context, context.position != context.end, "Unexpected trailing input");
   }
 
   encoded_value() : encoded_value("null", 4, unsafe_unchecked()) {}
 
   encoded_value(encode_context &&context, const unsafe_unchecked &) : encoded_value(
-      reinterpret_cast<const char *>(context.data()),
+      context.data(),
       context.size(),
       unsafe_unchecked()) {}
 
   encoded_value(const char *data, std::size_t size, const unsafe_unchecked &)
-      : _json(
-          reinterpret_cast<const value_type *>(data),
-          reinterpret_cast<const value_type *>(data + size)) {}
+      : _json(data, data + size) {}
 
   operator storage_type const &() const & { return _json; }
   operator storage_type &&() && { return std::move(_json); }
 
-  const char *data() const { return reinterpret_cast<const char *>(_json.data()); }
+  const char *data() const { return _json.data(); }
   std::size_t size() const { return _json.size(); }
 
  private:

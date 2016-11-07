@@ -29,7 +29,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
+json_force_inline void write_escaped_c(char *&out, const char c) {
   static const char HEX[] = "0123456789ABCDEF";
   static const char POPULAR_CONTROL_CHARACTERS[] = {
     'u', 'u', 'u', 'u', 'u', 'u', 'u', 'u',
@@ -42,7 +42,7 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
   // is below 0x30 and the latter is at 0x5C. As an optimization, for most
   // simple strings (letters, numbers, some punctuation), check for this first
   // before doing more complicated checks (more expensive checks).
-  if (json_likely(c >= 0x30)) {
+  if (json_likely(uint8_t(c) >= 0x30)) {
     if (json_likely(c != '\\')) {
       *(out++) = c;
     } else {
@@ -56,7 +56,7 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
   // different punctuation and special characters. We will write most of them as
   // is, except for ", which is trivially escaped. Note that JSON allows for /
   // to be escaped as well, but most JSON serializers do not.
-  if (json_likely(c >= 0x20)) {
+  if (json_likely(uint8_t(c) >= 0x20)) {
     if (json_likely(c != '"')) {
       *(out++) = c;
     } else {
@@ -70,7 +70,7 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
   // to some degree. There are some "popular" control characters, such as tabs,>
   // newline, and carriage return, with simple escape codes. All other control
   // characters get an escape code on the form \u00xx. Six bytes. Isch.
-  const auto control_character = POPULAR_CONTROL_CHARACTERS[c];
+  const auto control_character = POPULAR_CONTROL_CHARACTERS[int(c)];
   if (json_likely(control_character != 'u')) {
     out[0] = '\\';
     out[1] = control_character;
@@ -83,23 +83,23 @@ json_force_inline void write_escaped_c(uint8_t *&out, const uint8_t c) {
   }
 }
 
-json_force_inline void write_escaped_1(uint8_t *&out, const uint8_t *&begin) {
-  struct blob_1_t { uint8_t a; };
+json_force_inline void write_escaped_1(char *&out, const char *&begin) {
+  struct blob_1_t { char a; };
   const auto b = *reinterpret_cast<const blob_1_t *>(begin);
   write_escaped_c(out, b.a);
   begin += sizeof(blob_1_t);
 }
 
-json_force_inline void write_escaped_2(uint8_t *&out, const uint8_t *&begin) {
-  struct blob_2_t { uint8_t a, b; };
+json_force_inline void write_escaped_2(char *&out, const char *&begin) {
+  struct blob_2_t { char a, b; };
   const auto b = *reinterpret_cast<const blob_2_t *>(begin);
   write_escaped_c(out, b.a);
   write_escaped_c(out, b.b);
   begin += sizeof(blob_2_t);
 }
 
-json_force_inline void write_escaped_4(uint8_t *&out, const uint8_t *&begin) {
-  struct blob_4_t { uint8_t a, b, c, d; };
+json_force_inline void write_escaped_4(char *&out, const char *&begin) {
+  struct blob_4_t { char a, b, c, d; };
   const auto b = *reinterpret_cast<const blob_4_t *>(begin);
   write_escaped_c(out, b.a);
   write_escaped_c(out, b.b);
@@ -108,8 +108,8 @@ json_force_inline void write_escaped_4(uint8_t *&out, const uint8_t *&begin) {
   begin += sizeof(blob_4_t);
 }
 
-json_force_inline void write_escaped_8(uint8_t *&out, const uint8_t *&begin) {
-  struct blob_8_t { uint8_t a, b, c, d, e, f, g, h; };
+json_force_inline void write_escaped_8(char *&out, const char *&begin) {
+  struct blob_8_t { char a, b, c, d, e, f, g, h; };
   const auto b = *reinterpret_cast<const blob_8_t *>(begin);
   write_escaped_c(out, b.a);
   write_escaped_c(out, b.b);

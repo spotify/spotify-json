@@ -38,8 +38,8 @@ codec::object_t<custom_obj> custom_codec() {
   return codec;
 }
 
-std::vector<uint8_t> string_to_vector(const std::string &string) {
-  return std::vector<uint8_t>(string.begin(), string.end());
+std::vector<char> string_to_vector(const std::string &string) {
+  return std::vector<char>(string.begin(), string.end());
 }
 
 }
@@ -88,13 +88,13 @@ BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_string) {
 BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_vector_with_custom_codec) {
   custom_obj obj;
   obj.val = "c";
-  BOOST_CHECK(encode_value<std::vector<uint8_t>>(custom_codec(), obj) == string_to_vector(R"({"a":"c"})"));
+  BOOST_CHECK(encode_value<std::vector<char>>(custom_codec(), obj) == string_to_vector(R"({"a":"c"})"));
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_vector) {
   custom_obj obj;
   obj.val = "d";
-  BOOST_CHECK(encode_value<std::vector<uint8_t>>(obj) == string_to_vector(R"({"x":"d"})"));
+  BOOST_CHECK(encode_value<std::vector<char>>(obj) == string_to_vector(R"({"x":"d"})"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json

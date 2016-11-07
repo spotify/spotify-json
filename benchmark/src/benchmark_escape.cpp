@@ -46,15 +46,14 @@ std::string generate_string(size_t size, bool add_special_characters) {
 
 void check_escaped(const std::string &expected, const std::string &input) {
   encode_context context;
-  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
-  write_escaped(context, begin, begin + input.size());
+  write_escaped(context, input.data(), input.data() + input.size());
   const auto x = context.size();
-  BOOST_CHECK_EQUAL(expected, std::string(reinterpret_cast<const char *>(context.data()), x));
+  BOOST_CHECK_EQUAL(expected, std::string(context.data(), x));
 }
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string) {
   const auto input = generate_string(8192, false);
-  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
+  const auto begin = input.data();
 
   volatile size_t n = 0;
   JSON_BENCHMARK(1e5, [&] {
@@ -69,7 +68,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string) {
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string_sse42) {
   const auto input = generate_string(8192, false);
-  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
+  const auto begin = input.data();
 
   volatile size_t n = 0;
   JSON_BENCHMARK(1e5, [&] {
@@ -83,7 +82,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string_sse42) {
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string) {
   const auto input = generate_string(8192, true);
-  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
+  const auto begin = input.data();
 
   volatile size_t n = 0;
   JSON_BENCHMARK(1e5, [&] {
@@ -98,7 +97,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string) {
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string_sse42) {
   const auto input = generate_string(8192, true);
-  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
+  const auto begin = input.data();
 
   volatile size_t n = 0;
   JSON_BENCHMARK(1e5, [&] {
