@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <string>
+#include <cstring>
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
@@ -25,6 +25,10 @@
 
 namespace spotify {
 namespace json {
+
+/*
+ * json::decode(codec, data...)
+ */
 
 template <typename codec_type>
 typename codec_type::object_type decode(const codec_type &codec, const char *data, size_t size) {
@@ -37,19 +41,37 @@ typename codec_type::object_type decode(const codec_type &codec, const char *dat
 }
 
 template <typename codec_type>
-typename codec_type::object_type decode(const codec_type &codec, const std::string &string) {
+typename codec_type::object_type decode(const codec_type &codec, const char *cstr) {
+  return decode(codec, cstr, std::strlen(cstr));
+}
+
+template <typename codec_type, typename string_type>
+typename codec_type::object_type decode(const codec_type &codec, const string_type &string) {
   return decode(codec, string.data(), string.size());
 }
 
-template <typename Value>
-Value decode(const char *data, size_t size) {
-  return decode(default_codec<Value>(), data, size);
+/*
+ * json::decode(data...)
+ */
+
+template <typename value_type>
+value_type decode(const char *data, size_t size) {
+  return decode(default_codec<value_type>(), data, size);
 }
 
-template <typename Value>
-Value decode(const std::string &string) {
-  return decode(default_codec<Value>(), string);
+template <typename value_type>
+value_type decode(const char *cstr) {
+  return decode(default_codec<value_type>(), cstr, std::strlen(cstr));
 }
+
+template <typename value_type, typename string_type>
+value_type decode(const string_type &string) {
+  return decode(default_codec<value_type>(), string);
+}
+
+/*
+ * json::try_decode(&object, codec, data...)
+ */
 
 template <typename codec_type>
 bool try_decode(
@@ -69,19 +91,40 @@ template <typename codec_type>
 bool try_decode(
     typename codec_type::object_type &object,
     const codec_type &codec,
-    const std::string &string) {
+    const char *cstr) {
+  return try_decode(object, codec, cstr, std::strlen(cstr));
+}
+
+template <typename codec_type, typename string_type>
+bool try_decode(
+    typename codec_type::object_type &object,
+    const codec_type &codec,
+    const string_type &string) {
   return try_decode(object, codec, string.data(), string.size());
 }
 
-template <typename Value>
-bool try_decode(Value &object, const std::string &string) {
-  return try_decode(object, default_codec<Value>(), string);
+/*
+ * json::try_decode(&object, data...)
+ */
+
+template <typename value_type>
+bool try_decode(value_type &object, const char *data, size_t size) {
+  return try_decode(object, default_codec<value_type>(), data, size);
 }
 
-template <typename Value>
-bool try_decode(Value &object, const char *data, size_t size) {
-  return try_decode(object, default_codec<Value>(), data, size);
+template <typename value_type>
+bool try_decode(value_type &object, const char *cstr) {
+  return try_decode(object, default_codec<value_type>(), cstr, std::strlen(cstr));
 }
+
+template <typename value_type, typename string_type>
+bool try_decode(value_type &object, const string_type &string) {
+  return try_decode(object, default_codec<value_type>(), string);
+}
+
+/*
+ * json::try_decode_partial(&object, codec, context)
+ */
 
 template <typename codec_type>
 bool try_decode_partial(
