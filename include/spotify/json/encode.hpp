@@ -21,6 +21,7 @@
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/macros.hpp>
 #include <spotify/json/encode_context.hpp>
+#include <spotify/json/encoded_value.hpp>
 
 namespace spotify {
 namespace json {
@@ -35,6 +36,18 @@ json_never_inline std::string encode(const codec_type &codec, const typename cod
 template <typename value_type>
 json_never_inline std::string encode(const value_type &value) {
   return encode(default_codec<value_type>(), value);
+}
+
+template <typename storage_type = std::string, typename codec_type>
+json_never_inline encoded_value<storage_type> encode_value(const codec_type &codec, const typename codec_type::object_type &object) {
+  encode_context context;
+  codec.encode(context, object);
+  return encoded_value<storage_type>(std::move(context), typename encoded_value<storage_type>::unsafe_unchecked());
+}
+
+template <typename storage_type = std::string, typename value_type>
+json_never_inline encoded_value<storage_type> encode_value(const value_type &value) {
+  return encode_value<storage_type>(default_codec<value_type>(), value);
 }
 
 }  // namespace json
