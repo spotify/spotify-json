@@ -16,6 +16,7 @@
 
 #include <cstring>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -36,10 +37,10 @@ ref string_to_ref(const char *string_in_memory) {
   return ref(string_in_memory, string_in_memory + std::strlen(string_in_memory));
 }
 
-encode_context string_to_context(const std::string &string) {
-  encode_context context;
+encode_context &&string_to_context(encode_context &context, const std::string &string) {
+  context.clear();
   context.append(string.data(), string.size());
-  return context;
+  return std::move(context);
 }
 
 void take_rvalue_string(std::string &&string) {
@@ -82,9 +83,10 @@ BOOST_AUTO_TEST_CASE(json_encoded_value_should_validate_ref) {
 }
 
 BOOST_AUTO_TEST_CASE(json_encoded_value_should_not_validate_encode_context) {
-  encoded_value<>(string_to_context("[ null, 1234 ]"), encoded_value<>::unsafe_unchecked());
-  encoded_value<>(string_to_context("{ null, 1234 }"), encoded_value<>::unsafe_unchecked());
-  encoded_value<>(string_to_context("[ null, 123 ] "), encoded_value<>::unsafe_unchecked());
+  encode_context context;
+  encoded_value<>(string_to_context(context, "[ null, 1234 ]"), encoded_value<>::unsafe_unchecked());
+  encoded_value<>(string_to_context(context, "{ null, 1234 }"), encoded_value<>::unsafe_unchecked());
+  encoded_value<>(string_to_context(context, "[ null, 123 ] "), encoded_value<>::unsafe_unchecked());
 }
 
 BOOST_AUTO_TEST_CASE(json_encoded_value_should_implicitly_cast_to_string) {
