@@ -60,11 +60,6 @@ struct encoded_value {
 
   encoded_value() : encoded_value("null", 4, unsafe_unchecked()) {}
 
-  encoded_value(encode_context &&context, const unsafe_unchecked &) : encoded_value(
-      context.data(),
-      context.size(),
-      unsafe_unchecked()) {}
-
   encoded_value(const char *data, std::size_t size, const unsafe_unchecked &)
       : _json(data, data + size) {}
 

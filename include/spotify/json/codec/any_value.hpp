@@ -17,7 +17,6 @@
 #pragma once
 
 #include <cstdlib>
-#include <cstring>
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
@@ -42,8 +41,7 @@ class any_value_t final {
   }
 
   void encode(encode_context &context, const object_type &value) const {
-    std::memcpy(context.reserve(value.size()), value.data(), value.size());
-    context.advance(value.size());
+    context.append(value.data(), value.size());
   }
 };
 

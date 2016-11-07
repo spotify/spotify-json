@@ -42,7 +42,7 @@ template <typename storage_type = std::string, typename codec_type>
 json_never_inline encoded_value<storage_type> encode_value(const codec_type &codec, const typename codec_type::object_type &object) {
   encode_context context;
   codec.encode(context, object);
-  return encoded_value<storage_type>(std::move(context), typename encoded_value<storage_type>::unsafe_unchecked());
+  return encoded_value<storage_type>(context.data(), context.size(), typename encoded_value<storage_type>::unsafe_unchecked());
 }
 
 template <typename storage_type = std::string, typename value_type>
