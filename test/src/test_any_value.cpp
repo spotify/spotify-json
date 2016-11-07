@@ -105,26 +105,30 @@ BOOST_AUTO_TEST_CASE(json_codec_any_value_should_decode_into_vector) {
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_ref_as_is) {
-  std::string data = "1234";
-  ref data_ref(data.data(), data.size());
-  BOOST_CHECK_EQUAL(encode(data_ref), data);
+  const auto sdata = std::string("1234");
+  const auto rdata = ref(sdata.data(), sdata.size());
+  const auto value = encoded_value<ref>(rdata);
+  BOOST_CHECK_EQUAL(encode(value), sdata);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_string_as_is) {
-  std::string data = "1234";
-  BOOST_CHECK_EQUAL(encode(any_value<std::string>(), data), data);
+  const auto sdata = std::string("1234");
+  const auto value = encoded_value<>(sdata);
+  BOOST_CHECK_EQUAL(encode(any_value<std::string>(), value), sdata);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_vector_as_is) {
-  std::string data = "1234";
-  std::vector<uint8_t> vec(data.data(), data.data() + data.size());
-  BOOST_CHECK_EQUAL(encode(any_value<std::vector<uint8_t>>(), vec), data);
+  const auto sdata = std::string("1234");
+  const auto vdata = std::vector<uint8_t>(sdata.data(), sdata.data() + sdata.size());
+  const auto value = encoded_value<std::vector<uint8_t>>(vdata);
+  BOOST_CHECK_EQUAL(encode(any_value<std::vector<uint8_t>>(), value), sdata);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_any_value_should_encode_with_separators) {
-  std::string raw = "{}";
-  ref data_ref(raw.data(), raw.size());
-  std::vector<ref> refs{data_ref, data_ref, data_ref};
+  const auto sdata = std::string("{}");
+  const auto rdata = ref(sdata.data(), sdata.size());
+  const auto value = encoded_value<ref>(rdata);
+  const std::vector<encoded_value<ref>> refs{ value, value, value };
   BOOST_CHECK_EQUAL(encode(refs), "[{},{},{}]");
 }
 

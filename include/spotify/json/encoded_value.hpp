@@ -66,15 +66,18 @@ struct encoded_value {
       context.size(),
       unsafe_unchecked()) {}
 
-  operator storage_type const &() const & { return _json; }
-  operator storage_type &&() && { return std::move(_json); }
-
- private:
   encoded_value(const char *data, std::size_t size, const unsafe_unchecked &)
       : _json(
           reinterpret_cast<const value_type *>(data),
           reinterpret_cast<const value_type *>(data + size)) {}
 
+  operator storage_type const &() const & { return _json; }
+  operator storage_type &&() && { return std::move(_json); }
+
+  const char *data() const { return reinterpret_cast<const char *>(_json.data()); }
+  std::size_t size() const { return _json.size(); }
+
+ private:
   storage_type _json;
 };
 

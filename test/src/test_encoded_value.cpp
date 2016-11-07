@@ -135,5 +135,17 @@ BOOST_AUTO_TEST_CASE(json_encoded_value_should_move_to_string) {
   take_rvalue_string(std::move(value));
 }
 
+BOOST_AUTO_TEST_CASE(json_encoded_value_should_forward_data_call) {
+  const auto json = string_to_ref("[ null, 1234 ]");
+  const encoded_value<ref> value(json);
+  BOOST_CHECK(json.data() == value.data());
+}
+
+BOOST_AUTO_TEST_CASE(json_encoded_value_should_forward_size_call) {
+  const auto json = string_to_ref("[ null, 1234 ]");
+  const encoded_value<ref> value(json);
+  BOOST_CHECK(json.size() == value.size());
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify

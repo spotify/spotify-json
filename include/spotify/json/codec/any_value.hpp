@@ -32,13 +32,13 @@ namespace codec {
 template <typename T>
 class any_value_t final {
  public:
-  using object_type = T;
+  using object_type = encoded_value<T>;
 
   object_type decode(decode_context &context) const {
     const auto begin = context.position;
     detail::skip_value(context);
-    const auto end = context.position;
-    return object_type(begin, end);
+    const auto size = context.position - begin;
+    return object_type(begin, size, typename object_type::unsafe_unchecked());
   }
 
   void encode(encode_context &context, const object_type &value) const {
@@ -54,10 +54,10 @@ inline any_value_t<T> any_value() {
 
 }  // namespace codec
 
-template <>
-struct default_codec_t<ref> {
-  static codec::any_value_t<ref> codec() {
-    return codec::any_value<ref>();
+template <typename T>
+struct default_codec_t<encoded_value<T>> {
+  static codec::any_value_t<T> codec() {
+    return codec::any_value<T>();
   }
 };
 
