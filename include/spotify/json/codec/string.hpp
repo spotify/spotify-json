@@ -49,7 +49,7 @@ class string_t final {
     // character, but that is ok since write_escaped will not escape characters
     // with the high bit set, so the combined escaped string will contain the
     // correct UTF-8 characters in the end.
-    auto chunk_begin = reinterpret_cast<const uint8_t *>(value.data());
+    auto chunk_begin = value.data();
     const auto string_end = chunk_begin + value.size();
 
     while (chunk_begin != string_end) {

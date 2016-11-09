@@ -32,9 +32,8 @@ using namespace boost;
 
 void check_escaped(const std::string &expected, const std::string &input) {
   encode_context context;
-  const auto begin = reinterpret_cast<const uint8_t *>(input.data());
-  write_escaped(context, begin, begin + input.size());
-  BOOST_CHECK_EQUAL(expected, std::string(reinterpret_cast<const char *>(context.data()), context.size()));
+  write_escaped(context, input.data(), input.data() + input.size());
+  BOOST_CHECK_EQUAL(expected, std::string(context.data(), context.size()));
 }
 
 BOOST_AUTO_TEST_CASE(json_write_escaped_should_escape_special_characters) {

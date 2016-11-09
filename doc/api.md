@@ -208,7 +208,8 @@ you will combine the basic codecs into increasingly complex ones, until it
 can parse the JSON objects that your application works with. The library defines
 a number of codecs that are available to the user of the library:
 
-* [`any_t`](#any_t): For type erasing codecs
+* [`any_codec_t`](#any_codec_t): For type erasing codecs
+* [`any_value_t`](#any_value_t): For opaque JSON values
 * [`array_t`](#array_t): For arrays (`std::vector`, `std::deque` etc)
 * [`boolean_t`](#boolean_t): For `bool`s
 * [`cast_t`](#cast_t): For dynamic casting `shared_ptr`s
@@ -331,28 +332,28 @@ struct default_codec_t<Point> {
 Codecs
 ======
 
-### `any_t`
+### `any_codec_t`
 
-`any_t` is a special codec. Its purpose is to *erase* the type of an underlying
-codec. This is useful in places where you need to have a codec that encodes and
-decodes a specific type of objects, but you cannot know exactly what codec will
-be used.
+`any_codec_t` is a special codec. Its purpose is to *erase* the type of an
+underlying codec. This is useful in places where you need to have a codec that
+encodes and decodes a specific type of objects, but you cannot know exactly what
+codec will be used.
 
 ```cpp
-// A primitive example of the use of any_t:
+// A primitive example of the use of any_codec_t:
 const string_t string_codec = string();
 const eq_t<string_t> strict_codec = eq("x");
 
 // string_t and eq_t<string_t> have separate types, so it's not possible
 // to just assign one or the other to another variable. However, both
-// string_t and eq_t<string_t> can be turned into any_t<std::string>
+// string_t and eq_t<string_t> can be turned into any_codec_t<std::string>
 // objects, which can then be assigned to a variable of that type.
-const any_t<std::string> one_or_the_other = strict ?
-    any(strict_codec) : any(string_codec);
+const any_codec_t<std::string> one_or_the_other = strict ?
+    any_codec(strict_codec) : any_codec(string_codec);
 ```
 
-The example above is a bit contrived. A more realistic case where use of `any_t`
-is required is in pure virtual classes:
+The example above is a bit contrived. A more realistic case where use of
+`any_codec_t` is required is in pure virtual classes:
 
 ```cpp
 class my_interface {
@@ -361,7 +362,7 @@ class my_interface {
   /**
    * Use this codec to encode and decode the my_interface object.
    */
-  virtual any_t<std::shared_ptr<my_interface>> codec() = 0;
+  virtual any_codec_t<std::shared_ptr<my_interface>> codec() = 0;
 }
 ```
 
@@ -369,17 +370,37 @@ In the example above, it is impossible to assign a concrete codec type to the
 return type of `my_interface::codec`, since the codec for each implementation
 of `my_interface` will have a different type.
 
-Usually in spotify-json, there are no virtual method calls. However, `any_t`
-introduces one virtual method for each `encode` and `decode` call.
+Usually in spotify-json, there are no virtual method calls. However,
+`any_codec_t` introduces one virtual method for each `encode` and `decode` call.
 
-* **Complete class name**: `spotify::json::codec::any_t<ObjectType>`,
+* **Complete class name**: `spotify::json::codec::any_codec_t<ObjectType>`,
   where `ObjectType` is the type of the objects that the codec encodes and
   decodes.
 * **Supported types**: `ObjectType`
-* **Convenience builder**: `spotify::json::codec::any(InnerCodec)`
+* **Convenience builder**: `spotify::json::codec::any_codec(InnerCodec)`
 * **`default_codec` support**: No; the convenience builder must be used
   explicitly. Unless you know that you need to use this codec, there probably is
   no need to do it.
+
+### `any_value_t` ###
+
+`any_value_t` is a codec that does not actually decode or encode but instead
+deals with opaque JSON values.
+
+When decoding, this codec yields a `spotify::json::encoded_value<T>`, where `T`
+can be either a `spotify::json::codec::ref`, a `std::string` or a `std::vector`,
+whose `data()` points to the first character of the value (i.e. `{` for a JSON
+object or `t` for the value `true`) and whose `size()` is the size of the entire
+encoded value string up to and including the last character (i.e. `}` for a JSON
+object or `e` for the value `true`). When using a `ref`, the `data()` points
+into the original data passed to the code so only use this type to decode if you
+can ensure that the data will outlive the `ref`. If you need the decoded value
+to live even when the original JSON has been deleted, decode into a value with
+`std::string` or `std::vector` storage instead.
+
+This codec is useful as it allows you to defer the decoding of certain parts of
+your data when decoding. To actually parse the value, use one of the regular
+`spotify::decode` functions, passing the `encoded_value`.
 
 ### `array_t`
 
@@ -416,15 +437,15 @@ introduces one virtual method for each `encode` and `decode` call.
 ### `cast_t`
 
 `cast_t` is a codec that does `std::dynamic_pointer_cast` on its values. It is
-a rather specialized codec that is useful mainly together with `any_t`.
+a rather specialized codec that is useful mainly together with `any_codec_t`.
 
 **The use of `cast_t` is not type safe!** It is an error to ask a
 `cast_t<T, InnerCodec>` codec to encode an object of any other type than
 `InnerCodec::object_type`, even if the object is a `T`. When RTTI is enabled,
 doing so will throw an `std::bad_cast`. Otherwise, the behavior is undefined.
 
-Continuing the example given in the documentation for `any_t`, where there is
-an interface `my_interface` like this:
+Continuing the example given in the documentation for `any_codec_t`, where there
+is an interface `my_interface` like this:
 
 ```cpp
 class my_interface {
@@ -434,7 +455,7 @@ class my_interface {
   /**
    * Use this codec to encode and decode the my_interface object.
    */
-  virtual any_t<std::shared_ptr<my_interface>> codec() = 0;
+  virtual any_codec_t<std::shared_ptr<my_interface>> codec() = 0;
 }
 ```
 
@@ -443,11 +464,10 @@ An implementation of this interface might look like:
 ```cpp
 class my_interface_impl : public my_interface {
  public:
-  virtual any_t<std::shared_ptr<my_interface>> codec() override {
+  virtual any_codec_t<std::shared_ptr<my_interface>> codec() override {
     auto codec = object<my_interface_impl>();
     codec.required("value", &my_interface_impl::_value);
-
-    return any(cast<my_interface>(shared_ptr(codec)));
+    return any_codec(cast<my_interface>(shared_ptr(codec)));
   }
 
  private:
@@ -853,24 +873,6 @@ val.allow_anything == "";
 * **Supported types**: Any type that the underlying codecs support.
 * **Convenience builder**: `spotify::json::codec::one_of(Codec...)`
 * **`default_codec` support**: No; the convenience builder must be used explicitly.
-
-### `raw_t` ###
-
-`raw_t` is a codec that doesn't actually decode or encode but instead deals with
-the raw data of the JSON value.
-
-When decoding, this codec can yield either a `spotify::json::codec::raw_ref`, a
-`std::string` or a `std::vector` whose `data()` points to the first character of
-the value (i.e. `{` for a JSON object or `t` for the value `true`) and whose `size()`
-is the size of the entire raw value up to and including the last character (i.e. `}`
-for a JSON object or `e` for the value `true`). When using a `raw_ref`, the
-`data()` points into the original data passed to the code so only use this type
-to decode if you can ensure that the data will outlive the `raw_ref`. If you need
-the decoded value to live even when the original JSON has been deleted, decode into
-a `std::string` or `std::vector` instead.
-
-This codec is useful as it allows you to defer the decoding of certain parts of
-your data when decoding.
 
 ### `shared_ptr_t`
 

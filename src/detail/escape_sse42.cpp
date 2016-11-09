@@ -26,7 +26,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-json_force_inline void write_escaped_16_sse42(uint8_t *&out, const __m128i chunk) {
+json_force_inline void write_escaped_16_sse42(char *&out, const __m128i chunk) {
   write_escaped_c(out, _mm_extract_epi8(chunk, 0));
   write_escaped_c(out, _mm_extract_epi8(chunk, 1));
   write_escaped_c(out, _mm_extract_epi8(chunk, 2));
@@ -47,8 +47,8 @@ json_force_inline void write_escaped_16_sse42(uint8_t *&out, const __m128i chunk
 
 void write_escaped_sse42(
     encode_context &context,
-    const uint8_t *begin,
-    const uint8_t *end) {
+    const char *begin,
+    const char *end) {
   const auto buf = context.reserve(6 * (end - begin));  // 6 is the length of \u00xx
   auto out = buf;
 

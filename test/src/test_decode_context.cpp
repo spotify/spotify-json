@@ -30,9 +30,9 @@ BOOST_AUTO_TEST_CASE(json_decode_context_should_construct_with_begin_end) {
   const char * const end = string + sizeof(string);
   const decode_context ctx(string, end);
 
-  BOOST_CHECK_EQUAL(ctx.begin, string);
-  BOOST_CHECK_EQUAL(ctx.position, string);
-  BOOST_CHECK_EQUAL(ctx.end, end);
+  BOOST_CHECK(ctx.begin == string);
+  BOOST_CHECK(ctx.position == string);
+  BOOST_CHECK(ctx.end == end);
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_context_should_construct_with_data_size) {
@@ -40,9 +40,9 @@ BOOST_AUTO_TEST_CASE(json_decode_context_should_construct_with_data_size) {
   const char * const end = string + sizeof(string);
   const decode_context ctx(string, sizeof(string));
 
-  BOOST_CHECK_EQUAL(ctx.begin, string);
-  BOOST_CHECK_EQUAL(ctx.position, string);
-  BOOST_CHECK_EQUAL(ctx.end, end);
+  BOOST_CHECK(ctx.begin == string);
+  BOOST_CHECK(ctx.position == string);
+  BOOST_CHECK(ctx.end == end);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail

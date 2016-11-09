@@ -33,8 +33,7 @@ template <typename T>
 void verify_encode_one_negative(encode_context &context, T value) {
   encode_negative_integer(context, value);
   context.append(0);  // null terminator for std::strtoll
-  const auto begin = static_cast<const char *>(context.data());
-  const auto encoded_value = std::strtoll(begin, nullptr, 10);
+  const auto encoded_value = std::strtoll(context.data(), nullptr, 10);
   BOOST_REQUIRE_EQUAL(value, encoded_value);
   context.clear();
 }
@@ -43,8 +42,7 @@ template <typename T>
 void verify_encode_one_positive(encode_context &context, T value) {
   encode_positive_integer(context, value);
   context.append(0);  // null terminator for std::strtoull
-  const auto begin = static_cast<const char *>(context.data());
-  const auto encoded_value = std::strtoull(begin, nullptr, 10);
+  const auto encoded_value = std::strtoull(context.data(), nullptr, 10);
   BOOST_REQUIRE_EQUAL(value, encoded_value);
   context.clear();
 }

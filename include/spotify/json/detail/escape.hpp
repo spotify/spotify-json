@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include <spotify/json/encode_context.hpp>
 #include <spotify/json/detail/macros.hpp>
 
@@ -27,14 +25,14 @@ namespace detail {
 
 void write_escaped_scalar(
     encode_context &context,
-    const uint8_t *begin,
-    const uint8_t *end);
+    const char *begin,
+    const char *end);
 
 #if defined(json_arch_x86)
 void write_escaped_sse42(
     encode_context &context,
-    const uint8_t *begin,
-    const uint8_t *end);
+    const char *begin,
+    const char *end);
 #endif  // defined(json_arch_x86)
 
 /**
@@ -47,8 +45,8 @@ void write_escaped_sse42(
  */
 json_force_inline void write_escaped(
     encode_context &context,
-    const uint8_t *begin,
-    const uint8_t *end) {
+    const char *begin,
+    const char *end) {
 #if defined(json_arch_x86)
   if (json_likely(context.has_sse42)) {
     return write_escaped_sse42(context, begin, end);

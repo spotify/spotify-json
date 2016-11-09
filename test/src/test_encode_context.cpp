@@ -61,9 +61,9 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_return_same_address_for_multiple
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_advance_pointer_after_reservation) {
   encode_context ctx(0);
-  ctx.advance(0); BOOST_CHECK(ctx.reserve(1024) == &static_cast<const uint8_t *>(ctx.data())[0]);
-  ctx.advance(1); BOOST_CHECK(ctx.reserve(1024) == &static_cast<const uint8_t *>(ctx.data())[1]);
-  ctx.advance(2); BOOST_CHECK(ctx.reserve(1024) == &static_cast<const uint8_t *>(ctx.data())[3]);
+  ctx.advance(0); BOOST_CHECK(ctx.reserve(1024) == &ctx.data()[0]);
+  ctx.advance(1); BOOST_CHECK(ctx.reserve(1024) == &ctx.data()[1]);
+  ctx.advance(2); BOOST_CHECK(ctx.reserve(1024) == &ctx.data()[3]);
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_maintain_correct_size_when_advancing) {
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_append_single_byte) {
   encode_context ctx;
   ctx.append('1');
   ctx.append('2');
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[0], '1');
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[1], '2');
+  BOOST_CHECK_EQUAL(ctx.data()[0], '1');
+  BOOST_CHECK_EQUAL(ctx.data()[1], '2');
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_replace_last_byte) {
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_replace_last_byte) {
   ctx.append('1');
   ctx.append_or_replace('1', '2');
   BOOST_REQUIRE_EQUAL(ctx.size(), 1);
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[0], '2');
+  BOOST_CHECK_EQUAL(ctx.data()[0], '2');
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_not_replace_wrong_last_byte) {
@@ -98,22 +98,22 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_not_replace_wrong_last_byte) {
   ctx.append('1');
   ctx.append_or_replace('3', '2');
   BOOST_REQUIRE_EQUAL(ctx.size(), 2);
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[0], '1');
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[1], '2');
+  BOOST_CHECK_EQUAL(ctx.data()[0], '1');
+  BOOST_CHECK_EQUAL(ctx.data()[1], '2');
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_not_replace_in_empty_context) {
   encode_context ctx;
   ctx.append_or_replace('1', '2');
   BOOST_REQUIRE_EQUAL(ctx.size(), 1);
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[0], '2');
+  BOOST_CHECK_EQUAL(ctx.data()[0], '2');
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_append_multiple_bytes) {
   encode_context ctx;
   ctx.append("12", 3);
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[0], '1');
-  BOOST_CHECK_EQUAL(static_cast<const char *>(ctx.data())[1], '2');
+  BOOST_CHECK_EQUAL(ctx.data()[0], '1');
+  BOOST_CHECK_EQUAL(ctx.data()[1], '2');
 }
 
 BOOST_AUTO_TEST_CASE(json_encode_context_should_throw_exception_on_small_size_overflow) {

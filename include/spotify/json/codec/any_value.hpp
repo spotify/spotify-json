@@ -17,61 +17,45 @@
 #pragma once
 
 #include <cstdlib>
-#include <cstring>
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/skip_value.hpp>
 #include <spotify/json/encode_context.hpp>
+#include <spotify/json/encoded_value.hpp>
 
 namespace spotify {
 namespace json {
 namespace codec {
 
-struct raw_ref {
-  raw_ref() : _data(nullptr), _size(0) {}
-  raw_ref(const char *data, std::size_t size) : _data(data), _size(size) {}
-  raw_ref(const char *begin, const char *end) : _data(begin), _size(end - begin) {}
-
-  explicit operator decode_context() const { return decode_context(data(), size()); }
-
-  const char *data() const { return _data; }
-  std::size_t size() const { return _size; }
-
- private:
-  const char *_data;
-  std::size_t _size;
-};
-
 template <typename T>
-class raw_t final {
+class any_value_t final {
  public:
-  using object_type = T;
+  using object_type = encoded_value<T>;
 
   object_type decode(decode_context &context) const {
     const auto begin = context.position;
     detail::skip_value(context);
-    const auto end = context.position;
-    return object_type(begin, end);
+    const auto size = context.position - begin;
+    return object_type(begin, size, typename object_type::unsafe_unchecked());
   }
 
   void encode(encode_context &context, const object_type &value) const {
-    std::memcpy(context.reserve(value.size()), value.data(), value.size());
-    context.advance(value.size());
+    context.append(value.data(), value.size());
   }
 };
 
 template <typename T>
-inline raw_t<T> raw() {
-  return raw_t<T>();
+inline any_value_t<T> any_value() {
+  return any_value_t<T>();
 }
 
 }  // namespace codec
 
-template <>
-struct default_codec_t<codec::raw_ref> {
-  static codec::raw_t<codec::raw_ref> codec() {
-    return codec::raw<codec::raw_ref>();
+template <typename T>
+struct default_codec_t<encoded_value<T>> {
+  static codec::any_value_t<T> codec() {
+    return codec::any_value<T>();
   }
 };
 

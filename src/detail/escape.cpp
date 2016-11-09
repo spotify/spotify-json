@@ -26,8 +26,8 @@ namespace detail {
 
 void write_escaped_scalar(
     encode_context &context,
-    const uint8_t *begin,
-    const uint8_t *end) {
+    const char *begin,
+    const char *end) {
   const auto buf = context.reserve(6 * (end - begin));  // 6 is the length of \u00xx
   auto ptr = buf;
 

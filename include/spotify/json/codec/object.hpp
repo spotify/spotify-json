@@ -106,7 +106,7 @@ class object_t final {
     encode_context context;
     string().encode(context, key);
     context.append(':');
-    return std::string(static_cast<const char *>(context.data()), context.size());
+    return std::string(context.data(), context.size());
   }
 
   json_force_inline static void append_key_to_context(

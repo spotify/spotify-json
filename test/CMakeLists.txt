@@ -19,7 +19,8 @@ set(json_test_HEADERS
   )
 
 set(json_test_SOURCES
-  src/test_any.cpp
+  src/test_any_codec.cpp
+  src/test_any_value.cpp
   src/test_array.cpp
   src/test_bitset.cpp
   src/test_boolean.cpp
@@ -35,6 +36,7 @@ set(json_test_SOURCES
   src/test_encode_context.cpp
   src/test_encode_helpers.cpp
   src/test_encode_integer.cpp
+  src/test_encoded_value.cpp
   src/test_enumeration.cpp
   src/test_eq.cpp
   src/test_escape.cpp
@@ -47,7 +49,6 @@ set(json_test_SOURCES
   src/test_object.cpp
   src/test_omit.cpp
   src/test_one_of.cpp
-  src/test_raw.cpp
   src/test_skip_chars.cpp
   src/test_skip_value.cpp
   src/test_smart_ptr.cpp

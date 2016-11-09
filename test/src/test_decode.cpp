@@ -21,6 +21,7 @@
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/decode.hpp>
+#include <spotify/json/encoded_value.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
 BOOST_AUTO_TEST_SUITE(json)
@@ -60,13 +61,33 @@ BOOST_AUTO_TEST_CASE(json_decode_should_decode_from_bytes) {
   BOOST_CHECK_EQUAL(val, 53);
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_string_with_custom_codec) {
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_cstring_with_custom_codec) {
   const auto obj = decode(custom_codec(), R"({"a":"g"})");
   BOOST_CHECK_EQUAL(obj.val, "g");
 }
 
-BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_string) {
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_cstring) {
   const auto obj = decode<custom_obj>(R"({"x":"h"})");
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_std_string_with_custom_codec) {
+  const auto obj = decode(custom_codec(), std::string(R"({"a":"g"})"));
+  BOOST_CHECK_EQUAL(obj.val, "g");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_std_string) {
+  const auto obj = decode<custom_obj>(std::string(R"({"x":"h"})"));
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_encoded_value_with_custom_codec) {
+  const auto obj = decode(custom_codec(), encoded_value<>(R"({"a":"g"})"));
+  BOOST_CHECK_EQUAL(obj.val, "g");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_encoded_value) {
+  const auto obj = decode<custom_obj>(encoded_value<>(R"({"x":"h"})"));
   BOOST_CHECK_EQUAL(obj.val, "h");
 }
 
@@ -117,15 +138,39 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_not_decode_from_invalid_bytes) {
   BOOST_CHECK_EQUAL(val, 12);
 }
 
-BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_string_with_custom_codec) {
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_cstring_with_custom_codec) {
   custom_obj obj;
   BOOST_CHECK(try_decode(obj, custom_codec(), R"({"a":"g"})"));
   BOOST_CHECK_EQUAL(obj.val, "g");
 }
 
-BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_string) {
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_cstring) {
   custom_obj obj;
   BOOST_CHECK(try_decode(obj, R"({"x":"h"})"));
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_std_string_with_custom_codec) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, custom_codec(), std::string(R"({"a":"g"})")));
+  BOOST_CHECK_EQUAL(obj.val, "g");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_std_string) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, std::string(R"({"x":"h"})")));
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_encoded_value_with_custom_codec) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, custom_codec(), encoded_value<>(R"({"a":"g"})")));
+  BOOST_CHECK_EQUAL(obj.val, "g");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_encoded_value) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, encoded_value<>(R"({"x":"h"})")));
   BOOST_CHECK_EQUAL(obj.val, "h");
 }
 
