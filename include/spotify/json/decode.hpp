@@ -122,24 +122,5 @@ bool try_decode(value_type &object, const string_type &string) {
   return try_decode(object, default_codec<value_type>(), string);
 }
 
-/*
- * json::try_decode_partial(&object, codec, context)
- */
-
-template <typename codec_type>
-bool try_decode_partial(
-    typename codec_type::object_type &object,
-    const codec_type &codec,
-    const decode_context &context) {
-  try {
-    decode_context c(context);
-    detail::skip_any_whitespace(c);
-    object = codec.decode(c);
-    return true;
-  } catch (const decode_exception &) {
-    return false;
-  }
-}
-
 }  // namespace json
 }  // namespace spotify
