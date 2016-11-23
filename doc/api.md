@@ -615,11 +615,11 @@ template <>
 struct default_codec_t<metadata_response> {
   static one_of_t<object_t<metadata_response>, object_t<metadata_response>> codec() {
     object_t<metadata_response> codec_v1;
-    codec.required("n", &metadata_response::x);
+    codec.required("n", &metadata_response::name);
 
     object_t<metadata_response> codec_v2;
     codec.required("version", eq(2));
-    codec.required("name", &metadata_response::x);
+    codec.required("name", &metadata_response::name);
 
     return one_of(codec_v2, codec_v1);
   }
