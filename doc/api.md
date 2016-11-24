@@ -388,15 +388,15 @@ Usually in spotify-json, there are no virtual method calls. However,
 deals with opaque JSON values.
 
 When decoding, this codec yields a `spotify::json::encoded_value<T>`, where `T`
-can be either a `spotify::json::codec::ref`, a `std::string` or a `std::vector`,
-whose `data()` points to the first character of the value (i.e. `{` for a JSON
-object or `t` for the value `true`) and whose `size()` is the size of the entire
-encoded value string up to and including the last character (i.e. `}` for a JSON
-object or `e` for the value `true`). When using a `ref`, the `data()` points
-into the original data passed to the code so only use this type to decode if you
-can ensure that the data will outlive the `ref`. If you need the decoded value
-to live even when the original JSON has been deleted, decode into a value with
-`std::string` or `std::vector` storage instead.
+can be either a `spotify::json::ref`, a `std::string` or a `std::vector`, whose
+`data()` points to the first character of the value (i.e. `{` for a JSON object
+or `t` for the value `true`) and whose `size()` is the size of the entire
+encoded value string up to and including the last character (i.e. `}` for a
+JSON object or `e` for the value `true`). When using a `ref`, the `data()`
+points into the original data passed to the code so only use this type to
+decode if you can ensure that the data will outlive the `ref`. If you need the
+decoded value to live even when the original JSON has been deleted, decode into
+a value with `std::string` or `std::vector` storage instead.
 
 This codec is useful as it allows you to defer the decoding of certain parts of
 your data when decoding. To actually parse the value, use one of the regular
