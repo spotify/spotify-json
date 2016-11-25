@@ -395,8 +395,8 @@ object or `e` for the value `true`). The `data()` points into the original data
 passed to the code so only keep this value around while you can ensure that the
 data will outlive the `encoded_value_ref`. If you need the decoded value to live
 even when the original JSON has been deleted, store the decoded value in a
-`spotify::json::encodec_value` instead (it can be directly assigned from the
-`spotify::json::encodec_value_ref`). This should be the default unless you have
+`spotify::json::encoded_value` instead (it can be directly assigned from the
+`spotify::json::encoded_value_ref`). This should be the default unless you have
 special performance requirements and want to take on the extra complexity of
 carefully managing the lifetime of the source JSON data.
 
