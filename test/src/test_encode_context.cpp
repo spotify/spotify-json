@@ -140,5 +140,22 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_saturate_capacity_on_overflow) {
   BOOST_CHECK_EQUAL(ctx.capacity(), UINT16_MAX);
 }
 
+BOOST_AUTO_TEST_CASE(json_encode_context_should_let_data_be_stolen) {
+  encode_context ctx;
+  ctx.append('1');
+  const auto stolen_data = ctx.steal_data();
+  BOOST_CHECK_EQUAL(static_cast<char *>(stolen_data.get())[0], '1');
+}
+
+BOOST_AUTO_TEST_CASE(json_encode_context_should_reset_when_data_is_stolen) {
+  encode_context ctx;
+  ctx.append('1');
+  const auto stolen_data = ctx.steal_data();
+  BOOST_REQUIRE(ctx.empty());
+  ctx.append('2');
+  BOOST_REQUIRE_EQUAL(ctx.size(), 1);
+  BOOST_CHECK_EQUAL(ctx.data()[0], '2');
+}
+
 BOOST_AUTO_TEST_SUITE_END()  // json
 BOOST_AUTO_TEST_SUITE_END()  // spotify
