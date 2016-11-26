@@ -17,101 +17,196 @@
 #pragma once
 
 #include <cstdlib>
-#include <string>
+#include <cstring>
+#include <memory>
+#include <new>
 #include <ostream>
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/decode_helpers.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/detail/skip_value.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
+namespace detail {
 
-struct ref {
-  using value_type = char;
+struct encoded_value_base {
+  struct unsafe_unchecked {};
 
-  ref(const char *data, std::size_t size)
-      : _data(data),
-        _size(size) {}
+ protected:
+  static void validate_json(const char *data, std::size_t size) {
+    decode_context context(data, size);
+    detail::skip_value(context);  // validate provided JSON string
+    detail::fail_if(context, context.position != context.end, "Unexpected trailing input");
+  }
+};
 
-  ref(const char *begin, const char *end)
-      : _data(begin),
-        _size(end - begin) {}
+}  // namespace detail
+
+struct encoded_value;
+
+struct encoded_value_ref : public detail::encoded_value_base {
+  encoded_value_ref();
+  encoded_value_ref(const encoded_value &value);
+  explicit encoded_value_ref(const char *cstr);
+  explicit encoded_value_ref(const char *cstr, const unsafe_unchecked &);
+  explicit encoded_value_ref(const char *data, std::size_t size);
+  explicit encoded_value_ref(const char *data, std::size_t size, const unsafe_unchecked &);
+
+  template <typename value_with_data_and_size>
+  explicit encoded_value_ref(const value_with_data_and_size &json);
 
   const char *data() const { return _data; }
   std::size_t size() const { return _size; }
 
+  void swap(encoded_value_ref &value_ref);
+
  private:
-  const char *_data;
   std::size_t _size;
+  const char *_data;
 };
 
-template <typename storage_type = std::string>
-struct encoded_value {
-  struct unsafe_unchecked {};
+struct encoded_value : public detail::encoded_value_base {
+  encoded_value();
+  encoded_value(encoded_value &&value) noexcept;
+  encoded_value(const encoded_value &value);
+  encoded_value(const encoded_value_ref &value_ref);
+  explicit encoded_value(const char *cstr);
+  explicit encoded_value(const char *cstr, const unsafe_unchecked &);
+  explicit encoded_value(const char *data, std::size_t size);
+  explicit encoded_value(const char *data, std::size_t size, const unsafe_unchecked &);
+  explicit encoded_value(encode_context &&context);
+  explicit encoded_value(encode_context &&context, const unsafe_unchecked &);
 
-  explicit encoded_value(storage_type json)
-      : _json(std::move(json)) {
-    decode_context context(_json.data(), _json.size());
-    detail::skip_value(context);  // validate provided JSON string
-    detail::fail_if(context, context.position != context.end, "Unexpected trailing input");
-  }
+  template <typename value_with_data_and_size>
+  explicit encoded_value(const value_with_data_and_size &json);
 
-  encoded_value() : encoded_value("null", 4, unsafe_unchecked()) {}
+  encoded_value &operator=(encoded_value &&value) noexcept;
+  encoded_value &operator=(const encoded_value &value);
+  encoded_value &operator=(const encoded_value_ref &value_ref);
 
-  encoded_value(const char *data, std::size_t size, const unsafe_unchecked &)
-      : _json(data, data + size) {}
+  const char *data() const { return static_cast<const char *>(_data.get()); }
+  std::size_t size() const { return _size; }
 
-  operator storage_type const &() const & { return _json; }
-  operator storage_type &&() && { return std::move(_json); }
-
-  const char *data() const { return _json.data(); }
-  std::size_t size() const { return _json.size(); }
+  void swap(encoded_value &value);
 
  private:
-  storage_type _json;
+  using data_buffer = std::unique_ptr<void, decltype(std::free) *>;
+  std::size_t _size;
+  data_buffer _data;
 };
 
-template <typename storage_type>
-bool operator ==(const encoded_value<storage_type> &lhs, const storage_type &rhs) {
-  return static_cast<const storage_type &>(lhs) == rhs;
+inline encoded_value_ref::encoded_value_ref()
+    : _size(4),
+      _data("null") {}
+
+inline encoded_value_ref::encoded_value_ref(const encoded_value &value)
+    : encoded_value_ref(value.data(), value.size(), unsafe_unchecked()) {}
+
+inline encoded_value_ref::encoded_value_ref(const char *cstr)
+    : encoded_value_ref(cstr, std::strlen(cstr)) {}
+
+inline encoded_value_ref::encoded_value_ref(const char *cstr, const unsafe_unchecked &)
+    : encoded_value_ref(cstr, std::strlen(cstr), unsafe_unchecked()) {}
+
+inline encoded_value_ref::encoded_value_ref(const char *data, std::size_t size)
+    : encoded_value_ref(data, size, unsafe_unchecked()) {
+  validate_json(encoded_value_ref::data(), encoded_value_ref::size());
 }
 
-template <typename storage_type>
-bool operator ==(const storage_type &lhs, const encoded_value<storage_type> &rhs) {
-  return lhs == static_cast<const storage_type &>(rhs);
+inline encoded_value_ref::encoded_value_ref(const char *data, std::size_t size, const unsafe_unchecked &)
+    : _size(size),
+      _data(data) {}
+
+template <typename value_with_data_and_size>
+encoded_value_ref::encoded_value_ref(const value_with_data_and_size &json)
+    : encoded_value_ref(json.data(), json.size()) {}
+
+inline void encoded_value_ref::swap(encoded_value_ref &value_ref) {
+  std::swap(_size, value_ref._size);
+  std::swap(_data, value_ref._data);
 }
 
-inline bool operator ==(const encoded_value<std::string> &lhs, const char *const rhs) {
-  return static_cast<const std::string &>(lhs) == rhs;
+inline encoded_value::encoded_value()
+    : _size(4),
+      _data((void *) "null", [](void *) {}) {}
+
+inline encoded_value::encoded_value(encoded_value &&value) noexcept
+    : encoded_value() {
+  swap(value);
 }
 
-inline bool operator ==(const char *const lhs, const encoded_value<std::string> &rhs) {
-  return lhs == static_cast<const std::string &>(rhs);
+inline encoded_value::encoded_value(const encoded_value &value)
+    : encoded_value(value.data(), value.size(), unsafe_unchecked()) {}
+
+inline encoded_value::encoded_value(const encoded_value_ref &value_ref)
+    : encoded_value(value_ref.data(), value_ref.size(), unsafe_unchecked()) {}
+
+inline encoded_value::encoded_value(const char *cstr)
+    : encoded_value(cstr, std::strlen(cstr)) {}
+
+inline encoded_value::encoded_value(const char *cstr, const unsafe_unchecked &)
+    : encoded_value(cstr, std::strlen(cstr), unsafe_unchecked()) {}
+
+inline encoded_value::encoded_value(const char *data, std::size_t size)
+    : encoded_value(data, size, unsafe_unchecked()) {
+  validate_json(encoded_value::data(), encoded_value::size());
 }
 
-template <typename storage_type>
-bool operator !=(const encoded_value<storage_type> &lhs, const storage_type &rhs) {
-  return static_cast<const storage_type &>(lhs) != rhs;
+inline encoded_value::encoded_value(const char *data, std::size_t size, const unsafe_unchecked &)
+    : _size(size),
+      _data(std::malloc(size), &std::free) {
+  if (json_unlikely(!_data && size)) {
+    throw std::bad_alloc();
+  }
+  std::memcpy(_data.get(), data, _size);
 }
 
-template <typename storage_type>
-bool operator !=(const storage_type &lhs, const encoded_value<storage_type> &rhs) {
-  return lhs != static_cast<const storage_type &>(rhs);
+inline encoded_value::encoded_value(encode_context &&context)
+    : encoded_value(std::move(context), unsafe_unchecked()) {
+  validate_json(data(), size());
 }
 
-inline bool operator !=(const encoded_value<std::string> &lhs, const char *const rhs) {
-  return static_cast<const std::string &>(lhs) != rhs;
+inline encoded_value::encoded_value(encode_context &&context, const unsafe_unchecked &)
+    : _size(context.size()),
+      _data(context.steal_data()) {}
+
+template <typename value_with_data_and_size>
+encoded_value::encoded_value(const value_with_data_and_size &json)
+    : encoded_value(json.data(), json.size()) {}
+
+inline encoded_value &encoded_value::operator=(encoded_value &&value) noexcept {
+  swap(value);
+  return *this;
 }
 
-inline bool operator !=(const char *const lhs, const encoded_value<std::string> &rhs) {
-  return lhs != static_cast<const std::string &>(rhs);
+inline encoded_value &encoded_value::operator=(const encoded_value &value) {
+  encoded_value new_value(value);
+  swap(new_value);
+  return *this;
 }
 
-template <typename storage_type>
-std::ostream &operator <<(std::ostream &stream, const encoded_value<storage_type> &value) {
-  return stream << static_cast<const storage_type &>(value);
+inline encoded_value &encoded_value::operator=(const encoded_value_ref &value_ref) {
+  encoded_value new_value(value_ref);
+  swap(new_value);
+  return *this;
+}
+
+inline void encoded_value::swap(encoded_value &value) {
+  std::swap(_size, value._size);
+  std::swap(_data, value._data);
+}
+
+inline std::ostream &operator <<(std::ostream &stream, const encoded_value_ref &value) {
+  stream.write(value.data(), value.size());
+  return stream;
+}
+
+inline std::ostream &operator <<(std::ostream &stream, const encoded_value &value) {
+  stream.write(value.data(), value.size());
+  return stream;
 }
 
 }  // namespace json

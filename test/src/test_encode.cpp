@@ -15,7 +15,6 @@
  */
 
 #include <string>
-#include <vector>
 
 #include <boost/test/unit_test.hpp>
 
@@ -38,8 +37,8 @@ codec::object_t<custom_obj> custom_codec() {
   return codec;
 }
 
-std::vector<char> string_to_vector(const std::string &string) {
-  return std::vector<char>(string.begin(), string.end());
+std::string value_to_string(const encoded_value_ref &value_ref) {
+  return std::string(value_ref.data(), value_ref.size());
 }
 
 }
@@ -73,28 +72,16 @@ BOOST_AUTO_TEST_CASE(json_encode_should_encode_into_string) {
  * json::encode_value
  */
 
-BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_string_with_custom_codec) {
+BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_with_custom_codec) {
   custom_obj obj;
   obj.val = "c";
-  BOOST_CHECK_EQUAL(encode_value(custom_codec(), obj), R"({"a":"c"})");
+  BOOST_CHECK_EQUAL(value_to_string(encode_value(custom_codec(), obj)), R"({"a":"c"})");
 }
 
-BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_string) {
+BOOST_AUTO_TEST_CASE(json_encode_value_should_encode) {
   custom_obj obj;
   obj.val = "d";
-  BOOST_CHECK_EQUAL(encode_value(obj), R"({"x":"d"})");
-}
-
-BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_vector_with_custom_codec) {
-  custom_obj obj;
-  obj.val = "c";
-  BOOST_CHECK(encode_value<std::vector<char>>(custom_codec(), obj) == string_to_vector(R"({"a":"c"})"));
-}
-
-BOOST_AUTO_TEST_CASE(json_encode_value_should_encode_into_vector) {
-  custom_obj obj;
-  obj.val = "d";
-  BOOST_CHECK(encode_value<std::vector<char>>(obj) == string_to_vector(R"({"x":"d"})"));
+  BOOST_CHECK_EQUAL(value_to_string(encode_value(obj)), R"({"x":"d"})");
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // json

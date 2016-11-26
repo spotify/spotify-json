@@ -385,18 +385,20 @@ Usually in spotify-json, there are no virtual method calls. However,
 ### `any_value_t` ###
 
 `any_value_t` is a codec that does not actually decode or encode but instead
-deals with opaque JSON values.
+deals with opaque JSON values, which can later be decoded by someone else.
 
-When decoding, this codec yields a `spotify::json::encoded_value<T>`, where `T`
-can be either a `spotify::json::codec::ref`, a `std::string` or a `std::vector`,
-whose `data()` points to the first character of the value (i.e. `{` for a JSON
-object or `t` for the value `true`) and whose `size()` is the size of the entire
+When decoding, this codec yields a `spotify::json::encoded_value_ref`, whose
+`data()` points to the first character of the value (i.e. `{` for a JSON object
+or `t` for the value `true`) and whose `size()` is the size of the entire
 encoded value string up to and including the last character (i.e. `}` for a JSON
-object or `e` for the value `true`). When using a `ref`, the `data()` points
-into the original data passed to the code so only use this type to decode if you
-can ensure that the data will outlive the `ref`. If you need the decoded value
-to live even when the original JSON has been deleted, decode into a value with
-`std::string` or `std::vector` storage instead.
+object or `e` for the value `true`). The `data()` points into the original data
+passed to the code so only keep this value around while you can ensure that the
+data will outlive the `encoded_value_ref`. If you need the decoded value to live
+even when the original JSON has been deleted, store the decoded value in a
+`spotify::json::encoded_value` instead (it can be directly assigned from the
+`spotify::json::encoded_value_ref`). This should be the default unless you have
+special performance requirements and want to take on the extra complexity of
+carefully managing the lifetime of the source JSON data.
 
 This codec is useful as it allows you to defer the decoding of certain parts of
 your data when decoding. To actually parse the value, use one of the regular

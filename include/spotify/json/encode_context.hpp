@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <memory>
 
 #include <spotify/json/detail/cpuid.hpp>
 #include <spotify/json/detail/macros.hpp>
@@ -101,6 +102,15 @@ struct base_encode_context final {
 
   json_force_inline bool empty() const {
     return (_ptr == _buf);
+  }
+
+  std::unique_ptr<void, decltype(std::free) *> steal_data() {
+    const auto data = _buf;
+    _buf = nullptr;
+    _ptr = nullptr;
+    _end = nullptr;
+    _capacity = 0;
+    return std::unique_ptr<void, decltype(std::free) *>(data, &std::free);
   }
 
   const bool has_sse42;

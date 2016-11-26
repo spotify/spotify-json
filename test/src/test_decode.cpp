@@ -82,12 +82,22 @@ BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_std_string) {
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_encoded_value_with_custom_codec) {
-  const auto obj = decode(custom_codec(), encoded_value<>(R"({"a":"g"})"));
+  const auto obj = decode(custom_codec(), encoded_value(R"({"a":"g"})"));
   BOOST_CHECK_EQUAL(obj.val, "g");
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_encoded_value) {
-  const auto obj = decode<custom_obj>(encoded_value<>(R"({"x":"h"})"));
+  const auto obj = decode<custom_obj>(encoded_value(R"({"x":"h"})"));
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_encoded_value_ref_with_custom_codec) {
+  const auto obj = decode(custom_codec(), encoded_value_ref(R"({"a":"g"})"));
+  BOOST_CHECK_EQUAL(obj.val, "g");
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_should_encode_from_encoded_ref_value) {
+  const auto obj = decode<custom_obj>(encoded_value_ref(R"({"x":"h"})"));
   BOOST_CHECK_EQUAL(obj.val, "h");
 }
 
@@ -164,13 +174,25 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_std_string) {
 
 BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_encoded_value_with_custom_codec) {
   custom_obj obj;
-  BOOST_CHECK(try_decode(obj, custom_codec(), encoded_value<>(R"({"a":"g"})")));
+  BOOST_CHECK(try_decode(obj, custom_codec(), encoded_value(R"({"a":"g"})")));
   BOOST_CHECK_EQUAL(obj.val, "g");
 }
 
 BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_encoded_value) {
   custom_obj obj;
-  BOOST_CHECK(try_decode(obj, encoded_value<>(R"({"x":"h"})")));
+  BOOST_CHECK(try_decode(obj, encoded_value(R"({"x":"h"})")));
+  BOOST_CHECK_EQUAL(obj.val, "h");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_encoded_value_ref_with_custom_codec) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, custom_codec(), encoded_value_ref(R"({"a":"g"})")));
+  BOOST_CHECK_EQUAL(obj.val, "g");
+}
+
+BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_encoded_value_ref) {
+  custom_obj obj;
+  BOOST_CHECK(try_decode(obj, encoded_value_ref(R"({"x":"h"})")));
   BOOST_CHECK_EQUAL(obj.val, "h");
 }
 
