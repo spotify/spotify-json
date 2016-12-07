@@ -31,7 +31,7 @@ typename duration_type::rep encodeTransformDuration(duration_type duration) {
 }
 
 template <typename duration_type>
-duration_type decodeTransformDuration(typename duration_type::rep duration_rep, size_t offset) {
+duration_type decodeTransformDuration(typename duration_type::rep duration_rep) {
   return duration_type(duration_rep);
 }
 
@@ -41,7 +41,7 @@ typename time_point_type::rep encodeTransformTimePoint(time_point_type time_poin
 }
 
 template <typename time_point_type>
-time_point_type decodeTransformTimePoint(typename time_point_type::rep duration_rep, size_t offset) {
+time_point_type decodeTransformTimePoint(typename time_point_type::rep duration_rep) {
   return time_point_type(typename time_point_type::duration(duration_rep));
 }
 

@@ -47,7 +47,7 @@ std::string encodeTransform(const my_type &object) {
   return object.value;
 }
 
-my_type decodeTransform(const std::string &value, size_t where) {
+my_type decodeTransform(const std::string &value) {
   return my_type{ value };
 }
 
@@ -80,14 +80,15 @@ BOOST_AUTO_TEST_CASE(json_codec_transform_should_decode) {
   BOOST_CHECK_EQUAL(result.value, "A");
 }
 
-BOOST_AUTO_TEST_CASE(json_codec_transform_should_provide_position_to_decode) {
-  const auto decode_transform = [](const std::string &value, size_t where) {
-    return my_type{ std::to_string(where) };
-  };
-
-  const auto codec = array<std::vector<my_type>>(
-      transform(&encodeTransform, decode_transform));
-  BOOST_CHECK_EQUAL(test_decode(codec, R"([  "A"])")[0].value, "3");
+BOOST_AUTO_TEST_CASE(json_codec_transform_should_update_offset_when_throwing_exception) {
+  try {
+    const auto fail = [](const std::string &) { throw decode_exception("test"); return my_type(); };
+    json::decode(transform(&encodeTransform, fail), " \"A\"");
+    BOOST_CHECK(false);
+  } catch (const decode_exception &exception) {
+    BOOST_CHECK_EQUAL(exception.what(), "test");
+    BOOST_CHECK_EQUAL(exception.offset(), 1);
+  }
 }
 
 /*
