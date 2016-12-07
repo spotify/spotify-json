@@ -28,7 +28,7 @@ namespace json {
  * encode_exception objects are thrown when encoding fails, for example when
  * trying to encode a null smart pointer or a NaN floating point number.
  */
-class encode_exception : public std::runtime_error {
+class encode_exception final : public std::runtime_error {
  public:
   template <typename string_type>
   explicit json_never_inline encode_exception(const string_type &what)
