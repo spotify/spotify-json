@@ -114,7 +114,7 @@ bool try_decode(value_type &object, const char *data, size_t size) noexcept {
 
 template <typename value_type>
 bool try_decode(value_type &object, const char *cstr) noexcept {
-  return try_decode(object, default_codec<value_type>(), cstr, std::strlen(cstr));
+  return try_decode(object, default_codec<value_type>(), cstr);
 }
 
 template <typename value_type, typename string_type>
