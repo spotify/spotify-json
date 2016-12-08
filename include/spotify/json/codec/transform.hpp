@@ -114,7 +114,7 @@ template <
     typename decode_transform>
 class transform_t final {
  public:
-  using object_type = typename std::result_of<decode_transform(typename codec_type::object_type, size_t)>::type;
+  using object_type = typename std::result_of<decode_transform(typename codec_type::object_type)>::type;
 
   transform_t(
       codec_type inner_codec,
@@ -125,8 +125,12 @@ class transform_t final {
         _decode_transform(std::move(decode)) {}
 
   object_type decode(decode_context &context) const {
-    const auto offset = context.offset();  // Capture offset before decoding
-    return _decode_transform(_inner_codec.decode(context), offset);
+    const auto offset_before_decoding = context.offset();
+    try {
+      return _decode_transform(_inner_codec.decode(context));
+    } catch (const decode_exception &exception) {
+      throw decode_exception(exception.what(), offset_before_decoding);
+    }
   }
 
   void encode(encode_context &context, const object_type &value) const {
