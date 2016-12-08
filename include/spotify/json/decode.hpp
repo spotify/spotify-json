@@ -78,11 +78,11 @@ bool try_decode(
     typename codec_type::object_type &object,
     const codec_type &codec,
     const char *data,
-    size_t size) {
+    size_t size) noexcept {
   try {
     object = decode(codec, data, size);
     return true;
-  } catch (const decode_exception &) {
+  } catch (...) {
     return false;
   }
 }
@@ -91,7 +91,7 @@ template <typename codec_type>
 bool try_decode(
     typename codec_type::object_type &object,
     const codec_type &codec,
-    const char *cstr) {
+    const char *cstr) noexcept {
   return try_decode(object, codec, cstr, std::strlen(cstr));
 }
 
@@ -99,7 +99,7 @@ template <typename codec_type, typename string_type>
 bool try_decode(
     typename codec_type::object_type &object,
     const codec_type &codec,
-    const string_type &string) {
+    const string_type &string) noexcept {
   return try_decode(object, codec, string.data(), string.size());
 }
 
@@ -108,17 +108,17 @@ bool try_decode(
  */
 
 template <typename value_type>
-bool try_decode(value_type &object, const char *data, size_t size) {
+bool try_decode(value_type &object, const char *data, size_t size) noexcept {
   return try_decode(object, default_codec<value_type>(), data, size);
 }
 
 template <typename value_type>
-bool try_decode(value_type &object, const char *cstr) {
+bool try_decode(value_type &object, const char *cstr) noexcept {
   return try_decode(object, default_codec<value_type>(), cstr, std::strlen(cstr));
 }
 
 template <typename value_type, typename string_type>
-bool try_decode(value_type &object, const string_type &string) {
+bool try_decode(value_type &object, const string_type &string) noexcept {
   return try_decode(object, default_codec<value_type>(), string);
 }
 
