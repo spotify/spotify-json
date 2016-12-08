@@ -42,7 +42,7 @@ typename codec_type::object_type decode(const codec_type &codec, const char *dat
 
 template <typename codec_type>
 typename codec_type::object_type decode(const codec_type &codec, const char *cstr) {
-  return decode(codec, cstr, std::strlen(cstr));
+  return decode(codec, cstr, cstr ? std::strlen(cstr) : 0);
 }
 
 template <typename codec_type, typename string_type>
@@ -61,7 +61,7 @@ value_type decode(const char *data, size_t size) {
 
 template <typename value_type>
 value_type decode(const char *cstr) {
-  return decode(default_codec<value_type>(), cstr, std::strlen(cstr));
+  return decode(default_codec<value_type>(), cstr);
 }
 
 template <typename value_type, typename string_type>
