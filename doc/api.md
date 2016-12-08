@@ -940,12 +940,7 @@ const auto codec = transform(
     [](const my_type &object) {
       return object.value;
     },
-    [](const std::string &value, size_t where) {
-      // where points to where in the input the value was parsed. It can be
-      // passed to decode_exception if a value was received that cannot be
-      // expressed with the external type, for example if external type is a
-      // byte array, the JSON type is a base64 encoded string and the input is
-      // not valid base64.
+    [](const std::string &value) {
       return my_type{ value };
     });
 ```
@@ -955,8 +950,7 @@ const auto codec = transform(
   of the codec that actually codes the value, `EncodeTransform` is the type of
   a function or functor that takes an object of a type (call it `T`) and
   returns an `InnerCodec::object_type`, and `DecodeTransform` is the type of a
-  function or functor that takes an `InnerCodec::object_type` and a `size_t`
-  with where in the input the input was parsed and returns a `T`.
+  function or functor that takes an `InnerCodec::object_type` and returns a `T`.
 * **Supported types**: Any type that is move or copy constructible.
 * **Convenience builder**: `spotify::json::codec::transform(InnerCodec,
   EncodeTransform, DecodeTransform)`, and
