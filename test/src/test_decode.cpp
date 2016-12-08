@@ -112,19 +112,11 @@ BOOST_AUTO_TEST_CASE(json_decode_should_accept_leading_space) {
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_should_throw_on_failure) {
-  try {
-    decode<custom_obj>("{}");  // Missing field
-    BOOST_ASSERT(!"Should not reach this point");
-  } catch (const decode_exception &) {
-  }
+  BOOST_CHECK_THROW(decode<custom_obj>("{}"), decode_exception);  // Missing field
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_should_throw_on_unexpected_trailing_input) {
-  try {
-    decode<custom_obj>(R"({"x":"h"} invalid)");
-    BOOST_ASSERT(!"Should not reach this point");
-  } catch (const decode_exception &) {
-  }
+  BOOST_CHECK_THROW(decode<custom_obj>(R"({"x":"h"} invalid)"), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_try_decode_should_decode_from_bytes_with_custom_codec) {
