@@ -699,7 +699,7 @@ empty struct class, but it can be used with other types as well.
 The `null_t` codec can be used with the [`empty_as_t`](#empty_as_t) codec
 in order to encode `nullptr` smart pointers or other empty objects (empty
 `boost::optional` or even empty arrays) as `null` in JSON. The documentation for
-`empty_as_t` has examples for how to do this.
+[`empty_as_t`](#empty_as_t) has examples for how to do this.
 
 * **Complete class name**: `spotify::json::codec::null_t<T>` where `T` is the
   type that is created when the codec successfully decodes a JSON `null`.
@@ -813,7 +813,7 @@ codec.required("y", &Point::y);
 `omit_t` is a primitive codec that cannot decode any value and that asks to
 not be encoded. It indicates that the object should be omitted from the JSON
 output. This codec is typically used with the [`empty_as_t`](#empty_as_t)
-codec. The documentation for `empty_as_t` has usage examples.
+codec. The documentation for [`empty_as_t`](#empty_as_t) has usage examples.
 
 [`ignore_t`](#ignore_t) is similar to `omit_t`. The difference is that `omit_t`
 always fails decoding, while `ignore_t` always succeeds decoding (if the input
@@ -1010,11 +1010,10 @@ const auto point = decode(codec, "[1,3]");
 
 ### `optional_t`
 
-`optional_t` is a codec for strings for `boost::optional<T>`. By default,
-values of `boost::none` are not encoded at all (`should_encode()` returns
-false) but if the `none_as_null` option is used (i.e.
-`spotify::json::codec::optional(some_codec, spotify::json::codec::none_as_null)`),
-`boost::none` is encoded as `null`.
+`optional_t` is a codec for strings for `boost::optional<T>`. Uninitialized
+values (equivalent to `boost::none`) are not encoded at all (`should_encode()`
+returns `false`). To encode `boost::none` as `null`, use the
+[`empty_as_t`](#empty_as_t) codec, e.g., `spotify::json::empty_as_null()`.
 
 This codec is in header `<spotify/json/boost.hpp>`.
 
