@@ -92,7 +92,7 @@ bool try_decode(
     typename codec_type::object_type &object,
     const codec_type &codec,
     const char *cstr) noexcept {
-  return try_decode(object, codec, cstr, std::strlen(cstr));
+  return try_decode(object, codec, cstr, cstr ? std::strlen(cstr) : 0);
 }
 
 template <typename codec_type, typename string_type>

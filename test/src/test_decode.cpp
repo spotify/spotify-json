@@ -152,6 +152,11 @@ BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_cstring) {
   BOOST_CHECK_EQUAL(obj.val, "h");
 }
 
+BOOST_AUTO_TEST_CASE(json_try_decode_should_accept_null_cstring) {
+  custom_obj obj;
+  BOOST_CHECK(!try_decode(obj, static_cast<const char *>(nullptr)));
+}
+
 BOOST_AUTO_TEST_CASE(json_try_decode_should_encode_from_std_string_with_custom_codec) {
   custom_obj obj;
   BOOST_CHECK(try_decode(obj, custom_codec(), std::string(R"({"a":"g"})")));
