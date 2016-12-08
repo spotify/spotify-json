@@ -991,7 +991,7 @@ struct Point {
 };
 
 auto codec = transform(
-    pair(int(), int()),
+    pair(number<int>(), number<int>()),
     [](const Point &p) { return make_pair(p.x, p.y); },
     [](const std::pair<int, int> &p) { return Point(p.first, p.second); });
 
