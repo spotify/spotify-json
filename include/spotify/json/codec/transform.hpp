@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/encode_context.hpp>
@@ -126,10 +128,11 @@ class transform_t final {
 
   object_type decode(decode_context &context) const {
     const auto offset_before_decoding = context.offset();
+    auto decoded_value = _inner_codec.decode(context);
     try {
-      return _decode_transform(_inner_codec.decode(context));
-    } catch (const decode_exception &exception) {
-      throw decode_exception(exception.what(), offset_before_decoding);
+      return _decode_transform(std::move(decoded_value));
+    } catch (decode_exception &exception) {
+      throw decode_exception(std::move(exception), offset_before_decoding);
     }
   }
 

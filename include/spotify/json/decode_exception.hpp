@@ -18,6 +18,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 #include <spotify/json/detail/macros.hpp>
 
@@ -31,8 +32,12 @@ namespace json {
 class decode_exception final : public std::runtime_error {
  public:
   template <typename string_type>
-  json_never_inline explicit decode_exception(const string_type &what, const size_t offset = 0)
+  json_never_inline explicit decode_exception(const string_type &what, size_t offset = 0)
       : runtime_error(what),
+        _offset(offset) {}
+
+  json_never_inline decode_exception(decode_exception &exception, size_t offset)
+      : runtime_error(std::move(exception)),
         _offset(offset) {}
 
   size_t offset() const {
@@ -40,7 +45,7 @@ class decode_exception final : public std::runtime_error {
   }
 
  private:
-  const size_t _offset;
+  size_t _offset;
 };
 
 }  // namespace json
