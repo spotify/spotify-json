@@ -125,10 +125,15 @@ class array_t final {
   using object_type = T;
 
   static_assert(
-      std::is_same<
+      std::is_convertible<
           typename T::value_type,
           typename std::decay<codec_type>::type::object_type>::value,
-      "Array container type must match inner codec type");
+      "Array container type must be convertible to inner codec type");
+  static_assert(
+      std::is_convertible<
+          typename std::decay<codec_type>::type::object_type,
+          typename T::value_type>::value,
+      "Inner codec type must be convertible to array container type");
 
   explicit array_t(codec_type inner_codec)
       : _inner_codec(std::move(inner_codec)) {}
