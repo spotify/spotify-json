@@ -19,6 +19,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <spotify/json/codec/any_value.hpp>
 #include <spotify/json/codec/array.hpp>
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/number.hpp>
@@ -93,6 +94,13 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_single_element_vector) {
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_two_elements_vector) {
   BOOST_CHECK(array_parse("[true,false]") == std::vector<bool>({ true, false }));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_decode_encoded_value_elements_vector) {
+  auto decoded = array_parse<std::vector<encoded_value>>("[true,false]");
+  std::vector<encoded_value> expected =
+      { encoded_value("true"), encoded_value("false") };
+  BOOST_CHECK(decoded == expected);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_not_decode_otherwise_vector) {
@@ -171,6 +179,12 @@ BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_single_element_vector) {
 
 BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_two_elements_vector) {
   const std::vector<bool> vec = { false, true };
+  BOOST_CHECK_EQUAL(encode(vec), "[false,true]");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_array_should_encode_encoded_value_elements_vector) {
+  const std::vector<encoded_value> vec = {
+      encoded_value("false"), encoded_value("true") };
   BOOST_CHECK_EQUAL(encode(vec), "[false,true]");
 }
 
