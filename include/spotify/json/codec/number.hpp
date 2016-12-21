@@ -154,7 +154,7 @@ json_force_inline iterator_type find_non_digit(const iterator_type begin, const 
  * value of 'e', so it will not be very efficient for large exponents, although
  * the value will overflow rather quickly so the runtime is bounded (a value of
  * zero is specifically handled to avoid a semi-infinite loop). Note that the
- * argument are reversed, to make the function easier to call from the functions
+ * arguments are reversed to make the function easier to call from the functions
  * below (only decode_with_positive_exponent_and_too_few_decimal_digits(...)).
  */
 template <typename T, bool is_positive>

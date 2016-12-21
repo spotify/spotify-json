@@ -14,7 +14,6 @@
  * the License.
  */
 
-
-// Ensure the umbrella header at least compiles
+// Ensure that the umbrella header at least compiles.
 #include <spotify/json.hpp>
 #include <spotify/json/json.hpp>

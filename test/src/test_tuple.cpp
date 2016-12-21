@@ -147,7 +147,6 @@ BOOST_AUTO_TEST_CASE(json_codec_tuple_should_decode_pair_success) {
   BOOST_CHECK((tuple_parse<std::pair<int, bool>>("[1 , false]")) == std::make_pair(1, false));
 }
 
-
 BOOST_AUTO_TEST_CASE(json_codec_tuple_should_not_decode_pair_failure) {
   tuple_parse_should_fail<std::pair<int, bool>>("");
   tuple_parse_should_fail<std::pair<int, bool>>("[");
