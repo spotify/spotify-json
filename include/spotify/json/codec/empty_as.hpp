@@ -33,7 +33,7 @@ class empty_as_t final {
  public:
   static_assert(
       std::is_same<
-          typename inner_codec_type::object_type,
+          typename empty_codec_type::object_type,
           typename inner_codec_type::object_type>::value,
       "The codecs provided to empty_as_t must encode the same type");
 
