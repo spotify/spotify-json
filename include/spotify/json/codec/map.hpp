@@ -39,10 +39,15 @@ class map_t final {
       std::is_same<typename T::key_type, std::string>::value,
       "Map key type must be string");
   static_assert(
-      std::is_same<
+      std::is_convertible<
           typename T::mapped_type,
           typename codec_type::object_type>::value,
-      "Map data type must match inner codec type");
+      "Map data type must be convertible to inner codec type");
+  static_assert(
+      std::is_convertible<
+          typename codec_type::object_type,
+          typename T::mapped_type>::value,
+      "Inner codec type must be convertible to map data type");
 
   explicit map_t(codec_type inner_codec)
       : _inner_codec(std::move(inner_codec)) {}

@@ -18,6 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <spotify/json/codec/any_value.hpp>
 #include <spotify/json/codec/map.hpp>
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/decode.hpp>
@@ -31,8 +32,9 @@ BOOST_AUTO_TEST_SUITE(codec)
 
 namespace {
 
-std::map<std::string, bool> map_parse(const char *not_map) {
-  const auto codec = default_codec<std::map<std::string, bool>>();
+template <typename InnerType = bool>
+std::map<std::string, InnerType> map_parse(const char *not_map) {
+  const auto codec = default_codec<std::map<std::string, InnerType>>();
   auto ctx = decode_context(not_map, not_map + strlen(not_map));
   const auto result = codec.decode(ctx);
   BOOST_CHECK_EQUAL(ctx.position, ctx.end);;
@@ -84,6 +86,12 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_decode_two_elements) {
   BOOST_CHECK(map_parse(R"({"a":true,"b":false})") == map);
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_map_should_decode_encoded_value_element) {
+  std::map<std::string, encoded_value> map;
+  map["a"] = encoded_value("true");
+  BOOST_CHECK(map_parse<encoded_value>(R"({"a":true})") == map);
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_map_should_not_decode_otherwise) {
   map_parse_should_fail("");
   map_parse_should_fail("{");
@@ -112,6 +120,13 @@ BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_two_elements) {
   std::map<std::string, bool> map;
   map["a"] = true;
   map["b"] = false;
+  BOOST_CHECK_EQUAL(encode(map), R"({"a":true,"b":false})");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_map_should_encode_encoded_value_elements) {
+  std::map<std::string, encoded_value> map;
+  map["a"] = encoded_value("true");
+  map["b"] = encoded_value("false");
   BOOST_CHECK_EQUAL(encode(map), R"({"a":true,"b":false})");
 }
 
