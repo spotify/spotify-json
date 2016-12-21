@@ -105,6 +105,46 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(
   BOOST_CHECK_EQUAL(value_to_string(b), "nil");
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(
+    json_encoded_value_should_compare_for_equality,
+    encoded_value_type,
+    encoded_value_types) {
+  encoded_value_type a("null");
+  encoded_value_type b("1");
+  BOOST_CHECK(a == a);
+  BOOST_CHECK(!(a == b));
+  BOOST_CHECK(!(a != a));
+  BOOST_CHECK(a != b);
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(
+    json_encoded_value_should_compare_for_equality_not_pointer_equality,
+    encoded_value_type,
+    encoded_value_types) {
+  char buf_1[] = { '1', '\0' };
+  char buf_2[] = { '1', '\0' };
+  encoded_value_type a(static_cast<const char *>(buf_1));
+  encoded_value_type b(static_cast<const char *>(buf_2));
+  BOOST_CHECK(a == b);
+  BOOST_CHECK(!(a != b));
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(
+    json_encoded_value_should_compare_with_other_type,
+    encoded_value_type,
+    encoded_value_types) {
+  using other_value_type = typename std::conditional<
+      std::is_same<encoded_value_type, encoded_value>::value,
+      encoded_value_ref,
+      encoded_value>::type;
+  encoded_value_type a("null");
+  other_value_type b("1");
+  BOOST_CHECK(a == a);
+  BOOST_CHECK(!(a == b));
+  BOOST_CHECK(!(a != a));
+  BOOST_CHECK(a != b);
+}
+
 /*
  * json::encoded_value_ref
  */

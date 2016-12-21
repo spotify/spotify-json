@@ -209,5 +209,13 @@ inline std::ostream &operator <<(std::ostream &stream, const encoded_value &valu
   return stream;
 }
 
+inline bool operator==(const encoded_value_ref &a, const encoded_value_ref &b) {
+  return a.size() == b.size() && std::memcmp(a.data(), b.data(), a.size()) == 0;
+}
+
+inline bool operator!=(const encoded_value_ref &a, const encoded_value_ref &b) {
+  return !(a == b);
+}
+
 }  // namespace json
 }  // namespace spotify
