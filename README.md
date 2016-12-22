@@ -330,25 +330,6 @@ Run "cmake --help" for a list of generators available on your system.
     cd build
     ctest -j 8
 
-### Experimental - Building with Bazel
-
-#### Requirements:
-  * Bazel ([http://bazel.io](http://bazel.io/))
-
-#### 1. Build project using Bazel
-    bazel build :spotify-json
-
-#### 2. Build & run tests using Bazel
-    bazel test :test
-    bazel test :benchmark
-
-#### Notes:
-  * If using spotify-json as a module in a larger project, in the 
-  project's WORKSPACE file you can call 
-  `load("//path/to/json/workspace.bzl", "spotify_json_library")` 
-  and configure the library for use in the project, e.g.
-    `spotify_json_library(prefix = "vendor/spotify-json", has_boost=True)`
-
 Code of conduct
 ---------------
 This project adheres to the [Open Code of Conduct][code-of-conduct]. By participating, you are expected to honor this code.
