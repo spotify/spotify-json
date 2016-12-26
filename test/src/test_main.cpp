@@ -17,3 +17,7 @@
 #define BOOST_TEST_MODULE json_test
 
 #include <boost/test/unit_test.hpp>
+
+extern "C" const char *__asan_default_options() {
+  return "allocator_may_return_null=1";
+}
