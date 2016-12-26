@@ -83,10 +83,3 @@
 #if defined(json_arch_x86_32) || defined(json_arch_x86_64)
   #define json_arch_x86
 #endif
-
-// https://sourceforge.net/p/predef/wiki/OperatingSystems/
-// http://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
-
-#if defined(_WIN32)
-  #define json_os_windows
-#endif
