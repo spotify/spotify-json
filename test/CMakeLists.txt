@@ -12,13 +12,13 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-set(json_test_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
+set(spotify_json_test_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/test/include)
 
-set(json_test_HEADERS
+set(spotify_json_test_HEADERS
   include/spotify/json/test/only_true.hpp
   )
 
-set(json_test_SOURCES
+set(spotify_json_test_SOURCES
   src/test_any_codec.cpp
   src/test_any_value.cpp
   src/test_array.cpp
@@ -59,24 +59,24 @@ set(json_test_SOURCES
   src/test_umbrella.cpp
   )
 
-set(json_test_TARGET "json_test")
+set(spotify_json_test_TARGET "spotify_json_test")
 
-source_group(spotify\\json\\test FILES ${json_test_SOURCES})
-source_group(spotify\\json\\test FILES ${json_test_HEADERS})
+source_group(spotify\\json\\test FILES ${spotify_json_test_SOURCES})
+source_group(spotify\\json\\test FILES ${spotify_json_test_HEADERS})
 
-add_executable(${json_test_TARGET} ${json_test_SOURCES} ${json_test_HEADERS})
+add_executable(${spotify_json_test_TARGET} ${spotify_json_test_SOURCES} ${spotify_json_test_HEADERS})
 
-set_property(TARGET ${json_test_TARGET} PROPERTY CXX_STANDARD 11)
-set_property(TARGET ${json_test_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
-  target_compile_options(${json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+  target_compile_options(${spotify_json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
-target_include_directories(${json_test_TARGET} PUBLIC ${json_test_INCLUDE_DIR})
-target_include_directories(${json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(${spotify_json_test_TARGET} PUBLIC ${spotify_json_test_INCLUDE_DIR})
+target_include_directories(${spotify_json_test_TARGET} SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(${json_test_TARGET} ${json_library_TARGET})
-target_link_libraries(${json_test_TARGET} ${Boost_LIBRARIES})
+target_link_libraries(${spotify_json_test_TARGET} ${json_library_TARGET})
+target_link_libraries(${spotify_json_test_TARGET} ${Boost_LIBRARIES})
 
-add_test(${json_test_TARGET} ${json_test_TARGET})
+add_test(${spotify_json_test_TARGET} ${spotify_json_test_TARGET})
