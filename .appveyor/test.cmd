@@ -10,4 +10,4 @@ if "%CONFIGURATION%" == "" (
   exit /b 2
 )
 
-build_%PLATFORM%\test\%CONFIGURATION%\json_test.exe
+build_%PLATFORM%\test\%CONFIGURATION%\spotify_json_test.exe
