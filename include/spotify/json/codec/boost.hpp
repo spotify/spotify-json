@@ -75,9 +75,15 @@ class optional_t final {
     _inner_codec.encode(context, *value);
   }
 
-  bool should_encode(const object_type &value) const {
+  template <typename value_type>
+  bool should_encode(const boost::optional<value_type> &value) const {
     return (value != boost::none) && detail::should_encode(_inner_codec, *value);
   }
+
+  bool should_encode(const boost::none_t &) const {
+    return false;
+  }
+
 
  private:
   codec_type _inner_codec;
