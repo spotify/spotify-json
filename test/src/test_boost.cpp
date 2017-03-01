@@ -142,11 +142,17 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_forward_should_encode) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref) {
-  BOOST_CHECK(encode(boost::optional<encoded_value_ref>(encoded_value_ref("{}"))) == "{}");
+  const auto value = boost::optional<encoded_value_ref>(encoded_value_ref("{}"));
+  const auto codec = default_codec<boost::optional<encoded_value_ref>>();
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(value) == "{}");
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
-  BOOST_CHECK(encode(boost::optional<encoded_value>(encoded_value("{}"))) == "{}");
+  const auto value = boost::optional<encoded_value>(encoded_value("{}"));
+  const auto codec = default_codec<boost::optional<encoded_value>>();
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(value) == "{}");
 }
 
 /*
