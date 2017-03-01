@@ -20,12 +20,14 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <spotify/json/codec/any_value.hpp>
 #include <spotify/json/codec/boost.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decode.hpp>
 #include <spotify/json/encode.hpp>
+#include <spotify/json/encoded_value.hpp>
 
 #include <spotify/json/test/only_true.hpp>
 
@@ -137,6 +139,14 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_implement_should_encode) {
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_forward_should_encode) {
   const auto codec = codec::optional_t<codec::omit_t<std::string>>(codec::omit<std::string>());
   BOOST_CHECK(!codec.should_encode(boost::make_optional(std::string(""))));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref) {
+  BOOST_CHECK(encode(boost::optional<encoded_value_ref>(encoded_value_ref("{}"))) == "{}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
+  BOOST_CHECK(encode(boost::optional<encoded_value>(encoded_value("{}"))) == "{}");
 }
 
 /*
