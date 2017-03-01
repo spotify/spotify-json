@@ -155,6 +155,26 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
   BOOST_CHECK(encode(value) == "{}");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref_in_object) {
+  struct object_type { boost::optional<encoded_value_ref> value = encoded_value_ref("{}"); };
+  codec::object_t<object_type> codec;
+  codec.optional("value", &object_type::value);
+
+  const object_type value{};
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_in_object) {
+  struct object_type { boost::optional<encoded_value> value = encoded_value("{}"); };
+  codec::object_t<object_type> codec;
+  codec.optional("value", &object_type::value);
+
+  const object_type value{};
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
+}
+
 /*
  * boost::chrono
  */
