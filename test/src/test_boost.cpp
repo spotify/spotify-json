@@ -146,6 +146,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref) 
   const auto codec = default_codec<boost::optional<encoded_value_ref>>();
   BOOST_CHECK(detail::should_encode(codec, value));
   BOOST_CHECK(encode(value) == "{}");
+  BOOST_CHECK(decode(codec, "{}").get() == value.get());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
@@ -153,6 +154,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
   const auto codec = default_codec<boost::optional<encoded_value>>();
   BOOST_CHECK(detail::should_encode(codec, value));
   BOOST_CHECK(encode(value) == "{}");
+  BOOST_CHECK(decode(codec, "{}").get() == value.get());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref_in_object) {
@@ -163,6 +165,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref_i
   const object_type value{};
   BOOST_CHECK(detail::should_encode(codec, value));
   BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
+  BOOST_CHECK(decode(codec, "{\"value\":{}}").value.get() == value.value.get());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_in_object) {
@@ -173,6 +176,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_in_ob
   const object_type value{};
   BOOST_CHECK(detail::should_encode(codec, value));
   BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
+  BOOST_CHECK(decode(codec, "{\"value\":{}}").value.get() == value.value.get());
 }
 
 /*
