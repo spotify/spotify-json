@@ -115,11 +115,11 @@ class object_t final {
     context.append(escaped_key.data(), escaped_key.size());
   }
 
-  template <typename codec_type>
+  template <typename codec_type, typename value_type>
   json_force_inline static void append_val_to_context(
       encode_context &context,
       const codec_type &codec,
-      const typename codec_type::object_type &value) {
+      const value_type &value) {
     codec.encode(context, value);
     context.append(',');
   }
