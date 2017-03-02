@@ -49,6 +49,9 @@ codec::object_t<sub_class> sub_codec() {
   return codec::object<sub_class>();
 }
 
+struct optional_value_ref { boost::optional<encoded_value_ref> value = encoded_value_ref("{}"); };
+struct optional_value { boost::optional<encoded_value> value = encoded_value("{}"); };
+
 }  // namespace
 
 /*
@@ -158,22 +161,20 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref_in_object) {
-  struct object_type { boost::optional<encoded_value_ref> value = encoded_value_ref("{}"); };
-  codec::object_t<object_type> codec;
-  codec.optional("value", &object_type::value);
+  codec::object_t<optional_value_ref> codec;
+  codec.optional("value", &optional_value_ref::value);
 
-  const object_type value{};
+  const optional_value_ref value{};
   BOOST_CHECK(detail::should_encode(codec, value));
   BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
   BOOST_CHECK(decode(codec, "{\"value\":{}}").value.get() == value.value.get());
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_in_object) {
-  struct object_type { boost::optional<encoded_value> value = encoded_value("{}"); };
-  codec::object_t<object_type> codec;
-  codec.optional("value", &object_type::value);
+  codec::object_t<optional_value> codec;
+  codec.optional("value", &optional_value::value);
 
-  const object_type value{};
+  const optional_value value{};
   BOOST_CHECK(detail::should_encode(codec, value));
   BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
   BOOST_CHECK(decode(codec, "{\"value\":{}}").value.get() == value.value.get());
