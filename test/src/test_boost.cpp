@@ -20,12 +20,14 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <spotify/json/codec/any_value.hpp>
 #include <spotify/json/codec/boost.hpp>
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/decode.hpp>
 #include <spotify/json/encode.hpp>
+#include <spotify/json/encoded_value.hpp>
 
 #include <spotify/json/test/only_true.hpp>
 
@@ -46,6 +48,9 @@ class sub_class : public base_class {
 codec::object_t<sub_class> sub_codec() {
   return codec::object<sub_class>();
 }
+
+struct optional_value_ref { boost::optional<encoded_value_ref> value = encoded_value_ref("{}"); };
+struct optional_value { boost::optional<encoded_value> value = encoded_value("{}"); };
 
 }  // namespace
 
@@ -137,6 +142,42 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_implement_should_encode) {
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_forward_should_encode) {
   const auto codec = codec::optional_t<codec::omit_t<std::string>>(codec::omit<std::string>());
   BOOST_CHECK(!codec.should_encode(boost::make_optional(std::string(""))));
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref) {
+  const auto value = boost::optional<encoded_value_ref>(encoded_value_ref("{}"));
+  const auto codec = default_codec<boost::optional<encoded_value_ref>>();
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(value) == "{}");
+  BOOST_CHECK(decode(codec, "{}").get() == value.get());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value) {
+  const auto value = boost::optional<encoded_value>(encoded_value("{}"));
+  const auto codec = default_codec<boost::optional<encoded_value>>();
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(value) == "{}");
+  BOOST_CHECK(decode(codec, "{}").get() == value.get());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_ref_in_object) {
+  codec::object_t<optional_value_ref> codec;
+  codec.optional("value", &optional_value_ref::value);
+
+  const optional_value_ref value{};
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
+  BOOST_CHECK(decode(codec, "{\"value\":{}}").value.get() == value.value.get());
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_accept_encoded_value_in_object) {
+  codec::object_t<optional_value> codec;
+  codec.optional("value", &optional_value::value);
+
+  const optional_value value{};
+  BOOST_CHECK(detail::should_encode(codec, value));
+  BOOST_CHECK(encode(codec, value) == "{\"value\":{}}");
+  BOOST_CHECK(decode(codec, "{\"value\":{}}").value.get() == value.value.get());
 }
 
 /*
