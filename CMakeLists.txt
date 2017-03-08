@@ -121,6 +121,7 @@ endif()
 # They also don't pass ASan at the moment.
 set(BUILD_TESTING OFF)
 
+set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(vendor/double-conversion)
 
 if(WIN32)
