@@ -136,7 +136,9 @@ set(double_conversion_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/vendor/double-conver
 target_include_directories(${json_library_TARGET} PUBLIC ${double_conversion_INCLUDE_DIR})
 target_link_libraries(${json_library_TARGET} double-conversion)
 
-option(SPOTIFY_JSON_BUILD_TESTS "Build tests and benchmarks" ON)
+if (NOT DEFINED SPOTIFY_JSON_BUILD_TESTS)
+  option(SPOTIFY_JSON_BUILD_TESTS "Build tests and benchmarks" ON)
+endif ()
 if(SPOTIFY_JSON_BUILD_TESTS)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_LIBS ON)
