@@ -74,7 +74,8 @@ template <typename Value>
 auto eq(Value &&value)
     -> decltype(eq(default_codec<typename std::decay<Value>::type>(),
                    std::forward<Value>(value))) {
-  return eq(default_codec<Value>(), std::forward<Value>(value));
+  return eq(default_codec<typename std::decay<Value>::type>(),
+            std::forward<Value>(value));
 }
 
 }  // namespace codec
