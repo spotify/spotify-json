@@ -20,6 +20,7 @@
 
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/eq.hpp>
+#include <spotify/json/codec/number.hpp>
 #include <spotify/json/decode.hpp>
 #include <spotify/json/encode.hpp>
 
@@ -64,6 +65,11 @@ BOOST_AUTO_TEST_CASE(json_codec_eq_should_construct_with_helper) {
 /*
  * Decoding
  */
+BOOST_AUTO_TEST_CASE(json_codec_eq_should_decode_local_variable) {
+  int value = 5;
+  const auto codec = eq(value);
+  BOOST_CHECK_EQUAL(test_decode(codec, "5"), value);
+}
 
 BOOST_AUTO_TEST_CASE(json_codec_eq_should_decode) {
   const auto codec = eq(std::string("A"));
