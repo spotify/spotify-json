@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(json_encoded_value_should_assign_from_encoded_value) {
 }
 
 BOOST_AUTO_TEST_CASE(json_encoded_value_should_throw_bad_alloc) {
-  const auto way_too_large = std::numeric_limits<size_t>::max();
+  const auto way_too_large = std::numeric_limits<size_t>::max() >> 2;
   BOOST_CHECK_THROW(encoded_value("", way_too_large), std::bad_alloc);
 }
 
