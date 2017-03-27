@@ -100,27 +100,29 @@ set(json_all_SOURCES
   ${json_detail_SSE42_SOURCES}
   )
 
-set(json_library_TARGET "spotify-json")
-
 source_group(spotify\\json         FILES ${json_HEADERS})
 source_group(spotify\\json\\codec  FILES ${json_codec_HEADERS})
 source_group(spotify\\json\\detail FILES ${json_detail_HEADERS})
 
+set(json_library_TARGET "spotify-json")
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
-
 target_include_directories(${json_library_TARGET} PUBLIC ${json_INCLUDE_DIR})
 
-if(WIN32)
-  target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-else()
-  set_source_files_properties(${json_detail_SSE42_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
+option(SPOTIFY_JSON_USE_SSE42 "Build library with SSE 4.2 support (on x86 platforms)" ON)
+if(SPOTIFY_JSON_USE_SSE42)
+  if(WIN32)
+    target_compile_definitions(${json_library_TARGET} PUBLIC SPOTIFY_JSON_USE_SSE42=1)
+    target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+  else()
+    target_compile_definitions(${json_library_TARGET} PUBLIC SPOTIFY_JSON_USE_SSE42=1)
+    set_source_files_properties(${json_detail_SSE42_SOURCES} PROPERTIES COMPILE_FLAGS "-msse4.2")
+  endif()
 endif()
 
 # Disable building double-conversion tests, since they fail on
 # Windows due to the use of "/fp:fast" and bugs in the compiler.
 # They also don't pass ASan at the moment.
 set(BUILD_TESTING OFF)
-
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(vendor/double-conversion)
 
@@ -146,7 +148,6 @@ if(SPOTIFY_JSON_BUILD_TESTS)
 
   if(Boost_FOUND)
     enable_testing()
-
     add_subdirectory(benchmark)
     add_subdirectory(test)
   else()

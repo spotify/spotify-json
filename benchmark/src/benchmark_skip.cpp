@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_simple_characters) {
   });
 }
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_simple_characters_sse42) {
   const auto json = generate_simple_string(8192);
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_simple_characters_sse42) {
   });
 }
 
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
 
 std::string generate_whitespace_string(size_t size) {
   std::string string;
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_whitespace) {
   });
 }
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_whitespace_sse42) {
   const auto json = generate_whitespace_string(8192);
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_skip_any_whitespace_sse42) {
   });
 }
 
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json

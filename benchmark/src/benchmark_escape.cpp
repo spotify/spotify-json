@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string) {
   });
 }
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string_sse42) {
   const auto input = generate_string(8192, false);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_simple_string_sse42) {
   });
 }
 
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string) {
   const auto input = generate_string(8192, true);
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string) {
   });
 }
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string_sse42) {
   const auto input = generate_string(8192, true);
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(benchmark_json_detail_write_escaped_complex_string_sse42) {
   });
 }
 
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
 
 BOOST_AUTO_TEST_SUITE_END()  // detail
 BOOST_AUTO_TEST_SUITE_END()  // json

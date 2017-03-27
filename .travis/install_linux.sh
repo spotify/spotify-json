@@ -26,8 +26,15 @@ function install_cmake {
   export PATH=${CMAKE_BIN}:${PATH}
 }
 
+function install_valgrind {
+  sudo apt-get update -qq
+  sudo apt-get install -qq valgrind
+}
+
 install_boost # at least version 1.60
 install_cmake # at least version 3.2
+install_valgrind # at least version 3.7
 echo "Installed build dependecies."
 echo "  - Boost: ${BOOST_ROOT}"
 echo "  - CMake: ${CMAKE_BIN}"
+echo "  - Valgrind"
