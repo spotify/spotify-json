@@ -83,3 +83,7 @@
 #if defined(json_arch_x86_32) || defined(json_arch_x86_64)
   #define json_arch_x86
 #endif
+
+#if defined(json_arch_x86) && defined(SPOTIFY_JSON_USE_SSE42)
+  #define json_arch_x86_sse42
+#endif

@@ -16,7 +16,7 @@
 
 #include <spotify/json/detail/escape.hpp>
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 
 #include <nmmintrin.h>
 
@@ -87,4 +87,4 @@ void write_escaped_sse42(
 }  // namespace json
 }  // namespace spotify
 
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)

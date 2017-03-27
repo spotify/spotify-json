@@ -28,12 +28,12 @@ void write_escaped_scalar(
     const char *begin,
     const char *end);
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 void write_escaped_sse42(
     encode_context &context,
     const char *begin,
     const char *end);
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
 
 /**
  * \brief Escape a string for use in a JSON string as per RFC 4627.
@@ -47,11 +47,11 @@ json_force_inline void write_escaped(
     encode_context &context,
     const char *begin,
     const char *end) {
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
   if (json_likely(context.has_sse42)) {
     return write_escaped_sse42(context, begin, end);
   }
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
   write_escaped_scalar(context, begin, end);
 }
 

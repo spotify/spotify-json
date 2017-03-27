@@ -16,7 +16,7 @@
 
 #include <spotify/json/detail/skip_chars.hpp>
 
-#if defined(json_arch_x86)
+#if defined(json_arch_x86_sse42)
 
 #include <nmmintrin.h>
 
@@ -92,4 +92,4 @@ void skip_any_whitespace_sse42(decode_context &context) {
 }  // namespace json
 }  // namespace spotify
 
-#endif  // defined(json_arch_x86)
+#endif  // defined(json_arch_x86_sse42)
