@@ -314,8 +314,8 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
   context.position = int_end;
 
   // Find xxxx.[yyyy]E±zzzz
-  decltype(context.position) dec_beg = nullptr;
-  decltype(context.position) dec_end = nullptr;
+  auto dec_beg = int_end;
+  auto dec_end = int_end;
   if (peek(context) == '.') {
     skip_unchecked_1(context);
     dec_beg = context.position;
@@ -326,8 +326,8 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
 
   // Find xxxx.yyyyE[±zzzz]
   auto exp_is_positive = true;
-  decltype(context.position) exp_beg = nullptr;
-  decltype(context.position) exp_end = nullptr;
+  auto exp_beg = dec_end;
+  auto exp_end = dec_end;
   const auto e = peek(context);
   if (e == 'e' || e == 'E') {
     skip_unchecked_1(context);
