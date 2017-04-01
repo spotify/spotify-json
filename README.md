@@ -61,7 +61,7 @@ int main() {
 
   Track track;
   track.uri = "spotify:track:abc";
-  track.uid = "an-uid";
+  track.uid = "a-uid";
   const auto json = encode(track);
   std::cout << "Encoded the track into " << json << std::endl;
 
