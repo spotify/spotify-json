@@ -74,6 +74,23 @@ BOOST_AUTO_TEST_CASE(json_decode_helpers_peek) {
   BOOST_CHECK_EQUAL(peek(make_context("ab")), 'a');
 }
 
+BOOST_AUTO_TEST_CASE(json_decode_helpers_peek_2) {
+  BOOST_CHECK(peek_2(make_context("ab"), 'a', 'b'));
+  BOOST_CHECK(peek_2(make_context("abcd"), 'a', 'b'));
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_helpers_peek_2_nonmatching) {
+  BOOST_CHECK(!peek_2(make_context("aa"), 'a', 'b'));
+  BOOST_CHECK(!peek_2(make_context("bb"), 'a', 'b'));
+  BOOST_CHECK(!peek_2(make_context("aab"), 'a', 'b'));
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_helpers_peek_2_too_short) {
+  BOOST_CHECK(!peek_2(make_context(""), 'a', 'b'));
+  BOOST_CHECK(!peek_2(make_context("a"), 'a', 'b'));
+  BOOST_CHECK(!peek_2(make_context("b"), 'a', 'b'));
+}
+
 /*
  * Next
  */

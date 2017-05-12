@@ -115,14 +115,45 @@ class string_t final {
     detail::fail(context, "\\u must be followed by 4 hex digits");
   }
 
-  static void decode_unicode_escape(decode_context &context, std::string &out) {
+  static unsigned decode_hex_number(decode_context &context) {
     detail::require_bytes<4>(context, "\\u must be followed by 4 hex digits");
     const auto a = decode_hex_nibble(context, *(context.position++));
     const auto b = decode_hex_nibble(context, *(context.position++));
     const auto c = decode_hex_nibble(context, *(context.position++));
     const auto d = decode_hex_nibble(context, *(context.position++));
-    const auto p = unsigned((a << 12) | (b << 8) | (c << 4) | d);
-    encode_utf8(out, p);
+    return unsigned((a << 12) | (b << 8) | (c << 4) | d);
+  }
+
+  static void decode_unicode_escape(
+      decode_context &context,
+      std::string &out) {
+    const auto p = decode_hex_number(context);
+    if (json_likely(!handle_surrogate_pair(context, out, p))) {
+      encode_utf8(out, p);
+    }
+  }
+
+  static bool handle_surrogate_pair(
+      decode_context &context,
+      std::string &out,
+      unsigned p) {
+    if (json_unlikely(is_high_surrogate(p))) {
+      // Parse low surrogate
+      if (detail::peek_2(context, '\\', 'u')) {
+        detail::skip_unchecked_n(context, 2);
+        const auto n = decode_hex_number(context);
+        if (json_likely(is_low_surrogate(n))) {
+          // Any Unicode codepoint encoded by a surrogate pair is 4 bytes in UTF-8
+          encode_utf8_4(out, codepoint_from_surrogate_pair(p, n));
+          return true;
+        } else {
+          // Rewind context to before the escape sequence
+          context.position -= 6;
+        }
+      }
+    }
+
+    return false;
   }
 
   static void encode_utf8(std::string &out, unsigned p) {
@@ -153,6 +184,27 @@ class string_t final {
     const char c2 = 0x80 | ((p >>  0) & 0x3F);
     const char cc[] = { c0, c1, c2 };
     out.append(&cc[0], 3);
+  }
+
+  static void encode_utf8_4(std::string &out, uint32_t p) {
+    const char c0 = 0xF0 | ((p >> 18) & 0x07);
+    const char c1 = 0x80 | ((p >> 12) & 0x3F);
+    const char c2 = 0x80 | ((p >>  6) & 0x3F);
+    const char c3 = 0x80 | ((p >>  0) & 0x3F);
+    const char cc[] = { c0, c1, c2, c3 };
+    out.append(&cc[0], 4);
+  }
+
+  static bool is_high_surrogate(unsigned p) {
+    return (p & 0xFC00) == 0xD800;
+  }
+
+  static bool is_low_surrogate(unsigned p) {
+    return (p & 0xFC00) == 0xDC00;
+  }
+
+  static uint32_t codepoint_from_surrogate_pair(uint32_t high, uint32_t low) {
+    return (((high & 0x03FF) << 10) | (low & 0x03FF)) + 0x10000;
   }
 };
 
