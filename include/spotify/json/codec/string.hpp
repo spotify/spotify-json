@@ -122,10 +122,10 @@ class string_t final {
     const auto c = decode_hex_nibble(context, *(context.position++));
     const auto d = decode_hex_nibble(context, *(context.position++));
     const auto p = unsigned((a << 12) | (b << 8) | (c << 4) | d);
-    encode_utf8(context, out, p);
+    encode_utf8(out, p);
   }
 
-  static void encode_utf8(decode_context &context, std::string &out, unsigned p) {
+  static void encode_utf8(std::string &out, unsigned p) {
     if (json_likely(p <= 0x7F)) {
       encode_utf8_1(out, p);
     } else if (json_likely(p <= 0x07FF)) {
