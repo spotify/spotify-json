@@ -20,7 +20,6 @@ matrix:
 
 install:
   - cmd: .appveyor\install.cmd
-  - cmd: git submodule update --init --recursive
 
 before_build:
   - cmd: .appveyor\build.cmd
