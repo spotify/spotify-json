@@ -55,9 +55,7 @@ json_force_inline void fail_if(
 }
 
 template <size_t num_required_bytes, typename string_type>
-json_force_inline void require_bytes(
-    const decode_context &context,
-    const string_type &error = "Unexpected end of input") {
+json_force_inline void require_bytes(const decode_context &context, const string_type &error) {
   fail_if(context, context.remaining() < num_required_bytes, error);
 }
 
