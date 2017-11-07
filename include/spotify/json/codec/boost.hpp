@@ -70,6 +70,7 @@ class optional_t final {
      detail::skip_null(context);
      return {};
    }
+   return _inner_codec.decode(context);
   }
 
   template <typename value_type>
