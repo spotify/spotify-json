@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Spotify AB
+ * Copyright (c) 2014-2017 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -66,7 +66,11 @@ class optional_t final {
       : _inner_codec(std::move(inner_codec)) {}
 
   object_type decode(decode_context &context) const {
-    return _inner_codec.decode(context);
+    if (detail::peek(context) == 'n') {
+     detail::skip_null(context);
+     return {};
+   }
+   return _inner_codec.decode(context);
   }
 
   template <typename value_type>
