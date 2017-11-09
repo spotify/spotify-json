@@ -205,6 +205,62 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_escaped_unicode) {
   BOOST_CHECK_EQUAL(string_parse("\"\\u20AC\""), "\xE2\x82\xAC");
 }
 
+BOOST_AUTO_TEST_CASE(json_codec_string_should_decode_surrogate_pairs) {
+  // [TWO HEARTS] Emoji (code point 0x1F495)
+  const std::string two_hearts = "\xf0\x9f\x92\x95";
+  BOOST_CHECK_EQUAL(string_parse("\"I \\ud83d\\udc95 Unicode\""),
+                    "I " + two_hearts + " Unicode");
+  BOOST_CHECK_EQUAL(string_parse("\"I\\n\\ud83d\\udc95\\nUnicode\""),
+                    "I\n" + two_hearts + "\nUnicode");
+  // Extreme values of each surrogate
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud800\\udc00\""), "\xf0\x90\x80\x80");
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud800\\udfff\""), "\xf0\x90\x8f\xbf");
+  BOOST_CHECK_EQUAL(string_parse("\"\\udbff\\udc00\""), "\xf4\x8f\xb0\x80");
+  BOOST_CHECK_EQUAL(string_parse("\"\\udbff\\udfff\""), "\xf4\x8f\xbf\xbf");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_output_code_points_from_broken_surrogate_pairs) {
+  // [TWO HEARTS] Emoji (code point 0x1F495)
+  const std::string two_hearts = "\xf0\x9f\x92\x95";
+  // UTF-8 representations of code points 0xd83d and 0xdc95, which form the
+  // surrogate pairs for the emoji above.
+  const std::string high = "\xed\xa0\xbd";
+  const std::string low = "\xed\xb2\x95";
+
+  // Lone high surrogate
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud83d\""), high);
+  BOOST_CHECK_EQUAL(string_parse("\"\\n\\ud83d\\n\""), "\n" + high + "\n");
+  BOOST_CHECK_EQUAL(string_parse("\"\\\\\\ud83d\\\\\""), "\\" + high + "\\");
+  BOOST_CHECK_EQUAL(string_parse("\"Foo\\ud83dFoo\""), "Foo" + high + "Foo");
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud83d\\ud83d\\udc95\""), high + two_hearts);
+
+  // Lone low surrogate
+  BOOST_CHECK_EQUAL(string_parse("\"\\udc95\""), low);
+  BOOST_CHECK_EQUAL(string_parse("\"\\n\\udc95\\n\""), "\n" + low + "\n");
+  BOOST_CHECK_EQUAL(string_parse("\"\\\\\\udc95\\\\\""), "\\" + low + "\\");
+  BOOST_CHECK_EQUAL(string_parse("\"Foo\\udc95Foo\""), "Foo" + low + "Foo");
+  BOOST_CHECK_EQUAL(string_parse("\"\\udc95\\ud83d\\udc95\""), low + two_hearts);
+
+  // Flipped order surrogates
+  BOOST_CHECK_EQUAL(string_parse("\"\\udc95\\ud83d\""), low + high);
+
+  // Double high surrogate
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud83d\\ud83d\""), high + high);
+
+  // Double low surrogate
+  BOOST_CHECK_EQUAL(string_parse("\"\\udc95\\udc95\""), low + low);
+
+  // Intermingled valid and invalid sequences
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud83d\\udc95\\udc95\""), two_hearts + low);
+  BOOST_CHECK_EQUAL(string_parse("\"\\ud83d\\udc95\\ud83d\""), two_hearts + high);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_not_decode_incomplete_low_surrogate) {
+  string_parse_fail("\"\\ud83d\\\"");
+  string_parse_fail("\"\\ud83d\\u\"");
+  string_parse_fail("\"\\ud83d\\udc9\"");
+}
+
 BOOST_AUTO_TEST_CASE(json_codec_string_should_not_decode_invalid_escaped_characters) {
   string_parse_fail("\"\\q\"");  // \q is not a valid escape sequence
 }

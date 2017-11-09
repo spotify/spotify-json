@@ -55,9 +55,7 @@ json_force_inline void fail_if(
 }
 
 template <size_t num_required_bytes, typename string_type>
-json_force_inline void require_bytes(
-    const decode_context &context,
-    const string_type &error = "Unexpected end of input") {
+json_force_inline void require_bytes(const decode_context &context, const string_type &error) {
   fail_if(context, context.remaining() < num_required_bytes, error);
 }
 
@@ -78,6 +76,18 @@ json_force_inline char peek_unchecked(const decode_context &context) {
  */
 json_force_inline char peek(const decode_context &context) {
   return (context.remaining() ? peek_unchecked(context) : 0);
+}
+
+/**
+ * Returns true if the next two characters are `first` and `second`.
+ * Returns false if the characters do not match, or if there is less than 2
+ * characters remaining.
+ */
+json_force_inline bool peek_2(const decode_context &context, const char first, const char second) {
+  if (context.remaining() < 2) {
+    return false;
+  }
+  return first == *context.position && second == *(context.position + 1);
 }
 
 json_force_inline char next_unchecked(decode_context &context) {
