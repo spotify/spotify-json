@@ -275,6 +275,10 @@ const auto my_codec =
 const my_type value = decode(my_codec, R"({ "a": null, "b": "hey" })");
 ```
 
+Codecs have value semantics and can be both copied and moved; complex codecs,
+in particular ones containing one or more `object_t`, can be relatively expensive
+to copy.
+
 `default_codec_t`
 =================
 
