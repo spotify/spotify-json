@@ -5,7 +5,7 @@ The spotify-json API is designed to make it very easy to turn C++ objects into
 JSON and vice versa. It is not a streaming style API like
 [yajl](http://lloyd.github.io/yajl/) or SAX, and it is not a DOM-style API that
 constructs an abstract syntax tree of a JSON document. Instead, it parses
-directly into and writes directly from the C++ objects that are used by the
+directly into, and writes directly from, the C++ objects defined and used by the
 application.
 
 `encode`, `decode` and `try_decode`
