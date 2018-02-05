@@ -670,10 +670,10 @@ initialized object always fails decoding, while `omit_t` always fails decoding.
 
 `map_t` is a codec for maps from string to other values. It only supports
 `std::string` keys because that's how JSON is specified. The `map_t` codec is
-suitable to use when the maps can contain arbitrary keys. When there is a
-pre-defined set of keys that are interesting and any other keys can be
-discarded, `object_t` is more suitable, since it parses the keys directly into a
-C++ object in a type-safe way.
+suitable for maps that contain arbitrary string values as keys. When there is
+a pre-defined set of keys that are interesting and any other keys can be
+discarded, `object_t` is more suitable, since it parses the keys directly into
+a C++ object in a type-safe way.
 
 * **Complete class name**: `spotify::json::codec::map_t<MapType, InnerCodec>`,
   where `MapType` is the type of the array, for example
