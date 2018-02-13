@@ -5,7 +5,7 @@ The spotify-json API is designed to make it very easy to turn C++ objects into
 JSON and vice versa. It is not a streaming style API like
 [yajl](http://lloyd.github.io/yajl/) or SAX, and it is not a DOM-style API that
 constructs an abstract syntax tree of a JSON document. Instead, it parses
-directly into and writes directly from the C++ objects that are used by the
+directly into, and writes directly from, the C++ objects defined and used by the
 application.
 
 `encode`, `decode` and `try_decode`
@@ -274,6 +274,10 @@ const auto my_codec =
     map<my_type>(unique_ptr(one_of(string(), ignore<std::string>())));
 const my_type value = decode(my_codec, R"({ "a": null, "b": "hey" })");
 ```
+
+Codecs have value semantics and can be both copied and moved; complex codecs,
+in particular ones containing one or more `object_t`, can be relatively expensive
+to copy.
 
 `default_codec_t`
 =================
@@ -617,11 +621,11 @@ template <>
 struct default_codec_t<metadata_response> {
   static one_of_t<object_t<metadata_response>, object_t<metadata_response>> codec() {
     object_t<metadata_response> codec_v1;
-    codec.required("n", &metadata_response::name);
+    codec_v1.required("n", &metadata_response::name);
 
     object_t<metadata_response> codec_v2;
-    codec.required("version", eq(2));
-    codec.required("name", &metadata_response::name);
+    codec_v2.required("version", eq(2));
+    codec_v2.required("name", &metadata_response::name);
 
     return one_of(codec_v2, codec_v1);
   }
@@ -670,10 +674,10 @@ initialized object always fails decoding, while `omit_t` always fails decoding.
 
 `map_t` is a codec for maps from string to other values. It only supports
 `std::string` keys because that's how JSON is specified. The `map_t` codec is
-suitable to use when the maps can contain arbitrary keys. When there is a
-pre-defined set of keys that are interesting and any other keys can be
-discarded, `object_t` is more suitable, since it parses the keys directly into a
-C++ object in a type-safe way.
+suitable for maps that contain arbitrary string values as keys. When there is
+a pre-defined set of keys that are interesting and any other keys can be
+discarded, `object_t` is more suitable, since it parses the keys directly into
+a C++ object in a type-safe way.
 
 * **Complete class name**: `spotify::json::codec::map_t<MapType, InnerCodec>`,
   where `MapType` is the type of the array, for example
@@ -778,6 +782,9 @@ For the `required` and `optional` methods, the following overloads exist:
   results anywhere, just make sure that the codec accepts the input. When
   encoding, use a default constructed value of the given type. This is mainly
   useful for verification purposes, for example `required("version", eq(5))`
+
+Calls to `optional` and `required()` have no effect when the same `"field_name"`
+was already used in a previous call to either method.
 
 Each field that `object_t` encodes and decodes uses one virtual method call.
 
