@@ -20,6 +20,7 @@
 
 #include <spotify/json/codec/boolean.hpp>
 #include <spotify/json/codec/omit.hpp>
+#include <spotify/json/codec/string.hpp>
 #include <spotify/json/detail/decode_helpers.hpp>
 
 BOOST_AUTO_TEST_SUITE(spotify)
@@ -472,6 +473,26 @@ BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_without_ending_brace) {
   BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool &&key) {
     decode_boolean(ctx);
   }), decode_exception);
+}
+
+BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_with_null_bytes) {
+  alignas(16) char input_data[43] =
+    "{           \"AAA"
+    "BBB\0\":true,    \""
+    "CCC\":true}";
+  BOOST_REQUIRE(input_data[sizeof(input_data) - 2] == '}');
+  auto ctx = decode_context(input_data, sizeof(input_data));
+  int num = 0;
+  decode_object<codec::string_t>(ctx, [&](std::string &&key) {
+    BOOST_CHECK(num < 2);
+    if (num == 0) {
+      BOOST_CHECK_EQUAL(key, std::string("AAABBB\0", 7));
+    } else {
+      BOOST_CHECK_EQUAL(key, "CCC");
+    }
+    num++;
+    decode_boolean(ctx);
+  });
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // detail

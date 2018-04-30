@@ -82,6 +82,16 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_simple_characters, use_sse, true_fal
   }
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_simple_characters_null_byte_in_string,
+                              use_sse,
+                              true_false) {
+  alignas(16) char input_data[17] = "a\0\"\"\"\"\"\"\"\"\"\"\"\"\"\"";
+  auto context = decode_context(input_data, input_data + 16);
+  *const_cast<bool *>(&context.has_sse42) &= use_sse::value;
+  skip_any_simple_characters(context);
+  BOOST_CHECK_EQUAL(context.position - input_data, 2);
+}
+
 BOOST_AUTO_TEST_CASE_TEMPLATE(json_skip_any_simple_characters_with_empty_string,
                               use_sse,
                               true_false) {
