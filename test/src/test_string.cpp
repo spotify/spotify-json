@@ -53,23 +53,29 @@ std::string random_simple_character(size_t i) {
   return std::string(&c, 1);
 }
 
-std::string random_simple_character_or_escape_sequence(size_t i) {
+std::string random_simple_character_or_escape_sequence(size_t i, bool minimal_escaping) {
   switch (i % 37) {
+    case 27: return "\\u0000";
     case 28: return "\\\"";
-    case 29: return "\\/";
+    case 29: return minimal_escaping ? "/" : "\\/";
     case 30: return "\\b";
     case 31: return "\\f";
     case 32: return "\\n";
     case 33: return "\\r";
     case 34: return "\\t";
     case 35: return "\\\\";
-    case 36: return "\\u20AC";
+    case 36: return minimal_escaping ? "\xE2\x82\xAC" : "\\u20AC";
     default: return random_simple_character(i);
   }
 }
 
 std::string random_simple_character_or_unescaped_character(size_t i) {
+  // Note: since one case below returns 3 bytes and all the other return 1, the
+  // total number of bytes in one rotation is 39. This number is coprime with
+  // 16, which is the number of bytes in an SSE block, so this will ensure that
+  // each byte will end up first in a 16-byte SSE block eventually.
   switch (i % 37) {
+    case 27: return std::string(1, '\0');
     case 28: return "\"";
     case 29: return "/";
     case 30: return "\b";
@@ -100,10 +106,10 @@ std::string generate_simple_string_answer(size_t size) {
   return string;
 }
 
-std::string generate_escaped_string(size_t approximate_size) {
+std::string generate_escaped_string(size_t approximate_size, bool minimal_escaping = false) {
   std::string string("\"");
   for (size_t i = 0; i < approximate_size; i++) {
-    string.append(random_simple_character_or_escape_sequence(i));
+    string.append(random_simple_character_or_escape_sequence(i, minimal_escaping));
   }
   string.append("\"");
   return string;
@@ -321,6 +327,26 @@ BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_popular_escaped_characters)
 
 BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_escaped_control_characters) {
   BOOST_CHECK_EQUAL(encode(std::string("\x01\x02")), "\"\\u0001\\u0002\"");
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_null_char) {
+  // Enough zero bytes to get a full 16-byte SSE block, regardless of what
+  // memory aligment the string data happens to get.
+  const std::string input_data(31, '\0');
+
+  std::string expected_result = "\"";
+  for (std::size_t i = 0; i < input_data.size(); i++) {
+    expected_result += "\\u0000";
+  }
+  expected_result += "\"";
+
+  BOOST_CHECK_EQUAL(encode(input_data), expected_result);
+}
+
+BOOST_AUTO_TEST_CASE(json_codec_string_should_encode_long_string_with_special_chars) {
+  const auto input_str = generate_escaped_string_answer(10000);
+  const auto expected_result = generate_escaped_string(10000, true);
+  BOOST_CHECK(encode(input_str) == expected_result);
 }
 
 BOOST_AUTO_TEST_SUITE_END()  // codec

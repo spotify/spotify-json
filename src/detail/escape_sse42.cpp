@@ -53,7 +53,7 @@ void write_escaped_sse42(
   auto out = buf;
 
   const __m128i ranges = _mm_setr_epi8(
-    0x01, 0x1F,  // control characters
+    0x00, 0x1F,  // null byte & control characters
     0x22, 0x22,  // double quotation mark
     0x5C, 0x5C,  // reverse solidus (backslash)
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -66,7 +66,7 @@ void write_escaped_sse42(
 
   for (; end - begin >= 16; begin += 16) {
     const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(begin));
-    const unsigned has_character_in_ranges = _mm_cmpistrc(ranges, chunk, _SIDD_CMP_RANGES);
+    const unsigned has_character_in_ranges = _mm_cmpestrc(ranges, 6, chunk, 16, _SIDD_CMP_RANGES);
     if (json_likely(!has_character_in_ranges)) {
       _mm_storeu_si128(reinterpret_cast<__m128i *>(out), chunk);
       out += 16;
