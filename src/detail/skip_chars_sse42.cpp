@@ -42,7 +42,7 @@ void skip_any_simple_characters_sse42(decode_context &context) {
     for (; end - pos >= 16; pos += 16) {
       const auto chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(pos));
       constexpr auto flags = _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_POSITIVE_POLARITY | _SIDD_LEAST_SIGNIFICANT;
-      const auto index = _mm_cmpistri(chars, chunk, flags);
+      const auto index = _mm_cmpestri(chars, 2, chunk, 16, flags);
       if (index != 16) {
         context.position = pos + index;
         return;
@@ -74,7 +74,7 @@ void skip_any_whitespace_sse42(decode_context &context) {
   for (; end - pos >= 16; pos += 16) {
     const auto chunk = _mm_load_si128(reinterpret_cast<const __m128i *>(pos));
     constexpr auto flags = _SIDD_UBYTE_OPS | _SIDD_CMP_EQUAL_ANY | _SIDD_NEGATIVE_POLARITY | _SIDD_LEAST_SIGNIFICANT;
-    const auto index = _mm_cmpistri(chars, chunk, flags);
+    const auto index = _mm_cmpestri(chars, 4, chunk, 16, flags);
     if (index != 16) {
       context.position = pos + index;
       return;
