@@ -218,7 +218,7 @@ encode(player_codec, player) == R"({"name":"Daniel","instrument":"guitar","posit
 ```
 
 Since codecs are just normal objects, it is possible to create and use
-several different codecs for any given data type. This makes it possibile to
+several different codecs for any given data type. This makes it possible to
 parameterize parsing and do other fancy things, but for most data types there
 will only really exist one codec. For these cases, it is possible to extend
 the `default_codec` helper to support your own data types.
