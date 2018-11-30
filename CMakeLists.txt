@@ -68,6 +68,7 @@ set(json_detail_HEADERS
   include/spotify/json/detail/encode_helpers.hpp
   include/spotify/json/detail/encode_integer.hpp
   include/spotify/json/detail/escape.hpp
+  include/spotify/json/detail/field_registry.hpp
   include/spotify/json/detail/macros.hpp
   include/spotify/json/detail/skip_chars.hpp
   include/spotify/json/detail/skip_value.hpp
@@ -78,6 +79,7 @@ set(json_detail_SOURCES
   src/detail/encode_integer.cpp
   src/detail/escape.cpp
   src/detail/escape_common.hpp
+  src/detail/field_registry.cpp
   src/detail/skip_chars.cpp
   src/detail/skip_chars_common.hpp
   src/detail/skip_value.cpp
