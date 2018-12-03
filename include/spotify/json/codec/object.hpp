@@ -76,7 +76,7 @@ class object_t final {
 
     object_type output = construct(std::is_default_constructible<T>());
     detail::decode_object<string_t>(context, [&](const std::string &key) {
-      const auto *field_ptr = _fields.find_field(key);
+      const auto *field_ptr = _fields.find(key);
       if (json_unlikely(!field_ptr)) {
         return detail::skip_value(context);
       }
@@ -275,7 +275,7 @@ class object_t final {
       codec_type &&codec) {
     using member_ptr = value_type (object_type::*);
     using field_type = member_var_field<member_ptr, typename std::decay<codec_type>::type>;
-    _fields.save_field(name, required, std::make_shared<field_type>(
+    _fields.save(name, required, std::make_shared<field_type>(
         required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec),
@@ -310,7 +310,7 @@ class object_t final {
     using getter_ptr = get_type (get_object_type::*)() const;
     using setter_ptr = void (set_object_type::*)(set_type);
     using field_type = member_fn_field<getter_ptr, setter_ptr, typename std::decay<codec_type>::type>;
-    _fields.save_field(name, required, std::make_shared<field_type>(
+    _fields.save(name, required, std::make_shared<field_type>(
         required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec),
@@ -334,7 +334,7 @@ class object_t final {
         typename std::decay<getter>::type,
         typename std::decay<setter>::type,
         typename std::decay<codec_type>::type>;
-    _fields.save_field(name, required, std::make_shared<field_type>(required,
+    _fields.save(name, required, std::make_shared<field_type>(required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec),
         std::forward<getter>(get),
@@ -345,7 +345,7 @@ class object_t final {
             typename = typename std::enable_if<!std::is_member_pointer<codec_type>::value>::type>
   void add_field(const std::string &name, bool required, codec_type &&codec) {
     using field_type = dummy_field<typename std::decay<codec_type>::type>;
-    _fields.save_field(name, required, std::make_shared<field_type>(
+    _fields.save(name, required, std::make_shared<field_type>(
         required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec)));

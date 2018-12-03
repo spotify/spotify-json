@@ -22,7 +22,6 @@
 namespace spotify {
 namespace json {
 namespace detail {
-
 namespace {
 std::string escape_key(const std::string &key) {
   encode_context context;
@@ -30,29 +29,30 @@ std::string escape_key(const std::string &key) {
   context.append(':');
   return std::string(context.data(), context.size());
 }
-} // anonymous namespace
+} // namespace
 
 field_registry::field_registry() = default;
 field_registry::~field_registry() = default;
 field_registry::field_registry(const field_registry &) = default;
 field_registry::field_registry(field_registry &&) = default;
 
-void field_registry::save_field(const std::string &name, bool required,
-                                const std::shared_ptr<void> &f) {
+void field_registry::save(const std::string &name, bool required,
+                          const std::shared_ptr<void> &f) {
   const auto was_saved =
       _fields.insert(typename field_map::value_type(name, f)).second;
   if (was_saved) {
     _field_list.push_back(std::make_pair(escape_key(name), f));
-    _num_required_fields += size_t(required);
+    _num_required_fields += required ? 1 : 0;
   }
 }
 
-const void *field_registry::find_field(const std::string &name) const noexcept {
+const void *field_registry::find(const std::string &name) const noexcept {
   const auto field_it = _fields.find(name);
-  if (json_unlikely(field_it == _fields.end())) {
+  if (json_likely(field_it != _fields.end())) {
+    return (*field_it).second.get();
+  } else {
     return nullptr;
   }
-  return (*field_it).second.get();
 }
 
 }  // namespace detail

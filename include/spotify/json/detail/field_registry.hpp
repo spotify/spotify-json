@@ -26,7 +26,7 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-// Non-templated class to reduce code bloat
+// Non-templated class to reduce code bloat.
 class field_registry final {
  public:
   using field_vec = std::vector<std::pair<std::string, std::shared_ptr<const void>>>;
@@ -42,8 +42,8 @@ class field_registry final {
   inline const_iterator begin() const noexcept { return _field_list.begin(); }
   inline const_iterator end() const noexcept { return _field_list.end(); }
 
-  void save_field(const std::string &name, bool required, const std::shared_ptr<void> &f);
-  const void *find_field(const std::string &name) const noexcept;
+  void save(const std::string &name, bool required, const std::shared_ptr<void> &f);
+  const void *find(const std::string &name) const noexcept;
   size_t num_required_fields() const noexcept { return _num_required_fields; }
 
  private:
