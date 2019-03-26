@@ -899,7 +899,7 @@ that is done by a codec inside it.
 
 ### `string_t`
 
-`string_t` is a codec for strings.
+`string_t` is a codec for strings. Note that decoding a string **does not** check whether the string is a valid UTF-8 byte sequence.
 
 * **Complete class name**: `spotify::json::codec::string_t`
 * **Supported types**: Only `std::string`
