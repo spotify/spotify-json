@@ -131,7 +131,7 @@ add_subdirectory(vendor/double-conversion)
 
 if(WIN32)
   target_compile_options(double-conversion PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-  target_compile_options(double-conversion PRIVATE "/w")
+  target_compile_options(double-conversion PRIVATE "/W0")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   target_compile_options(double-conversion PRIVATE "-Xanalyzer" "-analyzer-disable-all-checks")
   target_compile_options(double-conversion PRIVATE "-w")
