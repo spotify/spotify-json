@@ -131,11 +131,9 @@ class object_t final {
     return _construct();
   }
 
-  struct field {
+  struct field : public detail::field_base {
     field(bool required, size_t required_field_idx)
         : _data(required ? required_field_idx : json_size_t_max) {}
-    virtual ~field() = default;
-
     virtual void decode(decode_context &context, object_type &object) const = 0;
     virtual void encode(
         encode_context &context,
@@ -275,11 +273,11 @@ class object_t final {
       codec_type &&codec) {
     using member_ptr = value_type (object_type::*);
     using field_type = member_var_field<member_ptr, typename std::decay<codec_type>::type>;
-    _fields.save(name, required, std::make_shared<field_type>(
+    _fields.save(name, required, std::shared_ptr<detail::field_base>(new field_type(
         required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec),
-        member));
+        member)));
   }
 
   template <
@@ -310,12 +308,12 @@ class object_t final {
     using getter_ptr = get_type (get_object_type::*)() const;
     using setter_ptr = void (set_object_type::*)(set_type);
     using field_type = member_fn_field<getter_ptr, setter_ptr, typename std::decay<codec_type>::type>;
-    _fields.save(name, required, std::make_shared<field_type>(
+    _fields.save(name, required, std::shared_ptr<detail::field_base>(new field_type(
         required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec),
         getter,
-        setter));
+        setter)));
   }
 
   template <typename getter, typename setter>
@@ -334,21 +332,21 @@ class object_t final {
         typename std::decay<getter>::type,
         typename std::decay<setter>::type,
         typename std::decay<codec_type>::type>;
-    _fields.save(name, required, std::make_shared<field_type>(required,
+    _fields.save(name, required, std::shared_ptr<detail::field_base>(new field_type(required,
         _fields.num_required_fields(),
         std::forward<codec_type>(codec),
         std::forward<getter>(get),
-        std::forward<setter>(set)));
+        std::forward<setter>(set))));
   }
 
   template <typename codec_type,
             typename = typename std::enable_if<!std::is_member_pointer<codec_type>::value>::type>
   void add_field(const std::string &name, bool required, codec_type &&codec) {
     using field_type = dummy_field<typename std::decay<codec_type>::type>;
-    _fields.save(name, required, std::make_shared<field_type>(
+    _fields.save(name, required, std::shared_ptr<detail::field_base>(new field_type(
         required,
         _fields.num_required_fields(),
-        std::forward<codec_type>(codec)));
+        std::forward<codec_type>(codec))));
   }
 
   /**

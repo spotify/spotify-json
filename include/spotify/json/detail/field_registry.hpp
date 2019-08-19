@@ -26,6 +26,14 @@ namespace spotify {
 namespace json {
 namespace detail {
 
+// This is a non-templated base class for field types to reduce binary size by avoiding template
+// instantiation explosion of shared_ptr<field_type> in object_t.
+//
+// It needs a virtual destructor so the shared_ptr<detail::field_base> deleter does the right thing.
+struct field_base {
+  virtual ~field_base() = default;
+};
+
 // Non-templated class to reduce code bloat.
 class field_registry final {
  public:
