@@ -147,7 +147,7 @@ class object_t final {
     size_t _data;
   };
 
-  static const field &from_field_storage_ptr(const void *field_storage) {
+  static const field &from_field_storage_ptr(const detail::field_base *field_storage) {
     return *static_cast<const field *>(field_storage);
   }
 

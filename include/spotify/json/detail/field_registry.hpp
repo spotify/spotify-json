@@ -37,8 +37,8 @@ struct field_base {
 // Non-templated class to reduce code bloat.
 class field_registry final {
  public:
-  using field_vec = std::vector<std::pair<std::string, std::shared_ptr<const void>>>;
-  using field_map = std::unordered_map<std::string, std::shared_ptr<const void>>;
+  using field_vec = std::vector<std::pair<std::string, std::shared_ptr<const field_base>>>;
+  using field_map = std::unordered_map<std::string, std::shared_ptr<const field_base>>;
   using const_iterator = typename field_vec::const_iterator;
 
   field_registry();
@@ -50,8 +50,8 @@ class field_registry final {
   inline const_iterator begin() const noexcept { return _field_list.begin(); }
   inline const_iterator end() const noexcept { return _field_list.end(); }
 
-  void save(const std::string &name, bool required, const std::shared_ptr<void> &f);
-  const void *find(const std::string &name) const noexcept;
+  void save(const std::string &name, bool required, const std::shared_ptr<field_base> &f);
+  const field_base *find(const std::string &name) const noexcept;
   size_t num_required_fields() const noexcept { return _num_required_fields; }
 
  private:
