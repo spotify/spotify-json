@@ -42,7 +42,7 @@ class null_t final {
     return _value;
   }
 
-  void encode(encode_context &context, const object_type value) const {
+  void encode(encode_context &context, const object_type /*value*/) const {
     context.append("null", 4);
   }
 

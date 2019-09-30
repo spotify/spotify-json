@@ -36,11 +36,11 @@ class omit_t final {
     detail::fail(context, "omit_t codec cannot decode");
   }
 
-  void encode(encode_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type & /*value*/) const {
     detail::fail(context, "omit_t codec cannot encode");
   }
 
-  bool should_encode(const object_type &value) const {
+  bool should_encode(const object_type & /*value*/) const {
     return false;
   }
 };

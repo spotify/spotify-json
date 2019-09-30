@@ -69,6 +69,10 @@ add_executable(${spotify_json_test_TARGET} ${spotify_json_test_SOURCES} ${spotif
 set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 
+if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+  target_compile_options(${spotify_json_test_TARGET} PRIVATE "-Wunused-parameter")
+endif()
+
 if(WIN32)
   target_compile_options(${spotify_json_test_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()

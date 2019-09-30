@@ -30,11 +30,11 @@ class only_true_t final {
  public:
   using object_type = bool;
 
-  object_type decode(decode_context &context) const {
+  object_type decode(decode_context & /*context*/) const {
     return object_type();
   }
 
-  void encode(encode_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type & /*value*/) const {
     _bool_codec.encode(context, true);
   }
 

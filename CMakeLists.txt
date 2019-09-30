@@ -110,6 +110,10 @@ set(json_library_TARGET "spotify-json")
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
 target_include_directories(${json_library_TARGET} PUBLIC ${json_INCLUDE_DIR})
 
+if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+  target_compile_options(${json_library_TARGET} PRIVATE "-Wunused-parameter")
+endif()
+
 if(WIN32)
   target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()

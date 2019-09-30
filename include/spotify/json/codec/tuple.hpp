@@ -59,8 +59,8 @@ struct tuple_field final {
 
 template <typename T, typename... codecs_type>
 struct tuple_field<T, 0, codecs_type...> {
-  static void decode(const std::tuple<codecs_type...> &codecs, decode_context &, T &) {}
-  static void encode(const std::tuple<codecs_type...> &codecs, encode_context &, const T &) {}
+  static void decode(const std::tuple<codecs_type...> & /*codecs*/, decode_context &, T &) {}
+  static void encode(const std::tuple<codecs_type...> & /*codecs*/, encode_context &, const T &) {}
 };
 
 }

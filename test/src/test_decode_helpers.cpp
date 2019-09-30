@@ -395,7 +395,7 @@ bool decode_boolean(decode_context &context) {
 BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_empty_object) {
   auto ctx = make_context("{}");
   const auto original_ctx = ctx;
-  decode_object<codec::omit_t<bool>>(ctx, [&](bool &&key) {
+  decode_object<codec::omit_t<bool>>(ctx, [&](bool && /*key*/) {
     BOOST_CHECK(!"Should not be called");
   });
   BOOST_CHECK(ctx.position == original_ctx.end);
@@ -449,28 +449,28 @@ BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_with_whitespace) {
 
 BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_with_broken_key) {
   auto ctx = make_context("{tru:false}");
-  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool &&key) {
+  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool && /*key*/) {
     BOOST_CHECK(!"Should not be called");
   }), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_with_broken_value) {
   auto ctx = make_context("{true:fals}");
-  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool &&key) {
+  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool && /*key*/) {
     decode_boolean(ctx);
   }), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_without_colon) {
   auto ctx = make_context("{truefalse}");
-  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool &&key) {
+  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool && /*key*/) {
     BOOST_CHECK(!"Should not be called");
   }), decode_exception);
 }
 
 BOOST_AUTO_TEST_CASE(json_decode_helpers_decode_object_without_ending_brace) {
   auto ctx = make_context("{true:false");
-  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool &&key) {
+  BOOST_CHECK_THROW(decode_object<codec::boolean_t>(ctx, [&](bool && /*key*/) {
     decode_boolean(ctx);
   }), decode_exception);
 }
