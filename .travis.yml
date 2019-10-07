@@ -26,8 +26,12 @@ matrix:
         - VALGRIND=valgrind --leak-check=full
     - os: osx
       compiler: clang
+      env:
+        - Boost_NO_BOOST_CMAKE=ON
     - os: osx
       compiler: gcc
+      env:
+        - Boost_NO_BOOST_CMAKE=ON
 
 install: source .travis/install_${TRAVIS_OS_NAME}.sh
 
