@@ -38,11 +38,11 @@ class ignore_t final {
     return _value;
   }
 
-  void encode(encode_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type & /*value*/) const {
     detail::fail(context, "ignore_t codec cannot encode");
   }
 
-  bool should_encode(const object_type &value) const {
+  bool should_encode(const object_type & /*value*/) const {
     return false;
   }
 

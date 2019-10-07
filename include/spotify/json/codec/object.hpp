@@ -119,13 +119,13 @@ class object_t final {
     context.append(',');
   }
 
-  T construct(std::true_type is_default_constructible) const {
+  T construct(std::true_type /*is_default_constructible*/) const {
     // Avoid the cost of an std::function invocation if no construct function
     // is provided.
     return _construct ? _construct() : object_type();
   }
 
-  T construct(std::false_type is_default_constructible) const {
+  T construct(std::false_type /*is_default_constructible*/) const {
     // T is not default constructible. Because _construct must be set if T is
     // not default constructible, there is no reason to test it in this case.
     return _construct();
@@ -157,14 +157,14 @@ class object_t final {
         : field(required, required_field_idx),
           codec(std::move(codec)) {}
 
-    void decode(decode_context &context, object_type &object) const override {
+    void decode(decode_context &context, object_type & /*object*/) const override {
       codec.decode(context);
     }
 
     void encode(
         encode_context &context,
         const std::string &escaped_key,
-        const object_type &object) const override {
+        const object_type & /*object*/) const override {
       const auto &value = typename codec_type::object_type();
       if (json_likely(detail::should_encode(codec, value))) {
         append_key_to_context(context, escaped_key);

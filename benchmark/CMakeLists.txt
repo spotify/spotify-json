@@ -37,6 +37,10 @@ add_executable(${json_benchmark_TARGET} ${json_benchmark_SOURCES} ${json_benchma
 set_property(TARGET ${json_benchmark_TARGET} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${json_benchmark_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 
+if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+  target_compile_options(${json_benchmark_TARGET} PRIVATE "-Wunused-parameter")
+endif()
+
 if(WIN32)
   target_compile_options(${json_benchmark_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()

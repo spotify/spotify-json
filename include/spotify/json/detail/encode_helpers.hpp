@@ -26,7 +26,7 @@ namespace detail {
 
 template <typename string_type>
 json_never_inline json_noreturn void fail(
-    const encode_context &context,
+    const encode_context & /*context*/,
     const string_type &error) {
   throw encode_exception(error);
 }
@@ -57,7 +57,7 @@ struct has_should_encode_method {
 
 template <typename codec_type, typename value_type>
 typename std::enable_if<!has_should_encode_method<codec_type>::value, bool>::type
-json_force_inline should_encode(const codec_type &codec, const value_type &value) {
+json_force_inline should_encode(const codec_type & /*codec*/, const value_type & /*value*/) {
   return true;
 }
 

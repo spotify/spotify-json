@@ -35,7 +35,7 @@ class dummy_t final {
  public:
   using object_type = T;
 
-  object_type decode(decode_context &context) const {
+  object_type decode(decode_context & /*context*/) const {
     return new T();
   }
 };

@@ -48,7 +48,7 @@ class eq_t final {
     return result;
   }
 
-  void encode(encode_context &context, const object_type &value) const {
+  void encode(encode_context &context, const object_type & /*value*/) const {
     _inner_codec.encode(context, _value);
   }
 

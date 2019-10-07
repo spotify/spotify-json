@@ -182,7 +182,7 @@ json_force_inline T exp_10(
  */
 template <typename T, bool is_positive>
 json_never_inline T decode_integer_range_with_overflow(
-    decode_context &context,
+    decode_context & /*context*/,
     const char *begin,
     const char *end,
     const T initial_value,
