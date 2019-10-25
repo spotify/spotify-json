@@ -76,6 +76,7 @@ set(json_detail_HEADERS
   )
 
 set(json_detail_SOURCES
+  src/detail/decode_helpers.cpp
   src/detail/encode_helpers.cpp
   src/detail/encode_integer.cpp
   src/detail/escape.cpp

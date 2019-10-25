@@ -126,7 +126,7 @@ void skip_simple_value(decode_context &context) {
     case 'f': skip_false(context); break;
     case 't': skip_true(context); break;
     case 'n': skip_null(context); break;
-    default: fail(context, std::string("Encountered token '") + peek(context) + "'");
+    default: fail(context, (std::string("Encountered token '") + peek(context) + "'").c_str());
   }
 }
 
