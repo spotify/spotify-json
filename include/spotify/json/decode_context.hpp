@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Spotify AB
+ * Copyright (c) 2014-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,7 +17,6 @@
 #pragma once
 
 #include <cstddef>
-
 #include <spotify/json/decode_exception.hpp>
 #include <spotify/json/detail/cpuid.hpp>
 #include <spotify/json/detail/macros.hpp>
@@ -31,17 +30,8 @@ namespace json {
  * has failed.
  */
 struct decode_context final {
-  decode_context(const char *begin, const char *end)
-      : has_sse42(detail::cpuid().has_sse42()),
-        position(begin),
-        begin(begin),
-        end(end) {}
-
-  decode_context(const char *data, size_t size)
-      : has_sse42(detail::cpuid().has_sse42()),
-        position(data),
-        begin(data),
-        end(data + size) {}
+  decode_context(const char *begin, const char *end);
+  decode_context(const char *data, size_t size);
 
   json_force_inline size_t offset() const {
     return (position - begin);
