@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Spotify AB
+ * Copyright (c) 2016-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,24 +14,12 @@
  * the License.
  */
 
-#pragma once
-
-#include <stdexcept>
-#include <string>
-
-#include <spotify/json/detail/macros.hpp>
+#include <spotify/json/encode_exception.hpp>
 
 namespace spotify {
 namespace json {
 
-/**
- * encode_exception objects are thrown when encoding fails, for example when
- * trying to encode a null smart pointer or a NaN floating point number.
- */
-class encode_exception final : public std::runtime_error {
- public:
-  explicit json_never_inline encode_exception(const char *what);
-};
+encode_exception::encode_exception(const char *what) : runtime_error(what) {}
 
 }  // namespace json
 }  // namespace spotify
