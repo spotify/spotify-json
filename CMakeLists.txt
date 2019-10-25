@@ -34,6 +34,7 @@ set(json_HEADERS
   )
 
 set(json_SOURCES
+  src/decode_exception.cpp
   )
 
 set(json_codec_HEADERS

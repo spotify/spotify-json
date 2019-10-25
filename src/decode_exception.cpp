@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,33 +14,16 @@
  * the License.
  */
 
-#pragma once
-
-#include <stdexcept>
-#include <string>
-#include <utility>
-
-#include <spotify/json/detail/macros.hpp>
+#include <spotify/json/decode_exception.hpp>
 
 namespace spotify {
 namespace json {
 
-/**
- * decode_exception objects are thrown when decoding fails, for example if the
- * JSON is invalid, or if the JSON doesn't conform to the specified schema.
- */
-class decode_exception final : public std::runtime_error {
- public:
-  explicit decode_exception(const char *what, size_t offset = 0);
-  decode_exception(decode_exception &&exception, size_t offset);
+decode_exception::decode_exception(const char *what, size_t offset)
+    : runtime_error(what), _offset(offset) {}
 
-  size_t offset() const {
-    return _offset;
-  }
-
- private:
-  size_t _offset;
-};
+decode_exception::decode_exception(decode_exception &&exception, size_t offset)
+    : runtime_error(std::move(exception)), _offset(offset) {}
 
 }  // namespace json
 }  // namespace spotify
