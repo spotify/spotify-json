@@ -24,18 +24,12 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename string_type>
-json_never_inline json_noreturn void fail(
-    const encode_context & /*context*/,
-    const string_type &error) {
-  throw encode_exception(error);
-}
+json_noreturn void fail(const encode_context & /*context*/, const char *error);
 
-template <typename string_type, typename condition_type>
 json_force_inline void fail_if(
     const encode_context &context,
-    const condition_type condition,
-    const string_type &error) {
+    const bool condition,
+    const char *error) {
   if (json_unlikely(condition)) {
     fail(context, error);
   }

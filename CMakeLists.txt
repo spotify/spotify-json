@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2016 Spotify AB
+# Copyright (c) 2014-2019 Spotify AB
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -76,6 +76,7 @@ set(json_detail_HEADERS
   )
 
 set(json_detail_SOURCES
+  src/detail/encode_helpers.cpp
   src/detail/encode_integer.cpp
   src/detail/escape.cpp
   src/detail/escape_common.hpp
