@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,6 +17,7 @@
 #include <spotify/json/detail/escape.hpp>
 
 #include <cstring>
+#include <spotify/json/detail/macros.hpp>
 
 #include "escape_common.hpp"
 
@@ -24,10 +25,11 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-void write_escaped_scalar(
-    encode_context &context,
-    const char *begin,
-    const char *end) {
+#if defined(json_arch_x86_sse42)
+void write_escaped_sse42(encode_context &context, const char *begin, const char *end);
+#endif  // defined(json_arch_x86_sse42)
+
+void write_escaped_scalar(encode_context &context, const char *begin, const char *end) {
   const auto buf = context.reserve(6 * (end - begin));  // 6 is the length of \u00xx
   auto ptr = buf;
 
@@ -40,6 +42,15 @@ void write_escaped_scalar(
   if    ((end - begin) >= 1) { write_escaped_1(ptr, begin); }
 
   context.advance(ptr - buf);
+}
+
+void write_escaped(encode_context &context, const char *begin, const char *end) {
+#if defined(json_arch_x86_sse42)
+  if (json_likely(context.has_sse42)) {
+    return write_escaped_sse42(context, begin, end);
+  }
+#endif  // defined(json_arch_x86_sse42)
+  write_escaped_scalar(context, begin, end);
 }
 
 }  // namespace detail
