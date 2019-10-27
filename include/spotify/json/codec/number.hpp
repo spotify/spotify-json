@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,45 +19,34 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <limits>
 #include <type_traits>
-
 #include <double-conversion/double-conversion.h>
-
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/encode_helpers.hpp>
 #include <spotify/json/detail/encode_integer.hpp>
+#include <spotify/json/detail/macros.hpp>
 #include <spotify/json/encode_context.hpp>
 
 namespace spotify {
 namespace json {
 namespace detail {
 
+float decode_float(decode_context &context);
+double decode_double(decode_context &context);
+
 template <typename T>
-T decode_floating_point(
-    const double_conversion::StringToDoubleConverter &converter,
-    const char* buffer,
-    int length,
-    int* processed_characters_count);
+T decode_floating_point(decode_context &context);
 
 template <>
-inline float decode_floating_point(
-    const double_conversion::StringToDoubleConverter &converter,
-    const char* buffer,
-    int length,
-    int* processed_characters_count) {
-  return converter.StringToFloat(buffer, length, processed_characters_count);
+json_force_inline float decode_floating_point(decode_context &context) {
+  return decode_float(context);
 }
 
 template <>
-inline double decode_floating_point(
-    const double_conversion::StringToDoubleConverter &converter,
-    const char* buffer,
-    int length,
-    int* processed_characters_count) {
-  return converter.StringToDouble(buffer, length, processed_characters_count);
+json_force_inline double decode_floating_point(decode_context &context) {
+  return decode_double(context);
 }
 
 template <typename T>
@@ -65,24 +54,8 @@ class floating_point_t {
  public:
   using object_type = T;
 
-  object_type decode(decode_context &context) const {
-    using atod_converter = double_conversion::StringToDoubleConverter;
-    static const atod_converter converter(
-        atod_converter::ALLOW_TRAILING_JUNK,
-        std::numeric_limits<object_type>::quiet_NaN(),
-        std::numeric_limits<object_type>::quiet_NaN(),
-        nullptr,
-        nullptr);
-
-    int bytes_read = 0;
-    const auto result = decode_floating_point<object_type>(
-        converter,
-        context.position,
-        static_cast<int>(context.end - context.position),
-        &bytes_read);
-    fail_if(context, std::isnan(result), "Invalid floating point number");
-    skip_unchecked_n(context, bytes_read);
-    return result;
+  json_force_inline object_type decode(decode_context &context) const {
+    return decode_floating_point<object_type>(context);
   }
 
   void encode(encode_context &context, const object_type &value) const {
