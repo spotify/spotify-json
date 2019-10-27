@@ -67,6 +67,7 @@ set(json_codec_HEADERS
   )
 
 set(json_codec_SOURCES
+  src/codec/boolean.cpp
   src/codec/string.cpp
   )
 
@@ -117,6 +118,10 @@ set(json_all_SOURCES
 source_group(spotify\\json         FILES ${json_HEADERS})
 source_group(spotify\\json\\codec  FILES ${json_codec_HEADERS})
 source_group(spotify\\json\\detail FILES ${json_detail_HEADERS})
+source_group(spotify\\json         FILES ${json_SOURCES})
+source_group(spotify\\json\\codec  FILES ${json_codec_SOURCES})
+source_group(spotify\\json\\detail FILES ${json_detail_SOURCES})
+source_group(spotify\\json\\detail FILES ${json_detail_SSE42_SOURCES})
 
 set(json_library_TARGET "spotify-json")
 add_library(${json_library_TARGET} STATIC ${json_all_HEADERS} ${json_all_SOURCES})
