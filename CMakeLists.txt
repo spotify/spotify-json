@@ -38,6 +38,7 @@ set(json_SOURCES
   src/decode_exception.cpp
   src/encode_context.cpp
   src/encode_exception.cpp
+  src/encoded_value.cpp
   )
 
 set(json_codec_HEADERS
@@ -63,6 +64,10 @@ set(json_codec_HEADERS
   include/spotify/json/codec/string.hpp
   include/spotify/json/codec/transform.hpp
   include/spotify/json/codec/tuple.hpp
+  )
+
+set(json_codec_SOURCES
+  src/codec/string.cpp
   )
 
 set(json_detail_HEADERS
@@ -104,6 +109,7 @@ set(json_all_HEADERS
 
 set(json_all_SOURCES
   ${json_SOURCES}
+  ${json_codec_SOURCES}
   ${json_detail_SOURCES}
   ${json_detail_SSE42_SOURCES}
   )

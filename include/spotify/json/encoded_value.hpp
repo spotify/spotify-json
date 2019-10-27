@@ -36,11 +36,7 @@ struct encoded_value_base {
   struct unsafe_unchecked {};
 
  protected:
-  static void validate_json(const char *data, std::size_t size) {
-    decode_context context(data, size);
-    detail::skip_value(context);  // validate provided JSON string
-    detail::fail_if(context, context.position != context.end, "Unexpected trailing input");
-  }
+  void validate_json(const char *data, std::size_t size);
 };
 
 }  // namespace detail

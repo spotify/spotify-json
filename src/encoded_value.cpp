@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 Spotify AB
+ * Copyright (c) 2016-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,37 +14,23 @@
  * the License.
  */
 
-#pragma once
+#include <spotify/json/encoded_value.hpp>
 
 #include <algorithm>
-#include <spotify/json/decode_context.hpp>
-#include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_context.hpp>
+#include <limits>
+#include <spotify/json/detail/cpuid.hpp>
 
 namespace spotify {
 namespace json {
-namespace codec {
+namespace detail {
 
-class string_t final {
- public:
-  using object_type = std::string;
-
-  object_type decode(decode_context &context) const;
-  void encode(encode_context &context, const object_type value) const;
-};
-
-inline string_t string() {
-  return string_t();
+void encoded_value_base::validate_json(const char *data, std::size_t size) {
+  decode_context context(data, size);
+  detail::skip_value(context);  // validate provided JSON string
+  detail::fail_if(context, context.position != context.end, "Unexpected trailing input");
 }
 
-}  // namespace codec
-
-template <>
-struct default_codec_t<std::string> {
-  static codec::string_t codec() {
-    return codec::string_t();
-  }
-};
+}  // namespace detail
 
 }  // namespace json
 }  // namespace spotify
