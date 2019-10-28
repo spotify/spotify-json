@@ -16,14 +16,10 @@
 
 #pragma once
 
-#include <cstring>
-#include <functional>
 #include <memory>
 #include <string>
 #include <type_traits>
-#include <unordered_map>
 #include <utility>
-#include <vector>
 
 #include <spotify/json/codec/number.hpp>
 #include <spotify/json/codec/string.hpp>
@@ -75,7 +71,7 @@ class object_t final : public codec_detail::object_t_base {
           typename std::decay<create_function>::type,
           object_t>::value>::type>
   explicit object_t(create_function &&create)
-      : _construct(std::forward<create_function>(create)) {}
+      : _construct(std::make_shared<construct_function<create_function>>(std::move(create))) {}
 
   template <typename... args_type>
   void optional(const std::string &name, args_type &&...args) {
@@ -116,13 +112,13 @@ class object_t final : public codec_detail::object_t_base {
   T construct(std::true_type /*is_default_constructible*/) const {
     // Avoid the cost of an std::function invocation if no construct function
     // is provided.
-    return _construct ? _construct() : object_type();
+    return _construct ? (*_construct)() : object_type();
   }
 
   T construct(std::false_type /*is_default_constructible*/) const {
     // T is not default constructible. Because _construct must be set if T is
     // not default constructible, there is no reason to test it in this case.
-    return _construct();
+    return (*_construct)();
   }
 
   template <typename codec_type>
@@ -329,12 +325,28 @@ class object_t final : public codec_detail::object_t_base {
         std::forward<codec_type>(codec))));
   }
 
+  struct construct_callable {
+    virtual ~construct_callable() = default;
+    virtual T operator()() const = 0;
+  };
+
+  template <typename function_type>
+  struct construct_function final : public construct_callable {
+    construct_function(function_type &&fn) : _fn(fn) {}
+
+    T operator()() const override {
+      return _fn();
+    }
+
+    const function_type _fn;
+  };
+
   /**
    * _construct may be unset, but only if T is default constructible. This is
    * enforced compile time by enabling the constructor that doesn't set it only
    * if T is default constructible.
    */
-  const std::function<T ()> _construct;
+  std::shared_ptr<construct_callable> _construct;
 };
 
 template <typename T>
