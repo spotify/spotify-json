@@ -87,6 +87,7 @@ set(json_detail_HEADERS
   )
 
 set(json_detail_SOURCES
+  src/detail/bitset.cpp
   src/detail/decode_helpers.cpp
   src/detail/encode_helpers.cpp
   src/detail/encode_integer.cpp
