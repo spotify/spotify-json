@@ -67,6 +67,7 @@ set(json_codec_HEADERS
   )
 
 set(json_codec_SOURCES
+  src/codec/any_value.cpp
   src/codec/boolean.cpp
   src/codec/number.cpp
   src/codec/object.cpp

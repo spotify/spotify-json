@@ -14,44 +14,25 @@
  * the License.
  */
 
-#pragma once
+#include <spotify/json/codec/any_value.hpp>
 
-#include <spotify/json/decode_context.hpp>
-#include <spotify/json/default_codec.hpp>
-#include <spotify/json/encode_context.hpp>
-#include <spotify/json/encoded_value.hpp>
+#include <spotify/json/detail/skip_value.hpp>
 
 namespace spotify {
 namespace json {
 namespace codec {
 
-class any_value_t final {
- public:
-  using object_type = encoded_value_ref;
+any_value_t::object_type any_value_t::decode(decode_context &context) const {
+  const auto begin = context.position;
+  detail::skip_value(context);
+  const auto size = context.position - begin;
+  return object_type(begin, size, object_type::unsafe_unchecked());
+}
 
-  object_type decode(decode_context &context) const;
-  void encode(encode_context &context, const object_type &value) const;
-};
-
-inline any_value_t any_value() {
-  return any_value_t();
+void any_value_t::encode(encode_context &context, const object_type &value) const {
+  context.append(value.data(), value.size());
 }
 
 }  // namespace codec
-
-template<>
-struct default_codec_t<encoded_value> {
-  static codec::any_value_t codec() {
-    return codec::any_value();
-  }
-};
-
-template<>
-struct default_codec_t<encoded_value_ref> {
-  static codec::any_value_t codec() {
-    return codec::any_value();
-  }
-};
-
 }  // namespace json
 }  // namespace spotify
