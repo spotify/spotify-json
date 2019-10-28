@@ -137,116 +137,99 @@ class object_t final : public codec_detail::object_t_base {
   }
 
   template <typename codec_type>
-  struct dummy_field final : public detail::field {
-    dummy_field(bool required, size_t required_field_idx, codec_type codec)
+  struct codec_field : public detail::field {
+    codec_field(bool required, size_t required_field_idx, codec_type codec)
         : field(required, required_field_idx),
           codec(std::move(codec)) {}
 
-    void decode(decode_context &context, void *) const override {
-      codec.decode(context);
-    }
-
-    void encode(
-        encode_context &context,
-        const std::string &escaped_key,
-        const void *) const override {
-      const auto &value = typename codec_type::object_type();
-      if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, escaped_key);
-        append_val_to_context(context, codec, value);
+    template <typename value_type>
+    void append_kv(encode_context &context, const std::string &key, const value_type &value) const {
+      if (json_likely(detail::should_encode(this->codec, value))) {
+        append_key_to_context(context, key);
+        append_val_to_context(context, this->codec, value);
       }
     }
 
     codec_type codec;
   };
 
+  template <typename codec_type>
+  struct dummy_field final : public codec_field<codec_type> {
+    dummy_field(bool required, size_t required_field_idx, codec_type codec)
+        : codec_field<codec_type>(required, required_field_idx, std::move(codec)) {}
+
+    void decode(decode_context &context, void *) const override {
+      this->codec.decode(context);
+    }
+
+    void encode(encode_context &context, const std::string &key, const void *) const override {
+      this->append_kv(context, key, typename codec_type::object_type());
+    }
+  };
+
   template <typename member_ptr, typename codec_type>
-  struct member_var_field final : public detail::field {
+  struct member_var_field final : public codec_field<codec_type> {
     member_var_field(bool required, size_t required_field_idx, codec_type codec, member_ptr member)
-        : field(required, required_field_idx),
-          codec(std::move(codec)),
+        : codec_field<codec_type>(required, required_field_idx, std::move(codec)),
           member(member) {}
 
     void decode(decode_context &context, void *object) const override {
       auto &typed = *static_cast<object_type *>(object);
-      typed.*member = codec.decode(context);
+      typed.*member = this->codec.decode(context);
     }
 
-    void encode(
-        encode_context &context,
-        const std::string &escaped_key,
-        const void *object) const override {
+    void encode(encode_context &context, const std::string &key, const void *object) const override {
       const auto &typed = *static_cast<const object_type *>(object);
       const auto &value = typed.*member;
-      if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, escaped_key);
-        append_val_to_context(context, codec, value);
-      }
+      this->append_kv(context, key, value);
     }
 
-    codec_type codec;
     member_ptr member;
   };
 
   template <typename getter_ptr, typename setter_ptr, typename codec_type>
-  struct member_fn_field final : public detail::field {
+  struct member_fn_field final : public codec_field<codec_type> {
     member_fn_field(
         bool required, size_t required_field_idx, codec_type codec, getter_ptr getter, setter_ptr setter)
-        : field(required, required_field_idx),
-          codec(std::move(codec)),
+        : codec_field<codec_type>(required, required_field_idx, std::move(codec)),
           getter(getter),
           setter(setter) {}
 
     void decode(decode_context &context, void *object) const override {
       auto &typed = *static_cast<object_type *>(object);
-      (typed.*setter)(codec.decode(context));
+      (typed.*setter)(this->codec.decode(context));
     }
 
-    void encode(
-        encode_context &context,
-        const std::string &escaped_key,
-        const void *object) const override {
-        const auto &typed = *static_cast<const object_type *>(object);
+    void encode(encode_context &context, const std::string &key, const void *object) const override {
+      const auto &typed = *static_cast<const object_type *>(object);
       const auto &value = (typed.*getter)();
-      if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, escaped_key);
-        append_val_to_context(context, codec, value);
-      }
+      this->append_kv(context, key, value);
     }
 
-    codec_type codec;
     getter_ptr getter;
     setter_ptr setter;
   };
 
   template <typename getter, typename setter, typename codec_type>
-  struct custom_field final : public detail::field {
+  struct custom_field final : public codec_field<codec_type> {
     template <typename getter_arg, typename setter_arg>
     custom_field(
         bool required, size_t required_field_idx, codec_type codec, getter_arg &&get, setter_arg &&set)
-        : field(required, required_field_idx),
-          codec(std::move(codec)),
+        : codec_field<codec_type>(required, required_field_idx, std::move(codec)),
           get(std::forward<getter_arg>(get)),
           set(std::forward<setter_arg>(set)) {}
 
     void decode(decode_context &context, void *object) const override {
       auto &typed = *static_cast<object_type *>(object);
-      set(typed, codec.decode(context));
+      set(typed, this->codec.decode(context));
     }
 
-    void encode(
-        encode_context &context,
-        const std::string &escaped_key,
-        const void *object) const override {
+    void encode(encode_context &context, const std::string &key, const void *object) const override {
       const auto &typed = *static_cast<const object_type *>(object);
       const auto &value = get(typed);
-      if (json_likely(detail::should_encode(codec, value))) {
-        append_key_to_context(context, escaped_key);
-        append_val_to_context(context, codec, value);
-      }
+      this->append_kv(context, key, value);
     }
 
-    codec_type codec;
     getter get;
     setter set;
   };
