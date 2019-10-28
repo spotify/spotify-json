@@ -40,7 +40,12 @@ struct object_t_base {
   ~object_t_base();
 
  protected:
+  struct construct_untyped {
+    virtual ~construct_untyped() = default;
+  };
+
   object_t_base();
+  object_t_base(construct_untyped *construct);
   object_t_base(object_t_base &&other);
   object_t_base(const object_t_base &other);
 
@@ -48,6 +53,13 @@ struct object_t_base {
   void encode(encode_context &context, const void *value) const;
 
   detail::field_registry _fields;
+
+  /**
+   * _construct may be unset, but only if T is default constructible. This is
+   * enforced compile time by enabling the constructor that doesn't set it only
+   * if T is default constructible.
+   */
+  std::shared_ptr<const construct_untyped> _construct;
 };
 
 }  // namespace codec_detail
@@ -71,7 +83,7 @@ class object_t final : public codec_detail::object_t_base {
           typename std::decay<create_function>::type,
           object_t>::value>::type>
   explicit object_t(create_function &&create)
-      : _construct(std::make_shared<construct_function<create_function>>(std::move(create))) {}
+      : object_t_base(new construct_function<create_function>(std::move(create))) {}
 
   template <typename... args_type>
   void optional(const std::string &name, args_type &&...args) {
@@ -110,9 +122,12 @@ class object_t final : public codec_detail::object_t_base {
   }
 
   T construct(std::true_type /*is_default_constructible*/) const {
-    // Avoid the cost of an std::function invocation if no construct function
-    // is provided.
-    return _construct ? (*_construct)() : object_type();
+    if (json_unlikely(_construct)) {
+      const auto &typed = static_cast<const construct_callable &>(*_construct);
+      return typed();
+    } else {
+      return object_type();
+    }
   }
 
   T construct(std::false_type /*is_default_constructible*/) const {
@@ -325,8 +340,7 @@ class object_t final : public codec_detail::object_t_base {
         std::forward<codec_type>(codec))));
   }
 
-  struct construct_callable {
-    virtual ~construct_callable() = default;
+  struct construct_callable : public construct_untyped {
     virtual T operator()() const = 0;
   };
 
@@ -340,13 +354,6 @@ class object_t final : public codec_detail::object_t_base {
 
     const function_type _fn;
   };
-
-  /**
-   * _construct may be unset, but only if T is default constructible. This is
-   * enforced compile time by enabling the constructor that doesn't set it only
-   * if T is default constructible.
-   */
-  std::shared_ptr<construct_callable> _construct;
 };
 
 template <typename T>
