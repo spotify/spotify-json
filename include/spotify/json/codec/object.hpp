@@ -106,21 +106,6 @@ class object_t final : public codec_detail::object_t_base {
   }
 
  private:
-  json_force_inline static void append_key_to_context(
-      encode_context &context,
-      const std::string &escaped_key) {
-    context.append(escaped_key.data(), escaped_key.size());
-  }
-
-  template <typename codec_type, typename value_type>
-  json_force_inline static void append_val_to_context(
-      encode_context &context,
-      const codec_type &codec,
-      const value_type &value) {
-    codec.encode(context, value);
-    context.append(',');
-  }
-
   T construct(std::true_type /*is_default_constructible*/) const {
     if (json_unlikely(_construct)) {
       const auto &typed = static_cast<const construct_callable &>(*_construct);
@@ -138,15 +123,20 @@ class object_t final : public codec_detail::object_t_base {
 
   template <typename codec_type>
   struct codec_field : public detail::field {
-    codec_field(bool required, size_t required_field_idx, codec_type codec)
+    codec_field(bool required, size_t required_field_idx, codec_type &&codec)
         : field(required, required_field_idx),
           codec(std::move(codec)) {}
+
+    codec_field(bool required, size_t required_field_idx, const codec_type &codec)
+        : field(required, required_field_idx),
+          codec(codec) {}
 
     template <typename value_type>
     void append_kv(encode_context &context, const std::string &key, const value_type &value) const {
       if (json_likely(detail::should_encode(this->codec, value))) {
-        append_key_to_context(context, key);
-        append_val_to_context(context, this->codec, value);
+        context.append(key.data(), key.size());
+        this->codec.encode(context, value);
+        context.append(',');
       }
     }
 
@@ -155,8 +145,11 @@ class object_t final : public codec_detail::object_t_base {
 
   template <typename codec_type>
   struct dummy_field final : public codec_field<codec_type> {
-    dummy_field(bool required, size_t required_field_idx, codec_type codec)
+    dummy_field(bool required, size_t required_field_idx, codec_type &&codec)
         : codec_field<codec_type>(required, required_field_idx, std::move(codec)) {}
+
+    dummy_field(bool required, size_t required_field_idx, const codec_type &codec)
+        : codec_field<codec_type>(required, required_field_idx, codec) {}
 
     void decode(decode_context &context, void *) const override {
       this->codec.decode(context);
@@ -169,8 +162,12 @@ class object_t final : public codec_detail::object_t_base {
 
   template <typename member_ptr, typename codec_type>
   struct member_var_field final : public codec_field<codec_type> {
-    member_var_field(bool required, size_t required_field_idx, codec_type codec, member_ptr member)
+    member_var_field(bool required, size_t required_field_idx, codec_type &&codec, member_ptr member)
         : codec_field<codec_type>(required, required_field_idx, std::move(codec)),
+          member(member) {}
+
+    member_var_field(bool required, size_t required_field_idx, const codec_type &codec, member_ptr member)
+        : codec_field<codec_type>(required, required_field_idx, codec),
           member(member) {}
 
     void decode(decode_context &context, void *object) const override {
@@ -189,9 +186,13 @@ class object_t final : public codec_detail::object_t_base {
 
   template <typename getter_ptr, typename setter_ptr, typename codec_type>
   struct member_fn_field final : public codec_field<codec_type> {
-    member_fn_field(
-        bool required, size_t required_field_idx, codec_type codec, getter_ptr getter, setter_ptr setter)
+    member_fn_field(bool required, size_t required_field_idx, codec_type &&codec, getter_ptr getter, setter_ptr setter)
         : codec_field<codec_type>(required, required_field_idx, std::move(codec)),
+          getter(getter),
+          setter(setter) {}
+
+    member_fn_field(bool required, size_t required_field_idx, const codec_type &codec, getter_ptr getter, setter_ptr setter)
+        : codec_field<codec_type>(required, required_field_idx, codec),
           getter(getter),
           setter(setter) {}
 
@@ -213,9 +214,14 @@ class object_t final : public codec_detail::object_t_base {
   template <typename getter, typename setter, typename codec_type>
   struct custom_field final : public codec_field<codec_type> {
     template <typename getter_arg, typename setter_arg>
-    custom_field(
-        bool required, size_t required_field_idx, codec_type codec, getter_arg &&get, setter_arg &&set)
+    custom_field(bool required, size_t required_field_idx, codec_type &&codec, getter_arg &&get, setter_arg &&set)
         : codec_field<codec_type>(required, required_field_idx, std::move(codec)),
+          get(std::forward<getter_arg>(get)),
+          set(std::forward<setter_arg>(set)) {}
+
+    template <typename getter_arg, typename setter_arg>
+    custom_field(bool required, size_t required_field_idx, const codec_type &codec, getter_arg &&get, setter_arg &&set)
+        : codec_field<codec_type>(required, required_field_idx, codec),
           get(std::forward<getter_arg>(get)),
           set(std::forward<setter_arg>(set)) {}
 
@@ -313,8 +319,9 @@ class object_t final : public codec_detail::object_t_base {
         std::forward<setter>(set))));
   }
 
-  template <typename codec_type,
-            typename = typename std::enable_if<!std::is_member_pointer<codec_type>::value>::type>
+  template <
+      typename codec_type,
+      typename = typename std::enable_if<!std::is_member_pointer<codec_type>::value>::type>
   void add_field(const std::string &name, bool required, codec_type &&codec) {
     using field_type = dummy_field<typename std::decay<codec_type>::type>;
     _fields.save(name, required, std::shared_ptr<detail::field>(new field_type(
