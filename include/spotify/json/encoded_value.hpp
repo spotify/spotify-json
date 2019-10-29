@@ -69,6 +69,8 @@ struct encoded_value : public detail::encoded_value_base {
   encoded_value(encoded_value &&value) noexcept;
   encoded_value(const encoded_value &value);
   encoded_value(const encoded_value_ref &value_ref);
+  ~encoded_value();
+
   explicit encoded_value(const char *cstr);
   explicit encoded_value(const char *cstr, const unsafe_unchecked &);
   explicit encoded_value(const char *data, std::size_t size);
@@ -94,10 +96,6 @@ struct encoded_value : public detail::encoded_value_base {
   data_buffer _data;
 };
 
-inline encoded_value_ref::encoded_value_ref()
-    : _size(4),
-      _data("null") {}
-
 inline encoded_value_ref::encoded_value_ref(const encoded_value &value)
     : encoded_value_ref(value.data(), value.size(), unsafe_unchecked()) {}
 
@@ -107,11 +105,6 @@ inline encoded_value_ref::encoded_value_ref(const char *cstr)
 inline encoded_value_ref::encoded_value_ref(const char *cstr, const unsafe_unchecked &)
     : encoded_value_ref(cstr, std::strlen(cstr), unsafe_unchecked()) {}
 
-inline encoded_value_ref::encoded_value_ref(const char *data, std::size_t size)
-    : encoded_value_ref(data, size, unsafe_unchecked()) {
-  validate_json(encoded_value_ref::data(), encoded_value_ref::size());
-}
-
 inline encoded_value_ref::encoded_value_ref(const char *data, std::size_t size, const unsafe_unchecked &)
     : _size(size),
       _data(data) {}
@@ -119,15 +112,6 @@ inline encoded_value_ref::encoded_value_ref(const char *data, std::size_t size, 
 template <typename value_with_data_and_size>
 encoded_value_ref::encoded_value_ref(const value_with_data_and_size &json)
     : encoded_value_ref(json.data(), json.size()) {}
-
-inline void encoded_value_ref::swap(encoded_value_ref &value_ref) {
-  std::swap(_size, value_ref._size);
-  std::swap(_data, value_ref._data);
-}
-
-inline encoded_value::encoded_value()
-    : _size(4),
-      _data((void *) "null", [](void *) noexcept {}) {}
 
 inline encoded_value::encoded_value(encoded_value &&value) noexcept
     : encoded_value() {
@@ -146,25 +130,6 @@ inline encoded_value::encoded_value(const char *cstr)
 inline encoded_value::encoded_value(const char *cstr, const unsafe_unchecked &)
     : encoded_value(cstr, std::strlen(cstr), unsafe_unchecked()) {}
 
-inline encoded_value::encoded_value(const char *data, std::size_t size)
-    : encoded_value(data, size, unsafe_unchecked()) {
-  validate_json(encoded_value::data(), encoded_value::size());
-}
-
-inline encoded_value::encoded_value(const char *data, std::size_t size, const unsafe_unchecked &)
-    : _size(size),
-      _data(std::malloc(size), &std::free) {
-  if (json_unlikely(!_data && size)) {
-    throw std::bad_alloc();
-  }
-  std::memcpy(_data.get(), data, _size);
-}
-
-inline encoded_value::encoded_value(encode_context &&context)
-    : encoded_value(std::move(context), unsafe_unchecked()) {
-  validate_json(data(), size());
-}
-
 inline encoded_value::encoded_value(encode_context &&context, const unsafe_unchecked &)
     : _size(context.size()),
       _data(context.steal_data()) {}
@@ -173,47 +138,11 @@ template <typename value_with_data_and_size>
 encoded_value::encoded_value(const value_with_data_and_size &json)
     : encoded_value(json.data(), json.size()) {}
 
-inline encoded_value &encoded_value::operator=(encoded_value &&value) noexcept {
-  swap(value);
-  return *this;
-}
+std::ostream &operator <<(std::ostream &stream, const encoded_value_ref &value);
+std::ostream &operator <<(std::ostream &stream, const encoded_value &value);
 
-inline encoded_value &encoded_value::operator=(const encoded_value &value) {
-  encoded_value new_value(value);
-  swap(new_value);
-  return *this;
-}
-
-inline encoded_value &encoded_value::operator=(const encoded_value_ref &value_ref) {
-  encoded_value new_value(value_ref);
-  swap(new_value);
-  return *this;
-}
-
-inline void encoded_value::swap(encoded_value &value) {
-  std::swap(_size, value._size);
-  std::swap(_data, value._data);
-}
-
-inline std::ostream &operator <<(std::ostream &stream, const encoded_value_ref &value) {
-  stream.write(value.data(), value.size());
-  return stream;
-}
-
-inline std::ostream &operator <<(std::ostream &stream, const encoded_value &value) {
-  stream.write(value.data(), value.size());
-  return stream;
-}
-
-inline bool operator==(const encoded_value_ref &a, const encoded_value_ref &b) {
-  return
-      a.size() == b.size() &&
-      (a.data() == b.data() || std::memcmp(a.data(), b.data(), a.size()) == 0);
-}
-
-inline bool operator!=(const encoded_value_ref &a, const encoded_value_ref &b) {
-  return !(a == b);
-}
+bool operator==(const encoded_value_ref &a, const encoded_value_ref &b);
+bool operator!=(const encoded_value_ref &a, const encoded_value_ref &b);
 
 }  // namespace json
 }  // namespace spotify
