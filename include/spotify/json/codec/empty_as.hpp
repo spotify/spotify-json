@@ -41,9 +41,10 @@ class empty_as_t final {
 
   empty_as_t() = default;
 
-  empty_as_t(empty_codec_type empty_codec, inner_codec_type inner_codec)
-      : _empty_codec(std::move(empty_codec)),
-        _inner_codec(std::move(inner_codec)) {}
+  template <typename empty_codec_arg_type, typename inner_codec_arg_type>
+  empty_as_t(empty_codec_arg_type &&empty_codec, inner_codec_arg_type &&inner_codec)
+      : _empty_codec(std::forward<empty_codec_arg_type>(empty_codec)),
+        _inner_codec(std::forward<inner_codec_arg_type>(inner_codec)) {}
 
   object_type decode(decode_context &context) const {
     const auto original_position = context.position;

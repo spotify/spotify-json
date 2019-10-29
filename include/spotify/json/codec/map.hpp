@@ -49,8 +49,8 @@ class map_t final {
           typename T::mapped_type>::value,
       "Inner codec type must be convertible to map data type");
 
-  explicit map_t(codec_type inner_codec)
-      : _inner_codec(std::move(inner_codec)) {}
+  explicit map_t(codec_type &&inner_codec) : _inner_codec(std::move(inner_codec)) {}
+  explicit map_t(const codec_type &inner_codec) : _inner_codec(inner_codec) {}
 
   object_type decode(decode_context &context) const {
     using value_type = typename object_type::value_type;

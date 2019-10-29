@@ -135,8 +135,8 @@ class array_t final {
           typename T::value_type>::value,
       "Inner codec type must be convertible to array container type");
 
-  explicit array_t(codec_type inner_codec)
-      : _inner_codec(std::move(inner_codec)) {}
+  explicit array_t(codec_type &&inner_codec) : _inner_codec(std::move(inner_codec)) {}
+  explicit array_t(const codec_type &inner_codec) : _inner_codec(inner_codec) {}
 
   object_type decode(decode_context &context) const {
     using inserter = detail::container_inserter<T>;

@@ -57,8 +57,8 @@ class smart_ptr_t final {
  public:
   using object_type = T;
 
-  explicit smart_ptr_t(codec_type inner_codec)
-      : _inner_codec(std::move(inner_codec)) {}
+  explicit smart_ptr_t(codec_type &&inner_codec) : _inner_codec(std::move(inner_codec)) {}
+  explicit smart_ptr_t(const codec_type &inner_codec) : _inner_codec(inner_codec) {}
 
   object_type decode(decode_context &context) const {
     return codec::make_smart_ptr_t<object_type>::make(_inner_codec.decode(context));

@@ -41,8 +41,8 @@ class cast_t {
  public:
   using object_type = T;
 
-  explicit cast_t(codec_type inner_codec)
-      : _inner_codec(std::move(inner_codec)) {}
+  explicit cast_t(codec_type &&inner_codec) : _inner_codec(std::move(inner_codec)) {}
+  explicit cast_t(const codec_type &inner_codec) : _inner_codec(inner_codec) {}
 
   object_type decode(decode_context &context) const {
     return _inner_codec.decode(context);

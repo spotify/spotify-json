@@ -118,13 +118,14 @@ class transform_t final {
  public:
   using object_type = typename std::result_of<decode_transform(typename codec_type::object_type)>::type;
 
+  template <typename codec_arg_type, typename encode_transform_arg, typename decode_transform_arg>
   transform_t(
-      codec_type inner_codec,
-      encode_transform encode,
-      decode_transform decode)
-      : _inner_codec(std::move(inner_codec)),
-        _encode_transform(std::move(encode)),
-        _decode_transform(std::move(decode)) {}
+      codec_arg_type &&inner_codec,
+      encode_transform_arg &&encode,
+      decode_transform_arg &&decode)
+      : _inner_codec(std::forward<codec_arg_type>(inner_codec)),
+        _encode_transform(std::forward<encode_transform_arg>(encode)),
+        _decode_transform(std::forward<decode_transform_arg>(decode)) {}
 
   object_type decode(decode_context &context) const {
     const auto offset_before_decoding = context.offset();
