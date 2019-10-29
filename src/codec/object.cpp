@@ -23,8 +23,8 @@ namespace codec_detail {
 
 object_t_base::object_t_base() = default;
 object_t_base::object_t_base(construct_untyped *construct) : _construct(construct) {}
-object_t_base::object_t_base(object_t_base &&other) = default;
-object_t_base::object_t_base(const object_t_base &other) = default;
+object_t_base::object_t_base(object_t_base &&) = default;
+object_t_base::object_t_base(const object_t_base &) = default;
 object_t_base::~object_t_base() = default;
 
 void object_t_base::decode(decode_context &context, void *value) const {

@@ -118,7 +118,8 @@ class object_t final : public codec_detail::object_t_base {
   T construct(std::false_type /*is_default_constructible*/) const {
     // T is not default constructible. Because _construct must be set if T is
     // not default constructible, there is no reason to test it in this case.
-    return (*_construct)();
+    const auto &typed = static_cast<const construct_callable &>(*_construct);
+    return typed();
   }
 
   template <typename codec_type>
