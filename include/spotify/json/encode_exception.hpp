@@ -30,9 +30,7 @@ namespace json {
  */
 class encode_exception final : public std::runtime_error {
  public:
-  template <typename string_type>
-  explicit json_never_inline encode_exception(const string_type &what)
-      : runtime_error(what) {}
+  explicit json_never_inline encode_exception(const char *what);
 };
 
 }  // namespace json

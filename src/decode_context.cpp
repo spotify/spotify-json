@@ -14,24 +14,22 @@
  * the License.
  */
 
-#pragma once
-
-#include <spotify/json/encode_context.hpp>
+#include <spotify/json/decode_context.hpp>
 
 namespace spotify {
 namespace json {
-namespace detail {
 
-/**
- * \brief Escape a string for use in a JSON string as per RFC 4627.
- *
- * This escapes control characters (0x00 through 0x1F), as well as
- * backslashes and quotation marks.
- *
- * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
- */
-void write_escaped(encode_context &context, const char *begin, const char *end);
+decode_context::decode_context(const char *begin, const char *end)
+    : has_sse42(detail::cpuid().has_sse42()),
+      position(begin),
+      begin(begin),
+      end(end) {}
 
-}  // namespace detail
+decode_context::decode_context(const char *data, size_t size)
+    : has_sse42(detail::cpuid().has_sse42()),
+      position(data),
+      begin(data),
+      end(data + size) {}
+
 }  // namespace json
 }  // namespace spotify

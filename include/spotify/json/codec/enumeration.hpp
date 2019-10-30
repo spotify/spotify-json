@@ -43,8 +43,9 @@ class enumeration_t final {
  public:
   using object_type = outer_type;
 
-  enumeration_t(codec_type inner_codec, mapping_type &&mapping)
-      : _inner_codec(std::move(inner_codec)),
+  template <typename codec_arg_type>
+  enumeration_t(codec_arg_type &&inner_codec, mapping_type &&mapping)
+      : _inner_codec(std::forward<codec_arg_type>(inner_codec)),
         _mapping(std::move(mapping)) {}
 
   object_type decode(decode_context &context) const {

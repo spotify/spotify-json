@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,7 +18,6 @@
 
 #include <memory>
 #include <utility>
-
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/encode_helpers.hpp>
@@ -34,8 +33,8 @@ class any_codec_t final {
   using object_type = T;
 
   template <typename codec_type>
-  explicit any_codec_t(codec_type codec)
-      : _codec(std::make_shared<erased_codec_impl<codec_type>>(std::move(codec))) {}
+  explicit any_codec_t(codec_type &&codec)
+      : _codec(std::make_shared<erased_codec_impl<codec_type>>(std::forward<codec_type>(codec))) {}
 
   object_type decode(decode_context &context) const {
     return _codec->decode(context);
@@ -62,8 +61,8 @@ class any_codec_t final {
   template <typename codec_type>
   class erased_codec_impl final : public erased_codec {
    public:
-    explicit erased_codec_impl(codec_type codec)
-      : _codec(std::move(codec)) {}
+    explicit erased_codec_impl(codec_type &&codec) : _codec(std::move(codec)) {}
+    explicit erased_codec_impl(const codec_type &codec) : _codec(codec) {}
 
     object_type decode(decode_context &context) const override {
       return _codec.decode(context);

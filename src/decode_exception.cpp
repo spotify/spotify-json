@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,24 +14,16 @@
  * the License.
  */
 
-#pragma once
-
-#include <spotify/json/encode_context.hpp>
+#include <spotify/json/decode_exception.hpp>
 
 namespace spotify {
 namespace json {
-namespace detail {
 
-/**
- * \brief Escape a string for use in a JSON string as per RFC 4627.
- *
- * This escapes control characters (0x00 through 0x1F), as well as
- * backslashes and quotation marks.
- *
- * See: http://www.ietf.org/rfc/rfc4627.txt (Section 2.5)
- */
-void write_escaped(encode_context &context, const char *begin, const char *end);
+decode_exception::decode_exception(const char *what, size_t offset)
+    : runtime_error(what), _offset(offset) {}
 
-}  // namespace detail
+decode_exception::decode_exception(decode_exception &&exception, size_t offset)
+    : runtime_error(std::move(exception)), _offset(offset) {}
+
 }  // namespace json
 }  // namespace spotify

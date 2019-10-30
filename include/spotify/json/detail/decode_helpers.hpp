@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Spotify AB
+ * Copyright (c) 2014-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -35,19 +35,12 @@ namespace spotify {
 namespace json {
 namespace detail {
 
-template <typename string_type>
-json_never_inline json_noreturn void fail(
-    const decode_context &context,
-    const string_type &error,
-    const ptrdiff_t d = 0) {
-  throw decode_exception(error, context.offset(d));
-}
+json_noreturn void fail(const decode_context &context, const char *error, ptrdiff_t d = 0);
 
-template <typename string_type, typename condition_type>
 json_force_inline void fail_if(
     const decode_context &context,
-    const condition_type condition,
-    const string_type &error,
+    const bool condition,
+    const char *error,
     const ptrdiff_t d = 0) {
   if (json_unlikely(condition)) {
     fail(context, error, d);

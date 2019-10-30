@@ -31,14 +31,8 @@ namespace json {
  */
 class decode_exception final : public std::runtime_error {
  public:
-  template <typename string_type>
-  json_never_inline explicit decode_exception(const string_type &what, size_t offset = 0)
-      : runtime_error(what),
-        _offset(offset) {}
-
-  json_never_inline decode_exception(decode_exception &exception, size_t offset)
-      : runtime_error(std::move(exception)),
-        _offset(offset) {}
+  explicit decode_exception(const char *what, size_t offset = 0);
+  decode_exception(decode_exception &&exception, size_t offset);
 
   size_t offset() const {
     return _offset;

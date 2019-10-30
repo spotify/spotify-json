@@ -116,30 +116,6 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_append_multiple_bytes) {
   BOOST_CHECK_EQUAL(ctx.data()[1], '2');
 }
 
-BOOST_AUTO_TEST_CASE(json_encode_context_should_throw_exception_on_small_size_overflow) {
-  detail::base_encode_context<uint16_t> ctx(0);
-  ctx.reserve(UINT16_MAX);
-  ctx.advance(UINT16_MAX);
-  BOOST_CHECK_EQUAL(ctx.size(), UINT16_MAX);
-  BOOST_CHECK_EQUAL(ctx.capacity(), UINT16_MAX);
-  BOOST_CHECK_THROW(ctx.reserve(1), std::bad_alloc);
-}
-
-BOOST_AUTO_TEST_CASE(json_encode_context_should_throw_exception_on_large_size_overflow) {
-  detail::base_encode_context<uint16_t> ctx(0);
-  ctx.reserve(UINT16_MAX);
-  ctx.advance(UINT16_MAX);
-  BOOST_CHECK_EQUAL(ctx.size(), UINT16_MAX);
-  BOOST_CHECK_EQUAL(ctx.capacity(), UINT16_MAX);
-  BOOST_CHECK_THROW(ctx.reserve(UINT16_MAX), std::bad_alloc);
-}
-
-BOOST_AUTO_TEST_CASE(json_encode_context_should_saturate_capacity_on_overflow) {
-  detail::base_encode_context<uint16_t> ctx(UINT16_MAX - 20);
-  ctx.reserve(UINT16_MAX - 10);
-  BOOST_CHECK_EQUAL(ctx.capacity(), UINT16_MAX);
-}
-
 BOOST_AUTO_TEST_CASE(json_encode_context_should_let_data_be_stolen) {
   encode_context ctx;
   ctx.append('1');

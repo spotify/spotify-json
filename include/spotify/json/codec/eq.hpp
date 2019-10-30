@@ -18,6 +18,7 @@
 
 #include <spotify/json/decode_context.hpp>
 #include <spotify/json/default_codec.hpp>
+#include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/encode_helpers.hpp>
 
 namespace spotify {
@@ -38,9 +39,10 @@ class eq_t final {
  public:
   using object_type = typename codec_type::object_type;
 
-  eq_t(codec_type inner_codec, object_type value)
-      : _inner_codec(std::move(inner_codec)),
-        _value(std::move(value)) {}
+  template <typename codec_arg_type, typename object_arg_type>
+  eq_t(codec_arg_type &&inner_codec, object_arg_type &&value)
+      : _inner_codec(std::forward<codec_arg_type>(inner_codec)),
+        _value(std::forward<object_arg_type>(value)) {}
 
   object_type decode(decode_context &context) const {
     object_type result = _inner_codec.decode(context);
