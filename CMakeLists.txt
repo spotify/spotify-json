@@ -22,6 +22,7 @@ set(json_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
+  include/spotify/json/codec.hpp
   include/spotify/json/default_codec.hpp
   include/spotify/json/decode.hpp
   include/spotify/json/decode_exception.hpp
@@ -49,6 +50,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/boost.hpp
   include/spotify/json/codec/cast.hpp
   include/spotify/json/codec/chrono.hpp
+  include/spotify/json/codec/codec.hpp
   include/spotify/json/codec/codec_interface.hpp
   include/spotify/json/codec/empty_as.hpp
   include/spotify/json/codec/enumeration.hpp
@@ -60,6 +62,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/object.hpp
   include/spotify/json/codec/omit.hpp
   include/spotify/json/codec/one_of.hpp
+  include/spotify/json/codec/optional.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
   include/spotify/json/codec/transform.hpp

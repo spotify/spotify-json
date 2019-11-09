@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Spotify AB
+ * Copyright (c) 2014-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,10 +21,10 @@
 #include <boost/make_shared.hpp>
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
-
 #include <spotify/json/codec/cast.hpp>
 #include <spotify/json/codec/chrono.hpp>
 #include <spotify/json/codec/map.hpp>
+#include <spotify/json/codec/optional.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/detail/decode_helpers.hpp>
 #include <spotify/json/detail/encode_helpers.hpp>
@@ -58,55 +58,26 @@ struct codec_cast<boost::shared_ptr<T>, boost::shared_ptr<F>> {
 };
 
 template <typename codec_type>
-class optional_t final {
- public:
-  using object_type = boost::optional<typename codec_type::object_type>;
-
-  explicit optional_t(codec_type inner_codec)
-      : _inner_codec(std::move(inner_codec)) {}
-
-  object_type decode(decode_context &context) const {
-    return _inner_codec.decode(context);
-  }
-
-  template <typename value_type>
-  void encode(encode_context &context, const boost::optional<value_type> &value) const {
-    detail::fail_if(context, !value, "Cannot encode uninitialized optional");
-    _inner_codec.encode(context, *value);
-  }
-
-  template <typename value_type>
-  bool should_encode(const boost::optional<value_type> &value) const {
-    return (value != boost::none) && detail::should_encode(_inner_codec, *value);
-  }
-
-  bool should_encode(const boost::none_t &) const {
-    return false;
-  }
-
-
- private:
-  codec_type _inner_codec;
-};
+using boost_optional_t = optional_t<codec_type, boost::optional<typename codec_type::object_type>, boost::none_t>;
 
 template <typename codec_type, typename... options_type>
-optional_t<typename std::decay<codec_type>::type> optional(codec_type &&inner_codec, options_type... options) {
-  return optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec), options...);
+boost_optional_t<typename std::decay<codec_type>::type> boost_optional(codec_type &&inner_codec, options_type... options) {
+  return boost_optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec), options...);
 }
 
 }  // namespace codec
 
 template <typename T>
 struct default_codec_t<boost::shared_ptr<T>> {
-  static decltype(boost_shared_ptr(default_codec<T>())) codec() {
-    return boost_shared_ptr(default_codec<T>());
+  static decltype(codec::boost_shared_ptr(default_codec<T>())) codec() {
+    return codec::boost_shared_ptr(default_codec<T>());
   }
 };
 
 template <typename T>
 struct default_codec_t<boost::optional<T>> {
-  static decltype(codec::optional(default_codec<T>())) codec() {
-    return codec::optional(default_codec<T>());
+  static decltype(codec::boost_optional(default_codec<T>())) codec() {
+    return codec::boost_optional(default_codec<T>());
   }
 };
 
