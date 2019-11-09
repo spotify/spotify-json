@@ -10,5 +10,5 @@ function install_or_upgrade {
 }
 
 install_or_upgrade boost # at least version 1.60
-install_or_upgrade cmake # at least version 3.2
+install_or_upgrade cmake # at least version 3.15
 echo "Installed build dependecies."

@@ -16,8 +16,8 @@ function install_boost {
 }
 
 function install_cmake {
-  CMAKE_VERSION="3.6.2"
-  CMAKE_URL="https://cmake.org/files/v3.6/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz"
+  CMAKE_VERSION="3.15.5"
+  CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz"
   CMAKE_DIR="${DEPS_DIR}/cmake"
   CMAKE_BIN="${CMAKE_DIR}/bin"
   echo "Downloading CMake ${CMAKE_VERSION} from ${CMAKE_URL}"
@@ -32,7 +32,7 @@ function install_valgrind {
 }
 
 install_boost # at least version 1.60
-install_cmake # at least version 3.2
+install_cmake # at least version 3.15
 install_valgrind # at least version 3.7
 echo "Installed build dependecies."
 echo "  - Boost: ${BOOST_ROOT}"
