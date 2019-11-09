@@ -232,7 +232,7 @@ a number of codecs that are available to the user of the library:
 * [`transform_t`](#transform_t): For types that the library doesn't have built
   in support for.
 * [`tuple_t`](#tuple_t): For `std::pair` and `std::tuple`.
-* [`optional_t`](#optional): For `boost::optional`
+* [`optional_t`](#optional): For `std::optional` and `boost::optional`
 * [Chrono codecs](#chrono): spotify-json provides support for `std::chrono` and
   `boost::chrono` types.
 
@@ -1017,16 +1017,28 @@ const auto point = decode(codec, "[1,3]");
 
 ### `optional_t`
 
-`optional_t` is a codec for strings for `boost::optional<T>`. Uninitialized
-values (equivalent to `boost::none`) are not encoded at all (`should_encode()`
-returns `false`). To encode `boost::none` as `null`, use the
-[`empty_as_t`](#empty_as_t) codec, e.g., `spotify::json::empty_as_null()`.
+`optional_t` is a codec for `std::optional<T>`. Uninitialized values (equivalent
+to `std::nullopt`) are not encoded at all (`should_encode()` returns `false`).
+To encode `std::nullopt` as `null`, use the [`empty_as_t`](#empty_as_t) codec,
+e.g., `spotify::json::empty_as_null()`.
 
-This codec is in header `<spotify/json/boost.hpp>`.
+This codec is in header `<spotify/json/optional.hpp>`.
 
 * **Complete class name**: `spotify::json::codec::optional_t`
 * **Supported types**: `std::optional<T>`
 * **Convenience builder**: `spotify::json::codec::optional`
+* **`default_codec` support**: `default_codec<std::optional<T>>()`
+
+For `boost::optional`, include header `<spotify/json/boost.hpp>`.
+
+`boost_optional_t` is a codec for for `boost::optional<T>`. Uninitialized values
+(equivalent to `boost::none`) are not encoded at all (`should_encode()` returns
+`false`). To encode `boost::none` as `null`, use the [`empty_as_t`](#empty_as_t)
+codec, e.g., `spotify::json::empty_as_null()`.
+
+* **Complete class name**: `spotify::json::codec::boost_optional_t`
+* **Supported types**: `boost::optional<T>`
+* **Convenience builder**: `spotify::json::codec::boost_optional`
 * **`default_codec` support**: `default_codec<boost::optional<T>>()`
 
 ### chrono
