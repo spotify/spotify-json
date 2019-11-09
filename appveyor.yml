@@ -18,6 +18,8 @@ configuration:
 matrix:
   fast_finish: true
 
+image: Visual Studio 2019
+
 install:
   - cmd: .appveyor\install.cmd
 

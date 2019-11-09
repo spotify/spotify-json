@@ -14,11 +14,11 @@ if "%PLATFORM%" == "Win32" (
   exit /b 2
 )
 
-nuget install boost-vc140 -version 1.61.0 -outputdirectory boost_1_61_0 -verbosity quiet
+nuget install boost-vc140 -version 1.70.0 -outputdirectory boost_1_70_0 -verbosity quiet
 
-pushd boost_1_61_0
+pushd boost_1_70_0
 
-mklink /d include boost.1.61.0.0\lib\native\include
+mklink /d include boost.1.70.0\lib\native\include
 
 mkdir lib
 
