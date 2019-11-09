@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2016 Spotify AB
+# Copyright (c) 2014-2019 Spotify AB
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License. You may obtain a copy of
@@ -66,7 +66,7 @@ source_group(spotify\\json\\test FILES ${spotify_json_test_HEADERS})
 
 add_executable(${spotify_json_test_TARGET} ${spotify_json_test_SOURCES} ${spotify_json_test_HEADERS})
 
-set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${spotify_json_test_TARGET} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
