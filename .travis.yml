@@ -25,10 +25,12 @@ matrix:
         - CMAKEOPT=-DSPOTIFY_JSON_USE_SSE42=OFF
         - VALGRIND='valgrind --leak-check=full'
     - os: osx
+      osx_image: xcode11.2
       compiler: clang
       env:
         - CMAKEOPT=-DBoost_NO_BOOST_CMAKE=ON
     - os: osx
+      osx_image: xcode11.2
       compiler: gcc
       env:
         - CMAKEOPT=-DBoost_NO_BOOST_CMAKE=ON
