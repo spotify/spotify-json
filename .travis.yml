@@ -3,27 +3,27 @@ language: cpp
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: clang
       sudo: required
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: gcc
       sudo: required
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: clang
       sudo: required
       env:
         - CMAKEOPT=-DSPOTIFY_JSON_USE_SSE42=OFF
-        - VALGRIND=valgrind --leak-check=full
+        - VALGRIND='valgrind --leak-check=full'
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: gcc
       sudo: required
       env:
         - CMAKEOPT=-DSPOTIFY_JSON_USE_SSE42=OFF
-        - VALGRIND=valgrind --leak-check=full
+        - VALGRIND='valgrind --leak-check=full'
     - os: osx
       compiler: clang
       env:

@@ -5,7 +5,7 @@ mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
 
 function install_boost {
   BOOST_LIBRARIES="chrono,system,test"
-  BOOST_VERSION="1.62.0"
+  BOOST_VERSION="1.70.0"
   BOOST_URL="https://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION//\./_}.tar.gz"
   BOOST_DIR="${DEPS_DIR}/boost"
   echo "Downloading Boost ${BOOST_VERSION} from ${BOOST_URL}"
@@ -27,6 +27,7 @@ function install_cmake {
 }
 
 function install_valgrind {
+  echo "Installing valgrind ..."
   sudo apt-get update -qq
   sudo apt-get install -qq valgrind
 }
