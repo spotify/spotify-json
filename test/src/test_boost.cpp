@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -99,12 +99,12 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_shared_ptr_should_not_encode_null) {
  */
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct) {
-  const auto c = codec::optional_t<codec::string_t>(codec::string());
+  const auto c = codec::boost_optional_t<codec::string_t>(codec::string());
   static_cast<void>(c);
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_construct_with_helper) {
-  const auto c = codec::optional((codec::string()));
+  const auto c = codec::boost_optional((codec::string()));
   static_cast<void>(c);
 }
 
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_implement_should_encode) {
 }
 
 BOOST_AUTO_TEST_CASE(json_codec_boost_optional_should_forward_should_encode) {
-  const auto codec = codec::optional_t<codec::omit_t<std::string>>(codec::omit<std::string>());
+  const auto codec = codec::boost_optional_t<codec::omit_t<std::string>>(codec::omit<std::string>());
   BOOST_CHECK(!codec.should_encode(boost::make_optional(std::string(""))));
 }
 

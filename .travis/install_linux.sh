@@ -5,7 +5,7 @@ mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
 
 function install_boost {
   BOOST_LIBRARIES="chrono,system,test"
-  BOOST_VERSION="1.62.0"
+  BOOST_VERSION="1.70.0"
   BOOST_URL="https://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${BOOST_VERSION//\./_}.tar.gz"
   BOOST_DIR="${DEPS_DIR}/boost"
   echo "Downloading Boost ${BOOST_VERSION} from ${BOOST_URL}"
@@ -16,8 +16,8 @@ function install_boost {
 }
 
 function install_cmake {
-  CMAKE_VERSION="3.6.2"
-  CMAKE_URL="https://cmake.org/files/v3.6/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz"
+  CMAKE_VERSION="3.15.5"
+  CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz"
   CMAKE_DIR="${DEPS_DIR}/cmake"
   CMAKE_BIN="${CMAKE_DIR}/bin"
   echo "Downloading CMake ${CMAKE_VERSION} from ${CMAKE_URL}"
@@ -27,12 +27,13 @@ function install_cmake {
 }
 
 function install_valgrind {
+  echo "Installing valgrind ..."
   sudo apt-get update -qq
   sudo apt-get install -qq valgrind
 }
 
 install_boost # at least version 1.60
-install_cmake # at least version 3.2
+install_cmake # at least version 3.15
 install_valgrind # at least version 3.7
 echo "Installed build dependecies."
 echo "  - Boost: ${BOOST_ROOT}"

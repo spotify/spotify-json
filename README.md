@@ -5,14 +5,14 @@ spotify-json
 [![macOS & Linux Builds](https://img.shields.io/travis/spotify/spotify-json/master.svg?style=flat)](https://travis-ci.org/spotify/spotify-json)
 [![Windows Build](https://ci.appveyor.com/api/projects/status/github/spotify/spotify-json?svg=true)](https://ci.appveyor.com/project/fxb/spotify-json)
 
-A C++11 JSON writer and parser library. It
+A C++17 JSON writer and parser library. It
 
 * parses and serializes directly to and from statically typed C++ objects,
 * requires very little boilerplate code,
 * is fast and makes use of vectorization,
 * supports UTF-8,
 * comes with [a good suite of tests](test),
-* is deployed and in active use on well over 100 million devices,
+* is deployed and in active use on over 250 million devices,
 * and [has API documentation](doc/api.md).
 
 spotify-json depends on [Google's double-conversion library](https://github.com/google/double-conversion),

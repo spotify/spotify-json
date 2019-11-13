@@ -130,7 +130,7 @@ json_force_inline void skip_1(decode_context &context, char character) {
  */
 json_force_inline void skip_4(decode_context &context, const char characters[4]) {
   require_bytes<4>(context);
-  fail_if(context, memcmp(characters, context.position, 4), "Unexpected input");
+  fail_if(context, memcmp(characters, context.position, 4) != 0, "Unexpected input");
   context.position += 4;
 }
 

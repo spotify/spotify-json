@@ -18,6 +18,11 @@ configuration:
 matrix:
   fast_finish: true
 
+image: Visual Studio 2019
+
+environment:
+  BOOST_ROOT: C:\Libraries\boost_1_71_0
+
 install:
   - cmd: .appveyor\install.cmd
 

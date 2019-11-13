@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Spotify AB
+ * Copyright (c) 2015-2019 Spotify AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -32,6 +32,7 @@
 #include <spotify/json/codec/object.hpp>
 #include <spotify/json/codec/omit.hpp>
 #include <spotify/json/codec/one_of.hpp>
+#include <spotify/json/codec/optional.hpp>
 #include <spotify/json/codec/smart_ptr.hpp>
 #include <spotify/json/codec/string.hpp>
 #include <spotify/json/codec/transform.hpp>

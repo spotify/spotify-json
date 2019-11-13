@@ -12,16 +12,17 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-cmake_minimum_required(VERSION 3.2.0)
+cmake_minimum_required(VERSION 3.15.0)
 project(spotify-json)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(json_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
 set(json_HEADERS
   include/spotify/json.hpp
+  include/spotify/json/codec.hpp
   include/spotify/json/default_codec.hpp
   include/spotify/json/decode.hpp
   include/spotify/json/decode_exception.hpp
@@ -49,6 +50,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/boost.hpp
   include/spotify/json/codec/cast.hpp
   include/spotify/json/codec/chrono.hpp
+  include/spotify/json/codec/codec.hpp
   include/spotify/json/codec/codec_interface.hpp
   include/spotify/json/codec/empty_as.hpp
   include/spotify/json/codec/enumeration.hpp
@@ -60,6 +62,7 @@ set(json_codec_HEADERS
   include/spotify/json/codec/object.hpp
   include/spotify/json/codec/omit.hpp
   include/spotify/json/codec/one_of.hpp
+  include/spotify/json/codec/optional.hpp
   include/spotify/json/codec/smart_ptr.hpp
   include/spotify/json/codec/string.hpp
   include/spotify/json/codec/transform.hpp
