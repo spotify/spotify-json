@@ -1022,14 +1022,12 @@ to `std::nullopt`) are not encoded at all (`should_encode()` returns `false`).
 To encode `std::nullopt` as `null`, use the [`empty_as_t`](#empty_as_t) codec,
 e.g., `spotify::json::empty_as_null()`.
 
-This codec is in header `<spotify/json/optional.hpp>`.
-
 * **Complete class name**: `spotify::json::codec::optional_t`
 * **Supported types**: `std::optional<T>`
 * **Convenience builder**: `spotify::json::codec::optional`
 * **`default_codec` support**: `default_codec<std::optional<T>>()`
 
-For `boost::optional`, include header `<spotify/json/boost.hpp>`.
+For `boost::optional`, include header `<spotify/json/codec/boost.hpp>`.
 
 `boost_optional_t` is a codec for for `boost::optional<T>`. Uninitialized values
 (equivalent to `boost::none`) are not encoded at all (`should_encode()` returns
@@ -1047,7 +1045,7 @@ spotify-json provides support for `duration` and `time_point` types of
 `std::chrono` and `boost::chrono`. They are implemented using `transform_t`, so
 they don't have `*_t` classes like many of the other codecs.
 
-For `boost::chrono`, include header `<spotify/json/boost.hpp>`.
+For `boost::chrono`, include header `<spotify/json/codec/boost.hpp>`.
 
 * **Complete class name**: N/A. See above.
 * **Supported types**: All `std::chrono::duration`, `std::chrono::time_point`,

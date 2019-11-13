@@ -59,9 +59,9 @@ class optional_t {
   codec_type _inner_codec;
 };
 
-template <typename codec_type, typename... options_type>
-optional_t<typename std::decay<codec_type>::type> optional(codec_type &&inner_codec, options_type... options) {
-  return optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec), options...);
+template <typename codec_type>
+optional_t<typename std::decay<codec_type>::type> optional(codec_type &&inner_codec) {
+  return optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
 }  // namespace codec

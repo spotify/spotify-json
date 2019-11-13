@@ -59,6 +59,19 @@ BOOST_AUTO_TEST_CASE(json_encode_context_should_return_same_address_for_multiple
   BOOST_CHECK(address_0 == address_2);
 }
 
+BOOST_AUTO_TEST_CASE(json_encode_context_should_advance_pointer_after_reservation) {
+  encode_context ctx(0);
+  ctx.advance(0);
+  const auto r0 = ctx.reserve(1024);
+  BOOST_CHECK(r0 == &ctx.data()[0]);
+  ctx.advance(1);
+  const auto r1 = ctx.reserve(1024);
+  BOOST_CHECK(r1 == &ctx.data()[1]);
+  ctx.advance(2);
+  const auto r3 = ctx.reserve(1024);
+  BOOST_CHECK(r3 == &ctx.data()[3]);
+}
+
 BOOST_AUTO_TEST_CASE(json_encode_context_should_maintain_correct_size_when_advancing) {
   encode_context ctx(0);
   ctx.advance(1);

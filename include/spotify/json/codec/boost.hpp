@@ -60,9 +60,9 @@ struct codec_cast<boost::shared_ptr<T>, boost::shared_ptr<F>> {
 template <typename codec_type>
 using boost_optional_t = optional_t<codec_type, boost::optional<typename codec_type::object_type>, boost::none_t>;
 
-template <typename codec_type, typename... options_type>
-boost_optional_t<typename std::decay<codec_type>::type> boost_optional(codec_type &&inner_codec, options_type... options) {
-  return boost_optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec), options...);
+template <typename codec_type>
+boost_optional_t<typename std::decay<codec_type>::type> boost_optional(codec_type &&inner_codec) {
+  return boost_optional_t<typename std::decay<codec_type>::type>(std::forward<codec_type>(inner_codec));
 }
 
 }  // namespace codec
