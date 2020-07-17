@@ -68,11 +68,12 @@ char *encode_context::grow_buffer(const std::size_t num_bytes) {
   // is at least as large as the reserved size. We avoid doing any arithmetics
   // here to not have to check for overflow yet again.
   const auto actual_capacity = std::max(new_size, new_capacity);
-  _buf = static_cast<char *>(std::realloc(_buf, actual_capacity));
-  if (json_unlikely(!_buf)) {
+  auto* new_buf = static_cast<char *>(std::realloc(_buf, actual_capacity));
+  if (json_unlikely(!new_buf)) {
     throw std::bad_alloc();
   }
 
+  _buf = new_buf;
   _ptr = _buf + old_size;
   _end = _buf + actual_capacity;
   _capacity = actual_capacity;
