@@ -116,7 +116,7 @@ template <
     typename decode_transform>
 class transform_t final {
  public:
-  using object_type = typename std::result_of<decode_transform(typename codec_type::object_type)>::type;
+  using object_type = typename std::invoke_result<decode_transform, typename codec_type::object_type>::type;
 
   template <typename codec_arg_type, typename encode_transform_arg, typename decode_transform_arg>
   transform_t(
