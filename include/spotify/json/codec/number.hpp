@@ -335,25 +335,25 @@ json_never_inline T decode_integer_tricky(decode_context &context, const char *i
 template <typename T, bool is_positive>
 json_never_inline T decode_integer(decode_context &context) {
   using intops = integer_ops<T, is_positive>;
-  const auto b = context.position;
-  const auto c = next(context);
-  const auto i = to_integer<T>(c);
-  fail_if(context, is_invalid_digit(i), "Invalid integer");
-  T value = intops::accumulate(0, i);
+  const auto pos = context.position;
+  const auto next_char = next(context);
+  const auto next_char_as_int = to_integer<T>(next_char);
+  fail_if(context, is_invalid_digit(next_char_as_int), "Invalid integer");
+  T value = intops::accumulate(0, next_char_as_int);
 
   while (json_likely(context.remaining())) {
-    const auto c = peek_unchecked(context);
-    const auto i = to_integer<T>(c);
-    if (is_invalid_digit(i)) {
-      const auto is_tricky = ((c == '.') | (c == 'e') | (c == 'E'));
-      return (json_unlikely(is_tricky) ? decode_integer_tricky<T, is_positive>(context, b) : value);
+    const auto next_unchecked = peek_unchecked(context);
+    const auto next_unchecked_as_int = to_integer<T>(next_unchecked);
+    if (is_invalid_digit(next_unchecked_as_int)) {
+      const auto is_tricky = ((next_unchecked == '.') | (next_unchecked == 'e') | (next_unchecked == 'E'));
+      return (json_unlikely(is_tricky) ? decode_integer_tricky<T, is_positive>(context, pos) : value);
     }
 
     skip_unchecked_1(context);
     const auto old_value = value;
-    value = intops::accumulate(value * 10, i);
+    value = intops::accumulate(value * 10, next_unchecked_as_int);
     if (json_unlikely(intops::is_overflow(old_value, value))) {
-      return decode_integer_tricky<T, is_positive>(context, b);
+      return decode_integer_tricky<T, is_positive>(context, pos);
     }
   }
 
