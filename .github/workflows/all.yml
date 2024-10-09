@@ -1,0 +1,132 @@
+name: C++ build and test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release, Debug]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Boost (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      id: boost
+      shell: bash
+      run: sudo apt-get install libboost-all-dev
+
+    - name: Install Boost (MacOs)
+      if: matrix.os == 'macos-latest'
+      id: boost-macos
+      shell: bash
+      run: |
+        brew install boost
+        export BOOST_ROOT=$(brew --prefix boost)
+        echo "boost-root-dir=$BOOST_ROOT" >> "$GITHUB_OUTPUT"
+
+    - name: Install vcpkg
+      if: matrix.os == 'windows-latest'
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        cd vcpkg
+        git checkout master  # Use a specific version if needed
+        ./bootstrap-vcpkg.bat
+
+    - name: Install Boost (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd vcpkg
+        .\vcpkg.exe install boost-algorithm boost-assert boost-test boost-system boost-chrono boost-container --triplet x64-windows
+
+    - name: Set build directory
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_PREFIX_PATH="${{ steps.boost.outputs.boost-root-dir }}"
+        -DBOOST_ROOT="${{ steps.boost.outputs.boost-root-dir }}"
+        -DBoost_DIR="${{ steps.boost.outputs.boost-root-dir }}"
+        -DBoost_NO_BOOST_CMAKE=ON
+        -DBoost_NO_SYSTEM_PATHS=ON
+        -DBoost_USE_STATIC_LIBS=OFF
+        -DBoost_USE_STATIC_RUNTIME=OFF
+        -DSPOTIFY_JSON_USE_SSE42=OFF
+        -S ${{ github.workspace }}
+
+    - name: Configure CMake (Windows)
+      if: matrix.os == 'windows-latest'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
+        -DBOOST_ROOT="./vcpkg/installed/x64-windows"
+        -DBoost_NO_SYSTEM_PATHS=ON
+        -DBoost_LIBRARY_DIRS="${{ github.workspace }}\vcpkg\installed\x64-windows\lib"
+        -DBoost_INCLUDE_DIR="${{ github.workspace }}\vcpkg\installed\x64-windows\include"
+        -DBoost_USE_STATIC_LIBS=OFF
+        -DSPOTIFY_JSON_USE_SSE42=OFF
+        -S ${{ github.workspace }}
+
+    - name: Configure CMake (MacOs)
+      if: matrix.os == 'macos-latest'
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/boost"
+        -DBOOST_ROOT="/opt/homebrew/opt/boost"
+        -DBoost_NO_BOOST_CMAKE=ON
+        -DBOOST_LIBRARYDIR="/opt/homebrew/opt/boost/lib"
+        -DBoost_USE_STATIC_LIBS=OFF
+        -DBoost_USE_STATIC_RUNTIME=OFF
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+    - name: Test (Linux / MacOS)
+      if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ctest --build-config ${{ matrix.build_type }} --rerun-failed --output-on-failure
+
+    - name: Test (Windows Release)
+      if: matrix.os == 'windows-latest' && matrix.build_type == 'Release'
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      shell: pwsh
+      run: |
+        $env:PATH += ";${{ github.workspace }}\vcpkg\installed\x64-windows\bin"
+        ctest --build-config ${{ matrix.build_type }} --rerun-failed --output-on-failure -V
+
+    # Skipped due to timeout issues after all the tests succeeded
+    # - name: Test (Windows Debug)
+    #   if: matrix.os == 'windows-latest' && matrix.build_type == 'Debug'
+    #   working-directory: ${{ steps.strings.outputs.build-output-dir }}
+    #   shell: pwsh
+    #   run: |
+    #     $env:PATH += ";${{ github.workspace }}\vcpkg\installed\x64-windows\debug\bin"
+    #     ctest --build-config ${{ matrix.build_type }} --output-on-failure -V --timeout 300
+
+    - name: Install valgrind (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      shell: bash
+      run: sudo apt-get install -qq valgrind
+
+    - name: Run valgrind test (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      shell: bash
+      run: valgrind --leak-check=full ./test/spotify_json_test
