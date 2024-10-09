@@ -1,0 +1,62 @@
+name: Compile, Test
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-cpp:
+    runs-on: 'ubuntu-latest'
+    continue-on-error: true
+    name: Lint C++
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check C++ Formatting
+        uses: jidicula/clang-format-action@v4.13.0
+        with:
+          clang-format-version: 16
+
+  run-cpp-tests:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: cpp
+    strategy:
+      matrix:
+        os:
+          - 'ubuntu-latest'
+          - windows-latest
+          - macos-latest
+    name: Test C++ on ${{ matrix.os }}
+    steps:
+      - name: Install CMake (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+      - name: Install CMake (MacOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install cmake
+      - name: Install CMake (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y cmake
+      - name: Configure
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+      - name: Test
+        shell: bash
+        run: |
+          cd build
+          ctest -j 8
