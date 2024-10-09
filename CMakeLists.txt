@@ -12,8 +12,18 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-cmake_minimum_required(VERSION 3.15.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(spotify-json)
+
+# Set policy for CMP0144 to enable upper-case BOOST_ROOT usage
+if (POLICY CMP0144)
+    cmake_policy(SET CMP0144 NEW)
+endif()
+
+# Set policy for CMP0167 to rely on BoostConfig.cmake rather than FindBoost
+if (POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -139,6 +149,7 @@ if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "
 endif()
 
 if(WIN32)
+  message(STATUS "Building on Windows")
   target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
@@ -174,10 +185,6 @@ target_link_libraries(${json_library_TARGET} double-conversion)
 
 option(SPOTIFY_JSON_BUILD_TESTS "Build tests and benchmarks" ON)
 if(SPOTIFY_JSON_BUILD_TESTS)
-  set(Boost_USE_MULTITHREADED ON)
-  set(Boost_USE_STATIC_LIBS ON)
-  set(Boost_USE_STATIC_RUNTIME ON)
-
   find_package(Boost COMPONENTS chrono unit_test_framework system)
 
   if(Boost_FOUND)
