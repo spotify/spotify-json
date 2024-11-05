@@ -146,11 +146,13 @@ target_include_directories(${json_library_TARGET} PUBLIC ${json_INCLUDE_DIR})
 
 if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
   target_compile_options(${json_library_TARGET} PRIVATE "-Wunused-parameter")
+  target_compile_options(${json_library_TARGET} PRIVATE "-Wshadow")
 endif()
 
 if(WIN32)
   message(STATUS "Building on Windows")
   target_compile_options(${json_library_TARGET} PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+  target_compile_options(${json_library_TARGET} PRIVATE "/w4456")
 endif()
 
 option(SPOTIFY_JSON_USE_SSE42 "Build library with SSE 4.2 support (on x86 and x86-64 platforms)" ON)
