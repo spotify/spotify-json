@@ -79,6 +79,9 @@ bool try_decode(
     const codec_type &codec,
     const char *data,
     size_t size) noexcept {
+  if (size == 0) {
+    return false;  // avoid exceptions below
+  }
   try {
     object = decode(codec, data, size);
     return true;
