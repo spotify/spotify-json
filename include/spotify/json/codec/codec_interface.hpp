@@ -49,7 +49,7 @@ class codec_interface final {
    * If parsing succeeds, position should be set to point to the character after
    * the last character that was parsed. If parsing fails, context.error should
    * be set to a non-empty string and context.position should point to where the
-   * error occured.
+   * error occurred.
    *
    * If parsing fails, object_type should be ignored by the caller.
    *
